@@ -12,6 +12,12 @@
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
     "probe": "node scripts/probe-api.mjs",
-    "fixtures": "node scripts/make-fixtures.mjs"
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "lint": "eslint --ext .js --ignore-path .gitignore ."
+  },
+  "devDependencies": {
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.12",
+    "eslint": "^7.32.0",
+    "eslint-config-athom": "^3.1.5"
   }
 }
