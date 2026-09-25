@@ -1,0 +1,6 @@
+{
+  "0.1.0": {
+    "en": "First test release: pairing, quarter-hourly price fetching, 10 capabilities, 13 Flow cards and a dashboard widget with a price curve. Paired against the Innostrom test environment - real AEW production data follows from January 2027.",
+    "de": "Erste Testversion: Pairing, Viertelstunden-Preisabruf, 10 Capabilities, 13 Flow-Karten und ein Dashboard-Widget mit Preiskurve. Bisher gegen die Innostrom-Testumgebung geprüft - echte AEW-Produktivdaten folgen ab Januar 2027."
+  }
+}

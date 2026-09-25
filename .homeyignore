@@ -1,0 +1,9 @@
+.git/
+.github/
+test/
+scripts/
+docs/
+CLAUDE.md
+KICKOFF.md
+*.md
+LICENSE
