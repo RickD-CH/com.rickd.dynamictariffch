@@ -1,0 +1,17 @@
+{
+  "name": "com.rickd.innostrom",
+  "version": "0.1.0",
+  "description": "Homey app: Swiss dynamic electricity tariffs via the Innostrom API (AEW Classic Dynamic and others)",
+  "main": "app.js",
+  "private": true,
+  "license": "MIT",
+  "author": "Richard Dubs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "probe": "node scripts/probe-api.mjs",
+    "fixtures": "node scripts/make-fixtures.mjs"
+  }
+}

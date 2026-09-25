@@ -1,0 +1,133 @@
+{
+  "info": {
+    "title": "Innostrom API v2",
+    "description": "\n---\n⚠ Sie betrachten die Dokumentation für die production-Umgebung.\n\n⚠ Hier funktionieren nur die Produktiv-Zugangsdaten. Zum Testen verwenden Sie bitte die [Testumgebung](https://portal-test.dynamische-stromtarife.ch/docs/apiv2).\n\n---\n\nDie Innostrom API erlaubt es, die aktuellen dynamischen Tarife abzurufen.\n\nDer Parameter `tariff_type` bestimmt, welche Preiskomponenten geliefert werden:\n\n| `tariff_type` | Gelieferte Felder | Beschreibung |\n|---|---|---|\n| `electricity` | `electricity` | Nur Energiepreis |\n| `grid` | `grid` | Nur Netzpreis |\n| `dso` | `dso` | Netz + Abgaben |\n| `integrated` (Standard) | `integrated` | Netz + Energie + Abgaben |\n| `feed_in` | `feed_in` | Abnahmevergütung |\n| `all` | `electricity`, `grid`, `dso`, `integrated`, `feed_in` | Alle Komponenten |\n\nFür die Abfrage des dynamischen Preissignals kann entweder `integrated` (alle Komponenten summiert),\n`all` (alle Komponenten einzeln) oder die einzelnen Komponenten `electricity`, `grid`, `feed_in`\noder `dso` abgefragt werden.\n\n# Berechnungszeitpunkt\n\nDie Tarifberechnung erfolgt täglich zwischen 14:00 und 18:00 Uhr für den jeweils\nfolgenden Kalendertag. Vor der Berechnung sind für den nächsten Tag noch keine\nPreise verfügbar; nach der Berechnung werden die Preise für den nächsten Tag\nausgeliefert.\n\n# Datumsformate\n\nZeitstempel, die an die API gesendet werden, müssen dem Format `date-time` in\n[RFC3339, Abschnitt 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6)\nentsprechen und dürfen eine beliebige Zeitzone verwenden.\n\nZeitstempel in der Antwort der API erfolgen in derselben Zeitzone wie die der Abfrage.\n\n# URL-Codierung\n\nEinige Parameter, namentlich `start_timestamp` und `end_timestamp`, enthalten Zeichen,\ndie vor der Übertragung an die API in Einklang mit\n[RFC3986, Abschnitt 2.1](https://datatracker.ietf.org/doc/html/rfc3986#section-2) codiert\nwerden müssen.\n\n# Authentifizierung\n\nAbfragen an den `metering_code`-Endpunkt erfordern, dass der Client authentifiziert ist. Die Authentifizierung erfolgt\nüber ein kundenspezifisches Bearer-Token. Das Token\nmuss im Format `Bearer <token>` im `Authorization`-Header übergeben werden.\n      ",
+    "contact": { "name": "Innostrom" },
+    "version": "0.0.1"
+  },
+  "swagger": "2.0",
+  "produces": ["text/html; charset=UTF-8", "application/json"],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "API-Schlüssel im Format 'Bearer <token>'."
+    }
+  },
+  "host": "portal.dynamische-stromtarife.ch",
+  "basePath": "/api",
+  "schemes": ["https"],
+  "tags": [{ "name": "tariffs", "description": "Operations about tariffs" }],
+  "paths": {
+    "/v2/metering_code": {
+      "get": {
+        "description": "Abfrage der Tarife über die Messpunktnummer",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tariff_type",
+            "description": "Tariftyp, der abgefragt werden soll.",
+            "type": "string",
+            "default": "integrated",
+            "enum": ["electricity", "grid", "dso", "integrated", "feed_in", "all"],
+            "required": false,
+            "x-example": "dso"
+          },
+          {
+            "in": "query",
+            "name": "start_timestamp",
+            "description": "Beginn des Abfragezeitfensters.",
+            "type": "string",
+            "format": "date-time",
+            "required": true,
+            "x-example": "2024-01-01T00:00:00+02:00"
+          },
+          {
+            "in": "query",
+            "name": "end_timestamp",
+            "description": "Ende des Abfragezeitfensters.",
+            "type": "string",
+            "format": "date-time",
+            "required": true,
+            "x-example": "2024-01-01T23:59:59+02:00"
+          },
+          {
+            "in": "query",
+            "name": "metering_code",
+            "description": "Messpunktnummer, für welche der Tarif abgerufen werden soll. Wenn diese Option verwendet wird, wird der Tarifname automatisch ausgewählt.",
+            "type": "string",
+            "required": true,
+            "x-example": "CH1018601234500000000000000011642"
+          }
+        ],
+        "security": [{ "Bearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Abfrage der Tarife über die Messpunktnummer",
+            "schema": { "$ref": "#/definitions/Tariff" }
+          },
+          "500": {
+            "description": "Unbekannter Serverfehler",
+            "schema": { "$ref": "#/definitions/TariffError" }
+          }
+        },
+        "tags": ["tariffs"],
+        "operationId": "getV2MeteringCode"
+      }
+    }
+  },
+  "definitions": {
+    "Tariff": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "example": "ok", "description": "Der exakte Text `ok`." },
+        "publication_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2025-10-25T15:50:42.788+02:00",
+          "description": "Zeitstempel der Veröffentlichung."
+        },
+        "prices": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Slot" },
+          "description": "Eine Liste aller Preise innerhalb des angefragten Zeitfensters."
+        }
+      },
+      "required": ["status", "publication_timestamp", "prices"],
+      "description": "Tariff model"
+    },
+    "Slot": {
+      "type": "object",
+      "properties": {
+        "start_timestamp": { "type": "string", "format": "date-time", "example": "2024-01-01T00:00:00+02:00", "description": "The start time of this slot." },
+        "end_timestamp": { "type": "string", "format": "date-time", "example": "2024-01-01T00:15:00Z+02:00", "description": "The end time of this slot." },
+        "electricity": { "type": "array", "items": { "$ref": "#/definitions/Price" }, "description": "Energielieferung. Nur bei tariff_type=electricity oder tariff_type=all." },
+        "grid": { "type": "array", "items": { "$ref": "#/definitions/Price" }, "description": "Arbeitstarif + Leistungstarif + Grundpreis + Messtarif. Nur bei tariff_type=grid oder tariff_type=all." },
+        "dso": { "type": "array", "items": { "$ref": "#/definitions/Price" }, "description": "Grid + SDL + Netzzuschlag + Abgaben. Nur bei tariff_type=dso oder tariff_type=all." },
+        "integrated": { "type": "array", "items": { "$ref": "#/definitions/Price" }, "description": "DSO + Electricity. Nur bei tariff_type=integrated oder tariff_type=all." },
+        "feed_in": { "type": "array", "items": { "$ref": "#/definitions/Price" }, "description": "Abnahmevergütung. Nur bei tariff_type=feed_in oder tariff_type=all." }
+      },
+      "required": ["start_timestamp", "end_timestamp"]
+    },
+    "Price": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number", "format": "float", "example": 0.15, "description": "Der Preisbetrag." },
+        "unit": { "type": "string", "enum": ["CHF_kWh", "CHF_kW", "CHF_kW_max_d"], "example": "CHF_kWh", "description": "Die Messeinheit des Preises." },
+        "component": { "type": "string", "enum": ["power", "work", "fix_price"], "example": "work", "description": "Die Art der Preiskomponente. `power` entspricht der Leistungskomponente, `work` der Arbeitskomponente, `fix_price` einer fixen Komponente." }
+      },
+      "required": ["value", "unit", "component"]
+    },
+    "TariffError": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "example": "error", "description": "Der exakte Text `error`." },
+        "message": { "type": "string", "example": "start_timestamp is missing", "description": "Eine Nachricht, die den aufgetretenen Fehler beschreibt." }
+      },
+      "required": ["status", "message"],
+      "description": "TariffError model"
+    }
+  }
+}
