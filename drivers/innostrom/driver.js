@@ -1,28 +1,29 @@
 'use strict';
 
 const Homey = require('homey');
-const { InnostromClient, InnostromError } = require('../../lib/InnostromClient');
+const { InnostromClient, InnostromError, TEST_CREDENTIALS } = require('../../lib/InnostromClient');
 
 class InnostromDriver extends Homey.Driver {
 
   async onPair(session) {
     let credentials = null;
 
-    session.setHandler('login', async (data) => {
-      const meteringCode = String(data.meteringCode || '').trim();
-      const token = String(data.token || '').trim();
-      const environment = data.environment === 'test' ? 'test' : 'production';
-
-      if (!meteringCode || !token) throw new Error(this.homey.__('pair.errorGeneric') + this.homey.__('pair.meteringCode'));
+    // Built-in login_credentials template (username/password) instead of a custom pair
+    // view - see drivers/innostrom/driver.compose.json. Proven pattern, mirrors
+    // com.rickd.huum's drivers/uku/driver.js.
+    session.setHandler('login', async ({ username, password }) => {
+      const meteringCode = String(username || '').trim();
+      const token = String(password || '').trim();
+      // The public test metering code is a fixed, known constant, so pairing with it
+      // auto-detects the test environment - no separate environment picker needed.
+      const environment = meteringCode === TEST_CREDENTIALS.meteringCode ? 'test' : 'production';
 
       const client = new InnostromClient({ meteringCode, token, environment });
       try {
         await client.testConnection();
       } catch (err) {
-        if (err instanceof InnostromError && err.code === 'AUTH') {
-          throw new Error(this.homey.__('pair.errorAuth'));
-        }
-        throw new Error(this.homey.__('pair.errorGeneric') + (err && err.message ? err.message : err));
+        if (err instanceof InnostromError && err.code === 'AUTH') return false;
+        throw err;
       }
 
       credentials = { meteringCode, token, environment };

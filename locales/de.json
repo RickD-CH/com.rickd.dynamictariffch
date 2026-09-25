@@ -1,21 +1,4 @@
 {
-  "pair": {
-    "title": "Innostrom-Zugang",
-    "intro": "Verbinde einen Messpunkt mit dynamischem Tarif über die Innostrom-API (Swisspower), z. B. AEW Classic Dynamic.",
-    "meteringCode": "Messpunktnummer",
-    "meteringCodePlaceholder": "CH1234567890123456789012345678901",
-    "token": "API-Token",
-    "tokenPlaceholder": "Bearer-Token",
-    "environment": "Umgebung",
-    "envProduction": "Produktiv",
-    "envTest": "Test (öffentliche Zugangsdaten)",
-    "useTestCredentials": "Test-Zugangsdaten einfügen",
-    "testCredentialsHint": "Mit den öffentlichen Test-Zugangsdaten lässt sich die App ohne Vertrag ausprobieren (konstante Preise).",
-    "submit": "Verbinden",
-    "testing": "Verbindung wird geprüft…",
-    "errorAuth": "Zugangsdaten ungültig: Messpunktnummer oder Token stimmen nicht.",
-    "errorGeneric": "Verbindung fehlgeschlagen: "
-  },
   "device": {
     "unavailableAuth": "Zugangsdaten ungültig (Messpunktnummer oder Token). Bitte in den Geräte-Einstellungen korrigieren.",
     "logAmongCheapestIncomplete": "is_among_cheapest: Preise im Fenster unvollständig, werte als falsch",
