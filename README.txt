@@ -1,0 +1,3 @@
+Brings the 15-minute prices of a Swiss dynamic electricity tariff into Homey, using the Innostrom API from Swisspower. Works with AEW Classic Dynamic (from January 2027) and any other Swiss utility built on the same Innostrom platform.
+
+Pair a metering point with its API token, and this app fetches today's and tomorrow's quarter-hourly prices automatically, keeping them updated with a daily fetch and a per-slot tick. A full set of Flow cards lets you shift consumers - EV chargers, boilers, heat pumps, washing machines - to the cheapest hours: react to price changes, find the cheapest block of hours in a time window, or check whether the current price is among the day's cheapest or most expensive.
