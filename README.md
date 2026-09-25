@@ -1,4 +1,4 @@
-# Dynamischer Stromtarif CH (Innostrom) – Homey-App
+# Dynamischer Stromtarif CH – Homey-App
 
 Homey-Pro-App für dynamische 15-Minuten-Stromtarife von Schweizer Netzbetreibern, die das
 Innostrom-Tool von Swisspower verwenden (z. B. **AEW Classic Dynamic** ab 1.1.2027).

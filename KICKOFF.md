@@ -11,7 +11,7 @@ die Tests an und führe `npm test` aus.
 Baue dann die Homey-App gemäss SPEC fertig, in dieser Reihenfolge, und halte nach jedem Schritt kurz
 an, damit ich testen kann:
 
-1. Homey-Compose-Gerüst (SDK 3, App-ID com.rickd.innostrom, de/en), Driver „tariff“ mit Pairing über
+1. Homey-Compose-Gerüst (SDK 3, App-ID com.rickd.dynamictariffch, de/en), Driver „innostrom“ mit Pairing über
    Messpunktnummer + Token inkl. Verbindungstest. Umgebung Test/Produktiv wählbar, damit ich es jetzt
    schon mit den öffentlichen Test-Zugangsdaten auf meinem Homey ausprobieren kann.
 2. Device: Abruf heute+morgen, täglicher Abruf ab 16:05 mit Wiederholungen, Viertelstunden-Tick,

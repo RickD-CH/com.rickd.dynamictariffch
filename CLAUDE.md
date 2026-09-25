@@ -1,4 +1,4 @@
-# CLAUDE.md – Homey-App „Dynamischer Stromtarif CH (Innostrom)“
+# CLAUDE.md – Homey-App „Dynamischer Stromtarif CH“
 
 ## Worum es geht
 
@@ -28,7 +28,7 @@ Kommunikation und UI-Texte: **Deutsch (Schweiz, ohne ß)**, zusätzlich Englisch
 
 ## Was noch fehlt (Reihenfolge)
 
-1. Homey-Compose-Gerüst: `.homeycompose/app.json`, `app.js`, `drivers/tariff/`, Locales `de`/`en`,
+1. Homey-Compose-Gerüst: `.homeycompose/app.json`, `app.js`, `drivers/innostrom/`, Locales `de`/`en`,
    Icons/Bilder (Platzhalter reichen zunächst)
 2. Eigene Capabilities (`.homeycompose/capabilities/`)
 3. Driver mit Pairing + `testConnection`
@@ -69,3 +69,13 @@ homey app install
 - Die Testumgebung liefert **konstante** Preise. Logik deshalb mit `synthetic-aew-day.json` testen.
 - Neue Logik → Tests in `test/` ergänzen. `npm test` muss grün bleiben.
 - Commits klein halten, Nachrichten auf Englisch.
+
+## Referenzen
+
+- [EWHGOF/SwisspowerDynPreis](https://github.com/EWHGOF/SwisspowerDynPreis): Home-Assistant-Integration
+  für dieselbe Swisspower-API. Gut zum Abgleich von Ideen (Sensoren, günstigste Zeitfenster).
+- [gruijter/com.gruijter.powerhour](https://github.com/gruijter/com.gruijter.powerhour): Homey-App
+  „Power by the Hour“ mit 15-Minuten-Preisen, gutes Vorbild für Flow-Karten rund um Preise. Hat eine
+  API für andere Apps (`README.dap-api.md`), kann aber keine fremden Preise übernehmen.
+- Die App-ID `com.rickd.dynamictariffch` ist bewusst generisch gewählt. Später können weitere
+  Schweizer Schnittstellen (EKZ, CKW, Groupe E) als eigene Driver dazukommen.

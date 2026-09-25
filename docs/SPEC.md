@@ -1,4 +1,4 @@
-# Spezifikation: Homey-App „Dynamischer Stromtarif CH (Innostrom)“
+# Spezifikation: Homey-App „Dynamischer Stromtarif CH“
 
 ## Ziel
 
@@ -13,8 +13,8 @@ auch den dynamischen **Netz**-Anteil nicht abbilden. Deshalb braucht es eine eig
 
 | | |
 |---|---|
-| App-ID | `com.rickd.innostrom` (Vorschlag, gleiches Schema wie `com.rickd.devicewatchdog`) |
-| Name | DE: „Dynamischer Stromtarif CH“, EN: „Swiss Dynamic Tariff (Innostrom)“ |
+| App-ID | `com.rickd.dynamictariffch` (fix, nach Veröffentlichung nicht mehr änderbar; bewusst ohne „Innostrom“, damit später auch andere Schnittstellen wie EKZ/CKW/Groupe E Platz haben) |
+| Name | DE: „Dynamischer Stromtarif CH“, EN: „Swiss Dynamic Electricity Tariff“. „Innostrom“/„Swisspower“ nur in der Beschreibung („für AEW und weitere Werke mit dem Swisspower-Standard“), nicht im Namen (fremde Marken) |
 | SDK | Homey Apps SDK v3, Homey Compose, JavaScript (CommonJS), keine Laufzeit-Abhängigkeiten |
 | Plattform | `local` (Homey Pro 2023 / mini). Cloud optional später. |
 | Sprachen | de (primär), en |
@@ -24,14 +24,14 @@ auch den dynamischen **Netz**-Anteil nicht abbilden. Deshalb braucht es eine eig
 
 ```
 app.js                      ─ minimal (Flow-Karten registrieren, die auf das Gerät zeigen)
-drivers/tariff/driver.js    ─ Pairing (Messpunktnummer + Token, Verbindung testen)
-drivers/tariff/device.js    ─ Abruf-Planung, Capabilities setzen, Trigger feuern
+drivers/innostrom/driver.js ─ Pairing (Messpunktnummer + Token, Verbindung testen)
+drivers/innostrom/device.js ─ Abruf-Planung, Capabilities setzen, Trigger feuern
 lib/InnostromClient.js      ─ FERTIG + getestet: API-Zugriff
 lib/PriceStore.js           ─ FERTIG + getestet: Auswertungen (günstigste N, Block, Rang, Niveau)
 lib/time.js                 ─ FERTIG + getestet: Europe/Zurich, Zeitfenster, Zeitumstellung
 ```
 
-Ein **Gerät pro Messpunkt** (Gerätetyp `other` oder `sensor`, Klasse prüfen). Es spricht nichts
+Driver-ID `innostrom` (ein Driver pro Schnittstellen-Typ; später z. B. `ekz`, `ckw` als weitere Driver). Ein **Gerät pro Messpunkt** (Gerätetyp `other` oder `sensor`, Klasse prüfen). Es spricht nichts
 dagegen, mehrere Messpunkte als mehrere Geräte zu führen.
 
 ## Pairing

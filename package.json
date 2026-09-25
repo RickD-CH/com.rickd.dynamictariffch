@@ -1,5 +1,5 @@
 {
-  "name": "com.rickd.innostrom",
+  "name": "com.rickd.dynamictariffch",
   "version": "0.1.0",
   "description": "Homey app: Swiss dynamic electricity tariffs via the Innostrom API (AEW Classic Dynamic and others)",
   "main": "app.js",
