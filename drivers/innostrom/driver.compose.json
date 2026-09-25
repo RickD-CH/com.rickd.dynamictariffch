@@ -1,0 +1,146 @@
+{
+  "id": "innostrom",
+  "name": { "en": "Innostrom dynamic tariff", "de": "Innostrom dynamischer Tarif" },
+  "class": "sensor",
+  "capabilities": [
+    "measure_price_total",
+    "measure_price_energy",
+    "measure_price_grid",
+    "measure_price_next",
+    "measure_price_min_today",
+    "measure_price_max_today",
+    "measure_price_avg_today",
+    "price_rank_today",
+    "price_level",
+    "alarm_no_tomorrow"
+  ],
+  "platforms": ["local"],
+  "connectivity": ["lan"],
+  "images": {
+    "small": "{{driverAssetsPath}}/images/small.png",
+    "large": "{{driverAssetsPath}}/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+  },
+  "pair": [
+    { "id": "login" },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "options": { "singular": true },
+      "navigation": { "next": "add_devices" }
+    },
+    { "id": "add_devices", "template": "add_devices" }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": { "en": "Access", "de": "Zugang" },
+      "children": [
+        {
+          "id": "metering_code",
+          "type": "label",
+          "label": { "en": "Metering point number", "de": "Messpunktnummer" },
+          "value": ""
+        },
+        {
+          "id": "token",
+          "type": "password",
+          "label": { "en": "API token", "de": "API-Token" },
+          "value": ""
+        },
+        {
+          "id": "environment",
+          "type": "dropdown",
+          "label": { "en": "Environment", "de": "Umgebung" },
+          "value": "production",
+          "values": [
+            { "id": "production", "label": { "en": "Production", "de": "Produktiv" } },
+            { "id": "test", "label": { "en": "Test", "de": "Test" } }
+          ],
+          "hint": {
+            "en": "Test uses the public Innostrom test environment with constant prices, useful to verify the connection without a contract.",
+            "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen."
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": { "en": "Price", "de": "Preis" },
+      "children": [
+        {
+          "id": "price_field",
+          "type": "dropdown",
+          "label": { "en": "Price used for Flows", "de": "Preis für Flows" },
+          "value": "integrated",
+          "values": [
+            { "id": "integrated", "label": { "en": "Total (energy + grid)", "de": "Gesamt (Energie + Netz)" } },
+            { "id": "electricity", "label": { "en": "Energy only", "de": "Nur Energie" } },
+            { "id": "grid", "label": { "en": "Grid only (incl. levies)", "de": "Nur Netz (inkl. Abgaben)" } }
+          ]
+        },
+        {
+          "id": "vat_percent",
+          "type": "number",
+          "label": { "en": "VAT (%)", "de": "MWST (%)" },
+          "value": 8.1,
+          "min": 0,
+          "max": 100,
+          "hint": {
+            "en": "Added to displayed prices. Set to 0 to show prices excluding VAT.",
+            "de": "Wird auf die angezeigten Preise addiert. 0 = Preise exkl. MWST anzeigen."
+          }
+        },
+        {
+          "id": "fallback_price",
+          "type": "number",
+          "label": { "en": "Fallback price (CHF/kWh)", "de": "Einheitstarif (CHF/kWh)" },
+          "value": 0,
+          "min": 0,
+          "hint": {
+            "en": "Used when no price data is available (e.g. missing tomorrow prices). 0 = show nothing instead.",
+            "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen."
+          }
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": { "en": "Price level thresholds", "de": "Schwellen für Preisniveau" },
+      "children": [
+        {
+          "id": "level_very_cheap_percent",
+          "type": "number",
+          "label": { "en": "Very cheap below (% of daily average)", "de": "Sehr günstig unter (% vom Tagesmittel)" },
+          "value": 75,
+          "min": 1,
+          "max": 100
+        },
+        {
+          "id": "level_cheap_percent",
+          "type": "number",
+          "label": { "en": "Cheap below (% of daily average)", "de": "Günstig unter (% vom Tagesmittel)" },
+          "value": 90,
+          "min": 1,
+          "max": 100
+        },
+        {
+          "id": "level_expensive_percent",
+          "type": "number",
+          "label": { "en": "Expensive above (% of daily average)", "de": "Teuer über (% vom Tagesmittel)" },
+          "value": 110,
+          "min": 100,
+          "max": 500
+        },
+        {
+          "id": "level_very_expensive_percent",
+          "type": "number",
+          "label": { "en": "Very expensive above (% of daily average)", "de": "Sehr teuer über (% vom Tagesmittel)" },
+          "value": 125,
+          "min": 100,
+          "max": 500
+        }
+      ]
+    }
+  ]
+}

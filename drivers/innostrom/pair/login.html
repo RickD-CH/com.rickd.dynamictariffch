@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      Homey.setTitle(Homey.__('pair.title'));
+
+      const form = document.getElementById('form');
+      const meteringCodeEl = document.getElementById('meteringCode');
+      const tokenEl = document.getElementById('token');
+      const environmentEl = document.getElementById('environment');
+      const errorEl = document.getElementById('error');
+      const submitBtn = document.getElementById('submit');
+      const testCredsBtn = document.getElementById('useTestCredentials');
+
+      document.getElementById('intro').textContent = Homey.__('pair.intro');
+      document.getElementById('meteringCodeLabel').textContent = Homey.__('pair.meteringCode');
+      meteringCodeEl.placeholder = Homey.__('pair.meteringCodePlaceholder');
+      document.getElementById('tokenLabel').textContent = Homey.__('pair.token');
+      tokenEl.placeholder = Homey.__('pair.tokenPlaceholder');
+      document.getElementById('environmentLabel').textContent = Homey.__('pair.environment');
+      document.getElementById('envProductionOption').textContent = Homey.__('pair.envProduction');
+      document.getElementById('envTestOption').textContent = Homey.__('pair.envTest');
+      testCredsBtn.textContent = Homey.__('pair.useTestCredentials');
+      document.getElementById('testCredentialsHint').textContent = Homey.__('pair.testCredentialsHint');
+      submitBtn.value = Homey.__('pair.submit');
+
+      testCredsBtn.addEventListener('click', () => {
+        meteringCodeEl.value = 'CH1018601234500000000000000011642';
+        tokenEl.value = '19d6ca0bb9bf4d8b6525440eead80da6';
+        environmentEl.value = 'test';
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        errorEl.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.value = Homey.__('pair.testing');
+
+        const data = {
+          meteringCode: meteringCodeEl.value.trim(),
+          token: tokenEl.value.trim(),
+          environment: environmentEl.value,
+        };
+
+        Homey.emit('login', data)
+          .then(() => Homey.nextView())
+          .catch((err) => {
+            submitBtn.disabled = false;
+            submitBtn.value = Homey.__('pair.submit');
+            errorEl.textContent = (err && err.message) || Homey.__('pair.errorGeneric');
+          });
+      });
+
+      Homey.ready();
+    }
+  </script>
+  <style>
+    body { padding: 16px; font-family: sans-serif; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select { width: 100%; box-sizing: border-box; padding: 8px; margin-top: 4px; }
+    #error { color: #c0392b; margin-top: 12px; min-height: 1.2em; }
+    #testCredentialsHint { font-size: 0.85em; color: #666; margin-top: 4px; }
+    #useTestCredentials { margin-top: 8px; }
+    input[type=submit] { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <p id="intro"></p>
+  <form id="form">
+    <label id="meteringCodeLabel" for="meteringCode"></label>
+    <input type="text" id="meteringCode" required />
+
+    <label id="tokenLabel" for="token"></label>
+    <input type="password" id="token" required />
+
+    <label id="environmentLabel" for="environment"></label>
+    <select id="environment">
+      <option id="envProductionOption" value="production"></option>
+      <option id="envTestOption" value="test"></option>
+    </select>
+
+    <button type="button" id="useTestCredentials"></button>
+    <div id="testCredentialsHint"></div>
+
+    <input type="submit" id="submit" value="Connect" />
+  </form>
+  <div id="error"></div>
+</body>
+</html>
