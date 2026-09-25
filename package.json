@@ -10,7 +10,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
+    "test": "node --test",
     "probe": "node scripts/probe-api.mjs",
     "fixtures": "node scripts/make-fixtures.mjs",
     "lint": "eslint --ext .js --ignore-path .gitignore ."
