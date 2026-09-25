@@ -1,8 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960">
-  <path d="M120 720 A360 360 0 0 1 840 720" fill="none" stroke="#000" stroke-width="56" stroke-linecap="round"/>
-  <line x1="480" y1="720" x2="660" y2="480" stroke="#000" stroke-width="56" stroke-linecap="round"/>
-  <circle cx="480" cy="720" r="44" fill="#000"/>
-  <circle cx="204" cy="700" r="28" fill="#000"/>
-  <circle cx="756" cy="700" r="28" fill="#000"/>
-  <circle cx="480" cy="380" r="28" fill="#000"/>
+  <!-- Stylized smart-meter body, echoing the real device's silhouette -->
+  <rect x="220" y="140" width="520" height="680" rx="70" ry="70"
+        fill="none" stroke="#000" stroke-width="46" stroke-linejoin="round"/>
+  <!-- Screen -->
+  <rect x="290" y="270" width="380" height="280" rx="16" ry="16"
+        fill="none" stroke="#000" stroke-width="34"/>
+  <!-- Reading lines on the screen -->
+  <line x1="330" y1="340" x2="590" y2="340" stroke="#000" stroke-width="26" stroke-linecap="round"/>
+  <line x1="330" y1="420" x2="590" y2="420" stroke="#000" stroke-width="26" stroke-linecap="round"/>
+  <line x1="330" y1="480" x2="500" y2="480" stroke="#000" stroke-width="26" stroke-linecap="round"/>
+  <!-- Buttons -->
+  <circle cx="480" cy="640" r="34" fill="none" stroke="#000" stroke-width="30"/>
+  <circle cx="380" cy="720" r="20" fill="#000"/>
+  <circle cx="580" cy="720" r="20" fill="#000"/>
 </svg>
