@@ -32,7 +32,15 @@
           "en": "CH… number, 33 characters. To try without a contract, use the public test metering point CH1018601234500000000000000011642 with token 19d6ca0bb9bf4d8b6525440eead80da6.",
           "de": "CH…-Nummer, 33 Zeichen. Zum Testen ohne Vertrag: Messpunktnummer CH1018601234500000000000000011642 mit Token 19d6ca0bb9bf4d8b6525440eead80da6."
         },
-        "passwordLabel": { "en": "API token", "de": "API-Token" }
+        "usernamePlaceholder": {
+          "en": "Test: CH1018601234500000000000000011642",
+          "de": "Test: CH1018601234500000000000000011642"
+        },
+        "passwordLabel": { "en": "API token", "de": "API-Token" },
+        "passwordPlaceholder": {
+          "en": "Test: 19d6ca0bb9bf4d8b6525440eead80da6",
+          "de": "Test: 19d6ca0bb9bf4d8b6525440eead80da6"
+        }
       }
     },
     {
