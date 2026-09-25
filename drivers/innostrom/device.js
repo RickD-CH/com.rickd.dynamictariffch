@@ -420,6 +420,25 @@ class InnostromDevice extends Homey.Device {
     };
   }
 
+  // ---------------------------------------------------------------------
+  // Widget
+  // ---------------------------------------------------------------------
+
+  /** Today's + tomorrow's (if known) slots as display prices, for the price-curve widget. */
+  getChartSlots() {
+    const now = new Date();
+    const from = startOfLocalDay(now, this.tz);
+    const to = addLocalDays(from, 2, this.tz);
+    const nowSlotStart = floorToSlot(now).getTime();
+
+    return this.priceStore.range(from, to).map((s) => ({
+      time: formatHHMM(s.start, this.tz),
+      value: this._toDisplay(s.integrated),
+      isNow: s.start.getTime() === nowSlotStart,
+      isPast: s.start.getTime() < nowSlotStart,
+    }));
+  }
+
 }
 
 module.exports = InnostromDevice;

@@ -24,6 +24,7 @@ module.exports = {
       rank: device.getCapabilityValue('price_rank_today'),
       level: device.getCapabilityValue('price_level'),
       noTomorrow: device.getCapabilityValue('alarm_no_tomorrow'),
+      slots: device.getChartSlots(),
     };
   },
 

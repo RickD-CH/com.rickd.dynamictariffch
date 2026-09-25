@@ -932,7 +932,7 @@
         "en": "Innostrom price",
         "de": "Innostrom-Preis"
       },
-      "height": 160,
+      "height": 230,
       "api": {
         "getSummary": {
           "method": "GET",

@@ -62,6 +62,17 @@
     }
     .chip .num { font-size: 14px; font-weight: 700; }
     .chip .lbl { font-size: 9px; color: var(--pw-muted); text-align: center; }
+    .chart {
+      display: flex; align-items: flex-end; height: 56px; gap: 1px; margin-top: 10px;
+      background: var(--pw-chip-bg); border-radius: 6px; padding: 4px;
+    }
+    .bar { flex: 1; min-width: 1px; border-radius: 1px; }
+    .bar.past { opacity: .45; }
+    .bar.now { outline: 2px solid var(--pw-text); outline-offset: -1px; }
+    .chart-labels {
+      display: flex; justify-content: space-between; margin-top: 4px;
+      font-size: 9px; color: var(--pw-muted);
+    }
     .warn {
       margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--pw-warn-bg);
       color: var(--pw-expensive); font-size: 11px; text-align: center;
@@ -99,6 +110,53 @@
       return typeof value === 'number' ? value.toFixed(2) : '–';
     }
 
+    // Cheapest slot -> green, most expensive -> red, interpolated by the slot's position
+    // between today+tomorrow's own min/max (not fixed price thresholds) - the chart is
+    // about relative shape, the "Preisniveau" capability/chip already covers absolute level.
+    function interpolateColor(ratio) {
+      var r = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
+      var cheap = [46, 125, 50];
+      var expensive = [211, 47, 47];
+      var rgb = cheap.map(function (c, i) { return Math.round(c + (expensive[i] - c) * r); });
+      return 'rgb(' + rgb.join(',') + ')';
+    }
+
+    function chartHtml(slots) {
+      if (!slots || slots.length < 2) return '';
+      var values = [];
+      for (var i = 0; i < slots.length; i += 1) {
+        if (typeof slots[i].value === 'number') values.push(slots[i].value);
+      }
+      if (!values.length) return '';
+      var min = Math.min.apply(null, values);
+      var max = Math.max.apply(null, values);
+      var span = max - min;
+
+      var bars = slots.map(function (s) {
+        var hasValue = typeof s.value === 'number';
+        var ratio = hasValue ? (span > 0 ? (s.value - min) / span : 0.5) : 0;
+        var heightPct = hasValue ? Math.max(4, Math.round(ratio * 100)) : 4;
+        var color = hasValue ? interpolateColor(ratio) : 'var(--pw-border)';
+        var classes = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '');
+        var title = s.time + (hasValue ? ': ' + s.value.toFixed(2) + ' Rp./kWh' : '');
+        return '<div class="' + classes + '" style="height:' + heightPct + '%;background:' + color + '" title="' + escapeHtml(title) + '"></div>';
+      }).join('');
+
+      // A handful of evenly spaced time labels rather than one per slot (96-192 of them).
+      var lastIdx = slots.length - 1;
+      var idxs = [0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx];
+      var seen = {};
+      var labelSpans = idxs.filter(function (idx) {
+        if (seen[idx]) return false;
+        seen[idx] = true;
+        return true;
+      }).map(function (idx) { return '<span>' + slots[idx].time + '</span>'; }).join('');
+
+      return '' +
+        '<div class="chart">' + bars + '</div>' +
+        '<div class="chart-labels">' + labelSpans + '</div>';
+    }
+
     function render(Homey, data) {
       var root = document.getElementById('root');
 
@@ -126,6 +184,7 @@
           '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + Homey.__('widget.avg') + '</div></div>' +
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + Homey.__('widget.max') + '</div></div>' +
         '</div>' +
+        chartHtml(data.slots) +
         (data.noTomorrow ? '<div class="warn">⚠ ' + Homey.__('widget.noTomorrow') + '</div>' : '') +
         '<div class="footer">' +
           '<button class="refresh-btn" id="refresh-btn">' + Homey.__('widget.refresh') + '</button>' +
@@ -147,7 +206,7 @@
     }
 
     function resizeToContent(Homey) {
-      var height = Math.min(400, document.body.scrollHeight + 2);
+      var height = Math.min(480, document.body.scrollHeight + 2);
       Homey.setHeight(height);
     }
 
@@ -174,14 +233,14 @@
     function onHomeyReady(Homey) {
       try {
         document.getElementById('root').innerHTML = '<div class="loading">' + Homey.__('widget.loading') + '</div>';
-        Homey.ready({ height: 160 });
+        Homey.ready({ height: 230 });
         fetchSummary(Homey);
         // Widgets aren't pushed updates - poll instead, so a dashboard left open catches
         // the next quarter-hour's price without needing to be reopened.
         refreshTimer = setInterval(function () { fetchSummary(Homey); }, 60000);
       } catch (err) {
         document.getElementById('root').innerHTML = '<div class="load-error">Widget error: ' + escapeHtml(err && err.message ? err.message : err) + '</div>';
-        try { Homey.ready({ height: 160 }); } catch (e2) { /* nothing more we can do */ }
+        try { Homey.ready({ height: 230 }); } catch (e2) { /* nothing more we can do */ }
       }
     }
   </script>
