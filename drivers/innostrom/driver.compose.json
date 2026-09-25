@@ -26,7 +26,7 @@
       "id": "login_credentials",
       "template": "login_credentials",
       "options": {
-        "logo": "{{driverAssetsPath}}/icon.svg",
+        "logo": "{{driverAssetsPath}}/pair-logo.png",
         "usernameLabel": { "en": "Metering point number", "de": "Messpunktnummer" },
         "usernameHint": {
           "en": "CH… number, 33 characters. To try without a contract, use the public test metering point CH1018601234500000000000000011642 with token 19d6ca0bb9bf4d8b6525440eead80da6.",
@@ -56,7 +56,7 @@
       "id": "login_credentials",
       "template": "login_credentials",
       "options": {
-        "logo": "{{driverAssetsPath}}/icon.svg",
+        "logo": "{{driverAssetsPath}}/pair-logo.png",
         "usernameLabel": { "en": "Metering point number", "de": "Messpunktnummer" },
         "usernameHint": {
           "en": "Must match this device's metering point - use device settings instead to switch to a different metering point.",

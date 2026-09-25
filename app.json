@@ -684,7 +684,7 @@
           "id": "login_credentials",
           "template": "login_credentials",
           "options": {
-            "logo": "/drivers/innostrom/assets/icon.svg",
+            "logo": "/drivers/innostrom/assets/pair-logo.png",
             "usernameLabel": {
               "en": "Metering point number",
               "de": "Messpunktnummer"
@@ -727,7 +727,7 @@
           "id": "login_credentials",
           "template": "login_credentials",
           "options": {
-            "logo": "/drivers/innostrom/assets/icon.svg",
+            "logo": "/drivers/innostrom/assets/pair-logo.png",
             "usernameLabel": {
               "en": "Metering point number",
               "de": "Messpunktnummer"
