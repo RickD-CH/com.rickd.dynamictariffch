@@ -1,0 +1,17 @@
+{
+  "name": {
+    "en": "Innostrom price",
+    "de": "Innostrom-Preis"
+  },
+  "height": 160,
+  "api": {
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    },
+    "refresh": {
+      "method": "POST",
+      "path": "/refresh"
+    }
+  }
+}

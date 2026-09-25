@@ -114,6 +114,18 @@ class InnostromDevice extends Homey.Device {
     }
   }
 
+  /**
+   * Called by driver.js's onRepair after it calls setSettings() with the new token -
+   * setSettings() does not itself trigger onSettings() (Homey SDK docs), so this is the
+   * explicit equivalent of the credentialsChanged branch above for that path.
+   */
+  async onCredentialsUpdated() {
+    this._applySettings(this.getSettings());
+    if (this.priceStore) this.priceStore.field = this._priceField;
+    this._backoffIndex = 0;
+    await this._initialFetch();
+  }
+
   // ---------------------------------------------------------------------
   // Fetching
   // ---------------------------------------------------------------------

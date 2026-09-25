@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --pw-text: #1a1a1a;
+      --pw-muted: #767676;
+      --pw-border: #e0e0e0;
+      --pw-bg: #ffffff;
+      --pw-chip-bg: #f2f2f2;
+      --pw-cheap: #2e7d32;
+      --pw-normal: #767676;
+      --pw-expensive: #d32f2f;
+      --pw-warn-bg: #fdecea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pw-text: #f2f2f2;
+        --pw-muted: #a0a0a0;
+        --pw-border: #3a3a3a;
+        --pw-bg: #1e1e20;
+        --pw-chip-bg: #2a2a2a;
+        --pw-cheap: #66bb6a;
+        --pw-normal: #a0a0a0;
+        --pw-expensive: #ef5350;
+        --pw-warn-bg: #3a2323;
+      }
+    }
+    .homey-dark-mode {
+      --pw-text: #f2f2f2;
+      --pw-muted: #a0a0a0;
+      --pw-border: #3a3a3a;
+      --pw-bg: #1e1e20;
+      --pw-chip-bg: #2a2a2a;
+      --pw-cheap: #66bb6a;
+      --pw-normal: #a0a0a0;
+      --pw-expensive: #ef5350;
+      --pw-warn-bg: #3a2323;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px; color: var(--pw-text); background: var(--pw-bg);
+      padding: 10px 12px 14px;
+    }
+    .top { display: flex; align-items: baseline; justify-content: space-between; }
+    .price { font-size: 28px; font-weight: 700; }
+    .unit { font-size: 12px; color: var(--pw-muted); margin-left: 4px; }
+    .level {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+      background: var(--pw-chip-bg);
+    }
+    .name { font-size: 11px; color: var(--pw-muted); margin-top: 2px; }
+    .stats { display: flex; gap: 8px; margin-top: 10px; }
+    .chip {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 4px; border-radius: 8px; background: var(--pw-chip-bg);
+    }
+    .chip .num { font-size: 14px; font-weight: 700; }
+    .chip .lbl { font-size: 9px; color: var(--pw-muted); text-align: center; }
+    .warn {
+      margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--pw-warn-bg);
+      color: var(--pw-expensive); font-size: 11px; text-align: center;
+    }
+    .footer {
+      display: flex; align-items: center; justify-content: flex-end;
+      margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--pw-border);
+    }
+    .refresh-btn {
+      border: none; background: var(--pw-chip-bg); color: var(--pw-text); border-radius: 8px;
+      padding: 6px 12px; font-size: 12px; -webkit-tap-highlight-color: transparent;
+    }
+    .refresh-btn:disabled { opacity: .5; }
+    .loading, .load-error, .no-device { text-align: center; color: var(--pw-muted); font-size: 12px; padding: 12px 0; }
+    .load-error { color: var(--pw-expensive); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var LEVEL_CLASS = {
+      very_cheap: 'cheap', cheap: 'cheap', normal: 'normal', expensive: 'expensive', very_expensive: 'expensive',
+    };
+    var refreshTimer = null;
+    var lastDataJson = null;
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function fmt(value) {
+      return typeof value === 'number' ? value.toFixed(2) : '–';
+    }
+
+    function render(Homey, data) {
+      var root = document.getElementById('root');
+
+      if (!data.paired) {
+        root.innerHTML = '<div class="no-device">' + Homey.__('widget.noDevice') + '</div>';
+        resizeToContent(Homey);
+        return;
+      }
+
+      var levelClass = LEVEL_CLASS[data.level] || 'normal';
+      var levelLabel = data.level ? Homey.__('widget.levels.' + data.level) : '–';
+
+      root.innerHTML = '' +
+        '<div class="top">' +
+          '<div>' +
+            '<span class="price">' + fmt(data.total) + '</span><span class="unit">Rp./kWh</span>' +
+            '<div class="name">' + escapeHtml(data.name) + '</div>' +
+          '</div>' +
+          '<span class="level" style="color: var(--pw-' + levelClass + ')">' + escapeHtml(levelLabel) + '</span>' +
+        '</div>' +
+        '<div class="stats">' +
+          '<div class="chip"><div class="num">' + fmt(data.next) + '</div><div class="lbl">' + Homey.__('widget.next') + '</div></div>' +
+          '<div class="chip"><div class="num">' + (data.rank != null ? data.rank : '–') + '</div><div class="lbl">' + Homey.__('widget.rank') + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.min) + '</div><div class="lbl">' + Homey.__('widget.min') + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + Homey.__('widget.avg') + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + Homey.__('widget.max') + '</div></div>' +
+        '</div>' +
+        (data.noTomorrow ? '<div class="warn">⚠ ' + Homey.__('widget.noTomorrow') + '</div>' : '') +
+        '<div class="footer">' +
+          '<button class="refresh-btn" id="refresh-btn">' + Homey.__('widget.refresh') + '</button>' +
+        '</div>';
+
+      var btn = document.getElementById('refresh-btn');
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        Homey.api('POST', '/refresh')
+          .catch(function (err) { console.error(err); })
+          .then(function () { return fetchSummary(Homey); })
+          .then(function () {
+            var b = document.getElementById('refresh-btn');
+            if (b) b.disabled = false;
+          });
+      });
+
+      resizeToContent(Homey);
+    }
+
+    function resizeToContent(Homey) {
+      var height = Math.min(400, document.body.scrollHeight + 2);
+      Homey.setHeight(height);
+    }
+
+    function showError(Homey) {
+      document.getElementById('root').innerHTML = '<div class="load-error">' + Homey.__('widget.loadFailed') + '</div>';
+      resizeToContent(Homey);
+    }
+
+    function fetchSummary(Homey) {
+      return Homey.api('GET', '/summary')
+        .then(function (data) {
+          var json = JSON.stringify(data);
+          if (json === lastDataJson) return;
+          lastDataJson = json;
+          render(Homey, data);
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastDataJson = null;
+          showError(Homey);
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      try {
+        document.getElementById('root').innerHTML = '<div class="loading">' + Homey.__('widget.loading') + '</div>';
+        Homey.ready({ height: 160 });
+        fetchSummary(Homey);
+        // Widgets aren't pushed updates - poll instead, so a dashboard left open catches
+        // the next quarter-hour's price without needing to be reopened.
+        refreshTimer = setInterval(function () { fetchSummary(Homey); }, 60000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="load-error">Widget error: ' + escapeHtml(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 160 }); } catch (e2) { /* nothing more we can do */ }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -5,5 +5,28 @@
     "logAmongMostExpensiveIncomplete": "is_among_most_expensive: Preise im Fenster unvollständig, werte als falsch",
     "logInCheapestBlockIncomplete": "is_in_cheapest_block: Preise im Fenster unvollständig, werte als falsch",
     "errorNoCheapestBlock": "Kein zusammenhängender Block dieser Länge im Zeitfenster gefunden (Daten fehlen)."
+  },
+  "repair": {
+    "meteringCodeMismatch": "Diese Messpunktnummer stimmt nicht mit dem bestehenden Gerät überein. Für einen anderen Messpunkt bitte neu koppeln statt reparieren."
+  },
+  "widget": {
+    "loading": "Lädt…",
+    "loadFailed": "Preise konnten nicht geladen werden.",
+    "noDevice": "Kein Gerät gekoppelt.",
+    "current": "Aktuell",
+    "next": "Nächste Viertelstunde",
+    "rank": "Rang heute",
+    "min": "Tiefster",
+    "max": "Höchster",
+    "avg": "Ø heute",
+    "noTomorrow": "Keine Preise für morgen",
+    "refresh": "Aktualisieren",
+    "levels": {
+      "very_cheap": "Sehr günstig",
+      "cheap": "Günstig",
+      "normal": "Normal",
+      "expensive": "Teuer",
+      "very_expensive": "Sehr teuer"
+    }
   }
 }
