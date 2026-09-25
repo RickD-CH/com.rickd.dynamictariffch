@@ -41,6 +41,10 @@
   "category": "energy",
   "brandColor": "#0277BD",
   "permissions": [],
+  "source": "https://github.com/RickD-CH/com.rickd.dynamictariffch",
+  "bugs": {
+    "url": "https://github.com/RickD-CH/com.rickd.dynamictariffch/issues"
+  },
   "author": {
     "name": "Richard Dubs"
   },
