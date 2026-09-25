@@ -1,0 +1,24 @@
+{
+  "title": { "en": "The cheapest block begins", "de": "Der günstigste Block beginnt" },
+  "titleFormatted": {
+    "en": "The cheapest block of [[hours]] hours between [[from]] and [[to]] begins",
+    "de": "Der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]] beginnt"
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "hours",
+      "title": { "en": "Duration (hours)", "de": "Dauer (Stunden)" },
+      "min": 1,
+      "max": 24,
+      "step": 0.25
+    },
+    { "type": "time", "name": "from", "title": { "en": "From", "de": "Von" } },
+    { "type": "time", "name": "to", "title": { "en": "To", "de": "Bis" } }
+  ],
+  "tokens": [
+    { "name": "avg", "type": "number", "title": { "en": "Average price", "de": "Durchschnittspreis" }, "example": 18.5 },
+    { "name": "end", "type": "string", "title": { "en": "Block ends", "de": "Block endet" }, "example": "05:30" }
+  ]
+}

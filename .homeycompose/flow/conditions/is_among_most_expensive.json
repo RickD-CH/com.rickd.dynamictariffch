@@ -1,0 +1,24 @@
+{
+  "title": { "en": "Price !{{is|isn't}} among the most expensive", "de": "Preis !{{gehört|gehört nicht}} zu den teuersten" },
+  "titleFormatted": {
+    "en": "Price !{{is|isn't}} among the [[hours]] most expensive hours between [[from]] and [[to]]",
+    "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] teuersten Stunden zwischen [[from]] und [[to]]"
+  },
+  "hint": {
+    "en": "False (and logged) if not all prices in the window are known yet.",
+    "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "hours",
+      "title": { "en": "Number of hours", "de": "Anzahl Stunden" },
+      "min": 0.25,
+      "max": 24,
+      "step": 0.25
+    },
+    { "type": "time", "name": "from", "title": { "en": "From", "de": "Von" } },
+    { "type": "time", "name": "to", "title": { "en": "To", "de": "Bis" } }
+  ]
+}

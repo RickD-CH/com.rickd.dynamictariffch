@@ -1,0 +1,16 @@
+{
+  "title": { "en": "Price !{{is|isn't}} below...", "de": "Preis !{{ist|ist nicht}} unter..." },
+  "titleFormatted": {
+    "en": "Price !{{is|isn't}} below [[price]] Rp./kWh",
+    "de": "Preis !{{ist|ist nicht}} unter [[price]] Rp./kWh"
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "price",
+      "title": { "en": "Price (Rp./kWh)", "de": "Preis (Rp./kWh)" },
+      "step": 0.1
+    }
+  ]
+}

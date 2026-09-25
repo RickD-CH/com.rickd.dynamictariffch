@@ -1,0 +1,22 @@
+{
+  "title": { "en": "Price level !{{is|isn't}}...", "de": "Preisniveau !{{ist|ist nicht}}..." },
+  "titleFormatted": {
+    "en": "Price level !{{is|isn't}} [[level]]",
+    "de": "Preisniveau !{{ist|ist nicht}} [[level]]"
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "dropdown",
+      "name": "level",
+      "title": { "en": "Level", "de": "Niveau" },
+      "values": [
+        { "id": "very_cheap", "label": { "en": "Very cheap", "de": "Sehr günstig" } },
+        { "id": "cheap", "label": { "en": "Cheap", "de": "Günstig" } },
+        { "id": "normal", "label": { "en": "Normal", "de": "Normal" } },
+        { "id": "expensive", "label": { "en": "Expensive", "de": "Teuer" } },
+        { "id": "very_expensive", "label": { "en": "Very expensive", "de": "Sehr teuer" } }
+      ]
+    }
+  ]
+}

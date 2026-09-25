@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "title": { "en": "Lowest price today", "de": "Tiefster Preis heute" },
+  "desc": {
+    "en": "Lowest total price of the current calendar day.",
+    "de": "Tiefster Gesamtpreis des heutigen Kalendertags."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg"
+}

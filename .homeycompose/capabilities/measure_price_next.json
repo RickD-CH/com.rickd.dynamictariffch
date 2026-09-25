@@ -1,0 +1,14 @@
+{
+  "type": "number",
+  "title": { "en": "Next price", "de": "Nächster Preis" },
+  "desc": {
+    "en": "Total price of the next 15-minute slot.",
+    "de": "Gesamtpreis der nächsten Viertelstunde."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg"
+}

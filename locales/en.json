@@ -1,0 +1,26 @@
+{
+  "pair": {
+    "title": "Innostrom access",
+    "intro": "Connect a metering point with a dynamic tariff via the Innostrom API (Swisspower), e.g. AEW Classic Dynamic.",
+    "meteringCode": "Metering point number",
+    "meteringCodePlaceholder": "CH1234567890123456789012345678901",
+    "token": "API token",
+    "tokenPlaceholder": "Bearer token",
+    "environment": "Environment",
+    "envProduction": "Production",
+    "envTest": "Test (public credentials)",
+    "useTestCredentials": "Fill in test credentials",
+    "testCredentialsHint": "The public test credentials let you try the app without a contract (constant prices).",
+    "submit": "Connect",
+    "testing": "Checking connection…",
+    "errorAuth": "Invalid credentials: metering point number or token is wrong.",
+    "errorGeneric": "Connection failed: "
+  },
+  "device": {
+    "unavailableAuth": "Invalid credentials (metering point number or token). Please correct them in the device settings.",
+    "logAmongCheapestIncomplete": "is_among_cheapest: prices in window incomplete, evaluating as false",
+    "logAmongMostExpensiveIncomplete": "is_among_most_expensive: prices in window incomplete, evaluating as false",
+    "logInCheapestBlockIncomplete": "is_in_cheapest_block: prices in window incomplete, evaluating as false",
+    "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing)."
+  }
+}

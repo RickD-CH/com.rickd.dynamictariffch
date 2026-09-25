@@ -1,0 +1,23 @@
+{
+  "title": { "en": "The price drops below...", "de": "Der Preis fällt unter..." },
+  "titleFormatted": {
+    "en": "The price drops below [[price]] Rp./kWh",
+    "de": "Der Preis fällt unter [[price]] Rp./kWh"
+  },
+  "hint": {
+    "en": "Fires only at the moment the price crosses below the threshold, not on every slot while it stays below.",
+    "de": "Löst nur im Moment des Unterschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darunter bleibt."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "price",
+      "title": { "en": "Price (Rp./kWh)", "de": "Preis (Rp./kWh)" },
+      "step": 0.1
+    }
+  ],
+  "tokens": [
+    { "name": "price", "type": "number", "title": { "en": "Price", "de": "Preis" }, "example": 15.2 }
+  ]
+}

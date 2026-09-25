@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": { "en": "Current price", "de": "Aktueller Preis" },
+  "desc": {
+    "en": "Total price (energy + grid + levies) for the current 15-minute slot.",
+    "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

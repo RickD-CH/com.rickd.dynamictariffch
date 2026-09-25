@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": { "en": "Rank today", "de": "Rang heute" },
+  "desc": {
+    "en": "Rank of the current 15-minute slot among today's prices. 1 = cheapest slot of the day.",
+    "de": "Rang der aktuellen Viertelstunde unter den heutigen Preisen. 1 = günstigste Viertelstunde des Tages."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "", "de": "" },
+  "decimals": 0,
+  "min": 1,
+  "icon": "/assets/capabilities/rank.svg"
+}

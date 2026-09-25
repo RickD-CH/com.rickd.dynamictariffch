@@ -1,0 +1,6 @@
+{
+  "title": { "en": "No prices for tomorrow yet at 18:30", "de": "Um 18:30 sind noch keine Preise für morgen da" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+  ]
+}

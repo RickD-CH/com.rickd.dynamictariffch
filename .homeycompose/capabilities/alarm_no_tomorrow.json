@@ -1,0 +1,12 @@
+{
+  "type": "boolean",
+  "title": { "en": "No prices for tomorrow", "de": "Keine Preise für morgen" },
+  "desc": {
+    "en": "True when no prices for tomorrow are available yet (normally published by ~16:00).",
+    "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert)."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/alarm.svg"
+}

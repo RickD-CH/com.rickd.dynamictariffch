@@ -1,0 +1,51 @@
+{
+  "id": "com.rickd.dynamictariffch",
+  "version": "0.1.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Swiss Dynamic Electricity Tariff",
+    "de": "Dynamischer Stromtarif CH"
+  },
+  "description": {
+    "en": "15-minute dynamic electricity prices for Swiss utilities using the Innostrom platform (e.g. AEW Classic Dynamic from 2027).",
+    "de": "15-Minuten-Preise des dynamischen Stromtarifs für Schweizer Netzbetreiber mit der Innostrom-Plattform (z. B. AEW Classic Dynamic ab 2027)."
+  },
+  "tags": {
+    "en": [
+      "dynamic electricity price",
+      "electricity tariff",
+      "energy",
+      "Switzerland",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "spot price"
+    ],
+    "de": [
+      "dynamischer Stromtarif",
+      "Strompreis",
+      "Energie",
+      "Schweiz",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "Spotpreis"
+    ]
+  },
+  "category": "energy",
+  "brandColor": "#0277BD",
+  "permissions": [],
+  "author": {
+    "name": "Richard Dubs"
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "title": { "en": "The price rises above...", "de": "Der Preis steigt über..." },
+  "titleFormatted": {
+    "en": "The price rises above [[price]] Rp./kWh",
+    "de": "Der Preis steigt über [[price]] Rp./kWh"
+  },
+  "hint": {
+    "en": "Fires only at the moment the price crosses above the threshold, not on every slot while it stays above.",
+    "de": "Löst nur im Moment des Überschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darüber bleibt."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "price",
+      "title": { "en": "Price (Rp./kWh)", "de": "Preis (Rp./kWh)" },
+      "step": 0.1
+    }
+  ],
+  "tokens": [
+    { "name": "price", "type": "number", "title": { "en": "Price", "de": "Preis" }, "example": 35.7 }
+  ]
+}

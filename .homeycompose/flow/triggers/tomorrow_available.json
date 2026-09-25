@@ -1,0 +1,12 @@
+{
+  "title": { "en": "Tomorrow's prices are available", "de": "Die Preise für morgen sind verfügbar" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+  ],
+  "tokens": [
+    { "name": "min", "type": "number", "title": { "en": "Lowest", "de": "Tiefster" }, "example": 12.3 },
+    { "name": "max", "type": "number", "title": { "en": "Highest", "de": "Höchster" }, "example": 38.1 },
+    { "name": "avg", "type": "number", "title": { "en": "Average", "de": "Durchschnitt" }, "example": 22.4 },
+    { "name": "cheapest_start", "type": "string", "title": { "en": "Cheapest slot starts", "de": "Günstigste Viertelstunde beginnt" }, "example": "03:00" }
+  ]
+}

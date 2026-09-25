@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": { "en": "Energy price", "de": "Energiepreis" },
+  "desc": {
+    "en": "Energy-only component of the price (follows the EPEX CH day-ahead spot price).",
+    "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH)."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

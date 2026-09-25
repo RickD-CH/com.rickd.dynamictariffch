@@ -1,0 +1,19 @@
+{
+  "type": "enum",
+  "title": { "en": "Price level", "de": "Preisniveau" },
+  "desc": {
+    "en": "Current price relative to today's average.",
+    "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    { "id": "very_cheap", "title": { "en": "Very cheap", "de": "Sehr günstig" } },
+    { "id": "cheap", "title": { "en": "Cheap", "de": "Günstig" } },
+    { "id": "normal", "title": { "en": "Normal", "de": "Normal" } },
+    { "id": "expensive", "title": { "en": "Expensive", "de": "Teuer" } },
+    { "id": "very_expensive", "title": { "en": "Very expensive", "de": "Sehr teuer" } }
+  ],
+  "icon": "/assets/capabilities/level.svg"
+}

@@ -1,0 +1,1113 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.rickd.dynamictariffch",
+  "version": "0.1.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Swiss Dynamic Electricity Tariff",
+    "de": "Dynamischer Stromtarif CH"
+  },
+  "description": {
+    "en": "15-minute dynamic electricity prices for Swiss utilities using the Innostrom platform (e.g. AEW Classic Dynamic from 2027).",
+    "de": "15-Minuten-Preise des dynamischen Stromtarifs für Schweizer Netzbetreiber mit der Innostrom-Plattform (z. B. AEW Classic Dynamic ab 2027)."
+  },
+  "tags": {
+    "en": [
+      "dynamic electricity price",
+      "electricity tariff",
+      "energy",
+      "Switzerland",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "spot price"
+    ],
+    "de": [
+      "dynamischer Stromtarif",
+      "Strompreis",
+      "Energie",
+      "Schweiz",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "Spotpreis"
+    ]
+  },
+  "category": "energy",
+  "brandColor": "#0277BD",
+  "permissions": [],
+  "author": {
+    "name": "Richard Dubs"
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "The cheapest block begins",
+          "de": "Der günstigste Block beginnt"
+        },
+        "titleFormatted": {
+          "en": "The cheapest block of [[hours]] hours between [[from]] and [[to]] begins",
+          "de": "Der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]] beginnt"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Duration (hours)",
+              "de": "Dauer (Stunden)"
+            },
+            "min": 1,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "time",
+            "name": "from",
+            "title": {
+              "en": "From",
+              "de": "Von"
+            }
+          },
+          {
+            "type": "time",
+            "name": "to",
+            "title": {
+              "en": "To",
+              "de": "Bis"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "avg",
+            "type": "number",
+            "title": {
+              "en": "Average price",
+              "de": "Durchschnittspreis"
+            },
+            "example": 18.5
+          },
+          {
+            "name": "end",
+            "type": "string",
+            "title": {
+              "en": "Block ends",
+              "de": "Block endet"
+            },
+            "example": "05:30"
+          }
+        ],
+        "id": "cheapest_block_starts"
+      },
+      {
+        "title": {
+          "en": "No prices for tomorrow yet at 18:30",
+          "de": "Um 18:30 sind noch keine Preise für morgen da"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "id": "no_prices_for_tomorrow"
+      },
+      {
+        "title": {
+          "en": "The price rises above...",
+          "de": "Der Preis steigt über..."
+        },
+        "titleFormatted": {
+          "en": "The price rises above [[price]] Rp./kWh",
+          "de": "Der Preis steigt über [[price]] Rp./kWh"
+        },
+        "hint": {
+          "en": "Fires only at the moment the price crosses above the threshold, not on every slot while it stays above.",
+          "de": "Löst nur im Moment des Überschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darüber bleibt."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "price",
+            "title": {
+              "en": "Price (Rp./kWh)",
+              "de": "Preis (Rp./kWh)"
+            },
+            "step": 0.1
+          }
+        ],
+        "tokens": [
+          {
+            "name": "price",
+            "type": "number",
+            "title": {
+              "en": "Price",
+              "de": "Preis"
+            },
+            "example": 35.7
+          }
+        ],
+        "id": "price_above"
+      },
+      {
+        "title": {
+          "en": "The price drops below...",
+          "de": "Der Preis fällt unter..."
+        },
+        "titleFormatted": {
+          "en": "The price drops below [[price]] Rp./kWh",
+          "de": "Der Preis fällt unter [[price]] Rp./kWh"
+        },
+        "hint": {
+          "en": "Fires only at the moment the price crosses below the threshold, not on every slot while it stays below.",
+          "de": "Löst nur im Moment des Unterschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darunter bleibt."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "price",
+            "title": {
+              "en": "Price (Rp./kWh)",
+              "de": "Preis (Rp./kWh)"
+            },
+            "step": 0.1
+          }
+        ],
+        "tokens": [
+          {
+            "name": "price",
+            "type": "number",
+            "title": {
+              "en": "Price",
+              "de": "Preis"
+            },
+            "example": 15.2
+          }
+        ],
+        "id": "price_below"
+      },
+      {
+        "title": {
+          "en": "The price has changed",
+          "de": "Der Strompreis hat sich geändert"
+        },
+        "hint": {
+          "en": "Fires every 15 minutes when the price slot changes.",
+          "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "price",
+            "type": "number",
+            "title": {
+              "en": "Price",
+              "de": "Preis"
+            },
+            "example": 24.5
+          },
+          {
+            "name": "level",
+            "type": "string",
+            "title": {
+              "en": "Level",
+              "de": "Niveau"
+            },
+            "example": "cheap"
+          },
+          {
+            "name": "rank",
+            "type": "number",
+            "title": {
+              "en": "Rank today",
+              "de": "Rang heute"
+            },
+            "example": 12
+          }
+        ],
+        "id": "price_changed"
+      },
+      {
+        "title": {
+          "en": "Tomorrow's prices are available",
+          "de": "Die Preise für morgen sind verfügbar"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "min",
+            "type": "number",
+            "title": {
+              "en": "Lowest",
+              "de": "Tiefster"
+            },
+            "example": 12.3
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "title": {
+              "en": "Highest",
+              "de": "Höchster"
+            },
+            "example": 38.1
+          },
+          {
+            "name": "avg",
+            "type": "number",
+            "title": {
+              "en": "Average",
+              "de": "Durchschnitt"
+            },
+            "example": 22.4
+          },
+          {
+            "name": "cheapest_start",
+            "type": "string",
+            "title": {
+              "en": "Cheapest slot starts",
+              "de": "Günstigste Viertelstunde beginnt"
+            },
+            "example": "03:00"
+          }
+        ],
+        "id": "tomorrow_available"
+      }
+    ],
+    "conditions": [
+      {
+        "title": {
+          "en": "Price !{{is|isn't}} among the cheapest",
+          "de": "Preis !{{gehört|gehört nicht}} zu den günstigsten"
+        },
+        "titleFormatted": {
+          "en": "Price !{{is|isn't}} among the [[hours]] cheapest hours between [[from]] and [[to]]",
+          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] günstigsten Stunden zwischen [[from]] und [[to]]"
+        },
+        "hint": {
+          "en": "False (and logged) if not all prices in the window are known yet.",
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Number of hours",
+              "de": "Anzahl Stunden"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "time",
+            "name": "from",
+            "title": {
+              "en": "From",
+              "de": "Von"
+            }
+          },
+          {
+            "type": "time",
+            "name": "to",
+            "title": {
+              "en": "To",
+              "de": "Bis"
+            }
+          }
+        ],
+        "id": "is_among_cheapest"
+      },
+      {
+        "title": {
+          "en": "Price !{{is|isn't}} among the most expensive",
+          "de": "Preis !{{gehört|gehört nicht}} zu den teuersten"
+        },
+        "titleFormatted": {
+          "en": "Price !{{is|isn't}} among the [[hours]] most expensive hours between [[from]] and [[to]]",
+          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] teuersten Stunden zwischen [[from]] und [[to]]"
+        },
+        "hint": {
+          "en": "False (and logged) if not all prices in the window are known yet.",
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Number of hours",
+              "de": "Anzahl Stunden"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "time",
+            "name": "from",
+            "title": {
+              "en": "From",
+              "de": "Von"
+            }
+          },
+          {
+            "type": "time",
+            "name": "to",
+            "title": {
+              "en": "To",
+              "de": "Bis"
+            }
+          }
+        ],
+        "id": "is_among_most_expensive"
+      },
+      {
+        "title": {
+          "en": "Now !{{is|isn't}} in the cheapest block",
+          "de": "Jetzt !{{ist|ist nicht}} im günstigsten Block"
+        },
+        "titleFormatted": {
+          "en": "Now !{{is|isn't}} the cheapest block of [[hours]] hours between [[from]] and [[to]]",
+          "de": "Jetzt !{{ist|ist nicht}} der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]]"
+        },
+        "hint": {
+          "en": "False (and logged) if not all prices in the window are known yet.",
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Duration (hours)",
+              "de": "Dauer (Stunden)"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "time",
+            "name": "from",
+            "title": {
+              "en": "From",
+              "de": "Von"
+            }
+          },
+          {
+            "type": "time",
+            "name": "to",
+            "title": {
+              "en": "To",
+              "de": "Bis"
+            }
+          }
+        ],
+        "id": "is_in_cheapest_block"
+      },
+      {
+        "title": {
+          "en": "Price level !{{is|isn't}}...",
+          "de": "Preisniveau !{{ist|ist nicht}}..."
+        },
+        "titleFormatted": {
+          "en": "Price level !{{is|isn't}} [[level]]",
+          "de": "Preisniveau !{{ist|ist nicht}} [[level]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "dropdown",
+            "name": "level",
+            "title": {
+              "en": "Level",
+              "de": "Niveau"
+            },
+            "values": [
+              {
+                "id": "very_cheap",
+                "label": {
+                  "en": "Very cheap",
+                  "de": "Sehr günstig"
+                }
+              },
+              {
+                "id": "cheap",
+                "label": {
+                  "en": "Cheap",
+                  "de": "Günstig"
+                }
+              },
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal",
+                  "de": "Normal"
+                }
+              },
+              {
+                "id": "expensive",
+                "label": {
+                  "en": "Expensive",
+                  "de": "Teuer"
+                }
+              },
+              {
+                "id": "very_expensive",
+                "label": {
+                  "en": "Very expensive",
+                  "de": "Sehr teuer"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "level_is"
+      },
+      {
+        "title": {
+          "en": "Price !{{is|isn't}} below...",
+          "de": "Preis !{{ist|ist nicht}} unter..."
+        },
+        "titleFormatted": {
+          "en": "Price !{{is|isn't}} below [[price]] Rp./kWh",
+          "de": "Preis !{{ist|ist nicht}} unter [[price]] Rp./kWh"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "price",
+            "title": {
+              "en": "Price (Rp./kWh)",
+              "de": "Preis (Rp./kWh)"
+            },
+            "step": 0.1
+          }
+        ],
+        "id": "price_below"
+      }
+    ],
+    "actions": [
+      {
+        "title": {
+          "en": "Find the cheapest block",
+          "de": "Günstigsten Block finden"
+        },
+        "titleFormatted": {
+          "en": "Find the cheapest block of [[hours]] hours between [[from]] and [[to]]",
+          "de": "Finde den günstigsten Block von [[hours]] Stunden zwischen [[from]] und [[to]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Duration (hours)",
+              "de": "Dauer (Stunden)"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "time",
+            "name": "from",
+            "title": {
+              "en": "From",
+              "de": "Von"
+            }
+          },
+          {
+            "type": "time",
+            "name": "to",
+            "title": {
+              "en": "To",
+              "de": "Bis"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "start",
+            "type": "string",
+            "title": {
+              "en": "Block starts",
+              "de": "Block beginnt"
+            },
+            "example": "02:00"
+          },
+          {
+            "name": "end",
+            "type": "string",
+            "title": {
+              "en": "Block ends",
+              "de": "Block endet"
+            },
+            "example": "05:00"
+          },
+          {
+            "name": "avg",
+            "type": "number",
+            "title": {
+              "en": "Average price",
+              "de": "Durchschnittspreis"
+            },
+            "example": 17.8
+          }
+        ],
+        "id": "find_cheapest_block"
+      },
+      {
+        "title": {
+          "en": "Reload prices now",
+          "de": "Preise jetzt neu laden"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "id": "refresh"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "innostrom",
+      "name": {
+        "en": "Innostrom dynamic tariff",
+        "de": "Innostrom dynamischer Tarif"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_price_total",
+        "measure_price_energy",
+        "measure_price_grid",
+        "measure_price_next",
+        "measure_price_min_today",
+        "measure_price_max_today",
+        "measure_price_avg_today",
+        "price_rank_today",
+        "price_level",
+        "alarm_no_tomorrow"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/innostrom/assets/images/small.png",
+        "large": "/drivers/innostrom/assets/images/large.png",
+        "xlarge": "/drivers/innostrom/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "login"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "options": {
+            "singular": true
+          },
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Access",
+            "de": "Zugang"
+          },
+          "children": [
+            {
+              "id": "metering_code",
+              "type": "label",
+              "label": {
+                "en": "Metering point number",
+                "de": "Messpunktnummer"
+              },
+              "value": ""
+            },
+            {
+              "id": "token",
+              "type": "password",
+              "label": {
+                "en": "API token",
+                "de": "API-Token"
+              },
+              "value": ""
+            },
+            {
+              "id": "environment",
+              "type": "dropdown",
+              "label": {
+                "en": "Environment",
+                "de": "Umgebung"
+              },
+              "value": "production",
+              "values": [
+                {
+                  "id": "production",
+                  "label": {
+                    "en": "Production",
+                    "de": "Produktiv"
+                  }
+                },
+                {
+                  "id": "test",
+                  "label": {
+                    "en": "Test",
+                    "de": "Test"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "Test uses the public Innostrom test environment with constant prices, useful to verify the connection without a contract.",
+                "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Price",
+            "de": "Preis"
+          },
+          "children": [
+            {
+              "id": "price_field",
+              "type": "dropdown",
+              "label": {
+                "en": "Price used for Flows",
+                "de": "Preis für Flows"
+              },
+              "value": "integrated",
+              "values": [
+                {
+                  "id": "integrated",
+                  "label": {
+                    "en": "Total (energy + grid)",
+                    "de": "Gesamt (Energie + Netz)"
+                  }
+                },
+                {
+                  "id": "electricity",
+                  "label": {
+                    "en": "Energy only",
+                    "de": "Nur Energie"
+                  }
+                },
+                {
+                  "id": "grid",
+                  "label": {
+                    "en": "Grid only (incl. levies)",
+                    "de": "Nur Netz (inkl. Abgaben)"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "vat_percent",
+              "type": "number",
+              "label": {
+                "en": "VAT (%)",
+                "de": "MWST (%)"
+              },
+              "value": 8.1,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "Added to displayed prices. Set to 0 to show prices excluding VAT.",
+                "de": "Wird auf die angezeigten Preise addiert. 0 = Preise exkl. MWST anzeigen."
+              }
+            },
+            {
+              "id": "fallback_price",
+              "type": "number",
+              "label": {
+                "en": "Fallback price (CHF/kWh)",
+                "de": "Einheitstarif (CHF/kWh)"
+              },
+              "value": 0,
+              "min": 0,
+              "hint": {
+                "en": "Used when no price data is available (e.g. missing tomorrow prices). 0 = show nothing instead.",
+                "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Price level thresholds",
+            "de": "Schwellen für Preisniveau"
+          },
+          "children": [
+            {
+              "id": "level_very_cheap_percent",
+              "type": "number",
+              "label": {
+                "en": "Very cheap below (% of daily average)",
+                "de": "Sehr günstig unter (% vom Tagesmittel)"
+              },
+              "value": 75,
+              "min": 1,
+              "max": 100
+            },
+            {
+              "id": "level_cheap_percent",
+              "type": "number",
+              "label": {
+                "en": "Cheap below (% of daily average)",
+                "de": "Günstig unter (% vom Tagesmittel)"
+              },
+              "value": 90,
+              "min": 1,
+              "max": 100
+            },
+            {
+              "id": "level_expensive_percent",
+              "type": "number",
+              "label": {
+                "en": "Expensive above (% of daily average)",
+                "de": "Teuer über (% vom Tagesmittel)"
+              },
+              "value": 110,
+              "min": 100,
+              "max": 500
+            },
+            {
+              "id": "level_very_expensive_percent",
+              "type": "number",
+              "label": {
+                "en": "Very expensive above (% of daily average)",
+                "de": "Sehr teuer über (% vom Tagesmittel)"
+              },
+              "value": 125,
+              "min": 100,
+              "max": 500
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "alarm_no_tomorrow": {
+      "type": "boolean",
+      "title": {
+        "en": "No prices for tomorrow",
+        "de": "Keine Preise für morgen"
+      },
+      "desc": {
+        "en": "True when no prices for tomorrow are available yet (normally published by ~16:00).",
+        "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert)."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/alarm.svg"
+    },
+    "measure_price_avg_today": {
+      "type": "number",
+      "title": {
+        "en": "Average price today",
+        "de": "Durchschnittspreis heute"
+      },
+      "desc": {
+        "en": "Average total price of the current calendar day.",
+        "de": "Durchschnittlicher Gesamtpreis des heutigen Kalendertags."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg"
+    },
+    "measure_price_energy": {
+      "type": "number",
+      "title": {
+        "en": "Energy price",
+        "de": "Energiepreis"
+      },
+      "desc": {
+        "en": "Energy-only component of the price (follows the EPEX CH day-ahead spot price).",
+        "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH)."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "measure_price_grid": {
+      "type": "number",
+      "title": {
+        "en": "Grid price",
+        "de": "Netzpreis"
+      },
+      "desc": {
+        "en": "Grid component of the price, including levies and duties (dso).",
+        "de": "Netzanteil des Preises inkl. Abgaben (dso)."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "measure_price_max_today": {
+      "type": "number",
+      "title": {
+        "en": "Highest price today",
+        "de": "Höchster Preis heute"
+      },
+      "desc": {
+        "en": "Highest total price of the current calendar day.",
+        "de": "Höchster Gesamtpreis des heutigen Kalendertags."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg"
+    },
+    "measure_price_min_today": {
+      "type": "number",
+      "title": {
+        "en": "Lowest price today",
+        "de": "Tiefster Preis heute"
+      },
+      "desc": {
+        "en": "Lowest total price of the current calendar day.",
+        "de": "Tiefster Gesamtpreis des heutigen Kalendertags."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg"
+    },
+    "measure_price_next": {
+      "type": "number",
+      "title": {
+        "en": "Next price",
+        "de": "Nächster Preis"
+      },
+      "desc": {
+        "en": "Total price of the next 15-minute slot.",
+        "de": "Gesamtpreis der nächsten Viertelstunde."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg"
+    },
+    "measure_price_total": {
+      "type": "number",
+      "title": {
+        "en": "Current price",
+        "de": "Aktueller Preis"
+      },
+      "desc": {
+        "en": "Total price (energy + grid + levies) for the current 15-minute slot.",
+        "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "price_level": {
+      "type": "enum",
+      "title": {
+        "en": "Price level",
+        "de": "Preisniveau"
+      },
+      "desc": {
+        "en": "Current price relative to today's average.",
+        "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "very_cheap",
+          "title": {
+            "en": "Very cheap",
+            "de": "Sehr günstig"
+          }
+        },
+        {
+          "id": "cheap",
+          "title": {
+            "en": "Cheap",
+            "de": "Günstig"
+          }
+        },
+        {
+          "id": "normal",
+          "title": {
+            "en": "Normal",
+            "de": "Normal"
+          }
+        },
+        {
+          "id": "expensive",
+          "title": {
+            "en": "Expensive",
+            "de": "Teuer"
+          }
+        },
+        {
+          "id": "very_expensive",
+          "title": {
+            "en": "Very expensive",
+            "de": "Sehr teuer"
+          }
+        }
+      ],
+      "icon": "/assets/capabilities/level.svg"
+    },
+    "price_rank_today": {
+      "type": "number",
+      "title": {
+        "en": "Rank today",
+        "de": "Rang heute"
+      },
+      "desc": {
+        "en": "Rank of the current 15-minute slot among today's prices. 1 = cheapest slot of the day.",
+        "de": "Rang der aktuellen Viertelstunde unter den heutigen Preisen. 1 = günstigste Viertelstunde des Tages."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "",
+        "de": ""
+      },
+      "decimals": 0,
+      "min": 1,
+      "icon": "/assets/capabilities/rank.svg"
+    }
+  }
+}

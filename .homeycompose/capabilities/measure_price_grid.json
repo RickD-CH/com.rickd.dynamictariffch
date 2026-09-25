@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": { "en": "Grid price", "de": "Netzpreis" },
+  "desc": {
+    "en": "Grid component of the price, including levies and duties (dso).",
+    "de": "Netzanteil des Preises inkl. Abgaben (dso)."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

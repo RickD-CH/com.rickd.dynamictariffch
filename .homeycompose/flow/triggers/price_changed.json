@@ -1,0 +1,15 @@
+{
+  "title": { "en": "The price has changed", "de": "Der Strompreis hat sich geändert" },
+  "hint": {
+    "en": "Fires every 15 minutes when the price slot changes.",
+    "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+  ],
+  "tokens": [
+    { "name": "price", "type": "number", "title": { "en": "Price", "de": "Preis" }, "example": 24.5 },
+    { "name": "level", "type": "string", "title": { "en": "Level", "de": "Niveau" }, "example": "cheap" },
+    { "name": "rank", "type": "number", "title": { "en": "Rank today", "de": "Rang heute" }, "example": 12 }
+  ]
+}

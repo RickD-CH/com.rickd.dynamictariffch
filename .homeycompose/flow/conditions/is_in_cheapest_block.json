@@ -1,0 +1,24 @@
+{
+  "title": { "en": "Now !{{is|isn't}} in the cheapest block", "de": "Jetzt !{{ist|ist nicht}} im günstigsten Block" },
+  "titleFormatted": {
+    "en": "Now !{{is|isn't}} the cheapest block of [[hours]] hours between [[from]] and [[to]]",
+    "de": "Jetzt !{{ist|ist nicht}} der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]]"
+  },
+  "hint": {
+    "en": "False (and logged) if not all prices in the window are known yet.",
+    "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "number",
+      "name": "hours",
+      "title": { "en": "Duration (hours)", "de": "Dauer (Stunden)" },
+      "min": 0.25,
+      "max": 24,
+      "step": 0.25
+    },
+    { "type": "time", "name": "from", "title": { "en": "From", "de": "Von" } },
+    { "type": "time", "name": "to", "title": { "en": "To", "de": "Bis" } }
+  ]
+}

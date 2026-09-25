@@ -1,0 +1,6 @@
+{
+  "title": { "en": "Reload prices now", "de": "Preise jetzt neu laden" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+  ]
+}
