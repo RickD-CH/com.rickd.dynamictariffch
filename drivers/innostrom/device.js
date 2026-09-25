@@ -9,11 +9,20 @@ const {
 
 // Backoff steps for a failed daily fetch (network/server errors) - see SPEC "Fehler".
 const BACKOFF_MINUTES = [1, 2, 5, 10, 15];
+// Stop escalating after this many consecutive failures and wait for the next regularly
+// scheduled attempt instead - a permanently broken API must not turn into an unbounded
+// 15-minutely request stream. Matches EWHGOF/SwisspowerDynPreis's BACKOFF_MAX_TRIES.
+const BACKOFF_MAX_TRIES = 6;
 // If tomorrow's prices still aren't complete, keep polling every 15 min until this local
 // cut-off, then give up for the day (alarm_no_tomorrow / fallback price takes over).
 const DAILY_RETRY_CUTOFF = { hour: 23, minute: 45 };
 const DAILY_FETCH_TIME = { hour: 16, minute: 5 };
 const NO_TOMORROW_ALARM_TIME = { hour: 18, minute: 30 };
+// A day counts as "published" once this share of it has prices, not only at exactly
+// 100%: a supplier that permanently drops a single slot must not be hunted forever and
+// must not raise a false alarm_no_tomorrow. Same idea and value as
+// EWHGOF/SwisspowerDynPreis's TOMORROW_COVERAGE_RATIO.
+const TOMORROW_COVERAGE_RATIO = 0.95;
 
 function formatHHMM(date, tz) {
   const p = localParts(date, tz);
@@ -38,7 +47,7 @@ class InnostromDevice extends Homey.Device {
     this._retryTimer = null;
     this._backoffIndex = 0;
     this._previousDisplayPrice = null;
-    this._tomorrowWasFull = this.priceStore.hasFullDay(addLocalDays(new Date(), 1, this.tz));
+    this._tomorrowWasFull = this.priceStore.hasFullDay(addLocalDays(new Date(), 1, this.tz), { ratio: TOMORROW_COVERAGE_RATIO });
     this._noTomorrowAlarmDate = null;
 
     this._triggerPriceChanged = this.homey.flow.getDeviceTriggerCard('price_changed');
@@ -133,11 +142,15 @@ class InnostromDevice extends Homey.Device {
       await this.setAvailable();
       this._backoffIndex = 0;
     } catch (err) {
-      await this._handleFetchError(err, () => this._runDailyFetch());
+      const outcome = await this._handleFetchError(err, () => this._runDailyFetch());
+      // AUTH already means "no retry of any kind until Settings change" (see SPEC), so the
+      // daily job must stay dead too. Any other give-up still needs tomorrow's attempt armed,
+      // otherwise a permanently failing fetch would silently kill the recurring job for good.
+      if (outcome === 'gave-up') this._scheduleDailyFetch();
       return;
     }
 
-    if (this.priceStore.hasFullDay(tomorrow)) {
+    if (this.priceStore.hasFullDay(tomorrow, { ratio: TOMORROW_COVERAGE_RATIO })) {
       if (!this._tomorrowWasFull) {
         this._tomorrowWasFull = true;
         await this._fireTomorrowAvailable(tomorrow);
@@ -160,19 +173,21 @@ class InnostromDevice extends Homey.Device {
     await this.setStoreValue('slots', this.priceStore.toJSON());
   }
 
+  /** @returns {Promise<'auth'|'retrying'|'gave-up'>} */
   async _handleFetchError(err, retryFn) {
     if (err instanceof InnostromError && err.code === 'AUTH') {
       await this.setUnavailable(this.homey.__('device.unavailableAuth'));
-      return;
+      return 'auth';
     }
-    if (err instanceof InnostromError && err.retryable) {
+    if (err instanceof InnostromError && err.retryable && this._backoffIndex < BACKOFF_MAX_TRIES) {
       const minutes = BACKOFF_MINUTES[Math.min(this._backoffIndex, BACKOFF_MINUTES.length - 1)];
       this._backoffIndex += 1;
       this._retryTimer = this.homey.setTimeout(() => retryFn(), minutes * 60 * 1000);
       this.error(`Abruf fehlgeschlagen (${err.code}), neuer Versuch in ${minutes} Min.:`, err.message);
-      return;
+      return 'retrying';
     }
-    this.error('Abruf fehlgeschlagen:', err);
+    this.error('Abruf fehlgeschlagen, gebe auf bis zum nächsten geplanten Versuch:', err);
+    return 'gave-up';
   }
 
   async actionRefresh() {
@@ -252,7 +267,7 @@ class InnostromDevice extends Homey.Device {
     const level = this.priceStore.level(now, this._levelThresholds);
     await this._setCapabilitySafe('price_level', level);
 
-    const tomorrowFull = this.priceStore.hasFullDay(tomorrow);
+    const tomorrowFull = this.priceStore.hasFullDay(tomorrow, { ratio: TOMORROW_COVERAGE_RATIO });
     const shouldAlarm = !tomorrowFull && isAtOrAfterLocal(now, this.tz, NO_TOMORROW_ALARM_TIME);
     await this._setCapabilitySafe('alarm_no_tomorrow', shouldAlarm);
 

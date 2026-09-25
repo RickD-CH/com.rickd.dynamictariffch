@@ -163,6 +163,17 @@ test('PriceStore: Zeitumstellung (92 / 100 Slots) zählt als voller Tag', () => 
   assert.equal(st.dayStats(new Date('2026-10-25T10:00:00Z')).count, 100);
 });
 
+test('PriceStore: hasFullDay mit ratio toleriert einzelne fehlende Slots', () => {
+  const st = new PriceStore();
+  const slots = slotsOf('synthetic-aew-day.json');
+  st.upsert(slots.slice(1)); // ein Slot (von 96) fehlt komplett
+  const day = slots[1].start;
+  assert.equal(st.dayCoverage(day), 95 / 96);
+  assert.equal(st.hasFullDay(day), false);
+  assert.equal(st.hasFullDay(day, { ratio: 0.95 }), true);
+  assert.equal(st.hasFullDay(day, { ratio: 0.99 }), false);
+});
+
 test('PriceStore: rank, prune, JSON-Roundtrip', () => {
   const st = new PriceStore();
   st.upsert(slotsOf('synthetic-aew-day.json'));
