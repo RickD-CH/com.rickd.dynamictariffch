@@ -235,18 +235,25 @@
       }
 
       function load() {
-        apiCall('GET', '/summary')
-          .then(render)
-          .catch(function (err) {
-            console.error(err);
-            document.getElementById('live-root').innerHTML = '<div class="load-error">Werte konnten nicht geladen werden.</div>';
-          });
+        return apiCall('GET', '/summary').then(render);
       }
 
-      load();
-      setInterval(load, 60000);
-
-      Homey.ready();
+      // Homey.ready() is called only after the first load settles (success or failure) -
+      // matching com.rickd.devicewatchdog's settings page. Calling it beforehand risks
+      // Homey's own loading chrome resolving before this page has anything to show, and
+      // if something upstream ever threw synchronously it would also never be reached at
+      // all, leaving that chrome spinning forever - this shape can't do either.
+      load()
+        .catch(function (err) {
+          console.error(err);
+          document.getElementById('live-root').innerHTML = '<div class="load-error">Werte konnten nicht geladen werden.</div>';
+        })
+        .then(function () {
+          Homey.ready();
+          setInterval(function () {
+            load().catch(function (err) { console.error(err); });
+          }, 60000);
+        });
     }
   </script>
 </body>
