@@ -42,6 +42,8 @@ function isAtOrAfterLocal(now, tz, { hour, minute }) {
 class InnostromDevice extends Homey.Device {
 
   async onInit() {
+    await this._migrateCapabilities();
+
     this.tz = this.homey.clock.getTimezone() || 'Europe/Zurich';
     this._applySettings(this.getSettings());
 
@@ -71,6 +73,21 @@ class InnostromDevice extends Homey.Device {
     }
 
     this._initialFetch().catch((err) => this.error('Initialabruf fehlgeschlagen:', err));
+  }
+
+  /**
+   * A driver's `capabilities` list in driver.compose.json only applies to newly paired
+   * devices - it does not retroactively reach devices paired before a capability was
+   * added (e.g. button/last_update, added after this device already existed). Adds
+   * whatever the manifest declares that this specific device instance is still missing.
+   */
+  async _migrateCapabilities() {
+    const declared = (this.driver.manifest && this.driver.manifest.capabilities) || [];
+    for (const capabilityId of declared) {
+      if (!this.hasCapability(capabilityId)) {
+        await this.addCapability(capabilityId).catch((err) => this.error(`Capability ${capabilityId} konnte nicht nachgerüstet werden:`, err));
+      }
+    }
   }
 
   async onUninit() {
