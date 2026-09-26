@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dynamischer Stromtarif CH</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --st-text: #1a1a1a;
+      --st-muted: #767676;
+      --st-border: #e0e0e0;
+      --st-bg: #ffffff;
+      --st-card-bg: #f7f7f8;
+      --st-chip-bg: #f2f2f2;
+      --st-cheap: #2e7d32;
+      --st-normal: #767676;
+      --st-expensive: #d32f2f;
+      --st-accent: #0277bd;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --st-text: #f2f2f2;
+        --st-muted: #a0a0a0;
+        --st-border: #3a3a3c;
+        --st-bg: #131314;
+        --st-card-bg: #1e1e20;
+        --st-chip-bg: #2a2a2c;
+        --st-cheap: #66bb6a;
+        --st-normal: #a0a0a0;
+        --st-expensive: #ef5350;
+        --st-accent: #4fc3f7;
+      }
+    }
+    .homey-dark-mode {
+      --st-text: #f2f2f2;
+      --st-muted: #a0a0a0;
+      --st-border: #3a3a3c;
+      --st-bg: #131314;
+      --st-card-bg: #1e1e20;
+      --st-chip-bg: #2a2a2c;
+      --st-cheap: #66bb6a;
+      --st-normal: #a0a0a0;
+      --st-expensive: #ef5350;
+      --st-accent: #4fc3f7;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: auto; min-height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; color: var(--st-text); background: var(--st-bg);
+      padding: 16px 20px 32px;
+    }
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    h2 { font-size: 15px; margin: 0 0 10px; }
+    p { line-height: 1.5; }
+    .sub { color: var(--st-muted); margin: 0 0 20px; }
+    .card {
+      border: 1px solid var(--st-border); border-radius: 10px; padding: 16px 18px;
+      margin-bottom: 16px; background: var(--st-card-bg);
+    }
+    ul { margin: 8px 0; padding-left: 20px; }
+    li { margin-bottom: 4px; line-height: 1.4; }
+    .recommend { display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 6px 16px; margin-top: 8px; }
+    .recommend dt { font-weight: 600; }
+    .recommend dd { margin: 0; color: var(--st-muted); }
+    .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .price { font-size: 30px; font-weight: 700; }
+    .unit { font-size: 13px; color: var(--st-muted); margin-left: 4px; }
+    .level {
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+      background: var(--st-chip-bg);
+    }
+    .stats { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .chip {
+      flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 8px 4px; border-radius: 8px; background: var(--st-chip-bg);
+    }
+    .chip .num { font-size: 15px; font-weight: 700; }
+    .chip .lbl { font-size: 10px; color: var(--st-muted); text-align: center; }
+    .chart {
+      display: flex; align-items: flex-end; height: 90px; gap: 1px; margin-top: 16px;
+      background: var(--st-chip-bg); border-radius: 8px; padding: 6px;
+    }
+    .bar { flex: 1; min-width: 1px; border-radius: 1px; }
+    .bar.past { opacity: .45; }
+    .bar.now { outline: 2px solid var(--st-text); outline-offset: -1px; }
+    .chart-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--st-muted); }
+    .warn {
+      margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(211,47,47,.12);
+      color: var(--st-expensive); font-size: 12px; text-align: center;
+    }
+    .last-update { font-size: 11px; color: var(--st-muted); margin-top: 10px; }
+    .no-device, .load-error { text-align: center; color: var(--st-muted); padding: 20px 0; }
+    .load-error { color: var(--st-expensive); }
+    code { background: var(--st-chip-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  </style>
+</head>
+<body>
+  <h1>Dynamischer Stromtarif CH</h1>
+  <p class="sub">15-Minuten-Preise für Schweizer Netzbetreiber mit der Innostrom-Plattform (Swisspower)</p>
+
+  <div class="card">
+    <h2>Was die App kann</h2>
+    <ul>
+      <li>Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt</li>
+      <li>Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern</li>
+      <li>10 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Button</li>
+      <li>13 Flow-Karten: Preisänderung, Preise-für-morgen-verfügbar, Preisschwellen, günstigster Block, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, manuelles Neuladen</li>
+      <li>Dashboard-Widget mit Preiskurve für heute und morgen</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Empfohlene Einstellungen</h2>
+    <p class="sub" style="margin-bottom:0">Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.</p>
+    <dl class="recommend">
+      <dt>Preis für Flows</dt>
+      <dd><code>integrated</code> (Gesamtpreis) — das ist der Wert, der für Entscheidungen zählt, nicht nur Energie oder nur Netz</dd>
+      <dt>MWST</dt>
+      <dd><code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert</dd>
+      <dt>Einheitstarif (Fallback)</dt>
+      <dd><code>0</code> (deaktiviert), bis der echte AEW-Tarif ab 2027 bekannt ist</dd>
+      <dt>Preisniveau-Schwellen</dt>
+      <dd>Standard (75/90/110/125%) — sinnvoll kalibrieren erst mit echten, schwankenden AEW-Daten möglich</dd>
+    </dl>
+  </div>
+
+  <div class="card" id="live-card">
+    <h2>Aktuelle Werte</h2>
+    <div id="live-root"><div class="no-device">Lädt…</div></div>
+  </div>
+
+  <script type="text/javascript">
+    var LEVEL_CLASS = {
+      very_cheap: 'cheap', cheap: 'cheap', normal: 'normal', expensive: 'expensive', very_expensive: 'expensive',
+    };
+    var LEVEL_LABEL = {
+      very_cheap: 'Sehr günstig', cheap: 'Günstig', normal: 'Normal', expensive: 'Teuer', very_expensive: 'Sehr teuer',
+    };
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function fmt(value) {
+      return typeof value === 'number' ? value.toFixed(2) : '–';
+    }
+
+    function interpolateColor(ratio) {
+      var r = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
+      var cheap = [46, 125, 50];
+      var expensive = [211, 47, 47];
+      var rgb = cheap.map(function (c, i) { return Math.round(c + (expensive[i] - c) * r); });
+      return 'rgb(' + rgb.join(',') + ')';
+    }
+
+    function chartHtml(slots) {
+      if (!slots || slots.length < 2) return '';
+      var values = [];
+      for (var i = 0; i < slots.length; i += 1) {
+        if (typeof slots[i].value === 'number') values.push(slots[i].value);
+      }
+      if (!values.length) return '';
+      var min = Math.min.apply(null, values);
+      var max = Math.max.apply(null, values);
+      var span = max - min;
+
+      var bars = slots.map(function (s) {
+        var hasValue = typeof s.value === 'number';
+        var ratio = hasValue ? (span > 0 ? (s.value - min) / span : 0.5) : 0;
+        var heightPct = hasValue ? Math.max(4, Math.round(ratio * 100)) : 4;
+        var color = hasValue ? interpolateColor(ratio) : 'var(--st-border)';
+        var classes = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '');
+        var title = s.time + (hasValue ? ': ' + s.value.toFixed(2) + ' Rp./kWh' : '');
+        return '<div class="' + classes + '" style="height:' + heightPct + '%;background:' + color + '" title="' + escapeHtml(title) + '"></div>';
+      }).join('');
+
+      var lastIdx = slots.length - 1;
+      var idxs = [0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx];
+      var seen = {};
+      var labelSpans = idxs.filter(function (idx) {
+        if (seen[idx]) return false;
+        seen[idx] = true;
+        return true;
+      }).map(function (idx) { return '<span>' + slots[idx].time + '</span>'; }).join('');
+
+      return '' +
+        '<div class="chart">' + bars + '</div>' +
+        '<div class="chart-labels">' + labelSpans + '</div>';
+    }
+
+    function render(data) {
+      var root = document.getElementById('live-root');
+
+      if (!data.paired) {
+        root.innerHTML = '<div class="no-device">Noch kein Gerät gekoppelt.</div>';
+        return;
+      }
+
+      var levelClass = LEVEL_CLASS[data.level] || 'normal';
+      var levelLabel = data.level ? (LEVEL_LABEL[data.level] || data.level) : '–';
+
+      root.innerHTML = '' +
+        '<div class="top">' +
+          '<div>' +
+            '<span class="price">' + fmt(data.total) + '</span><span class="unit">Rp./kWh — ' + escapeHtml(data.name) + '</span>' +
+          '</div>' +
+          '<span class="level" style="color: var(--st-' + levelClass + ')">' + escapeHtml(levelLabel) + '</span>' +
+        '</div>' +
+        '<div class="stats">' +
+          '<div class="chip"><div class="num">' + fmt(data.energy) + '</div><div class="lbl">Energie</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.grid) + '</div><div class="lbl">Netz</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.next) + '</div><div class="lbl">Nächste</div></div>' +
+          '<div class="chip"><div class="num">' + (data.rank != null ? data.rank : '–') + '</div><div class="lbl">Rang heute</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.min) + '</div><div class="lbl">Tiefster</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">Ø heute</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">Höchster</div></div>' +
+        '</div>' +
+        chartHtml(data.slots) +
+        (data.noTomorrow ? '<div class="warn">⚠ Keine Preise für morgen</div>' : '') +
+        (data.lastUpdate ? '<div class="last-update">Aktualisiert: ' + escapeHtml(data.lastUpdate) + '</div>' : '');
+    }
+
+    function onHomeyReady(Homey) {
+      function apiCall(method, path, body) {
+        return new Promise(function (resolve, reject) {
+          Homey.api(method, path, body || null, function (err, result) {
+            if (err) return reject(err);
+            resolve(result);
+          });
+        });
+      }
+
+      function load() {
+        apiCall('GET', '/summary')
+          .then(render)
+          .catch(function (err) {
+            console.error(err);
+            document.getElementById('live-root').innerHTML = '<div class="load-error">Werte konnten nicht geladen werden.</div>';
+          });
+      }
+
+      load();
+      setInterval(load, 60000);
+
+      Homey.ready();
+    }
+  </script>
+</body>
+</html>

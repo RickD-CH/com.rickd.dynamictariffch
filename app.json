@@ -53,6 +53,12 @@
     "large": "/assets/images/large.png",
     "xlarge": "/assets/images/xlarge.png"
   },
+  "api": {
+    "getSummary": {
+      "method": "get",
+      "path": "/summary"
+    }
+  },
   "flow": {
     "triggers": [
       {
