@@ -70,6 +70,16 @@ homey app install
 - Neue Logik → Tests in `test/` ergänzen. `npm test` muss grün bleiben.
 - Commits klein halten, Nachrichten auf Englisch.
 
+## Bekannte Kosmetik-Probleme (nächste Version anschauen)
+
+- **Doppelte Flow-Karte "Preise neu laden":** Die eigene Aktionskarte `refresh`
+  ("Preise jetzt neu laden") und Homeys automatisch generierte Karte für die `button`-Capability
+  ("Knopf drücken"/"Press the button") machen exakt dasselbe (`device.actionRefresh()`). Die
+  Auto-Karte lässt sich nicht umbenennen oder unterdrücken, solange die `button`-Capability für den
+  manuellen Refresh-Knopf auf der Geräte-Kachel existiert. Für v0.1.x bewusst so gelassen (User-
+  Entscheidung 2026-09-26). Vor dem nächsten Release nochmals anschauen: entweder akzeptieren,
+  oder Button-Capability entfernen und Kachel-Knopf anders lösen.
+
 ## Referenzen
 
 - [EWHGOF/SwisspowerDynPreis](https://github.com/EWHGOF/SwisspowerDynPreis): Home-Assistant-Integration
