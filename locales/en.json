@@ -21,6 +21,7 @@
     "avg": "Avg today",
     "noTomorrow": "No prices for tomorrow",
     "refresh": "Refresh",
+    "lastUpdate": "Updated:",
     "levels": {
       "very_cheap": "Very cheap",
       "cheap": "Cheap",

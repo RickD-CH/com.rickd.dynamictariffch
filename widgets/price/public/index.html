@@ -78,9 +78,10 @@
       color: var(--pw-expensive); font-size: 11px; text-align: center;
     }
     .footer {
-      display: flex; align-items: center; justify-content: flex-end;
+      display: flex; align-items: center; justify-content: space-between;
       margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--pw-border);
     }
+    .last-update { font-size: 10px; color: var(--pw-muted); }
     .refresh-btn {
       border: none; background: var(--pw-chip-bg); color: var(--pw-text); border-radius: 8px;
       padding: 6px 12px; font-size: 12px; -webkit-tap-highlight-color: transparent;
@@ -187,6 +188,7 @@
         chartHtml(data.slots) +
         (data.noTomorrow ? '<div class="warn">⚠ ' + Homey.__('widget.noTomorrow') + '</div>' : '') +
         '<div class="footer">' +
+          '<span class="last-update">' + (data.lastUpdate ? Homey.__('widget.lastUpdate') + ' ' + escapeHtml(data.lastUpdate) : '') + '</span>' +
           '<button class="refresh-btn" id="refresh-btn">' + Homey.__('widget.refresh') + '</button>' +
         '</div>';
 

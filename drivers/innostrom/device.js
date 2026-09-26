@@ -29,6 +29,11 @@ function formatHHMM(date, tz) {
   return `${String(p.hour).padStart(2, '0')}:${String(p.minute).padStart(2, '0')}`;
 }
 
+function formatDateTime(date, tz) {
+  const p = localParts(date, tz);
+  return `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}. ${formatHHMM(date, tz)}`;
+}
+
 function isAtOrAfterLocal(now, tz, { hour, minute }) {
   const p = localParts(now, tz);
   return p.hour > hour || (p.hour === hour && p.minute >= minute);
@@ -60,6 +65,10 @@ class InnostromDevice extends Homey.Device {
     await this._updateCapabilities(new Date());
     this._scheduleTick();
     this._scheduleDailyFetch();
+
+    if (this.hasCapability('button')) {
+      this.registerCapabilityListener('button', () => this.actionRefresh());
+    }
 
     this._initialFetch().catch((err) => this.error('Initialabruf fehlgeschlagen:', err));
   }
@@ -183,6 +192,7 @@ class InnostromDevice extends Homey.Device {
     this.priceStore.upsert(slots);
     this.priceStore.prune(startOfLocalDay(addLocalDays(new Date(), -1, this.tz), this.tz));
     await this.setStoreValue('slots', this.priceStore.toJSON());
+    await this._setCapabilitySafe('last_update', formatDateTime(new Date(), this.tz));
   }
 
   /** @returns {Promise<'auth'|'retrying'|'gave-up'>} */

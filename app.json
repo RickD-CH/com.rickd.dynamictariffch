@@ -666,8 +666,18 @@
         "measure_price_avg_today",
         "price_rank_today",
         "price_level",
-        "alarm_no_tomorrow"
+        "alarm_no_tomorrow",
+        "last_update",
+        "button"
       ],
+      "capabilitiesOptions": {
+        "button": {
+          "title": {
+            "en": "Refresh prices now",
+            "de": "Preise jetzt aktualisieren"
+          }
+        }
+      },
       "platforms": [
         "local"
       ],
@@ -962,6 +972,21 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/capabilities/alarm.svg"
+    },
+    "last_update": {
+      "type": "string",
+      "title": {
+        "en": "Last update",
+        "de": "Letzte Aktualisierung"
+      },
+      "desc": {
+        "en": "When prices were last fetched successfully.",
+        "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/rank.svg"
     },
     "measure_price_avg_today": {
       "type": "number",

@@ -21,6 +21,7 @@
     "avg": "Ø heute",
     "noTomorrow": "Keine Preise für morgen",
     "refresh": "Aktualisieren",
+    "lastUpdate": "Aktualisiert:",
     "levels": {
       "very_cheap": "Sehr günstig",
       "cheap": "Günstig",

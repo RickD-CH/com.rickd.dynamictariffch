@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": { "en": "Last update", "de": "Letzte Aktualisierung" },
+  "desc": {
+    "en": "When prices were last fetched successfully.",
+    "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/rank.svg"
+}
