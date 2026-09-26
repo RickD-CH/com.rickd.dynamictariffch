@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dynamischer Stromtarif CH</title>
+  <title id="doc-title">Dynamischer Stromtarif CH</title>
   <style>
     :root {
       color-scheme: light dark;
@@ -97,48 +97,94 @@
   </style>
 </head>
 <body>
-  <h1>Dynamischer Stromtarif CH</h1>
-  <p class="sub">15-Minuten-Preise für Schweizer Netzbetreiber mit der Innostrom-Plattform (Swisspower)</p>
+  <h1 id="h1-title">Dynamischer Stromtarif CH</h1>
+  <p class="sub" id="p-sub"></p>
 
   <div class="card">
-    <h2>Was die App kann</h2>
-    <ul>
-      <li>Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt</li>
-      <li>Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern</li>
-      <li>10 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Button</li>
-      <li>13 Flow-Karten: Preisänderung, Preise-für-morgen-verfügbar, Preisschwellen, günstigster Block, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, manuelles Neuladen</li>
-      <li>Dashboard-Widget mit Preiskurve für heute und morgen</li>
-    </ul>
+    <h2 id="h2-features"></h2>
+    <ul id="ul-features"></ul>
   </div>
 
   <div class="card">
-    <h2>Empfohlene Einstellungen</h2>
-    <p class="sub" style="margin-bottom:0">Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.</p>
-    <dl class="recommend">
-      <dt>Preis für Flows</dt>
-      <dd><code>integrated</code> (Gesamtpreis) — das ist der Wert, der für Entscheidungen zählt, nicht nur Energie oder nur Netz</dd>
-      <dt>MWST</dt>
-      <dd><code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert</dd>
-      <dt>Einheitstarif (Fallback)</dt>
-      <dd><code>0</code> (deaktiviert), bis der echte AEW-Tarif ab 2027 bekannt ist</dd>
-      <dt>Preisniveau-Schwellen</dt>
-      <dd>Standard (75/90/110/125%) — sinnvoll kalibrieren erst mit echten, schwankenden AEW-Daten möglich</dd>
-    </dl>
+    <h2 id="h2-recommend"></h2>
+    <p class="sub" id="p-recommend-sub" style="margin-bottom:0"></p>
+    <dl class="recommend" id="dl-recommend"></dl>
   </div>
 
   <div class="card" id="live-card">
-    <h2>Aktuelle Werte</h2>
-    <div id="live-root"><div class="no-device">Lädt…</div></div>
+    <h2 id="h2-live"></h2>
+    <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
   </div>
 
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <script type="text/javascript">
+    var DE = (navigator.language || 'en').toLowerCase().indexOf('de') === 0;
+
+    var T_DE = {
+      title: 'Dynamischer Stromtarif CH',
+      sub: '15-Minuten-Preise für Schweizer Netzbetreiber mit der Innostrom-Plattform (Swisspower)',
+      featuresHeading: 'Was die App kann',
+      features: [
+        'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
+        'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
+        '10 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Button',
+        '13 Flow-Karten: Preisänderung, Preise-für-morgen-verfügbar, Preisschwellen, günstigster Block, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, manuelles Neuladen',
+        'Dashboard-Widget mit Preiskurve für heute und morgen',
+      ],
+      recommendHeading: 'Empfohlene Einstellungen',
+      recommendSub: 'Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.',
+      recommend: [
+        { dt: 'Preis für Flows', dd: '<code>integrated</code> (Gesamtpreis) — das ist der Wert, der für Entscheidungen zählt, nicht nur Energie oder nur Netz' },
+        { dt: 'MWST', dd: '<code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert' },
+        { dt: 'Einheitstarif (Fallback)', dd: '<code>0</code> (deaktiviert), bis der echte AEW-Tarif ab 2027 bekannt ist' },
+        { dt: 'Preisniveau-Schwellen', dd: 'Standard (75/90/110/125%) — sinnvoll kalibrieren erst mit echten, schwankenden AEW-Daten möglich' },
+      ],
+      liveHeading: 'Aktuelle Werte',
+      loading: 'Lädt…',
+      loadFailed: 'Werte konnten nicht geladen werden.',
+      noDevice: 'Noch kein Gerät gekoppelt.',
+      noTomorrow: 'Keine Preise für morgen',
+      lastUpdate: 'Aktualisiert:',
+      chips: { energy: 'Energie', grid: 'Netz', next: 'Nächste', rank: 'Rang heute', min: 'Tiefster', avg: 'Ø heute', max: 'Höchster' },
+      levels: { very_cheap: 'Sehr günstig', cheap: 'Günstig', normal: 'Normal', expensive: 'Teuer', very_expensive: 'Sehr teuer' },
+    };
+
+    var T_EN = {
+      title: 'Swiss Dynamic Electricity Tariff',
+      sub: '15-minute prices for Swiss grid operators using the Innostrom platform (Swisspower)',
+      featuresHeading: 'What this app does',
+      features: [
+        'Pairing via metering point number + API token — the test/production environment is detected automatically',
+        'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
+        '10 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, last update + manual refresh button',
+        '13 Flow cards: price change, prices-for-tomorrow-available, price thresholds, cheapest block, cheapest/most expensive quarter-hours, price level condition, manual refresh',
+        'Dashboard widget with a price curve for today and tomorrow',
+      ],
+      recommendHeading: 'Recommended settings',
+      recommendSub: 'Configurable per device, under its gear icon.',
+      recommend: [
+        { dt: 'Price for Flows', dd: '<code>integrated</code> (total price) — this is the value that matters for decisions, not just energy or just grid' },
+        { dt: 'VAT', dd: '<code>8.1%</code> — current Swiss rate, adjust if it changes' },
+        { dt: 'Flat-rate fallback', dd: '<code>0</code> (disabled), until the real AEW tariff from 2027 is known' },
+        { dt: 'Price level thresholds', dd: 'Defaults (75/90/110/125%) — sensible calibration is only possible once real, fluctuating AEW data is available' },
+      ],
+      liveHeading: 'Current values',
+      loading: 'Loading…',
+      loadFailed: 'Could not load values.',
+      noDevice: 'No device paired yet.',
+      noTomorrow: 'No prices for tomorrow',
+      lastUpdate: 'Updated:',
+      chips: { energy: 'Energy', grid: 'Grid', next: 'Next', rank: 'Rank today', min: 'Lowest', avg: 'Avg today', max: 'Highest' },
+      levels: { very_cheap: 'Very cheap', cheap: 'Cheap', normal: 'Normal', expensive: 'Expensive', very_expensive: 'Very expensive' },
+    };
+
+    var T = DE ? T_DE : T_EN;
+
     var LEVEL_CLASS = {
       very_cheap: 'cheap', cheap: 'cheap', normal: 'normal', expensive: 'expensive', very_expensive: 'expensive',
     };
-    var LEVEL_LABEL = {
-      very_cheap: 'Sehr günstig', cheap: 'Günstig', normal: 'Normal', expensive: 'Teuer', very_expensive: 'Sehr teuer',
-    };
+
+    function $(id) { return document.getElementById(id); }
 
     function escapeHtml(str) {
       return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
@@ -149,6 +195,24 @@
     function fmt(value) {
       return typeof value === 'number' ? value.toFixed(2) : '–';
     }
+
+    function applyText() {
+      document.documentElement.lang = DE ? 'de' : 'en';
+      $('doc-title').textContent = T.title;
+      $('h1-title').textContent = T.title;
+      $('p-sub').textContent = T.sub;
+      $('h2-features').textContent = T.featuresHeading;
+      $('ul-features').innerHTML = T.features.map(function (f) { return '<li>' + f + '</li>'; }).join('');
+      $('h2-recommend').textContent = T.recommendHeading;
+      $('p-recommend-sub').textContent = T.recommendSub;
+      $('dl-recommend').innerHTML = T.recommend.map(function (r) {
+        return '<dt>' + escapeHtml(r.dt) + '</dt><dd>' + r.dd + '</dd>';
+      }).join('');
+      $('h2-live').textContent = T.liveHeading;
+      $('initial-loading').textContent = T.loading;
+    }
+
+    applyText();
 
     function interpolateColor(ratio) {
       var r = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
@@ -194,15 +258,15 @@
     }
 
     function render(data) {
-      var root = document.getElementById('live-root');
+      var root = $('live-root');
 
       if (!data.paired) {
-        root.innerHTML = '<div class="no-device">Noch kein Gerät gekoppelt.</div>';
+        root.innerHTML = '<div class="no-device">' + escapeHtml(T.noDevice) + '</div>';
         return;
       }
 
       var levelClass = LEVEL_CLASS[data.level] || 'normal';
-      var levelLabel = data.level ? (LEVEL_LABEL[data.level] || data.level) : '–';
+      var levelLabel = data.level ? (T.levels[data.level] || data.level) : '–';
 
       root.innerHTML = '' +
         '<div class="top">' +
@@ -212,17 +276,17 @@
           '<span class="level" style="color: var(--st-' + levelClass + ')">' + escapeHtml(levelLabel) + '</span>' +
         '</div>' +
         '<div class="stats">' +
-          '<div class="chip"><div class="num">' + fmt(data.energy) + '</div><div class="lbl">Energie</div></div>' +
-          '<div class="chip"><div class="num">' + fmt(data.grid) + '</div><div class="lbl">Netz</div></div>' +
-          '<div class="chip"><div class="num">' + fmt(data.next) + '</div><div class="lbl">Nächste</div></div>' +
-          '<div class="chip"><div class="num">' + (data.rank != null ? data.rank : '–') + '</div><div class="lbl">Rang heute</div></div>' +
-          '<div class="chip"><div class="num">' + fmt(data.min) + '</div><div class="lbl">Tiefster</div></div>' +
-          '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">Ø heute</div></div>' +
-          '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">Höchster</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.energy) + '</div><div class="lbl">' + escapeHtml(T.chips.energy) + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.grid) + '</div><div class="lbl">' + escapeHtml(T.chips.grid) + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.next) + '</div><div class="lbl">' + escapeHtml(T.chips.next) + '</div></div>' +
+          '<div class="chip"><div class="num">' + (data.rank != null ? data.rank : '–') + '</div><div class="lbl">' + escapeHtml(T.chips.rank) + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.min) + '</div><div class="lbl">' + escapeHtml(T.chips.min) + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + escapeHtml(T.chips.avg) + '</div></div>' +
+          '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + escapeHtml(T.chips.max) + '</div></div>' +
         '</div>' +
         chartHtml(data.slots) +
-        (data.noTomorrow ? '<div class="warn">⚠ Keine Preise für morgen</div>' : '') +
-        (data.lastUpdate ? '<div class="last-update">Aktualisiert: ' + escapeHtml(data.lastUpdate) + '</div>' : '');
+        (data.noTomorrow ? '<div class="warn">⚠ ' + escapeHtml(T.noTomorrow) + '</div>' : '') +
+        (data.lastUpdate ? '<div class="last-update">' + escapeHtml(T.lastUpdate) + ' ' + escapeHtml(data.lastUpdate) + '</div>' : '');
     }
 
     function onHomeyReady(Homey) {
@@ -247,7 +311,7 @@
       load()
         .catch(function (err) {
           console.error(err);
-          document.getElementById('live-root').innerHTML = '<div class="load-error">Werte konnten nicht geladen werden.</div>';
+          $('live-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';
         })
         .then(function () {
           Homey.ready();
