@@ -131,6 +131,7 @@
     <div id="live-root"><div class="no-device">Lädt…</div></div>
   </div>
 
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <script type="text/javascript">
     var LEVEL_CLASS = {
       very_cheap: 'cheap', cheap: 'cheap', normal: 'normal', expensive: 'expensive', very_expensive: 'expensive',
@@ -255,6 +256,7 @@
           }, 60000);
         });
     }
+    window.onHomeyReady = onHomeyReady;
   </script>
 </body>
 </html>
