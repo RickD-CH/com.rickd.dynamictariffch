@@ -4,7 +4,7 @@ const Homey = require('homey');
 const { InnostromClient, InnostromError } = require('../../lib/InnostromClient');
 const { PriceStore } = require('../../lib/PriceStore');
 const {
-  SLOT_MS, localParts, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal,
+  SLOT_MS, localParts, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
 
 // Backoff steps for a failed daily fetch (network/server errors) - see SPEC "Fehler".
@@ -32,6 +32,15 @@ function formatHHMM(date, tz) {
 function formatDateTime(date, tz) {
   const p = localParts(date, tz);
   return `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}. ${formatHHMM(date, tz)}`;
+}
+
+// Next occurrence of toHHMM strictly after `now` - today if that time is still ahead,
+// otherwise tomorrow. Unlike windowAround this has no "from" side to wrap around.
+function resolveUntil(now, toHHMM, tz) {
+  const t = parseHHMM(toHHMM);
+  const bp = localParts(now, tz);
+  const today = fromLocal(bp.year, bp.month, bp.day, t.hour, t.minute, tz);
+  return today > now ? today : addLocalDays(today, 1, tz);
 }
 
 function isAtOrAfterLocal(now, tz, { hour, minute }) {
@@ -448,15 +457,14 @@ class InnostromDevice extends Homey.Device {
   }
 
   // Same idea as actionFindCheapestBlock, but for Flows that run at an arbitrary moment
-  // (e.g. "EV plugged in") rather than a fixed daily window: search only the data that's
-  // actually known from right now onward, so a 6h block search at 22:00 doesn't wrap into
-  // a "window" that's mostly already in the past.
+  // (e.g. "EV plugged in") rather than a fixed daily window: the "from" side is always
+  // now, only "to" is given, so a 6h block search at 22:00 doesn't wrap into a "window"
+  // that's mostly already in the past.
   async actionFindCheapestBlockFromNow(args) {
     const now = new Date();
     const durationSlots = Math.round(Number(args.hours) * 4);
-    const end = this.priceStore.coveredUntil(now);
-    if (!end) throw new Error(this.homey.__('device.errorNoCheapestBlock'));
-    const block = this.priceStore.cheapestBlock(floorToSlot(now), end, durationSlots);
+    const until = resolveUntil(now, args.to, this.tz);
+    const block = this.priceStore.cheapestBlock(floorToSlot(now), until, durationSlots);
     if (!block) throw new Error(this.homey.__('device.errorNoCheapestBlock'));
     return {
       start: formatHHMM(block.start, this.tz),

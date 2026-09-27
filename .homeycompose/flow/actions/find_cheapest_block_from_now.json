@@ -1,8 +1,8 @@
 {
   "title": { "en": "Find the cheapest block from now", "de": "Günstigsten Block ab jetzt finden" },
   "titleFormatted": {
-    "en": "Find the cheapest block of [[hours]] hours from now",
-    "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt"
+    "en": "Find the cheapest block of [[hours]] hours from now until [[to]]",
+    "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt bis [[to]]"
   },
   "args": [
     { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
@@ -13,7 +13,8 @@
       "min": 0.25,
       "max": 24,
       "step": 0.25
-    }
+    },
+    { "type": "time", "name": "to", "title": { "en": "Until", "de": "Bis" } }
   ],
   "tokens": [
     { "name": "start", "type": "string", "title": { "en": "Block starts", "de": "Block beginnt" }, "example": "02:00" },
