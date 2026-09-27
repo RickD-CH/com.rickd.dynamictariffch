@@ -1,4 +1,8 @@
 {
+  "0.1.2": {
+    "en": "Added a new Flow action card: find the cheapest block from now until a given time, for Flows that run at any moment (e.g. when an EV is plugged in) rather than a fixed daily window.",
+    "de": "Neue Flow-Aktionskarte: günstigsten Block ab jetzt bis zu einer bestimmten Zeit finden - für Flows, die zu einem beliebigen Zeitpunkt laufen (z. B. wenn das E-Auto eingesteckt wird), statt in einem festen Tagesfenster."
+  },
   "0.1.1": {
     "en": "Fixed: the app settings page could spin forever instead of showing the dashboard.",
     "de": "Behoben: Die App-Einstellungsseite konnte dauerhaft laden statt das Dashboard anzuzeigen."
