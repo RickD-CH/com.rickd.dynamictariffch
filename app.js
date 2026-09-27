@@ -57,6 +57,9 @@ class DynamicTariffApp extends Homey.App {
 
     this.homey.flow.getActionCard('find_cheapest_block_from_now')
       .registerRunListener(async (args) => args.device.actionFindCheapestBlockFromNow(args));
+
+    this.homey.flow.getActionCard('find_cheapest_block_within')
+      .registerRunListener(async (args) => args.device.actionFindCheapestBlockWithin(args));
   }
 
 }

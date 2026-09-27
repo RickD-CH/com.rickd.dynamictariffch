@@ -1,4 +1,8 @@
 {
+  "0.1.3": {
+    "en": "Added another Flow action card: find the cheapest block within the next N hours from now, for Flows where a clock time doesn't make sense (e.g. \"charge for 2h sometime in the next 6h\").",
+    "de": "Weitere neue Flow-Aktionskarte: günstigsten Block innerhalb der nächsten X Stunden ab jetzt finden - für Flows, bei denen eine Uhrzeit keinen Sinn ergibt (z. B. \"2h irgendwann in den nächsten 6h laden\")."
+  },
   "0.1.2": {
     "en": "Added a new Flow action card: find the cheapest block from now until a given time, for Flows that run at any moment (e.g. when an EV is plugged in) rather than a fixed daily window.",
     "de": "Neue Flow-Aktionskarte: günstigsten Block ab jetzt bis zu einer bestimmten Zeit finden - für Flows, die zu einem beliebigen Zeitpunkt laufen (z. B. wenn das E-Auto eingesteckt wird), statt in einem festen Tagesfenster."

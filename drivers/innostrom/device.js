@@ -474,6 +474,23 @@ class InnostromDevice extends Homey.Device {
     };
   }
 
+  // Same idea again, but for Flows where a clock time doesn't make sense - "sometime in
+  // the next N hours" (e.g. EV plugged in, charge for 2h within the next 6h) rather than
+  // "until 06:00".
+  async actionFindCheapestBlockWithin(args) {
+    const now = new Date();
+    const durationSlots = Math.round(Number(args.hours) * 4);
+    const until = new Date(now.getTime() + Number(args.horizon) * 60 * 60 * 1000);
+    const block = this.priceStore.cheapestBlock(floorToSlot(now), until, durationSlots);
+    if (!block) throw new Error(this.homey.__('device.errorNoCheapestBlock'));
+    return {
+      start: formatHHMM(block.start, this.tz),
+      end: formatHHMM(block.end, this.tz),
+      avg: this._toDisplay(block.avg),
+      minutesUntilStart: Math.round((block.start.getTime() - now.getTime()) / 60000),
+    };
+  }
+
   // ---------------------------------------------------------------------
   // Widget
   // ---------------------------------------------------------------------

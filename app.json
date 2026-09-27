@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -712,6 +712,84 @@
           }
         ],
         "id": "find_cheapest_block_from_now"
+      },
+      {
+        "title": {
+          "en": "Find the cheapest block within the next hours",
+          "de": "Günstigsten Block innerhalb der nächsten Stunden finden"
+        },
+        "titleFormatted": {
+          "en": "Find the cheapest block of [[hours]] hours within the next [[horizon]] hours",
+          "de": "Finde den günstigsten Block von [[hours]] Stunden innerhalb der nächsten [[horizon]] Stunden"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Duration (hours)",
+              "de": "Dauer (Stunden)"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          },
+          {
+            "type": "number",
+            "name": "horizon",
+            "title": {
+              "en": "Search horizon (hours)",
+              "de": "Suchhorizont (Stunden)"
+            },
+            "min": 0.25,
+            "max": 48,
+            "step": 0.25
+          }
+        ],
+        "tokens": [
+          {
+            "name": "start",
+            "type": "string",
+            "title": {
+              "en": "Block starts",
+              "de": "Block beginnt"
+            },
+            "example": "02:00"
+          },
+          {
+            "name": "end",
+            "type": "string",
+            "title": {
+              "en": "Block ends",
+              "de": "Block endet"
+            },
+            "example": "05:00"
+          },
+          {
+            "name": "avg",
+            "type": "number",
+            "title": {
+              "en": "Average price",
+              "de": "Durchschnittspreis"
+            },
+            "example": 17.8
+          },
+          {
+            "name": "minutesUntilStart",
+            "type": "number",
+            "title": {
+              "en": "Minutes until start",
+              "de": "Minuten bis Start"
+            },
+            "example": 45
+          }
+        ],
+        "id": "find_cheapest_block_within"
       },
       {
         "title": {
