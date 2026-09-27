@@ -640,6 +640,73 @@
       },
       {
         "title": {
+          "en": "Find the cheapest block from now",
+          "de": "Günstigsten Block ab jetzt finden"
+        },
+        "titleFormatted": {
+          "en": "Find the cheapest block of [[hours]] hours from now",
+          "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "hours",
+            "title": {
+              "en": "Duration (hours)",
+              "de": "Dauer (Stunden)"
+            },
+            "min": 0.25,
+            "max": 24,
+            "step": 0.25
+          }
+        ],
+        "tokens": [
+          {
+            "name": "start",
+            "type": "string",
+            "title": {
+              "en": "Block starts",
+              "de": "Block beginnt"
+            },
+            "example": "02:00"
+          },
+          {
+            "name": "end",
+            "type": "string",
+            "title": {
+              "en": "Block ends",
+              "de": "Block endet"
+            },
+            "example": "05:00"
+          },
+          {
+            "name": "avg",
+            "type": "number",
+            "title": {
+              "en": "Average price",
+              "de": "Durchschnittspreis"
+            },
+            "example": 17.8
+          },
+          {
+            "name": "minutesUntilStart",
+            "type": "number",
+            "title": {
+              "en": "Minutes until start",
+              "de": "Minuten bis Start"
+            },
+            "example": 45
+          }
+        ],
+        "id": "find_cheapest_block_from_now"
+      },
+      {
+        "title": {
           "en": "Reload prices now",
           "de": "Preise jetzt neu laden"
         },

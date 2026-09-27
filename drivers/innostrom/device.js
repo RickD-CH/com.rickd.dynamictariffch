@@ -447,6 +447,25 @@ class InnostromDevice extends Homey.Device {
     };
   }
 
+  // Same idea as actionFindCheapestBlock, but for Flows that run at an arbitrary moment
+  // (e.g. "EV plugged in") rather than a fixed daily window: search only the data that's
+  // actually known from right now onward, so a 6h block search at 22:00 doesn't wrap into
+  // a "window" that's mostly already in the past.
+  async actionFindCheapestBlockFromNow(args) {
+    const now = new Date();
+    const durationSlots = Math.round(Number(args.hours) * 4);
+    const end = this.priceStore.coveredUntil(now);
+    if (!end) throw new Error(this.homey.__('device.errorNoCheapestBlock'));
+    const block = this.priceStore.cheapestBlock(floorToSlot(now), end, durationSlots);
+    if (!block) throw new Error(this.homey.__('device.errorNoCheapestBlock'));
+    return {
+      start: formatHHMM(block.start, this.tz),
+      end: formatHHMM(block.end, this.tz),
+      avg: this._toDisplay(block.avg),
+      minutesUntilStart: Math.round((block.start.getTime() - now.getTime()) / 60000),
+    };
+  }
+
   // ---------------------------------------------------------------------
   // Widget
   // ---------------------------------------------------------------------
