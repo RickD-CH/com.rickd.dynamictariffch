@@ -1,0 +1,14 @@
+{
+  "title": { "en": "Get tomorrow's hourly prices", "de": "Stundenpreise morgen abrufen" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+  ],
+  "tokens": [
+    {
+      "name": "prices",
+      "type": "string",
+      "title": { "en": "Hourly prices (JSON)", "de": "Stundenpreise (JSON)" },
+      "example": "[19.8,18.2,17.5,...]"
+    }
+  ]
+}

@@ -4,7 +4,8 @@
     "logAmongCheapestIncomplete": "is_among_cheapest: Preise im Fenster unvollständig, werte als falsch",
     "logAmongMostExpensiveIncomplete": "is_among_most_expensive: Preise im Fenster unvollständig, werte als falsch",
     "logInCheapestBlockIncomplete": "is_in_cheapest_block: Preise im Fenster unvollständig, werte als falsch",
-    "errorNoCheapestBlock": "Kein zusammenhängender Block dieser Länge im Zeitfenster gefunden (Daten fehlen)."
+    "errorNoCheapestBlock": "Kein zusammenhängender Block dieser Länge im Zeitfenster gefunden (Daten fehlen).",
+    "errorPricesIncomplete": "Stundenpreise unvollständig (Daten fehlen und kein Einheitstarif als Fallback eingestellt)."
   },
   "repair": {
     "meteringCodeMismatch": "Diese Messpunktnummer stimmt nicht mit dem bestehenden Gerät überein. Für einen anderen Messpunkt bitte neu koppeln statt reparieren."

@@ -4,7 +4,8 @@
     "logAmongCheapestIncomplete": "is_among_cheapest: prices in window incomplete, evaluating as false",
     "logAmongMostExpensiveIncomplete": "is_among_most_expensive: prices in window incomplete, evaluating as false",
     "logInCheapestBlockIncomplete": "is_in_cheapest_block: prices in window incomplete, evaluating as false",
-    "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing)."
+    "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing).",
+    "errorPricesIncomplete": "Hourly prices incomplete (data missing and no fallback flat rate configured)."
   },
   "repair": {
     "meteringCodeMismatch": "This metering point number doesn't match the existing device. Pair a new device instead to switch to a different metering point."

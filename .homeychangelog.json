@@ -1,4 +1,8 @@
 {
+  "0.1.4": {
+    "en": "Added two Flow action cards, \"Get today's/tomorrow's hourly prices\", returning a JSON-encoded array of 24 hourly prices (Rp./kWh) for feeding third-party EMS apps that expect an hourly price forecast, such as FusionSolar's ems_set_price_forecast.",
+    "de": "Zwei neue Flow-Aktionskarten \"Stundenpreise heute/morgen abrufen\": liefern ein JSON-Array mit 24 Stundenpreisen (Rp./kWh), z. B. für die Preisprognose in EMS-Apps von Drittanbietern wie FusionSolars ems_set_price_forecast."
+  },
   "0.1.3": {
     "en": "Added another Flow action card: find the cheapest block within the next N hours from now, for Flows where a clock time doesn't make sense (e.g. \"charge for 2h sometime in the next 6h\").",
     "de": "Weitere neue Flow-Aktionskarte: günstigsten Block innerhalb der nächsten X Stunden ab jetzt finden - für Flows, bei denen eine Uhrzeit keinen Sinn ergibt (z. B. \"2h irgendwann in den nächsten 6h laden\")."

@@ -491,6 +491,36 @@ class InnostromDevice extends Homey.Device {
     };
   }
 
+  // 24 hourly values (index 0 = 00:00-01:00 local ... 23 = 23:00-24:00), averaged from
+  // our 15-min slots, same CHF->Rp./VAT conversion as measure_price_total. For feeding
+  // third-party EMS apps (e.g. FusionSolar's ems_set_price_forecast) that expect one
+  // value per hour rather than per quarter-hour - JSON-encoded since Homey Flow tokens
+  // have no array type, matching how Power by the Hour's own "Prices" token works.
+  _hourlyPricesArray(day) {
+    const dayStart = startOfLocalDay(day, this.tz);
+    const dayEnd = addLocalDays(dayStart, 1, this.tz);
+    const buckets = Array.from({ length: 24 }, () => []);
+    for (const slot of this.priceStore.range(dayStart, dayEnd)) {
+      if (typeof slot.integrated !== 'number' || !Number.isFinite(slot.integrated)) continue;
+      buckets[localParts(slot.start, this.tz).hour].push(slot.integrated);
+    }
+    return buckets.map((values) => this._toDisplay(
+      values.length ? values.reduce((a, b) => a + b, 0) / values.length : null,
+    ));
+  }
+
+  async actionGetPricesToday() {
+    const prices = this._hourlyPricesArray(new Date());
+    if (prices.some((v) => v === null)) throw new Error(this.homey.__('device.errorPricesIncomplete'));
+    return { prices: JSON.stringify(prices) };
+  }
+
+  async actionGetPricesTomorrow() {
+    const prices = this._hourlyPricesArray(addLocalDays(new Date(), 1, this.tz));
+    if (prices.some((v) => v === null)) throw new Error(this.homey.__('device.errorPricesIncomplete'));
+    return { prices: JSON.stringify(prices) };
+  }
+
   // ---------------------------------------------------------------------
   // Widget
   // ---------------------------------------------------------------------
