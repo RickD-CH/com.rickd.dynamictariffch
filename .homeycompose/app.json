@@ -1,6 +1,6 @@
 {
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -12,8 +12,8 @@
     "de": "Dynamischer Stromtarif CH"
   },
   "description": {
-    "en": "15-minute dynamic electricity prices for Swiss utilities using the Innostrom platform (e.g. AEW Classic Dynamic from 2027).",
-    "de": "15-Minuten-Preise des dynamischen Stromtarifs für Schweizer Netzbetreiber mit der Innostrom-Plattform (z. B. AEW Classic Dynamic ab 2027)."
+    "en": "Run your home when Swiss electricity is cheapest",
+    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist"
   },
   "tags": {
     "en": [

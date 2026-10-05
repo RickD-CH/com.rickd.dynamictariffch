@@ -1,4 +1,8 @@
 {
+  "0.1.5": {
+    "en": "Store review fixes: new widget previews that show the widget's layout, and a short tagline as the app description.",
+    "de": "Anpassungen nach dem Store-Review: neue Widget-Vorschau, die das Layout des Widgets zeigt, und ein kurzer Slogan als App-Beschreibung."
+  },
   "0.1.4": {
     "en": "Added two Flow action cards, \"Get today's/tomorrow's hourly prices\", returning a JSON-encoded array of 24 hourly prices (Rp./kWh) for feeding third-party EMS apps that expect an hourly price forecast, such as FusionSolar's ems_set_price_forecast.",
     "de": "Zwei neue Flow-Aktionskarten \"Stundenpreise heute/morgen abrufen\": liefern ein JSON-Array mit 24 Stundenpreisen (Rp./kWh), z. B. für die Preisprognose in EMS-Apps von Drittanbietern wie FusionSolars ems_set_price_forecast."
