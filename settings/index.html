@@ -93,6 +93,10 @@
     .last-update { font-size: 11px; color: var(--st-muted); margin-top: 10px; }
     .no-device, .load-error { text-align: center; color: var(--st-muted); padding: 20px 0; }
     .load-error { color: var(--st-expensive); }
+    .btn {
+      border: 1px solid var(--st-border); background: var(--st-chip-bg); color: var(--st-text);
+      border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+    }
     code { background: var(--st-chip-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
   </style>
 </head>
@@ -116,6 +120,12 @@
     <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
   </div>
 
+  <div class="card">
+    <h2 id="h2-forum"></h2>
+    <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
+    <button class="btn" id="btn-forum"></button>
+  </div>
+
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <script type="text/javascript">
     var DE = (navigator.language || 'en').toLowerCase().indexOf('de') === 0;
@@ -127,9 +137,9 @@
       features: [
         'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
         'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
-        '10 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Button',
-        '13 Flow-Karten: Preisänderung, Preise-für-morgen-verfügbar, Preisschwellen, günstigster Block, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, manuelles Neuladen',
-        'Dashboard-Widget mit Preiskurve für heute und morgen',
+        '12 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Knopf',
+        '17 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen',
+        'Dashboard-Widget mit Preiskurve für heute und morgen, Refresh-Knopf und Zeitstempel der letzten Aktualisierung',
       ],
       recommendHeading: 'Empfohlene Einstellungen',
       recommendSub: 'Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.',
@@ -145,6 +155,9 @@
       noDevice: 'Noch kein Gerät gekoppelt.',
       noTomorrow: 'Keine Preise für morgen',
       lastUpdate: 'Aktualisiert:',
+      forumTitle: 'Fragen oder Probleme?',
+      forumHint: 'Antworten auf häufige Fragen, die Einstellungsanleitung und der direkte Kontakt zum Entwickler gibt es im Community-Forum.',
+      forumButton: 'Zum Forum-Thread',
       chips: { energy: 'Energie', grid: 'Netz', next: 'Nächste', rank: 'Rang heute', min: 'Tiefster', avg: 'Ø heute', max: 'Höchster' },
       levels: { very_cheap: 'Sehr günstig', cheap: 'Günstig', normal: 'Normal', expensive: 'Teuer', very_expensive: 'Sehr teuer' },
     };
@@ -156,9 +169,9 @@
       features: [
         'Pairing via metering point number + API token — the test/production environment is detected automatically',
         'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
-        '10 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, last update + manual refresh button',
-        '13 Flow cards: price change, prices-for-tomorrow-available, price thresholds, cheapest block, cheapest/most expensive quarter-hours, price level condition, manual refresh',
-        'Dashboard widget with a price curve for today and tomorrow',
+        '12 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, last update + manual refresh button',
+        '17 Flow cards: price change, price thresholds, prices-for-tomorrow-available, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh',
+        'Dashboard widget with a price curve for today and tomorrow, a refresh button and the last update time',
       ],
       recommendHeading: 'Recommended settings',
       recommendSub: 'Configurable per device, under its gear icon.',
@@ -174,6 +187,9 @@
       noDevice: 'No device paired yet.',
       noTomorrow: 'No prices for tomorrow',
       lastUpdate: 'Updated:',
+      forumTitle: 'Questions or problems?',
+      forumHint: 'Answers to common questions, the settings guide and direct contact with the developer are in the community forum.',
+      forumButton: 'Go to forum thread',
       chips: { energy: 'Energy', grid: 'Grid', next: 'Next', rank: 'Rank today', min: 'Lowest', avg: 'Avg today', max: 'Highest' },
       levels: { very_cheap: 'Very cheap', cheap: 'Cheap', normal: 'Normal', expensive: 'Expensive', very_expensive: 'Very expensive' },
     };
@@ -210,6 +226,9 @@
       }).join('');
       $('h2-live').textContent = T.liveHeading;
       $('initial-loading').textContent = T.loading;
+      $('h2-forum').textContent = T.forumTitle;
+      $('hint-forum').textContent = T.forumHint;
+      $('btn-forum').textContent = T.forumButton;
     }
 
     applyText();
@@ -298,6 +317,10 @@
           });
         });
       }
+
+      $('btn-forum').addEventListener('click', function () {
+        Homey.openURL('https://community.homey.app/t/app-pro-swiss-dynamic-electricity-tariff-15-minute-prices-for-innostrom-swisspower-tariffs/160031');
+      });
 
       function load() {
         return apiCall('GET', '/summary').then(render);
