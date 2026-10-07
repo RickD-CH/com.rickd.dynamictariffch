@@ -1,6 +1,6 @@
 {
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -57,5 +57,7 @@
       "method": "get",
       "path": "/summary"
     }
-  }
+  },
+  "support": "https://community.homey.app/t/160031",
+  "homeyCommunityTopicId": 160031
 }
