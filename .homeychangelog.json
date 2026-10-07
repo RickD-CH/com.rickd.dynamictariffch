@@ -1,7 +1,7 @@
 {
   "0.1.7": {
-    "en": "Added a link to the Homey Community forum thread in the app overview.",
-    "de": "Link zum Homey-Community-Forum in der App-Übersicht hinzugefügt."
+    "en": "Added links to the Homey Community forum thread and a donation link in the app overview.",
+    "de": "Links zum Homey-Community-Forum und ein Spendenlink in der App-Übersicht hinzugefügt."
   },
   "0.1.6": {
     "en": "Review follow-ups: removed the public test API token from the pairing texts and the app package, and gave the \"Price is below\" condition card its own unique id.",

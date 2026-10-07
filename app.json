@@ -61,6 +61,13 @@
   },
   "support": "https://community.homey.app/t/160031",
   "homeyCommunityTopicId": 160031,
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "RickDch"
+      }
+    }
+  },
   "flow": {
     "triggers": [
       {
