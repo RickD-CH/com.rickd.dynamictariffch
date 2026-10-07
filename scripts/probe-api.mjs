@@ -4,7 +4,8 @@
 //   node scripts/probe-api.mjs --raw      → zusätzlich die Rohantwort des ersten Slots ausgeben
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const { InnostromClient, TEST_CREDENTIALS } = require('../lib/InnostromClient.js');
+const { InnostromClient } = require('../lib/InnostromClient.js');
+const TEST_CREDENTIALS = require('../test/test-credentials.js');
 const { PriceStore } = require('../lib/PriceStore.js');
 const time = require('../lib/time.js');
 

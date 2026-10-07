@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -560,7 +560,7 @@
             "step": 0.1
           }
         ],
-        "id": "price_below"
+        "id": "price_is_below"
       }
     ],
     "actions": [
@@ -909,20 +909,12 @@
               "de": "Messpunktnummer"
             },
             "usernameHint": {
-              "en": "CH… number, 33 characters. To try without a contract, use the public test metering point CH1018601234500000000000000011642 with token 19d6ca0bb9bf4d8b6525440eead80da6.",
-              "de": "CH…-Nummer, 33 Zeichen. Zum Testen ohne Vertrag: Messpunktnummer CH1018601234500000000000000011642 mit Token 19d6ca0bb9bf4d8b6525440eead80da6."
-            },
-            "usernamePlaceholder": {
-              "en": "Test: CH1018601234500000000000000011642",
-              "de": "Test: CH1018601234500000000000000011642"
+              "en": "CH… number, 33 characters, as provided by your utility. Enter your own credentials.",
+              "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben."
             },
             "passwordLabel": {
               "en": "API token",
               "de": "API-Token"
-            },
-            "passwordPlaceholder": {
-              "en": "Test: 19d6ca0bb9bf4d8b6525440eead80da6",
-              "de": "Test: 19d6ca0bb9bf4d8b6525440eead80da6"
             }
           }
         },

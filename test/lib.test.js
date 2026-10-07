@@ -5,8 +5,9 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const time = require('../lib/time');
-const { InnostromClient, InnostromError, TEST_CREDENTIALS, normalizeSlot, workPrice } = require('../lib/InnostromClient');
+const { InnostromClient, InnostromError, normalizeSlot, workPrice } = require('../lib/InnostromClient');
 const { PriceStore } = require('../lib/PriceStore');
+const TEST_CREDENTIALS = require('./test-credentials');
 
 const fx = (name) => require(path.join(__dirname, 'fixtures', name));
 const slotsOf = (name) => fx(name).prices.map(normalizeSlot);

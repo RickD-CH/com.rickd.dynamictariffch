@@ -114,7 +114,7 @@ der pro Flow-Argument prüft (Zustand „vorher/nachher“ im Device merken).
 | `is_among_cheapest` | Die aktuelle Viertelstunde gehört zu den [n] günstigsten zwischen [von] und [bis] |
 | `is_among_most_expensive` | … zu den [n] teuersten zwischen [von] und [bis] |
 | `is_in_cheapest_block` | Jetzt ist der günstigste zusammenhängende Block von [n] Stunden zwischen [von] und [bis] |
-| `price_below` | Der Preis ist unter [x] Rp./kWh |
+| `price_is_below` | Der Preis ist unter [x] Rp./kWh |
 | `level_is` | Das Preisniveau ist [günstig/normal/teuer …] |
 
 `n` bei den Bedingungen: Anzahl **Viertelstunden** oder **Stunden** (Dropdown-Argument). Stunden sind

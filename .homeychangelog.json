@@ -1,4 +1,8 @@
 {
+  "0.1.6": {
+    "en": "Review follow-ups: removed the public test API token from the pairing texts and the app package, and gave the \"Price is below\" condition card its own unique id.",
+    "de": "Anpassungen nach dem Review: öffentlicher Test-Token aus den Pairing-Texten und dem App-Paket entfernt, und die Bedingungskarte \"Preis ist unter\" hat jetzt eine eigene eindeutige ID."
+  },
   "0.1.5": {
     "en": "Store review fixes: new widget previews that show the widget's layout, and a short tagline as the app description.",
     "de": "Anpassungen nach dem Store-Review: neue Widget-Vorschau, die das Layout des Widgets zeigt, und ein kurzer Slogan als App-Beschreibung."

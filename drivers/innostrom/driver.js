@@ -1,7 +1,7 @@
 'use strict';
 
 const Homey = require('homey');
-const { InnostromClient, InnostromError, TEST_CREDENTIALS } = require('../../lib/InnostromClient');
+const { InnostromClient, InnostromError, TEST_METERING_CODE } = require('../../lib/InnostromClient');
 
 class InnostromDriver extends Homey.Driver {
 
@@ -16,7 +16,7 @@ class InnostromDriver extends Homey.Driver {
       const token = String(password || '').trim();
       // The public test metering code is a fixed, known constant, so pairing with it
       // auto-detects the test environment - no separate environment picker needed.
-      const environment = meteringCode === TEST_CREDENTIALS.meteringCode ? 'test' : 'production';
+      const environment = meteringCode === TEST_METERING_CODE ? 'test' : 'production';
 
       const client = new InnostromClient({ meteringCode, token, environment });
       try {
@@ -58,7 +58,7 @@ class InnostromDriver extends Homey.Driver {
         throw new Error(this.homey.__('repair.meteringCodeMismatch'));
       }
 
-      const environment = meteringCode === TEST_CREDENTIALS.meteringCode ? 'test' : device.getSetting('environment');
+      const environment = meteringCode === TEST_METERING_CODE ? 'test' : device.getSetting('environment');
       const client = new InnostromClient({ meteringCode, token, environment });
       try {
         await client.testConnection();
