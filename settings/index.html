@@ -96,6 +96,7 @@
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--st-accent); }
     .bar { flex: 1; min-width: 1px; border-radius: 1px; }
     .bar.past { opacity: .45; }
+    .bar.daybreak { margin-left: 3px; }
     .bar.now { outline: 2px solid var(--st-text); outline-offset: -1px; }
     .chart-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--st-muted); }
     .legend { font-size: 11px; color: var(--st-muted); margin-top: 6px; }
@@ -323,6 +324,7 @@
       dailyHeading: 'Letzte 30 Tage',
       chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
+      dayToday: 'Heute', dayTomorrow: 'Morgen',
       cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
       cumNote: 'Netto = Bezug minus Einspeisung, aufsummiert über den Tag. Der Abstand der Linien ist die Ersparnis.',
@@ -423,6 +425,7 @@
       dailyHeading: 'Last 30 days',
       chartHeading: 'Price (bars), reference (dashed) and import (blue, bottom)',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
+      dayToday: 'Today', dayTomorrow: 'Tomorrow',
       cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
       cumNote: 'Net = import minus export, summed over the day. The gap between the lines is the saving.',
@@ -576,13 +579,14 @@
       var span = max - min;
       var pct = function (v) { return span > 0 ? (v - min) / span : 0.5; };
 
-      var bars = slots.map(function (s) {
+      var twoDays = slots.length > 100;
+      var bars = slots.map(function (s, idx) {
         var v = valueOf(s);
         var hasValue = typeof v === 'number';
         var ratio = hasValue ? pct(v) : 0;
         var heightPct = hasValue ? Math.max(4, Math.round(ratio * 100)) : 4;
         var color = hasValue ? interpolateColor(ratio) : 'var(--st-border)';
-        var classes = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '');
+        var classes = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '') + (twoDays && idx === 96 ? ' daybreak' : '');
         var title = s.time + (hasValue ? ': ' + v.toFixed(2) + ' Rp./kWh' : '');
         return '<div class="' + classes + '" style="height:' + heightPct + '%;background:' + color + '" title="' + escapeHtml(title) + '"></div>';
       }).join('');
@@ -596,9 +600,9 @@
         : '';
 
       var kwhRow = '';
-      if (withKwh) {
-        var maxKwh = 0;
-        slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+      var maxKwh = 0;
+      slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+      if (withKwh && maxKwh > 0) {
         kwhRow = '<div class="kwhrow">' + slots.map(function (s) {
           var h = maxKwh > 0 && s.kwh > 0 ? Math.max(6, Math.round((s.kwh / maxKwh) * 100)) : 0;
           return '<div class="kbar" style="height:' + h + '%" title="' + escapeHtml(s.time + ': ' + (s.kwh || 0).toFixed(3) + ' kWh') + '"></div>';
@@ -606,13 +610,16 @@
       }
 
       var lastIdx = slots.length - 1;
-      var idxs = [0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx];
+      var idxs = twoDays ? [0, 48, 96, 144, lastIdx] : [0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx];
       var seen = {};
       var labelSpans = idxs.filter(function (idx) {
         if (seen[idx]) return false;
         seen[idx] = true;
         return true;
-      }).map(function (idx) { return '<span>' + slots[idx].time + '</span>'; }).join('');
+      }).map(function (idx) {
+        var prefix = twoDays && idx === 0 ? T.dayToday + ' ' : (twoDays && idx === 96 ? T.dayTomorrow + ' ' : '');
+        return '<span>' + prefix + slots[idx].time + '</span>';
+      }).join('');
 
       return '<div class="chart">' + bars + refLine + '</div>' + kwhRow +
         '<div class="chart-labels">' + labelSpans + '</div>';
@@ -646,7 +653,7 @@
           '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + escapeHtml(T.chips.avg) + '</div></div>' +
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + escapeHtml(T.chips.max) + '</div></div>' +
         '</div>' +
-        chartHtml(data.slots, false) +
+        chartHtml(data.slots, true) +
         (data.noTomorrow ? '<div class="warn">⚠ ' + escapeHtml(T.noTomorrow) + '</div>' : '') +
         (data.lastUpdate ? '<div class="last-update">' + escapeHtml(T.lastUpdate) + ' ' + escapeHtml(data.lastUpdate) + '</div>' : '');
     }

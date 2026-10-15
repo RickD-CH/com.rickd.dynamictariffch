@@ -699,9 +699,11 @@ class InnostromDevice extends Homey.Device {
     const nowSlotStart = floorToSlot(now).getTime();
 
     const refs = this._refPeriods();
+    const kwh = new Map(this.costTracker.slotsOf(localDateKey(now, this.tz)).map((x) => [x[0], x[1]]));
     return this.priceStore.range(from, to).map((s) => ({
       time: formatHHMM(s.start, this.tz),
       value: this._toDisplay(s.integrated),
+      kwh: kwh.get(s.start.getTime()) || 0,
       ref: this._refPriceAt(s.start, refs),
       isNow: s.start.getTime() === nowSlotStart,
       isPast: s.start.getTime() < nowSlotStart,
