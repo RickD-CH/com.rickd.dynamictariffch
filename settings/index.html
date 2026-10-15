@@ -51,10 +51,10 @@
       font-size: 14px; color: var(--st-text); background: var(--st-bg);
       padding: 16px 20px 32px;
     }
-    h1 { font-size: 18px; margin: 0 0 4px; }
     h2 { font-size: 15px; margin: 0 0 10px; }
     p { line-height: 1.5; }
     .sub { color: var(--st-muted); margin: 0 0 20px; }
+    #p-sub { margin-top: 0; }
     .tabs { display: flex; gap: 2px; overflow-x: auto; margin: 0 0 16px; border-bottom: 1px solid var(--st-border); }
     .tab {
       flex: 0 0 auto; background: transparent; border: 0; border-bottom: 2px solid transparent;
@@ -133,7 +133,6 @@
   </style>
 </head>
 <body>
-  <h1 id="h1-title">Dynamischer Stromtarif CH</h1>
   <p class="sub" id="p-sub"></p>
 
   <nav class="tabs">
@@ -379,7 +378,6 @@
     function applyText() {
       document.documentElement.lang = DE ? 'de' : 'en';
       $('doc-title').textContent = T.title;
-      $('h1-title').textContent = T.title;
       $('p-sub').textContent = T.sub;
       ['overview', 'costs', 'reference', 'help'].forEach(function (k) { $('t-' + k).textContent = T.tabs[k]; });
       $('h2-features').textContent = T.featuresHeading;
