@@ -88,7 +88,9 @@ test('Einspeisung wird gegen den Einspeisetarif gerechnet', () => {
 });
 
 test('Referenzpreis wirkt rückwirkend, Niedertarif nach Zeitfenster und Wochenende', () => {
-  const ref = normalizeRef({ price: 30, ntPrice: 20, ntFrom: '21:00', ntTo: '07:00', ntWeekend: true });
+  const ref = normalizeRef({
+    price: 30, ntPrice: 20, ntFrom: '21:00', ntTo: '07:00', ntWeekend: true,
+  });
   assert.equal(isLowTariff(at(22), ref, TZ), true);
   assert.equal(isLowTariff(at(6), ref, TZ), true);
   assert.equal(isLowTariff(at(12), ref, TZ), false);
@@ -103,17 +105,76 @@ test('Referenzpreis wirkt rückwirkend, Niedertarif nach Zeitfenster und Wochene
   assert.equal(t.summary('2027-01-14', '2027-01-14', {}).savings, null);
 });
 
-test('Batterie: Nutzen = Entlade- minus Ladewert, gegen den Referenzpreis', () => {
+test('Batterie aus PV: Ladung wird zum entgangenen Einspeisepreis bewertet', () => {
   const t = new CostTracker({ tz: TZ });
-  t.report('battery_charge', 0, at(3, 0), flat(10), REF);
-  t.report('battery_charge', 1, at(3, 15), flat(10), REF);
-  t.report('battery_discharge', 0, at(18, 0), flat(40), REF);
-  t.report('battery_discharge', 1, at(18, 15), flat(40), REF);
-  const s = t.summary('2027-01-14', '2027-01-14', REF);
-  // dyn: 40 - 10 = 30 ; ref: 30 - 30 = 0
-  assert.equal(s.batteryBenefit, 30);
+  const ref = { price: 30, feedIn: 0 };
+  const priceAt = (start) => ({ dyn: start.getTime() < at(12).getTime() ? 10 : 40, feedIn: 5 });
+  t.report('battery_charge', 0, at(3, 0), priceAt, ref);
+  t.report('battery_charge', 1, at(3, 15), priceAt, ref);
+  t.report('battery_discharge', 0, at(18, 0), priceAt, ref);
+  t.report('battery_discharge', 1, at(18, 15), priceAt, ref);
+  const s = t.summary('2027-01-14', '2027-01-14', ref);
+  // dyn: 40 (avoided import) - 5 (feed-in forgone) = 35 ; ref: 30 - 0 = 30
+  assert.equal(s.batteryBenefit, 5);
   assert.equal(s.batteryChargeKwh, 1);
   assert.equal(s.batteryDischargeKwh, 1);
+});
+
+test('Batterie aus dem Netz: Import derselben Viertelstunde wird zum Bezugspreis bewertet', () => {
+  const t = new CostTracker({ tz: TZ });
+  const ref = { price: 30, feedIn: 8 };
+  // cheap at night (10 Rp.), expensive in the evening (40 Rp.), like a real price list
+  const priceAt = (start) => ({ dyn: start.getTime() < at(12).getTime() ? 10 : 40, feedIn: 5 });
+  t.report('import', 0, at(3, 0), priceAt, ref);
+  t.report('battery_charge', 0, at(3, 0), priceAt, ref);
+  t.report('import', 1, at(3, 15), priceAt, ref);
+  t.report('battery_charge', 1, at(3, 15), priceAt, ref);
+  t.report('battery_discharge', 0, at(18, 0), priceAt, ref);
+  t.report('battery_discharge', 1, at(18, 15), priceAt, ref);
+  const s = t.summary('2027-01-14', '2027-01-14', ref);
+  // dyn: 40 (avoided) - 10 (grid charge) = 30 ; ref: 30 - 30 = 0 -> benefit 30
+  assert.equal(s.batteryBenefit, 30);
+});
+
+test('Fixkosten-Differenz läuft pro Kalendertag seit Beginn und senkt die Ersparnis', () => {
+  const t = new CostTracker({ tz: TZ });
+  const refs = [{ from: '', price: 30, fixedDiff: 3.65 }]; // 3.65 CHF/month = 0.12 CHF/day
+  t.report('import', 0, at(10, 0), flat(20), refs);
+  t.report('import', 1, at(10, 15), flat(20), refs);
+  const s = t.summary('2027-01-14', '2027-01-14', refs);
+  assert.equal(Math.round(s.fixedCostDiff * 100) / 100, 12); // Rp.
+  assert.equal(Math.round(s.savings * 100) / 100, 10 - 12);
+  assert.equal(t.summary('2027-01-14', '2027-01-14', [{ price: 30 }]).fixedCostDiff, 0);
+});
+
+test('negative Preise werden gezählt', () => {
+  const t = new CostTracker({ tz: TZ });
+  t.report('import', 0, at(10, 0), flat(-5), REF);
+  t.report('import', 1, at(10, 15), flat(-5), REF);
+  t.report('export', 0, at(10, 0), flat(10, -2), REF);
+  t.report('export', 2, at(10, 15), flat(10, -2), REF);
+  const s = t.summary('2027-01-14', '2027-01-14', REF);
+  assert.equal(s.negativeImportKwh, 1);
+  assert.equal(s.negativeExportKwh, 2);
+  assert.equal(s.importCostDyn, -5);
+  assert.equal(s.exportRevenueDyn, -4);
+});
+
+test('Verbraucher: Durchschnittspreis, Vorteil zum Tagesmittel und Ersparnis gegen Referenz', () => {
+  const t = new CostTracker({ tz: TZ });
+  const priceAt = () => ({ dyn: 10, feedIn: 0, dayAvg: 25 });
+  assert.equal(t.reportConsumer('E-Auto', 100, at(3, 0), priceAt, REF).status, 'baseline');
+  assert.equal(t.reportConsumer('E-Auto', 102, at(3, 15), priceAt, REF).status, 'ok');
+  const [c] = t.consumerSummary('2027-01-14', '2027-01-14', REF);
+  assert.equal(c.name, 'E-Auto');
+  assert.equal(c.kwh, 2);
+  assert.equal(c.avgPrice, 10);
+  assert.equal(c.avgDayPrice, 25);
+  assert.equal(c.advantage, 15);
+  assert.equal(c.savingsVsRef, 40);
+  assert.equal(t.reportConsumer('', 1, at(3, 30), priceAt, REF).status, 'invalid');
+  for (let i = 0; i < 6; i += 1) t.reportConsumer(`V${i}`, 1, at(3, 30), priceAt, REF);
+  assert.equal(t.reportConsumer('zu viel', 1, at(3, 30), priceAt, REF).status, 'limit');
 });
 
 test('JSON-Roundtrip, daily und reset', () => {
@@ -173,7 +234,9 @@ test('Tage ohne gültigen Referenzzeitraum bleiben aus dem Vergleich', () => {
 test('sanitizeRefPeriods: validiert, sortiert und behält die Rechnerzeilen', () => {
   const out = sanitizeRefPeriods([
     { from: '2027-01-01', price: '28.5', importLines: [{ name: 'Netz', value: 0.1 }] },
-    { from: '', price: 26, feedIn: 10.2, ntFrom: '21:00', ntTo: '07:00' },
+    {
+      from: '', price: 26, feedIn: 10.2, ntFrom: '21:00', ntTo: '07:00',
+    },
   ]);
   assert.equal(out[0].from, '');
   assert.equal(out[1].price, 28.5);

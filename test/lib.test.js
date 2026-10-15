@@ -5,7 +5,9 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const time = require('../lib/time');
-const { InnostromClient, InnostromError, normalizeSlot, workPrice } = require('../lib/InnostromClient');
+const {
+  InnostromClient, InnostromError, normalizeSlot, workPrice,
+} = require('../lib/InnostromClient');
 const { PriceStore } = require('../lib/PriceStore');
 const TEST_CREDENTIALS = require('./test-credentials');
 
@@ -103,7 +105,12 @@ for (const [status, file, code] of [
 }
 
 test('getPrices: Netzwerkfehler → NETWORK (retryable)', async () => {
-  const c = new InnostromClient({ ...TEST_CREDENTIALS, fetch: async () => { throw new Error('ECONNRESET'); } });
+  const c = new InnostromClient({
+    ...TEST_CREDENTIALS,
+    fetch: async () => {
+      throw new Error('ECONNRESET');
+    },
+  });
   await assert.rejects(c.getPrices({ from: new Date(0), to: new Date(3600e3) }), (e) => e.code === 'NETWORK' && e.retryable);
 });
 

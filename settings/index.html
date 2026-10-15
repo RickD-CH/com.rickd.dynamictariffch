@@ -283,7 +283,7 @@
       periods: { today: 'Heute', week: '7 Tage', month: 'Monat', total: 'Gesamt' },
       cols: { period: 'Zeitraum', import: 'Bezug kWh', export: 'Einsp. kWh', dyn: 'Netto dynamisch', ref: 'Netto Referenz', diff: 'Differenz' },
       saved: 'gespart', pricier: 'teurer',
-      batteryBenefit: 'Batterie-Nutzen (Schätzung, ist in den Zahlen oben bereits enthalten)',
+      batteryBenefit: 'Batterie-Nutzen durch den Tarif (Schätzung: Netzladung zum Bezugspreis, PV-Ladung zum entgangenen Einspeisepreis, Entladung zum ersparten Bezugspreis; bereits in den Zahlen oben enthalten)',
       unpriced: 'kWh ohne Preis (Daten fehlten) sind in den Kosten nicht enthalten:',
       avgPrices: 'Ø Bezugspreis dynamisch / Referenz (Rp./kWh):',
       dailyHeading: 'Letzte 30 Tage',
@@ -293,7 +293,15 @@
       costsFootnote: 'Schätzung ohne Grundgebühren — massgebend ist die Rechnung des Netzbetreibers. Netto = Bezugskosten minus Einspeisevergütung.',
       refHeading: 'Referenztarif',
       refHint: 'Dein Standardtarif zum Vergleich in Rp./kWh inklusive MWST. Du kannst den Preis direkt eintragen oder mit dem Rechner aus den Zeilen deiner Rechnung berechnen lassen. Jeder Zeitraum gilt ab seinem Datum bis zum nächsten, bei einer Tarifänderung also einfach einen Zeitraum hinzufügen. Alte Tage werden mit dem damals gültigen Preis verglichen.',
-      refLabels: { from: 'Gültig ab (leer = von Anfang an)', price: 'Bezugspreis (Rp./kWh inkl. MWST)', feedIn: 'Einspeisevergütung (Rp./kWh)', ntSummary: 'Niedertarif (optional)', ntPrice: 'Niedertarif (Rp./kWh)', ntFrom: 'Niedertarif von (HH:MM)', ntTo: 'Niedertarif bis (HH:MM)', ntWeekend: 'Niedertarif am ganzen Wochenende' },
+      refLabels: { from: 'Gültig ab (leer = von Anfang an)', price: 'Bezugspreis (Rp./kWh inkl. MWST)', feedIn: 'Einspeisevergütung (Rp./kWh)', ntSummary: 'Niedertarif (optional)', fixedDiff: 'Fixkosten-Mehrkosten dynamischer Tarif (CHF/Monat)', ntPrice: 'Niedertarif (Rp./kWh)', ntFrom: 'Niedertarif von (HH:MM)', ntTo: 'Niedertarif bis (HH:MM)', ntWeekend: 'Niedertarif am ganzen Wochenende' },
+      fixedDiffHint: 'Optional: Grundpreis, Messentgelt usw. des dynamischen Tarifs minus die deines Referenztarifs. Positiv = dynamisch teurer, negativ = günstiger. Wird pro Kalendertag von der Ersparnis abgezogen; 0, wenn beides gleich ist.',
+      negativePrice: 'Negativ',
+      consumersHeading: 'Verbraucher (Monat)',
+      consCols: { name: 'Verbraucher', kwh: 'kWh', avg: 'Ø Preis', day: 'Tagesmittel', adv: 'Vorteil', ref: 'ggü. Referenz (CHF)' },
+      consNote: 'Wert zum Netzpreis der jeweiligen Viertelstunde (PV-Anteil ist nicht herausgerechnet). Vorteil = Tagesmittel minus Ø Preis in Rp./kWh, positiv = zu günstigeren Zeiten gelaufen.',
+      fixedNote: 'In der Differenz enthalten: Fixkosten-Differenz (CHF):',
+      negImpNote: 'Bezug bei negativem Preis (Gutschrift), kWh:',
+      negExpNote: 'Einspeisung bei negativem Preis (Kosten), kWh:',
       refAdd: 'Zeitraum hinzufügen', refRemove: 'Zeitraum entfernen', refNone: 'Noch kein Referenztarif. Mit «Zeitraum hinzufügen» beginnen.',
       calc: 'Rechner', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Zeile hinzufügen', calcExcl: 'Beträge sind ohne MWST (MWST wird addiert)', calcExclExport: 'Auf die Einspeisung wird keine MWST gerechnet.', calcSum: 'Ergebnis', calcApply: 'Übernehmen', calcNamePh: 'z. B. Netznutzung',
       save: 'Speichern', savedMsg: 'Gespeichert', saveFailed: 'Speichern fehlgeschlagen: ',
@@ -312,6 +320,7 @@
         'Im Feld «Zählerstand» auf das Token-Symbol tippen, dein Zähler-Gerät wählen und den kumulierten Wert in kWh nehmen, der immer weiter hochzählt (nicht die Leistung in W und nicht «heute»)',
         'Dasselbe als weitere Aktionen im selben Flow: «Einspeisung-Zählerstand melden» sowie optional «Batterie-Ladung…» und «Batterie-Entladung…»',
         'Beispiel Huawei EMMA: Bezug = meter_power des Energiezählers, Einspeisung = meter_power.exported, Batterie = meter_power.charged / meter_power.discharged der LUNA2000',
+        'Optional «Verbraucher-Zählerstand melden» für E-Auto oder Wärmepumpe (Name + kWh-Zähler): zeigt, zu welchem Preis sie liefen',
       ],
       metersNote: 'Mindestens stündlich melden. Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Bei längerer Pause wird der Zuwachs der letzten Stunde zugerechnet.',
       reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
@@ -363,7 +372,7 @@
       periods: { today: 'Today', week: '7 days', month: 'Month', total: 'Total' },
       cols: { period: 'Period', import: 'Import kWh', export: 'Export kWh', dyn: 'Net dynamic', ref: 'Net reference', diff: 'Difference' },
       saved: 'saved', pricier: 'more expensive',
-      batteryBenefit: 'Battery benefit (estimate, already included in the figures above)',
+      batteryBenefit: 'Battery benefit from the tariff (estimate: grid charge at the import price, PV charge at the forgone feed-in price, discharge at the import price it avoided; already included in the figures above)',
       unpriced: 'kWh without a price (data was missing) are not included in the costs:',
       avgPrices: 'Avg import price dynamic / reference (Rp./kWh):',
       dailyHeading: 'Last 30 days',
@@ -373,7 +382,15 @@
       costsFootnote: 'Estimate without base fees — your grid operator\'s bill is authoritative. Net = import costs minus feed-in revenue.',
       refHeading: 'Reference tariff',
       refHint: 'Your standard tariff for comparison in Rp./kWh including VAT. Enter the price directly or let the calculator work it out from the lines of your bill. Each period applies from its date until the next one, so when your tariff changes just add a period. Past days are compared with the price that was valid then.',
-      refLabels: { from: 'Valid from (empty = since the beginning)', price: 'Import price (Rp./kWh incl. VAT)', feedIn: 'Feed-in price (Rp./kWh)', ntSummary: 'Low tariff (optional)', ntPrice: 'Low tariff (Rp./kWh)', ntFrom: 'Low tariff from (HH:MM)', ntTo: 'Low tariff until (HH:MM)', ntWeekend: 'Low tariff all weekend' },
+      refLabels: { from: 'Valid from (empty = since the beginning)', price: 'Import price (Rp./kWh incl. VAT)', feedIn: 'Feed-in price (Rp./kWh)', ntSummary: 'Low tariff (optional)', fixedDiff: 'Extra fixed costs of the dynamic tariff (CHF/month)', ntPrice: 'Low tariff (Rp./kWh)', ntFrom: 'Low tariff from (HH:MM)', ntTo: 'Low tariff until (HH:MM)', ntWeekend: 'Low tariff all weekend' },
+      fixedDiffHint: 'Optional: base fee, metering fee etc. of the dynamic tariff minus those of your reference tariff. Positive = dynamic is more expensive, negative = cheaper. Deducted from the savings per calendar day; 0 if both are equal.',
+      negativePrice: 'Negative',
+      consumersHeading: 'Consumers (month)',
+      consCols: { name: 'Consumer', kwh: 'kWh', avg: 'Avg price', day: 'Day average', adv: 'Advantage', ref: 'vs reference (CHF)' },
+      consNote: 'Valued at the grid price of each quarter-hour (the PV share is not subtracted). Advantage = day average minus avg price in Rp./kWh, positive = ran at cheaper times.',
+      fixedNote: 'Included in the difference: fixed-cost difference (CHF):',
+      negImpNote: 'Import at a negative price (credit), kWh:',
+      negExpNote: 'Export at a negative price (cost), kWh:',
       refAdd: 'Add period', refRemove: 'Remove period', refNone: 'No reference tariff yet. Start with "Add period".',
       calc: 'Calculator', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Add line', calcExcl: 'Amounts are excl. VAT (VAT is added)', calcExclExport: 'No VAT is applied to feed-in.', calcSum: 'Result', calcApply: 'Apply', calcNamePh: 'e.g. grid usage',
       save: 'Save', savedMsg: 'Saved', saveFailed: 'Saving failed: ',
@@ -392,6 +409,7 @@
         'In the "Counter" field tap the token icon, pick your meter device and take the cumulative value in kWh that keeps counting up (not the power in W and not "today")',
         'Add the same as further actions in that Flow: "Report grid export counter" and optionally "Battery charge…" and "Battery discharge…"',
         'Example Huawei EMMA: import = meter_power of the energy meter, export = meter_power.exported, battery = meter_power.charged / meter_power.discharged of the LUNA2000',
+        'Optionally "Report consumer counter" for an EV or heat pump (name + kWh counter): shows the price they ran at',
       ],
       metersNote: 'Report at least hourly. The first report only sets the baseline; from the second one kWh are priced. After a long pause the increase is attributed to the last hour.',
       reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
@@ -547,6 +565,7 @@
 
       var levelClass = LEVEL_CLASS[data.level] || 'normal';
       var levelLabel = data.level ? (T.levels[data.level] || data.level) : '–';
+      if (typeof data.total === 'number' && data.total < 0) levelLabel = T.negativePrice;
 
       root.innerHTML = '' +
         '<div class="top">' +
@@ -613,11 +632,31 @@
         notes += '<p class="legend">⚠ ' + escapeHtml(T.unpriced) + ' ' + data.total.unpricedImportKwh.toFixed(2) + ' kWh</p>';
       }
 
+      var tot = data.total || {};
+      if (tot.configured && Math.abs(tot.fixedCostDiff || 0) >= 0.5) {
+        notes += '<p class="legend">' + escapeHtml(T.fixedNote) + ' ' + chf(tot.fixedCostDiff, true) + '</p>';
+      }
+      if ((tot.negativeImportKwh || 0) > 0.001) notes += '<p class="legend">' + escapeHtml(T.negImpNote) + ' ' + tot.negativeImportKwh.toFixed(2) + '</p>';
+      if ((tot.negativeExportKwh || 0) > 0.001) notes += '<p class="legend">⚠ ' + escapeHtml(T.negExpNote) + ' ' + tot.negativeExportKwh.toFixed(2) + '</p>';
+
+      var consumers = (data.consumers || []).filter(function (c) { return c.kwh > 0; });
+      var consHtml = '';
+      if (consumers.length) {
+        var C = T.consCols;
+        consHtml = '<h2 style="margin-top:18px">' + escapeHtml(T.consumersHeading) + '</h2><div class="scroll"><table><thead><tr><th>' + C.name + '</th><th>' + C.kwh + '</th><th>' + C.avg + '</th><th>' + C.day + '</th><th>' + C.adv + '</th><th>' + C.ref + '</th></tr></thead><tbody>' +
+          consumers.map(function (c) {
+            var adv = c.advantage == null ? '–' : (c.advantage > 0 ? '+' : '') + c.advantage.toFixed(1);
+            var advCls = c.advantage == null || Math.abs(c.advantage) < 0.05 ? '' : (c.advantage > 0 ? 'good' : 'bad');
+            return '<tr><td>' + escapeHtml(c.name) + '</td><td>' + c.kwh.toFixed(1) + '</td><td>' + (c.avgPrice == null ? '–' : c.avgPrice.toFixed(1)) + '</td><td>' + (c.avgDayPrice == null ? '–' : c.avgDayPrice.toFixed(1)) + '</td><td class="' + advCls + '">' + adv + '</td>' + diffCell(c.savingsVsRef) + '</tr>';
+          }).join('') + '</tbody></table></div><p class="legend">' + escapeHtml(T.consNote) + '</p>';
+      }
+
       var days = (data.days || []).slice().reverse();
       var dayRows = days.map(function (d) { return summaryRow(d.key, d); }).join('');
 
       root.innerHTML =
         '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + notes +
+        consHtml +
         '<h2 style="margin-top:18px">' + escapeHtml(T.chartHeading) + '</h2>' + chartHtml(data.chart, true) +
         (days.length ? '<h2 style="margin-top:18px">' + escapeHtml(T.dailyHeading) + '</h2><div class="scroll"><table><thead>' + head + '</thead><tbody>' + dayRows + '</tbody></table></div>' : '') +
         '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
@@ -628,7 +667,7 @@
     var refPeriods = [];
 
     function newPeriod(from) {
-      return { from: from || '', price: 0, ntPrice: 0, ntFrom: '', ntTo: '', ntWeekend: false, feedIn: 0, importLines: [], exportLines: [], linesExclVat: true, _calc: null };
+      return { from: from || '', price: 0, ntPrice: 0, ntFrom: '', ntTo: '', ntWeekend: false, feedIn: 0, fixedDiff: 0, importLines: [], exportLines: [], linesExclVat: true, _calc: null };
     }
 
     function vatFactor() {
@@ -679,6 +718,9 @@
           '<label>' + escapeHtml(L.feedIn) + '</label><div class="inline"><input type="number" min="0" step="0.1" data-i="' + i + '" data-f="feedIn" value="' + (p.feedIn || 0) + '" />' +
             '<button class="btn small" data-act="toggle-calc" data-i="' + i + '" data-which="export">' + escapeHtml(T.calc) + '</button></div>' +
           '</div>' + (p._calc === 'export' ? calcHtml(p, i, 'export') : '') +
+          '<div class="form" style="margin-top:10px"><label>' + escapeHtml(L.fixedDiff) + '</label>' +
+            '<input type="number" step="0.01" data-i="' + i + '" data-f="fixedDiff" value="' + (p.fixedDiff || 0) + '" /></div>' +
+          '<p class="legend">' + escapeHtml(T.fixedDiffHint) + '</p>' +
           '<details><summary>' + escapeHtml(L.ntSummary) + '</summary><div class="form" style="margin-top:10px">' +
           '<label>' + escapeHtml(L.ntPrice) + '</label><input type="number" min="0" step="0.1" data-i="' + i + '" data-f="ntPrice" value="' + (p.ntPrice || 0) + '" />' +
           '<label>' + escapeHtml(L.ntFrom) + '</label><input type="text" placeholder="21:00" data-i="' + i + '" data-f="ntFrom" value="' + escapeHtml(p.ntFrom) + '" />' +
@@ -726,7 +768,7 @@
       var lf = t.getAttribute('data-lf');
       if (f) {
         var v = t.type === 'checkbox' ? t.checked : t.value;
-        if (['price', 'feedIn', 'ntPrice'].indexOf(f) >= 0) v = Number(v) || 0;
+        if (['price', 'feedIn', 'ntPrice', 'fixedDiff'].indexOf(f) >= 0) v = Number(v) || 0;
         p[f] = v;
         if (f === 'linesExclVat') renderRefPeriods();
       } else if (lf) {
@@ -846,7 +888,7 @@
         var last = refPeriods.length ? refPeriods[refPeriods.length - 1] : null;
         var p = newPeriod('');
         if (last) {
-          p.price = last.price; p.feedIn = last.feedIn;
+          p.price = last.price; p.feedIn = last.feedIn; p.fixedDiff = last.fixedDiff || 0;
           p.ntPrice = last.ntPrice; p.ntFrom = last.ntFrom; p.ntTo = last.ntTo; p.ntWeekend = last.ntWeekend;
           p.importLines = JSON.parse(JSON.stringify(last.importLines || []));
           p.exportLines = JSON.parse(JSON.stringify(last.exportLines || []));

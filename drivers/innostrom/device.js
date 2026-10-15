@@ -570,12 +570,22 @@ class InnostromDevice extends Homey.Device {
       const hasFeedIn = typeof slot.feedIn === 'number' && Number.isFinite(slot.feedIn);
       feedIn = hasFeedIn ? Math.round(slot.feedIn * 10000) / 100 : 0;
     }
-    return { dyn, feedIn };
+    const stats = slot ? this.priceStore.dayStats(start) : null;
+    const dayAvg = stats ? this._toDisplay(stats.avg) : null;
+    return { dyn, feedIn, dayAvg };
   }
 
   actionReportCounter(kind, kwh) {
     const result = this.costTracker.report(kind, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
     if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
+    this._markCostDirty();
+    return true;
+  }
+
+  actionReportConsumer(name, kwh) {
+    const result = this.costTracker.reportConsumer(name, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
+    if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
+    if (result.status === 'limit') throw new Error(this.homey.__('device.errorConsumerLimit'));
     this._markCostDirty();
     return true;
   }
@@ -617,6 +627,8 @@ class InnostromDevice extends Homey.Device {
       week: t.summary(weekStart, today, ref),
       month: t.summary(monthStart, today, ref),
       total: t.summary('0000-01-01', '9999-12-31', ref),
+      consumers: t.consumerSummary(monthStart, today, ref),
+      consumersTotal: t.consumerSummary('0000-01-01', '9999-12-31', ref),
       days: t.daily(dayFrom, today, ref),
       reports: t.lastReports(),
       chart: this.getCostChart(),

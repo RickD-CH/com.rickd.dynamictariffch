@@ -71,6 +71,9 @@ class DynamicTariffApp extends Homey.App {
         .registerRunListener(async (args) => args.device.actionReportCounter(kind, args.kwh));
     });
 
+    this.homey.flow.getActionCard('report_consumer')
+      .registerRunListener(async (args) => args.device.actionReportConsumer(args.name, args.kwh));
+
     this.homey.flow.getActionCard('get_prices_today')
       .registerRunListener(async (args) => args.device.actionGetPricesToday());
 

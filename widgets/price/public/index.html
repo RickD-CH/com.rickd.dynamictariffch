@@ -184,6 +184,7 @@
 
       var levelClass = LEVEL_CLASS[data.level] || 'normal';
       var levelLabel = data.level ? Homey.__('widget.levels.' + data.level) : '–';
+      if (typeof data.total === 'number' && data.total < 0) levelLabel = Homey.__('widget.negative');
 
       root.innerHTML = '' +
         '<div class="top">' +

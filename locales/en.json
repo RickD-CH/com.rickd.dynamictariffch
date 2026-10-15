@@ -6,7 +6,8 @@
     "logInCheapestBlockIncomplete": "is_in_cheapest_block: prices in window incomplete, evaluating as false",
     "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing).",
     "errorInvalidCounter": "Invalid counter value (must be a number, 0 or more).",
-    "errorPricesIncomplete": "Hourly prices incomplete (data missing and no fallback flat rate configured)."
+    "errorPricesIncomplete": "Hourly prices incomplete (data missing and no fallback flat rate configured).",
+    "errorConsumerLimit": "Too many consumers (maximum 6). Remove cost data to start over."
   },
   "repair": {
     "meteringCodeMismatch": "This metering point number doesn't match the existing device. Pair a new device instead to switch to a different metering point."
@@ -30,7 +31,8 @@
       "normal": "Normal",
       "expensive": "Expensive",
       "very_expensive": "Very expensive"
-    }
+    },
+    "negative": "Negative price"
   },
   "costWidget": {
     "loading": "Loading…",
