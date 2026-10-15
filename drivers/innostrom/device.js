@@ -606,6 +606,27 @@ class InnostromDevice extends Homey.Device {
     await this.setStoreValue('cost', this.costTracker.toJSON());
   }
 
+  /** Selective clean-up from the settings page. */
+  async deleteCostData({
+    from, to, consumer, baselines,
+  } = {}) {
+    const dayKey = /^\d{4}-\d{2}-\d{2}$/;
+    const result = {};
+    if (from || to) {
+      const lo = from || '0000-01-01';
+      const hi = to || '9999-12-31';
+      if (!dayKey.test(lo) || !dayKey.test(hi) || lo > hi) throw new Error('Invalid range');
+      result.days = this.costTracker.deleteDays(lo, hi);
+    }
+    if (consumer) result.consumer = this.costTracker.deleteConsumer(String(consumer));
+    if (baselines) {
+      this.costTracker.resetBaselines();
+      result.baselines = true;
+    }
+    await this._flushCost();
+    return result;
+  }
+
   async resetCost() {
     this.costTracker.reset();
     await this._flushCost();

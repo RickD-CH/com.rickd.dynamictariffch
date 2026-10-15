@@ -130,6 +130,10 @@
     .ok { color: var(--st-cheap); font-size: 13px; }
     .err { color: var(--st-expensive); font-size: 13px; }
     .status td:last-child { text-align: left; }
+    .manage-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--st-border); }
+    .manage-row:first-of-type { border-top: 0; }
+    .manage-row select { padding: 7px 9px; font-size: 14px; border: 1px solid var(--st-border); border-radius: 8px; background: var(--st-bg); color: var(--st-text); min-width: 140px; }
+    .manage-row .form { max-width: 360px; flex: 1; }
     .checklist { list-style: none; padding: 0; margin: 8px 0 0; }
     .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
     .checklist .mark { flex: 0 0 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--st-muted); text-align: center; line-height: 19px; font-size: 12px; margin-top: 1px; }
@@ -219,9 +223,33 @@
     </div>
 
     <div class="card">
-      <h2 id="h2-reset"></h2>
-      <p class="sub" id="p-reset-hint" style="margin-bottom:12px"></p>
-      <button class="btn danger" id="btn-reset"></button>
+      <h2 id="h2-manage"></h2>
+      <p class="sub" id="p-manage-hint" style="margin-bottom:12px"></p>
+
+      <div class="manage-row">
+        <div class="form" style="grid-template-columns: 1fr 1fr;">
+          <label for="del-from" id="l-del-from"></label><input type="date" id="del-from" />
+          <label for="del-to" id="l-del-to"></label><input type="date" id="del-to" />
+        </div>
+        <button class="btn danger" id="btn-del-days"></button>
+      </div>
+
+      <div class="manage-row">
+        <select id="del-consumer"></select>
+        <button class="btn danger" id="btn-del-consumer"></button>
+      </div>
+
+      <div class="manage-row">
+        <span class="legend" id="p-baseline-hint"></span>
+        <button class="btn" id="btn-baselines"></button>
+      </div>
+
+      <div class="manage-row">
+        <span class="legend" id="p-reset-hint"></span>
+        <button class="btn danger" id="btn-reset"></button>
+      </div>
+      <p class="ok" id="manage-msg" hidden></p>
+      <p class="err" id="manage-err" hidden></p>
     </div>
   </div>
 
@@ -325,9 +353,14 @@
       metersNote: 'Mindestens stündlich melden. Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Bei längerer Pause wird der Zuwachs der letzten Stunde zugerechnet.',
       reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
       never: 'noch nie gemeldet', ago: 'vor', min: 'Min.', hours: 'Std.', days: 'Tagen',
-      resetHeading: 'Kostendaten zurücksetzen',
-      resetHint: 'Löscht alle gesammelten Kostendaten und Zählerbasiswerte. Preisdaten bleiben erhalten.',
-      resetButton: 'Kostendaten löschen', resetConfirm: 'Wirklich löschen? Nochmals klicken', resetDone: 'Kostendaten gelöscht',
+      manageHeading: 'Daten verwalten',
+      manageHint: 'Zum Aufräumen, zum Beispiel nach Testdaten. Jede Löschaktion verlangt einen zweiten Klick. Preisdaten und Referenztarif bleiben immer erhalten.',
+      delFrom: 'Von (leer = ab Anfang)', delTo: 'Bis (leer = bis heute)',
+      delDays: 'Tage im Zeitraum löschen', delConsumer: 'Verbraucher löschen', delConsumerNone: 'Kein Verbraucher',
+      baselineHint: 'Zählerbasis zurücksetzen, zum Beispiel nach einem Zählerwechsel. Gesammelte Daten bleiben, die nächste Meldung setzt nur die Basis.',
+      baselineButton: 'Zählerbasis zurücksetzen',
+      resetHint: 'Löscht alle gesammelten Kostendaten, Verbraucher und Zählerbasiswerte.',
+      resetButton: 'Alle Kostendaten löschen', confirm: 'Wirklich? Nochmals klicken', manageDone: 'Erledigt', manageDays: 'Gelöschte Tage:',
       invalidTime: 'Ungültige Uhrzeit (Format HH:MM).',
     };
 
@@ -414,9 +447,14 @@
       metersNote: 'Report at least hourly. The first report only sets the baseline; from the second one kWh are priced. After a long pause the increase is attributed to the last hour.',
       reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
       never: 'never reported', ago: '', min: 'min ago', hours: 'h ago', days: 'days ago',
-      resetHeading: 'Reset cost data',
-      resetHint: 'Deletes all collected cost data and meter baselines. Price data is kept.',
-      resetButton: 'Delete cost data', resetConfirm: 'Really delete? Click again', resetDone: 'Cost data deleted',
+      manageHeading: 'Manage data',
+      manageHint: 'For cleaning up, for example after test data. Every delete needs a second click. Price data and the reference tariff are always kept.',
+      delFrom: 'From (empty = from the start)', delTo: 'Until (empty = until today)',
+      delDays: 'Delete days in range', delConsumer: 'Delete consumer', delConsumerNone: 'No consumer',
+      baselineHint: 'Reset the meter baselines, for example after replacing a meter. Collected data stays, the next report only sets the baseline.',
+      baselineButton: 'Reset meter baselines',
+      resetHint: 'Deletes all collected cost data, consumers and meter baselines.',
+      resetButton: 'Delete all cost data', confirm: 'Really? Click again', manageDone: 'Done', manageDays: 'Deleted days:',
       invalidTime: 'Invalid time (format HH:MM).',
     };
 
@@ -480,7 +518,14 @@
       $('p-meters-intro').textContent = T.metersIntro;
       $('ol-meters').innerHTML = T.metersSteps.map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
       $('p-meters-note').textContent = T.metersNote;
-      $('h2-reset').textContent = T.resetHeading;
+      $('h2-manage').textContent = T.manageHeading;
+      $('p-manage-hint').textContent = T.manageHint;
+      $('l-del-from').textContent = T.delFrom;
+      $('l-del-to').textContent = T.delTo;
+      $('btn-del-days').textContent = T.delDays;
+      $('btn-del-consumer').textContent = T.delConsumer;
+      $('p-baseline-hint').textContent = T.baselineHint;
+      $('btn-baselines').textContent = T.baselineButton;
       $('p-reset-hint').textContent = T.resetHint;
       $('btn-reset').textContent = T.resetButton;
       $('h2-forum').textContent = T.forumTitle;
@@ -744,6 +789,13 @@
         });
         renderRefPeriods();
       }
+      var names = (data.consumersTotal || []).map(function (c) { return c.name; });
+      var sel = $('del-consumer');
+      var keep = sel.value;
+      sel.innerHTML = names.length
+        ? names.map(function (n) { return '<option value="' + escapeHtml(n) + '">' + escapeHtml(n) + '</option>'; }).join('')
+        : '<option value="">' + escapeHtml(T.delConsumerNone) + '</option>';
+      if (names.indexOf(keep) >= 0) sel.value = keep;
       var reports = data.reports || {};
       var refDone = Boolean(data.total && data.total.configured);
       var reportedAny = Object.keys(reports).some(function (k) { return reports[k]; });
@@ -929,24 +981,48 @@
         });
       });
 
-      var resetArmed = false;
-      $('btn-reset').addEventListener('click', function () {
-        var btn = $('btn-reset');
-        if (!resetArmed) {
-          resetArmed = true;
-          btn.textContent = T.resetConfirm;
-          setTimeout(function () { resetArmed = false; btn.textContent = T.resetButton; }, 4000);
-          return;
-        }
-        resetArmed = false;
-        apiCall('POST', '/cost/reset').then(function () {
-          btn.textContent = T.resetDone;
-          setTimeout(function () { btn.textContent = T.resetButton; }, 2500);
-          return loadCost();
-        }).catch(function (e) {
-          console.error(e);
-          btn.textContent = T.resetButton;
+      // Every delete action needs a second click within 4 seconds.
+      function armed(btnId, label, action) {
+        var btn = $(btnId);
+        var armedNow = false;
+        btn.addEventListener('click', function () {
+          if (!armedNow) {
+            armedNow = true;
+            btn.textContent = T.confirm;
+            setTimeout(function () { armedNow = false; btn.textContent = label(); }, 4000);
+            return;
+          }
+          armedNow = false;
+          btn.textContent = label();
+          var msg = $('manage-msg');
+          var err = $('manage-err');
+          msg.hidden = true;
+          err.hidden = true;
+          action().then(function (res) {
+            var text = T.manageDone;
+            if (res && typeof res.days === 'number') text += ' — ' + T.manageDays + ' ' + res.days;
+            msg.textContent = text;
+            msg.hidden = false;
+            setTimeout(function () { msg.hidden = true; }, 4000);
+            return loadCost();
+          }).catch(function (e) {
+            err.textContent = T.saveFailed + ((e && e.message) || e);
+            err.hidden = false;
+          });
         });
+      }
+
+      armed('btn-del-days', function () { return T.delDays; }, function () {
+        return apiCall('POST', '/cost/delete', { from: $('del-from').value, to: $('del-to').value });
+      });
+      armed('btn-del-consumer', function () { return T.delConsumer; }, function () {
+        return apiCall('POST', '/cost/delete', { consumer: $('del-consumer').value });
+      });
+      armed('btn-baselines', function () { return T.baselineButton; }, function () {
+        return apiCall('POST', '/cost/delete', { baselines: true });
+      });
+      armed('btn-reset', function () { return T.resetButton; }, function () {
+        return apiCall('POST', '/cost/reset');
       });
 
       // Homey.ready() is called only after the first load settles (success or failure).

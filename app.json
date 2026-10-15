@@ -77,6 +77,10 @@
     "putAppConfig": {
       "method": "put",
       "path": "/config"
+    },
+    "deleteCostData": {
+      "method": "post",
+      "path": "/cost/delete"
     }
   },
   "support": "https://community.homey.app/t/160031",

@@ -247,3 +247,27 @@ test('sanitizeRefPeriods: validiert, sortiert und behält die Rechnerzeilen', ()
   assert.throws(() => sanitizeRefPeriods([{ price: 1, ntFrom: '25:00' }]));
   assert.throws(() => sanitizeRefPeriods('x'));
 });
+
+test('Daten verwalten: Tage, Verbraucher und Zählerbasis löschen', () => {
+  const t = new CostTracker({ tz: TZ });
+  const day = (d, h) => new Date(Date.UTC(2027, 0, d, h - 1));
+  const priceAt = () => ({ dyn: 20, feedIn: 5, dayAvg: 20 });
+  for (const d of [14, 15, 16]) {
+    t.report('import', d * 10, day(d, 10), priceAt, REF);
+    t.report('import', d * 10 + 1, new Date(day(d, 10).getTime() + 15 * 60000), priceAt, REF);
+    t.reportConsumer('WP', d * 10, day(d, 10), priceAt, REF);
+    t.reportConsumer('WP', d * 10 + 1, new Date(day(d, 10).getTime() + 15 * 60000), priceAt, REF);
+  }
+  assert.equal(t.daily('2027-01-01', '2027-12-31', REF).length, 3);
+  assert.equal(t.deleteDays('2027-01-15', '2027-01-15'), 1);
+  assert.deepEqual(t.daily('2027-01-01', '2027-12-31', REF).map((d) => d.key), ['2027-01-14', '2027-01-16']);
+  assert.equal(t.slotsOf('2027-01-15').length, 0);
+  assert.equal(t.consumerSummary('2027-01-15', '2027-01-15', REF)[0].kwh, 0);
+  t.resetBaselines();
+  assert.equal(t.lastReports().import, null);
+  assert.equal(t.daily('2027-01-01', '2027-12-31', REF).length, 2);
+  assert.equal(t.report('import', 500, day(17, 10), priceAt, REF).status, 'baseline');
+  assert.equal(t.deleteConsumer('WP'), true);
+  assert.equal(t.deleteConsumer('WP'), false);
+  assert.equal(t.consumerSummary('2027-01-01', '2027-12-31', REF).length, 0);
+});

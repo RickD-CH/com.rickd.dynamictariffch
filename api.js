@@ -22,6 +22,12 @@ module.exports = {
     return { refPeriods: periods };
   },
 
+  async deleteCostData({ homey, body }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.deleteCostData(body || {});
+  },
+
   async resetCost({ homey }) {
     const device = firstDevice(homey);
     if (!device) throw new Error('No device paired');
