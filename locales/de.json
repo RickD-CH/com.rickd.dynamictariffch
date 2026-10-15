@@ -43,7 +43,7 @@
     "importKwh": "Bezug heute (kWh)",
     "avgDyn": "Ø dynamisch (Rp.)",
     "avgRef": "Ø Referenz (Rp.)",
-    "noRef": "Referenzpreis in den Geräte-Einstellungen eintragen, dann erscheint der Vergleich.",
+    "noRef": "Referenztarif in den App-Einstellungen (Tab «Referenz & Zähler») eintragen, dann erscheint der Vergleich.",
     "noData": "Noch keine Zählerstände gemeldet. Mit den Flow-Karten \"… Zählerstand melden\" melden."
   }
 }

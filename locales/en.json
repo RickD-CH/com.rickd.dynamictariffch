@@ -43,7 +43,7 @@
     "importKwh": "Import today (kWh)",
     "avgDyn": "Ø dynamic (Rp.)",
     "avgRef": "Ø reference (Rp.)",
-    "noRef": "Enter a reference price in the device settings to see the comparison.",
+    "noRef": "Enter a reference tariff in the app settings (Reference & meters tab) to see the comparison.",
     "noData": "No meter readings yet. Report them with the \"Report ... counter\" Flow cards."
   }
 }

@@ -1,7 +1,7 @@
 {
   "0.2.0": {
-    "en": "New: cost comparison against a configurable reference tariff. Report meter readings (grid import/export, battery) from your Flows, see costs and savings in a new widget and a new \"Costs\" tab, and a reference line in the price chart. The settings page now has tabs.",
-    "de": "Neu: Kostenvergleich gegenüber einem konfigurierbaren Referenztarif. Zählerstände (Netzbezug/Einspeisung, Batterie) per Flow melden, Kosten und Ersparnis im neuen Widget und in der neuen Registerkarte «Kosten» ansehen, dazu eine Referenzlinie in der Preiskurve. Die Einstellungsseite hat jetzt Registerkarten."
+    "en": "New: cost comparison against a reference tariff. Report meter readings (grid import/export, battery) from your Flows, see costs and savings in a new widget and a new \"Costs\" tab, and a reference line in the price chart. The reference tariff can be entered directly or calculated from the lines of your bill, with validity periods for tariff changes. The settings page now has tabs, and VAT is set there.",
+    "de": "Neu: Kostenvergleich gegenüber einem Referenztarif. Zählerstände (Netzbezug/Einspeisung, Batterie) per Flow melden, Kosten und Ersparnis im neuen Widget und in der neuen Registerkarte «Kosten» ansehen, dazu eine Referenzlinie in der Preiskurve. Der Referenztarif lässt sich direkt eingeben oder aus den Zeilen der Rechnung berechnen, mit Gültigkeitszeiträumen für Tarifänderungen. Die Einstellungsseite hat jetzt Registerkarten, und die MWST wird dort eingestellt."
   },
   "0.1.8": {
     "en": "Settings page: corrected the feature overview (12 capabilities, 17 Flow cards) and added a link to the community forum thread.",

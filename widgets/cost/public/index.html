@@ -169,7 +169,7 @@
       var today = data.today;
       var month = data.month;
       var hasData = data.total && data.total.importKwh > 0;
-      var configured = data.ref && data.ref.price > 0;
+      var configured = Boolean(data.total && data.total.configured);
 
       var bigRp = configured ? today.savings : (today ? today.netCostDyn : null);
       var bigCls = configured ? tone(bigRp) : '';

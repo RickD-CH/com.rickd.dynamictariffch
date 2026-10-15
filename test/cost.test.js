@@ -127,3 +127,60 @@ test('JSON-Roundtrip, daily und reset', () => {
   t2.reset();
   assert.equal(t2.daily('2027-01-01', '2027-12-31', REF).length, 0);
 });
+
+const { normalizeRefs, refForDay, sanitizeRefPeriods } = require('../lib/CostTracker');
+
+test('Referenzzeiträume: pro Tag gilt der zuletzt begonnene Eintrag', () => {
+  const refs = normalizeRefs([
+    { from: '2027-01-01', price: 28 },
+    { from: '', price: 26 },
+  ]);
+  assert.equal(refForDay(refs, '2026-12-31').price, 26);
+  assert.equal(refForDay(refs, '2027-01-01').price, 28);
+  assert.equal(refForDay(refs, '2027-06-30').price, 28);
+  assert.equal(refForDay([], '2027-01-01'), null);
+});
+
+test('Auswertung über einen Preiswechsel nutzt pro Tag den damaligen Referenzpreis', () => {
+  const t = new CostTracker({ tz: TZ });
+  const day = (d, h) => new Date(Date.UTC(2027, 0, d, h - 1));
+  const refs = [{ from: '', price: 30 }, { from: '2027-01-15', price: 40 }];
+  t.report('import', 0, day(14, 10), flat(20), refs);
+  t.report('import', 1, new Date(day(14, 10).getTime() + 15 * 60000), flat(20), refs);
+  t.report('import', 1, day(15, 10), flat(20), refs); // 23h later, > smear window: only 15:45-slot logic applies
+  t.report('import', 2, new Date(day(15, 10).getTime() + 15 * 60000), flat(20), refs);
+  const d14 = t.summary('2027-01-14', '2027-01-14', refs);
+  const d15 = t.summary('2027-01-15', '2027-01-15', refs);
+  assert.equal(d14.netCostRef, 30);
+  assert.equal(d15.netCostRef, 40);
+  const both = t.summary('2027-01-14', '2027-01-15', refs);
+  assert.equal(both.netCostRef, 70);
+  assert.equal(both.savings, 30);
+});
+
+test('Tage ohne gültigen Referenzzeitraum bleiben aus dem Vergleich', () => {
+  const t = new CostTracker({ tz: TZ });
+  const refs = [{ from: '2027-01-15', price: 40 }];
+  t.report('import', 0, at(10, 0), flat(20), refs);
+  t.report('import', 1, at(10, 15), flat(20), refs);
+  const s = t.summary('2027-01-14', '2027-01-14', refs);
+  assert.equal(s.configured, false);
+  assert.equal(s.savings, null);
+  assert.equal(s.importKwh, 1);
+  assert.equal(s.netCostDyn, 20);
+});
+
+test('sanitizeRefPeriods: validiert, sortiert und behält die Rechnerzeilen', () => {
+  const out = sanitizeRefPeriods([
+    { from: '2027-01-01', price: '28.5', importLines: [{ name: 'Netz', value: 0.1 }] },
+    { from: '', price: 26, feedIn: 10.2, ntFrom: '21:00', ntTo: '07:00' },
+  ]);
+  assert.equal(out[0].from, '');
+  assert.equal(out[1].price, 28.5);
+  assert.equal(out[1].importLines[0].name, 'Netz');
+  assert.equal(out[1].linesExclVat, true);
+  assert.throws(() => sanitizeRefPeriods([{ from: '01.01.2027', price: 1 }]));
+  assert.throws(() => sanitizeRefPeriods([{ price: -1 }]));
+  assert.throws(() => sanitizeRefPeriods([{ price: 1, ntFrom: '25:00' }]));
+  assert.throws(() => sanitizeRefPeriods('x'));
+});

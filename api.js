@@ -1,5 +1,7 @@
 'use strict';
 
+const { sanitizeRefPeriods } = require('./lib/CostTracker');
+
 // Shows the first paired innostrom device - same simplification as the widget's api.js.
 function firstDevice(homey) {
   const devices = homey.drivers.getDriver('innostrom').getDevices();
@@ -15,9 +17,9 @@ module.exports = {
   },
 
   async putCostConfig({ homey, body }) {
-    const device = firstDevice(homey);
-    if (!device) throw new Error('No device paired');
-    return device.setRefConfig(body || {});
+    const periods = sanitizeRefPeriods(body && body.periods);
+    homey.settings.set('ref_periods', periods);
+    return { refPeriods: periods };
   },
 
   async resetCost({ homey }) {

@@ -130,6 +130,16 @@
     .ok { color: var(--st-cheap); font-size: 13px; }
     .err { color: var(--st-expensive); font-size: 13px; }
     .status td:last-child { text-align: left; }
+    .period { border: 1px solid var(--st-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: var(--st-bg); }
+    .inline { display: flex; gap: 8px; align-items: center; }
+    .inline input { flex: 1; min-width: 0; }
+    .calc { margin: 10px 0 4px; padding: 10px; border-radius: 8px; background: var(--st-chip-bg); }
+    .calc-row { display: grid; grid-template-columns: 1fr 100px 28px; gap: 6px; margin-bottom: 6px; }
+    .calc-row input { width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid var(--st-border); border-radius: 6px; background: var(--st-bg); color: var(--st-text); }
+    .calc-sum { font-weight: 600; margin: 8px 0; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--st-muted); font-size: 13px; }
+    .btn.small { padding: 4px 10px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -179,15 +189,9 @@
     <div class="card">
       <h2 id="h2-ref"></h2>
       <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
-      <div class="form">
-        <label for="ref-price" id="l-ref-price"></label><input type="number" id="ref-price" min="0" step="0.1" />
-        <label for="ref-nt-price" id="l-ref-nt-price"></label><input type="number" id="ref-nt-price" min="0" step="0.1" />
-        <label for="ref-nt-from" id="l-ref-nt-from"></label><input type="text" id="ref-nt-from" placeholder="21:00" />
-        <label for="ref-nt-to" id="l-ref-nt-to"></label><input type="text" id="ref-nt-to" placeholder="07:00" />
-        <label for="ref-nt-weekend" id="l-ref-nt-weekend"></label><input type="checkbox" id="ref-nt-weekend" />
-        <label for="ref-feed-in" id="l-ref-feed-in"></label><input type="number" id="ref-feed-in" min="0" step="0.1" />
-      </div>
+      <div id="ref-periods"></div>
       <div class="row">
+        <button class="btn" id="btn-ref-add"></button>
         <button class="btn primary" id="btn-ref-save"></button>
         <span class="ok" id="ref-saved" hidden></span>
         <span class="err" id="ref-error" hidden></span>
@@ -276,8 +280,10 @@
       noRefNote: 'Ohne Referenzpreis werden nur die dynamischen Kosten angezeigt.',
       costsFootnote: 'Schätzung ohne Grundgebühren — massgebend ist die Rechnung des Netzbetreibers. Netto = Bezugskosten minus Einspeisevergütung.',
       refHeading: 'Referenztarif',
-      refHint: 'Dein Standardtarif zum Vergleich, alles in Rp./kWh inklusive MWST. Änderungen gelten rückwirkend für alle gesammelten Daten. Preis 0 = Vergleich aus.',
-      refLabels: { price: 'Referenzpreis (Rp./kWh)', ntPrice: 'Niedertarif (Rp./kWh, optional)', ntFrom: 'Niedertarif von (HH:MM)', ntTo: 'Niedertarif bis (HH:MM)', ntWeekend: 'Niedertarif am ganzen Wochenende', feedIn: 'Einspeisevergütung (Rp./kWh)' },
+      refHint: 'Dein Standardtarif zum Vergleich in Rp./kWh inklusive MWST. Du kannst den Preis direkt eintragen oder mit dem Rechner aus den Zeilen deiner Rechnung berechnen lassen. Jeder Zeitraum gilt ab seinem Datum bis zum nächsten, bei einer Tarifänderung also einfach einen Zeitraum hinzufügen. Alte Tage werden mit dem damals gültigen Preis verglichen.',
+      refLabels: { from: 'Gültig ab (leer = von Anfang an)', price: 'Bezugspreis (Rp./kWh inkl. MWST)', feedIn: 'Einspeisevergütung (Rp./kWh)', ntSummary: 'Niedertarif (optional)', ntPrice: 'Niedertarif (Rp./kWh)', ntFrom: 'Niedertarif von (HH:MM)', ntTo: 'Niedertarif bis (HH:MM)', ntWeekend: 'Niedertarif am ganzen Wochenende' },
+      refAdd: 'Zeitraum hinzufügen', refRemove: 'Zeitraum entfernen', refNone: 'Noch kein Referenztarif. Mit «Zeitraum hinzufügen» beginnen.',
+      calc: 'Rechner', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Zeile hinzufügen', calcExcl: 'Beträge sind ohne MWST (MWST wird addiert)', calcExclExport: 'Auf die Einspeisung wird keine MWST gerechnet.', calcSum: 'Ergebnis', calcApply: 'Übernehmen', calcNamePh: 'z. B. Netznutzung',
       save: 'Speichern', savedMsg: 'Gespeichert', saveFailed: 'Speichern fehlgeschlagen: ',
       metersHeading: 'Zählerstände melden (Flows)',
       metersIntro: 'Die App liest keine anderen Geräte selbst. Dafür baust du pro Zähler einen Flow:',
@@ -346,8 +352,10 @@
       noRefNote: 'Without a reference price only the dynamic costs are shown.',
       costsFootnote: 'Estimate without base fees — your grid operator\'s bill is authoritative. Net = import costs minus feed-in revenue.',
       refHeading: 'Reference tariff',
-      refHint: 'Your standard tariff for comparison, all in Rp./kWh including VAT. Changes apply retroactively to all collected data. Price 0 = comparison off.',
-      refLabels: { price: 'Reference price (Rp./kWh)', ntPrice: 'Low tariff (Rp./kWh, optional)', ntFrom: 'Low tariff from (HH:MM)', ntTo: 'Low tariff until (HH:MM)', ntWeekend: 'Low tariff all weekend', feedIn: 'Feed-in price (Rp./kWh)' },
+      refHint: 'Your standard tariff for comparison in Rp./kWh including VAT. Enter the price directly or let the calculator work it out from the lines of your bill. Each period applies from its date until the next one, so when your tariff changes just add a period. Past days are compared with the price that was valid then.',
+      refLabels: { from: 'Valid from (empty = since the beginning)', price: 'Import price (Rp./kWh incl. VAT)', feedIn: 'Feed-in price (Rp./kWh)', ntSummary: 'Low tariff (optional)', ntPrice: 'Low tariff (Rp./kWh)', ntFrom: 'Low tariff from (HH:MM)', ntTo: 'Low tariff until (HH:MM)', ntWeekend: 'Low tariff all weekend' },
+      refAdd: 'Add period', refRemove: 'Remove period', refNone: 'No reference tariff yet. Start with "Add period".',
+      calc: 'Calculator', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Add line', calcExcl: 'Amounts are excl. VAT (VAT is added)', calcExclExport: 'No VAT is applied to feed-in.', calcSum: 'Result', calcApply: 'Apply', calcNamePh: 'e.g. grid usage',
       save: 'Save', savedMsg: 'Saved', saveFailed: 'Saving failed: ',
       metersHeading: 'Reporting meter readings (Flows)',
       metersIntro: 'The app does not read other devices itself. Build one Flow per meter:',
@@ -418,12 +426,7 @@
       $('cost-loading').textContent = T.loading;
       $('h2-ref').textContent = T.refHeading;
       $('p-ref-hint').textContent = T.refHint;
-      $('l-ref-price').textContent = T.refLabels.price;
-      $('l-ref-nt-price').textContent = T.refLabels.ntPrice;
-      $('l-ref-nt-from').textContent = T.refLabels.ntFrom;
-      $('l-ref-nt-to').textContent = T.refLabels.ntTo;
-      $('l-ref-nt-weekend').textContent = T.refLabels.ntWeekend;
-      $('l-ref-feed-in').textContent = T.refLabels.feedIn;
+      $('btn-ref-add').textContent = T.refAdd;
       $('btn-ref-save').textContent = T.save;
       $('h2-meters').textContent = T.metersHeading;
       $('p-meters-intro').textContent = T.metersIntro;
@@ -568,7 +571,7 @@
       var total = data.month;
       var notes = '';
       if (!(data.total && data.total.importKwh > 0)) notes += '<p class="legend">' + escapeHtml(T.noData) + '</p>';
-      if (!data.ref || !(data.ref.price > 0)) notes += '<p class="legend">' + escapeHtml(T.noRefNote) + '</p>';
+      if (!(data.total && data.total.configured)) notes += '<p class="legend">' + escapeHtml(T.noRefNote) + '</p>';
       if (total.avgImportPriceDyn != null) {
         notes += '<p class="legend">' + escapeHtml(T.avgPrices) + ' ' + total.avgImportPriceDyn.toFixed(1) + ' / ' +
           (total.avgImportPriceRef != null ? total.avgImportPriceRef.toFixed(1) : '–') + '</p>';
@@ -590,25 +593,131 @@
         '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
     }
 
-    // The form is filled once (and after saving) so the periodic refresh never overwrites input.
+    // The periods are loaded once (and after saving) so the periodic refresh never overwrites input.
     var refFormFilled = false;
+    var refPeriods = [];
+
+    function newPeriod(from) {
+      return { from: from || '', price: 0, ntPrice: 0, ntFrom: '', ntTo: '', ntWeekend: false, feedIn: 0, importLines: [], exportLines: [], linesExclVat: true, _calc: null };
+    }
+
+    function vatFactor() {
+      var v = Number($('vat-input').value);
+      return 1 + (isFinite(v) && v > 0 ? v : 0) / 100;
+    }
+
+    function calcSumRp(p, which) {
+      var lines = which === 'export' ? p.exportLines : p.importLines;
+      var sum = 0;
+      lines.forEach(function (l) { sum += Number(l.value) || 0; });
+      var factor = which === 'import' && p.linesExclVat ? vatFactor() : 1;
+      return Math.round(sum * 100 * factor * 100) / 100;
+    }
+
+    function calcHtml(p, i, which) {
+      var lines = which === 'export' ? p.exportLines : p.importLines;
+      var rows = lines.map(function (l, li) {
+        return '<div class="calc-row">' +
+          '<input type="text" data-i="' + i + '" data-line="' + li + '" data-lf="name" data-which="' + which + '" value="' + escapeHtml(l.name) + '" placeholder="' + escapeHtml(T.calcNamePh) + '" />' +
+          '<input type="number" step="0.0001" min="0" data-i="' + i + '" data-line="' + li + '" data-lf="value" data-which="' + which + '" value="' + (l.value || '') + '" placeholder="' + escapeHtml(T.calcValue) + '" />' +
+          '<button class="btn small" data-act="del-line" data-i="' + i + '" data-line="' + li + '" data-which="' + which + '">×</button></div>';
+      }).join('');
+      var vatRow = which === 'import'
+        ? '<label><input type="checkbox" data-i="' + i + '" data-f="linesExclVat"' + (p.linesExclVat ? ' checked' : '') + ' /> ' + escapeHtml(T.calcExcl) + '</label>'
+        : '<span class="legend">' + escapeHtml(T.calcExclExport) + '</span>';
+      return '<div class="calc">' + rows +
+        '<button class="btn small" data-act="add-line" data-i="' + i + '" data-which="' + which + '">' + escapeHtml(T.calcAddLine) + '</button>' +
+        '<div class="legend" style="margin-top:8px">' + vatRow + '</div>' +
+        '<div class="calc-sum">' + escapeHtml(T.calcSum) + ': <span id="calc-sum-' + which + '-' + i + '">' + calcSumRp(p, which).toFixed(2) + '</span> Rp./kWh</div>' +
+        '<button class="btn small primary" data-act="apply-calc" data-i="' + i + '" data-which="' + which + '">' + escapeHtml(T.calcApply) + '</button></div>';
+    }
+
+    function renderRefPeriods() {
+      var root = $('ref-periods');
+      if (!refPeriods.length) {
+        root.innerHTML = '<p class="legend">' + escapeHtml(T.refNone) + '</p>';
+        return;
+      }
+      root.innerHTML = refPeriods.map(function (p, i) {
+        var L = T.refLabels;
+        return '<div class="period"><div class="form">' +
+          '<label>' + escapeHtml(L.from) + '</label><input type="date" data-i="' + i + '" data-f="from" value="' + escapeHtml(p.from) + '" />' +
+          '<label>' + escapeHtml(L.price) + '</label><div class="inline"><input type="number" min="0" step="0.1" data-i="' + i + '" data-f="price" value="' + (p.price || 0) + '" />' +
+            '<button class="btn small" data-act="toggle-calc" data-i="' + i + '" data-which="import">' + escapeHtml(T.calc) + '</button></div>' +
+          '</div>' + (p._calc === 'import' ? calcHtml(p, i, 'import') : '') +
+          '<div class="form" style="margin-top:10px">' +
+          '<label>' + escapeHtml(L.feedIn) + '</label><div class="inline"><input type="number" min="0" step="0.1" data-i="' + i + '" data-f="feedIn" value="' + (p.feedIn || 0) + '" />' +
+            '<button class="btn small" data-act="toggle-calc" data-i="' + i + '" data-which="export">' + escapeHtml(T.calc) + '</button></div>' +
+          '</div>' + (p._calc === 'export' ? calcHtml(p, i, 'export') : '') +
+          '<details><summary>' + escapeHtml(L.ntSummary) + '</summary><div class="form" style="margin-top:10px">' +
+          '<label>' + escapeHtml(L.ntPrice) + '</label><input type="number" min="0" step="0.1" data-i="' + i + '" data-f="ntPrice" value="' + (p.ntPrice || 0) + '" />' +
+          '<label>' + escapeHtml(L.ntFrom) + '</label><input type="text" placeholder="21:00" data-i="' + i + '" data-f="ntFrom" value="' + escapeHtml(p.ntFrom) + '" />' +
+          '<label>' + escapeHtml(L.ntTo) + '</label><input type="text" placeholder="07:00" data-i="' + i + '" data-f="ntTo" value="' + escapeHtml(p.ntTo) + '" />' +
+          '<label>' + escapeHtml(L.ntWeekend) + '</label><input type="checkbox" data-i="' + i + '" data-f="ntWeekend"' + (p.ntWeekend ? ' checked' : '') + ' />' +
+          '</div></details>' +
+          '<div class="row"><button class="btn small danger" data-act="remove-period" data-i="' + i + '">' + escapeHtml(T.refRemove) + '</button></div></div>';
+      }).join('');
+    }
 
     function renderRef(data) {
       if (!data.paired) return;
-      var r = data.ref || {};
       if (!refFormFilled) {
         refFormFilled = true;
-        $('ref-price').value = r.price || 0;
-        $('ref-nt-price').value = r.ntPrice || 0;
-        $('ref-nt-from').value = r.ntFrom || '';
-        $('ref-nt-to').value = r.ntTo || '';
-        $('ref-nt-weekend').checked = Boolean(r.ntWeekend);
-        $('ref-feed-in').value = r.feedIn || 0;
+        refPeriods = (data.refPeriods || []).map(function (p) {
+          var c = JSON.parse(JSON.stringify(p));
+          c._calc = null;
+          c.importLines = c.importLines || [];
+          c.exportLines = c.exportLines || [];
+          return c;
+        });
+        renderRefPeriods();
       }
       var reports = data.reports || {};
       $('tb-reports').innerHTML = ['import', 'export', 'battery_charge', 'battery_discharge'].map(function (k) {
         return '<tr><td>' + escapeHtml(T.reports[k]) + '</td><td>' + escapeHtml(agoText(reports[k])) + '</td></tr>';
       }).join('');
+    }
+
+    function onRefInput(e) {
+      var t = e.target;
+      var i = t.getAttribute('data-i');
+      if (i === null) return;
+      var p = refPeriods[Number(i)];
+      if (!p) return;
+      var f = t.getAttribute('data-f');
+      var lf = t.getAttribute('data-lf');
+      if (f) {
+        var v = t.type === 'checkbox' ? t.checked : t.value;
+        if (['price', 'feedIn', 'ntPrice'].indexOf(f) >= 0) v = Number(v) || 0;
+        p[f] = v;
+        if (f === 'linesExclVat') renderRefPeriods();
+      } else if (lf) {
+        var which = t.getAttribute('data-which');
+        var line = (which === 'export' ? p.exportLines : p.importLines)[Number(t.getAttribute('data-line'))];
+        if (!line) return;
+        line[lf] = lf === 'value' ? (Number(t.value) || 0) : t.value;
+        var out = $('calc-sum-' + which + '-' + i);
+        if (out) out.textContent = calcSumRp(p, which).toFixed(2);
+      }
+    }
+
+    function onRefClick(e) {
+      var t = e.target.closest ? e.target.closest('[data-act]') : null;
+      if (!t) return;
+      var act = t.getAttribute('data-act');
+      var i = Number(t.getAttribute('data-i'));
+      var p = refPeriods[i];
+      var which = t.getAttribute('data-which');
+      if (act === 'remove-period') refPeriods.splice(i, 1);
+      else if (!p) return;
+      else if (act === 'toggle-calc') p._calc = p._calc === which ? null : which;
+      else if (act === 'add-line') (which === 'export' ? p.exportLines : p.importLines).push({ name: '', value: 0 });
+      else if (act === 'del-line') (which === 'export' ? p.exportLines : p.importLines).splice(Number(t.getAttribute('data-line')), 1);
+      else if (act === 'apply-calc') {
+        p[which === 'export' ? 'feedIn' : 'price'] = calcSumRp(p, which);
+        p._calc = null;
+      }
+      renderRefPeriods();
     }
 
     function onHomeyReady(Homey) {
@@ -692,25 +801,42 @@
         });
       });
 
+      $('ref-periods').addEventListener('input', onRefInput);
+      $('ref-periods').addEventListener('change', onRefInput);
+      $('ref-periods').addEventListener('click', onRefClick);
+      $('btn-ref-add').addEventListener('click', function () {
+        var last = refPeriods.length ? refPeriods[refPeriods.length - 1] : null;
+        var p = newPeriod('');
+        if (last) {
+          p.price = last.price; p.feedIn = last.feedIn;
+          p.ntPrice = last.ntPrice; p.ntFrom = last.ntFrom; p.ntTo = last.ntTo; p.ntWeekend = last.ntWeekend;
+          p.importLines = JSON.parse(JSON.stringify(last.importLines || []));
+          p.exportLines = JSON.parse(JSON.stringify(last.exportLines || []));
+          p.linesExclVat = last.linesExclVat;
+        }
+        refPeriods.push(p);
+        renderRefPeriods();
+      });
+
       $('btn-ref-save').addEventListener('click', function () {
         var ok = $('ref-saved');
         var err = $('ref-error');
         ok.hidden = true;
         err.hidden = true;
-        var body = {
-          price: Number($('ref-price').value) || 0,
-          ntPrice: Number($('ref-nt-price').value) || 0,
-          ntFrom: $('ref-nt-from').value.trim(),
-          ntTo: $('ref-nt-to').value.trim(),
-          ntWeekend: $('ref-nt-weekend').checked,
-          feedIn: Number($('ref-feed-in').value) || 0,
-        };
         var timeOk = /^([01]?\d|2[0-3]):[0-5]\d$/;
-        if ((body.ntFrom && !timeOk.test(body.ntFrom)) || (body.ntTo && !timeOk.test(body.ntTo))) {
+        var bad = refPeriods.some(function (p) {
+          return (p.ntFrom && !timeOk.test(p.ntFrom)) || (p.ntTo && !timeOk.test(p.ntTo));
+        });
+        if (bad) {
           err.textContent = T.invalidTime;
           err.hidden = false;
           return;
         }
+        var body = { periods: refPeriods.map(function (p) {
+          var c = JSON.parse(JSON.stringify(p));
+          delete c._calc;
+          return c;
+        }) };
         apiCall('PUT', '/cost/config', body).then(function () {
           ok.textContent = T.savedMsg;
           ok.hidden = false;
