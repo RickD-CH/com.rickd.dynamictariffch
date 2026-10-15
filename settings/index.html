@@ -323,7 +323,7 @@
       dailyHeading: 'Letzte 30 Tage',
       chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
-      cumHeading: 'Aufgelaufene Kosten (netto, CHF)',
+      cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
       cumNote: 'Netto = Bezug minus Einspeisung, aufsummiert über den Tag. Der Abstand der Linien ist die Ersparnis.',
       savingsHeading: 'Ersparnis pro Tag (CHF)', savingsCumHeading: 'Ersparnis kumuliert (CHF)',
@@ -423,7 +423,7 @@
       dailyHeading: 'Last 30 days',
       chartHeading: 'Price (bars), reference (dashed) and import (blue, bottom)',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
-      cumHeading: 'Accumulated costs (net, CHF)',
+      cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
       cumNote: 'Net = import minus export, summed over the day. The gap between the lines is the saving.',
       savingsHeading: 'Savings per day (CHF)', savingsCumHeading: 'Savings accumulated (CHF)',
@@ -660,10 +660,12 @@
       return (DE ? T.ago + ' ' : '') + Math.round(h / 24) + ' ' + T.days;
     }
 
+    function kwhText(v) { return v < 10 ? v.toFixed(2) : v.toFixed(1); }
+
     function summaryRow(label, s) {
       return '<tr><td>' + escapeHtml(label) + '</td>' +
-        '<td>' + s.importKwh.toFixed(1) + '</td>' +
-        '<td>' + s.exportKwh.toFixed(1) + '</td>' +
+        '<td>' + kwhText(s.importKwh) + '</td>' +
+        '<td>' + kwhText(s.exportKwh) + '</td>' +
         '<td>' + chf(s.netCostDyn) + '</td>' +
         '<td>' + (s.configured ? chf(s.netCostRef) : '–') + '</td>' +
         diffCell(s.savings) + '</tr>';
@@ -673,15 +675,18 @@
     var costView = 'today';
     var lastCost = null;
 
-    function niceNum(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+    function niceNum(v, dec) { return (Math.round(v * Math.pow(10, dec == null ? 2 : dec)) / Math.pow(10, dec == null ? 2 : dec)).toFixed(dec == null ? 2 : dec); }
 
     // series: [{ pts: [number|null...], color, dash }]; x labels are given separately.
-    function lineSvg(series, count, xLabels) {
+    function lineSvg(series, count, xLabels, opts) {
+      var o = opts || {};
       var all = [];
       series.forEach(function (s) { s.pts.forEach(function (v) { if (v != null) all.push(v); }); });
       if (!all.length) return '';
       var min = Math.min.apply(null, all.concat([0]));
       var max = Math.max.apply(null, all.concat([0]));
+      // A minimum visible range keeps fractions of a cent from looking like big swings.
+      if (o.minSpan && max - min < o.minSpan) max = min + o.minSpan;
       var span = max - min || 1;
       var y = function (v) { return 100 - ((v - min) / span) * 100; };
       var lines = series.map(function (s) {
@@ -691,7 +696,7 @@
       }).join('');
       var zero = '<line x1="0" x2="' + count + '" y1="' + y(0).toFixed(2) + '" y2="' + y(0).toFixed(2) + '" stroke="var(--st-border)" stroke-width="1" vector-effect="non-scaling-stroke"/>';
       return '<div class="svgchart"><svg viewBox="0 0 ' + count + ' 100" preserveAspectRatio="none">' + zero + lines + '</svg>' +
-        '<div class="ylabels"><span>' + niceNum(max) + '</span><span>' + niceNum(min) + '</span></div></div>' +
+        '<div class="ylabels"><span>' + niceNum(max, o.dec) + (o.unit ? ' ' + o.unit : '') + '</span><span>' + niceNum(min, o.dec) + (o.unit ? ' ' + o.unit : '') + '</span></div></div>' +
         '<div class="chart-labels">' + xLabels.map(function (l) { return '<span>' + escapeHtml(l) + '</span>'; }).join('') + '</div>';
     }
 
@@ -722,21 +727,26 @@
         if (i > last) { dyn.push(null); ref.push(null); return; }
         var imp = s.kwh || 0; var exp = s.exp || 0;
         if (imp || exp) anyKwh = true;
-        if (typeof s.price === 'number') cd += (imp * s.price - exp * (s.feedIn || 0)) / 100;
-        if (typeof s.ref === 'number') { hasRef = true; cr += (imp * s.ref - exp * (s.refFeedIn || 0)) / 100; }
+        if (typeof s.price === 'number') cd += imp * s.price - exp * (s.feedIn || 0);
+        if (typeof s.ref === 'number') { hasRef = true; cr += imp * s.ref - exp * (s.refFeedIn || 0); }
         dyn.push(cd);
         ref.push(typeof s.ref === 'number' ? cr : null);
       });
-      var series = [{ pts: dyn, color: 'var(--st-accent)' }];
-      if (hasRef) series.push({ pts: ref, color: 'var(--st-muted)', dash: true });
+      // Values are in Rp.; switch to CHF once they reach a franc.
+      var big = Math.max(Math.abs(cd), Math.abs(cr)) >= 100;
+      var factor = big ? 0.01 : 1;
+      var scale = function (arr) { return arr.map(function (v) { return v == null ? null : v * factor; }); };
+      var money = function (rp) { return big ? 'CHF ' + niceNum(rp / 100, 2) : niceNum(rp, 1) + ' Rp.'; };
+      var series = [{ pts: scale(dyn), color: 'var(--st-accent)' }];
+      if (hasRef) series.push({ pts: scale(ref), color: 'var(--st-muted)', dash: true });
       var idxs = [0, Math.floor((slots.length - 1) * 0.25), Math.floor((slots.length - 1) * 0.5), Math.floor((slots.length - 1) * 0.75), slots.length - 1];
       var labels = idxs.map(function (i) { return slots[i].time; });
-      var summary = '<span class="swatch" style="background:var(--st-accent)"></span>' + escapeHtml(T.cumDyn) + ' ' + niceNum(cd) +
-        (hasRef ? ' &nbsp; <span class="swatch" style="background:var(--st-muted)"></span>' + escapeHtml(T.cumRef) + ' ' + niceNum(cr) +
-          ' &nbsp; ' + escapeHtml(T.cumDiff) + ' <span class="' + (cr - cd >= 0 ? 'good' : 'bad') + '">' + (cr - cd >= 0 ? '+' : '') + niceNum(cr - cd) + '</span>' : '');
+      var summary = '<span class="swatch" style="background:var(--st-accent)"></span>' + escapeHtml(T.cumDyn) + ' ' + money(cd) +
+        (hasRef ? ' &nbsp; <span class="swatch" style="background:var(--st-muted)"></span>' + escapeHtml(T.cumRef) + ' ' + money(cr) +
+          ' &nbsp; ' + escapeHtml(T.cumDiff) + ' <span class="' + (cr - cd >= 0 ? 'good' : 'bad') + '">' + (cr - cd >= 0 ? '+' : '') + money(cr - cd) + '</span>' : '');
       return '<h2 style="margin-top:14px">' + escapeHtml(T.cumHeading) + '</h2>' +
         (anyKwh ? '' : '<p class="legend">' + escapeHtml(T.noData) + '</p>') +
-        lineSvg(series, slots.length, labels) + '<p class="legend">' + summary + '</p><p class="legend">' + escapeHtml(T.cumNote) + '</p>' +
+        lineSvg(series, slots.length, labels, big ? { minSpan: 0.02, dec: 2, unit: 'CHF' } : { minSpan: 2, dec: 1, unit: 'Rp.' }) + '<p class="legend">' + summary + '</p><p class="legend">' + escapeHtml(T.cumNote) + '</p>' +
         '<h2 style="margin-top:18px">' + escapeHtml(T.chartHeading) + '</h2>' + chartHtml(slots, true);
     }
 
@@ -749,7 +759,7 @@
       vals.forEach(function (v) { c += v; cum.push(c); });
       return '<h2 style="margin-top:14px">' + escapeHtml(T.savingsHeading) + '</h2>' + barSvg(vals, labels) +
         '<h2 style="margin-top:18px">' + escapeHtml(T.savingsCumHeading) + '</h2>' +
-        lineSvg([{ pts: cum, color: 'var(--st-accent)' }], cum.length, [labels[0], labels[labels.length - 1]]) +
+        lineSvg([{ pts: cum, color: 'var(--st-accent)' }], cum.length, [labels[0], labels[labels.length - 1]], { minSpan: 0.02, dec: 2, unit: 'CHF' }) +
         '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
     }
 
