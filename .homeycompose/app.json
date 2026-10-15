@@ -68,6 +68,14 @@
     "resetCost": {
       "method": "post",
       "path": "/cost/reset"
+    },
+    "getAppConfig": {
+      "method": "get",
+      "path": "/config"
+    },
+    "putAppConfig": {
+      "method": "put",
+      "path": "/config"
     }
   },
   "support": "https://community.homey.app/t/160031",

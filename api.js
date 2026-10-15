@@ -26,6 +26,19 @@ module.exports = {
     return device.resetCost();
   },
 
+  async getAppConfig({ homey }) {
+    const raw = homey.settings.get('vat_percent');
+    const v = Number(raw);
+    return { vatPercent: raw !== null && raw !== undefined && Number.isFinite(v) && v >= 0 ? v : null };
+  },
+
+  async putAppConfig({ homey, body }) {
+    const v = Number(body && body.vatPercent);
+    if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
+    homey.settings.set('vat_percent', Math.round(v * 100) / 100);
+    return { vatPercent: homey.settings.get('vat_percent') };
+  },
+
   async getSummary({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

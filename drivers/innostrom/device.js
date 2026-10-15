@@ -62,6 +62,13 @@ class InnostromDevice extends Homey.Device {
     this.costTracker = CostTracker.fromJSON(this.getStoreValue('cost'), { tz: this.tz });
     this._costTimer = null;
 
+    this._onAppSetting = (key) => {
+      if (key !== 'vat_percent') return;
+      this._vatPercent = this._readVat(this.getSettings());
+      this._updateCapabilities(new Date()).catch((err) => this.error('MWST-Update fehlgeschlagen:', err));
+    };
+    this.homey.settings.on('set', this._onAppSetting);
+
     this._tickTimer = null;
     this._dailyTimer = null;
     this._retryTimer = null;
@@ -104,11 +111,13 @@ class InnostromDevice extends Homey.Device {
   }
 
   async onUninit() {
+    this.homey.settings.removeListener('set', this._onAppSetting);
     this._clearTimers();
     await this._flushCost();
   }
 
   async onDeleted() {
+    this.homey.settings.removeListener('set', this._onAppSetting);
     this._clearTimers();
   }
 
@@ -124,7 +133,7 @@ class InnostromDevice extends Homey.Device {
   _applySettings(settings) {
     this._environment = settings.environment === 'test' ? 'test' : 'production';
     this._priceField = ['integrated', 'electricity', 'grid'].includes(settings.price_field) ? settings.price_field : 'integrated';
-    this._vatPercent = Number.isFinite(Number(settings.vat_percent)) ? Number(settings.vat_percent) : 8.1;
+    this._vatPercent = this._readVat(settings);
     this._fallbackPrice = Number(settings.fallback_price) > 0 ? Number(settings.fallback_price) : null;
     this._applyRef(settings);
     this._levelThresholds = {
@@ -140,6 +149,14 @@ class InnostromDevice extends Homey.Device {
       environment: this._environment,
       tz: this.tz,
     });
+  }
+
+  // VAT is an app-wide setting (settings page). Devices paired before that still have the
+  // old per-device value, which is used until the app-wide one is set.
+  _readVat(deviceSettings) {
+    const appValue = this.homey.settings.get('vat_percent');
+    const v = Number(appValue !== null && appValue !== undefined ? appValue : deviceSettings.vat_percent);
+    return Number.isFinite(v) && v >= 0 ? v : 8.1;
   }
 
   _applyRef(settings) {

@@ -191,21 +191,6 @@
           ]
         },
         {
-          "id": "vat_percent",
-          "type": "number",
-          "label": {
-            "en": "VAT (%)",
-            "de": "MWST (%)"
-          },
-          "value": 8.1,
-          "min": 0,
-          "max": 100,
-          "hint": {
-            "en": "Added to displayed prices. Set to 0 to show prices excluding VAT.",
-            "de": "Wird auf die angezeigten Preise addiert. 0 = Preise exkl. MWST anzeigen."
-          }
-        },
-        {
           "id": "fallback_price",
           "type": "number",
           "label": {

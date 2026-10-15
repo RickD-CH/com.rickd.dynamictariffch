@@ -144,6 +144,19 @@
 
   <div class="panel active" id="panel-overview">
     <div class="card">
+      <h2 id="h2-general"></h2>
+      <div class="form">
+        <label for="vat-input" id="l-vat"></label><input type="number" id="vat-input" min="0" max="100" step="0.1" />
+      </div>
+      <p class="legend" id="p-vat-hint"></p>
+      <div class="row">
+        <button class="btn primary" id="btn-vat-save"></button>
+        <span class="ok" id="vat-saved" hidden></span>
+        <span class="err" id="vat-error" hidden></span>
+      </div>
+    </div>
+
+    <div class="card">
       <h2 id="h2-recommend"></h2>
       <p class="sub" id="p-recommend-sub" style="margin-bottom:0"></p>
       <dl class="recommend" id="dl-recommend"></dl>
@@ -227,7 +240,11 @@
         'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
       ],
       recommendHeading: 'Empfohlene Einstellungen',
-      recommendSub: 'Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.',
+      recommendSub: 'MWST und Referenztarif hier in der App, alles andere pro Gerät unter dessen Zahnrad-Symbol.',
+      generalHeading: 'Allgemein',
+      vatLabel: 'MWST (%)',
+      vatHint: 'Wird auf die API-Preise (exkl. MWST) aufgeschlagen und gilt für alle Anzeigen, Flow-Karten und die Kostenauswertung. 0 = Preise exkl. MWST.',
+      vatInvalid: 'Ungültiger Wert (0 bis 100).',
       recommend: [
         { dt: 'Preis für Flows', dd: '<code>integrated</code> (Gesamtpreis) — das ist der Wert, der für Entscheidungen zählt, nicht nur Energie oder nur Netz' },
         { dt: 'MWST', dd: '<code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert' },
@@ -293,7 +310,11 @@
         'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
       ],
       recommendHeading: 'Recommended settings',
-      recommendSub: 'Configurable per device, under its gear icon.',
+      recommendSub: 'VAT and reference tariff here in the app, everything else per device under its gear icon.',
+      generalHeading: 'General',
+      vatLabel: 'VAT (%)',
+      vatHint: 'Added on top of the API prices (excl. VAT) and applies to all displays, Flow cards and the cost analysis. 0 = prices excl. VAT.',
+      vatInvalid: 'Invalid value (0 to 100).',
       recommend: [
         { dt: 'Price for Flows', dd: '<code>integrated</code> (total price) — this is the value that matters for decisions, not just energy or just grid' },
         { dt: 'VAT', dd: '<code>8.1%</code> — current Swiss rate, adjust if it changes' },
@@ -387,6 +408,10 @@
       $('dl-recommend').innerHTML = T.recommend.map(function (r) {
         return '<dt>' + escapeHtml(r.dt) + '</dt><dd>' + r.dd + '</dd>';
       }).join('');
+      $('h2-general').textContent = T.generalHeading;
+      $('l-vat').textContent = T.vatLabel;
+      $('p-vat-hint').textContent = T.vatHint;
+      $('btn-vat-save').textContent = T.save;
       $('h2-live').textContent = T.liveHeading;
       $('initial-loading').textContent = T.loading;
       $('h2-costs').textContent = T.costsHeading;
@@ -596,6 +621,8 @@
         });
       }
 
+      var vatFilled = false;
+
       function loadSummary() {
         return apiCall('GET', '/summary').then(render);
       }
@@ -604,6 +631,15 @@
         return apiCall('GET', '/cost').then(function (data) {
           renderCost(data);
           renderRef(data);
+        });
+      }
+
+      function loadConfig() {
+        return apiCall('GET', '/config').then(function (cfg) {
+          if (!vatFilled) {
+            vatFilled = true;
+            $('vat-input').value = cfg.vatPercent == null ? 8.1 : cfg.vatPercent;
+          }
         });
       }
 
@@ -617,6 +653,7 @@
             console.error(err);
             $('cost-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';
           }),
+          loadConfig().catch(function (err) { console.error(err); }),
         ]);
       }
 
@@ -631,6 +668,28 @@
 
       $('btn-forum').addEventListener('click', function () {
         Homey.openURL('https://community.homey.app/t/app-pro-swiss-dynamic-electricity-tariff-15-minute-prices-for-innostrom-swisspower-tariffs/160031');
+      });
+
+      $('btn-vat-save').addEventListener('click', function () {
+        var ok = $('vat-saved');
+        var err = $('vat-error');
+        ok.hidden = true;
+        err.hidden = true;
+        var v = Number($('vat-input').value);
+        if (!isFinite(v) || v < 0 || v > 100 || $('vat-input').value === '') {
+          err.textContent = T.vatInvalid;
+          err.hidden = false;
+          return;
+        }
+        apiCall('PUT', '/config', { vatPercent: v }).then(function () {
+          ok.textContent = T.savedMsg;
+          ok.hidden = false;
+          setTimeout(function () { ok.hidden = true; }, 2500);
+          return loadSummary();
+        }).catch(function (e) {
+          err.textContent = T.saveFailed + ((e && e.message) || e);
+          err.hidden = false;
+        });
       });
 
       $('btn-ref-save').addEventListener('click', function () {
