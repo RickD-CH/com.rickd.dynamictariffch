@@ -8,6 +8,24 @@ function firstDevice(homey) {
 
 module.exports = {
 
+  async getCost({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    return { paired: true, name: device.getName(), ...device.getCostOverview() };
+  },
+
+  async putCostConfig({ homey, body }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.setRefConfig(body || {});
+  },
+
+  async resetCost({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.resetCost();
+  },
+
   async getSummary({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

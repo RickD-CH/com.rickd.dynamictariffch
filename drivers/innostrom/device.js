@@ -3,8 +3,9 @@
 const Homey = require('homey');
 const { InnostromClient, InnostromError } = require('../../lib/InnostromClient');
 const { PriceStore } = require('../../lib/PriceStore');
+const { CostTracker, normalizeRef, refImportPrice } = require('../../lib/CostTracker');
 const {
-  SLOT_MS, localParts, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
+  SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
 
 // Backoff steps for a failed daily fetch (network/server errors) - see SPEC "Fehler".
@@ -58,6 +59,9 @@ class InnostromDevice extends Homey.Device {
 
     this.priceStore = PriceStore.fromJSON(this.getStoreValue('slots') || [], { field: this._priceField, tz: this.tz });
 
+    this.costTracker = CostTracker.fromJSON(this.getStoreValue('cost'), { tz: this.tz });
+    this._costTimer = null;
+
     this._tickTimer = null;
     this._dailyTimer = null;
     this._retryTimer = null;
@@ -101,6 +105,7 @@ class InnostromDevice extends Homey.Device {
 
   async onUninit() {
     this._clearTimers();
+    await this._flushCost();
   }
 
   async onDeleted() {
@@ -121,6 +126,7 @@ class InnostromDevice extends Homey.Device {
     this._priceField = ['integrated', 'electricity', 'grid'].includes(settings.price_field) ? settings.price_field : 'integrated';
     this._vatPercent = Number.isFinite(Number(settings.vat_percent)) ? Number(settings.vat_percent) : 8.1;
     this._fallbackPrice = Number(settings.fallback_price) > 0 ? Number(settings.fallback_price) : null;
+    this._applyRef(settings);
     this._levelThresholds = {
       veryCheap: (Number(settings.level_very_cheap_percent) || 75) / 100,
       cheap: (Number(settings.level_cheap_percent) || 90) / 100,
@@ -133,6 +139,17 @@ class InnostromDevice extends Homey.Device {
       token: settings.token,
       environment: this._environment,
       tz: this.tz,
+    });
+  }
+
+  _applyRef(settings) {
+    this._ref = normalizeRef({
+      price: settings.ref_price,
+      ntPrice: settings.ref_nt_price,
+      ntFrom: settings.ref_nt_from,
+      ntTo: settings.ref_nt_to,
+      ntWeekend: settings.ref_nt_weekend,
+      feedIn: settings.ref_feed_in,
     });
   }
 
@@ -522,6 +539,127 @@ class InnostromDevice extends Homey.Device {
   }
 
   // ---------------------------------------------------------------------
+  // Cost tracking (counter readings pushed in by the user's Flows)
+  // ---------------------------------------------------------------------
+
+  /** Dynamic import price + feed-in price (Rp./kWh) of one slot, for cost attribution. */
+  _costPricesAt(start) {
+    const slot = this.priceStore.slots.get(start.getTime());
+    const hasTotal = slot && typeof slot.integrated === 'number' && Number.isFinite(slot.integrated);
+    const dyn = hasTotal ? this._toDisplay(slot.integrated) : this._toDisplay(null);
+    let feedIn = null;
+    if (slot) {
+      const hasFeedIn = typeof slot.feedIn === 'number' && Number.isFinite(slot.feedIn);
+      feedIn = hasFeedIn ? Math.round(slot.feedIn * 10000) / 100 : 0;
+    }
+    return { dyn, feedIn };
+  }
+
+  actionReportCounter(kind, kwh) {
+    const result = this.costTracker.report(kind, kwh, new Date(), (s) => this._costPricesAt(s), this._ref);
+    if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
+    this._markCostDirty();
+    return true;
+  }
+
+  _markCostDirty() {
+    if (this._costTimer) return;
+    this._costTimer = this.homey.setTimeout(() => {
+      this._costTimer = null;
+      this._flushCost().catch((err) => this.error('Kosten speichern fehlgeschlagen:', err));
+    }, 30 * 1000);
+  }
+
+  async _flushCost() {
+    if (this._costTimer) {
+      this.homey.clearTimeout(this._costTimer);
+      this._costTimer = null;
+    }
+    await this.setStoreValue('cost', this.costTracker.toJSON());
+  }
+
+  async resetCost() {
+    this.costTracker.reset();
+    await this._flushCost();
+    return true;
+  }
+
+  /** Reference tariff as set in the device settings (Rp./kWh). */
+  getRefConfig() {
+    const s = this.getSettings();
+    return {
+      price: Number(s.ref_price) || 0,
+      ntPrice: Number(s.ref_nt_price) || 0,
+      ntFrom: s.ref_nt_from || '',
+      ntTo: s.ref_nt_to || '',
+      ntWeekend: Boolean(s.ref_nt_weekend),
+      feedIn: Number(s.ref_feed_in) || 0,
+    };
+  }
+
+  async setRefConfig(cfg) {
+    const num = (v) => {
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0 || n > 1000) throw new Error('Invalid price');
+      return Math.round(n * 100) / 100;
+    };
+    const hhmm = (v) => {
+      if (v === '' || v === undefined || v === null) return '';
+      parseHHMM(v);
+      return String(v).trim();
+    };
+    await this.setSettings({
+      ref_price: num(cfg.price),
+      ref_nt_price: num(cfg.ntPrice),
+      ref_nt_from: hhmm(cfg.ntFrom),
+      ref_nt_to: hhmm(cfg.ntTo),
+      ref_nt_weekend: Boolean(cfg.ntWeekend),
+      ref_feed_in: num(cfg.feedIn),
+    });
+    this._applyRef(this.getSettings());
+    return this.getRefConfig();
+  }
+
+  /** Summaries for the cost widget / settings tab. Money values in Rp. */
+  getCostOverview() {
+    const now = new Date();
+    const ref = this.getRefConfig();
+    const today = localDateKey(now, this.tz);
+    const monthStart = `${today.slice(0, 7)}-01`;
+    const weekStart = localDateKey(addLocalDays(now, -6, this.tz), this.tz);
+    const dayFrom = localDateKey(addLocalDays(now, -29, this.tz), this.tz);
+    const t = this.costTracker;
+    return {
+      ref,
+      today: t.summary(today, today, ref),
+      week: t.summary(weekStart, today, ref),
+      month: t.summary(monthStart, today, ref),
+      total: t.summary('0000-01-01', '9999-12-31', ref),
+      days: t.daily(dayFrom, today, ref),
+      reports: t.lastReports(),
+      chart: this.getCostChart(),
+    };
+  }
+
+  /** Today's quarter-hours: dynamic price, reference price and kWh imported. */
+  getCostChart() {
+    const now = new Date();
+    const from = startOfLocalDay(now, this.tz);
+    const to = addLocalDays(from, 1, this.tz);
+    const refNorm = normalizeRef(this.getRefConfig());
+    const kwh = new Map(this.costTracker.slotsOf(localDateKey(now, this.tz)).map((x) => [x[0], x[1]]));
+    const nowSlot = floorToSlot(now).getTime();
+    return this.priceStore.range(from, to).map((s) => ({
+      time: formatHHMM(s.start, this.tz),
+      price: this._toDisplay(s.integrated),
+      ref: refNorm.price > 0 ? refImportPrice(s.start, refNorm, this.tz) : null,
+      kwh: kwh.get(s.start.getTime()) || 0,
+      isNow: s.start.getTime() === nowSlot,
+      isPast: s.start.getTime() < nowSlot,
+    }));
+  }
+
+  // ---------------------------------------------------------------------
   // Widget
   // ---------------------------------------------------------------------
 
@@ -532,9 +670,11 @@ class InnostromDevice extends Homey.Device {
     const to = addLocalDays(from, 2, this.tz);
     const nowSlotStart = floorToSlot(now).getTime();
 
+    const refNorm = normalizeRef(this.getRefConfig());
     return this.priceStore.range(from, to).map((s) => ({
       time: formatHHMM(s.start, this.tz),
       value: this._toDisplay(s.integrated),
+      ref: refNorm.price > 0 ? refImportPrice(s.start, refNorm, this.tz) : null,
       isNow: s.start.getTime() === nowSlotStart,
       isPast: s.start.getTime() < nowSlotStart,
     }));

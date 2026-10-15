@@ -5,6 +5,7 @@
     "logAmongMostExpensiveIncomplete": "is_among_most_expensive: prices in window incomplete, evaluating as false",
     "logInCheapestBlockIncomplete": "is_in_cheapest_block: prices in window incomplete, evaluating as false",
     "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing).",
+    "errorInvalidCounter": "Invalid counter value (must be a number, 0 or more).",
     "errorPricesIncomplete": "Hourly prices incomplete (data missing and no fallback flat rate configured)."
   },
   "repair": {
@@ -30,5 +31,19 @@
       "expensive": "Expensive",
       "very_expensive": "Very expensive"
     }
+  },
+  "costWidget": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load costs.",
+    "noDevice": "No device paired.",
+    "savedToday": "Saved today vs. reference tariff",
+    "moreExpensiveToday": "More expensive today vs. reference tariff",
+    "costToday": "Net cost today (dynamic tariff)",
+    "month": "Month",
+    "importKwh": "Import today (kWh)",
+    "avgDyn": "Ø dynamic (Rp.)",
+    "avgRef": "Ø reference (Rp.)",
+    "noRef": "Enter a reference price in the device settings to see the comparison.",
+    "noData": "No meter readings yet. Report them with the \"Report ... counter\" Flow cards."
   }
 }

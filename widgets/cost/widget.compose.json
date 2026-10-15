@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en": "Innostrom costs",
+    "de": "Innostrom-Kosten"
+  },
+  "height": 260,
+  "api": {
+    "getCost": {
+      "method": "GET",
+      "path": "/cost"
+    }
+  }
+}

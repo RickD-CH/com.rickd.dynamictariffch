@@ -1,0 +1,31 @@
+{
+  "title": {
+    "en": "Report grid export counter",
+    "de": "Einspeisung-Zählerstand melden"
+  },
+  "titleFormatted": {
+    "en": "Report grid export counter: [[kwh]] kWh",
+    "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh"
+  },
+  "hint": {
+    "en": "Cumulative grid export (kWh), e.g. meter_power.exported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
+    "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    },
+    {
+      "type": "number",
+      "name": "kwh",
+      "title": {
+        "en": "Counter (kWh)",
+        "de": "Zählerstand (kWh)"
+      },
+      "min": 0,
+      "step": 0.001
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -57,6 +57,18 @@
     "getSummary": {
       "method": "get",
       "path": "/summary"
+    },
+    "getCost": {
+      "method": "get",
+      "path": "/cost"
+    },
+    "putCostConfig": {
+      "method": "put",
+      "path": "/cost/config"
+    },
+    "resetCost": {
+      "method": "post",
+      "path": "/cost/reset"
     }
   },
   "support": "https://community.homey.app/t/160031",
@@ -863,6 +875,134 @@
           }
         ],
         "id": "refresh"
+      },
+      {
+        "title": {
+          "en": "Report battery charge counter",
+          "de": "Batterie-Ladung-Zählerstand melden"
+        },
+        "titleFormatted": {
+          "en": "Report battery charge counter: [[kwh]] kWh",
+          "de": "Batterie-Ladung-Zählerstand melden: [[kwh]] kWh"
+        },
+        "hint": {
+          "en": "Cumulative energy charged into the battery (kWh). Report at least hourly, ideally every 15 minutes or on every change.",
+          "de": "Kumulierte in die Batterie geladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "kwh",
+            "title": {
+              "en": "Counter (kWh)",
+              "de": "Zählerstand (kWh)"
+            },
+            "min": 0,
+            "step": 0.001
+          }
+        ],
+        "id": "report_battery_charge"
+      },
+      {
+        "title": {
+          "en": "Report battery discharge counter",
+          "de": "Batterie-Entladung-Zählerstand melden"
+        },
+        "titleFormatted": {
+          "en": "Report battery discharge counter: [[kwh]] kWh",
+          "de": "Batterie-Entladung-Zählerstand melden: [[kwh]] kWh"
+        },
+        "hint": {
+          "en": "Cumulative energy discharged from the battery (kWh). Report at least hourly, ideally every 15 minutes or on every change.",
+          "de": "Kumulierte aus der Batterie entladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "kwh",
+            "title": {
+              "en": "Counter (kWh)",
+              "de": "Zählerstand (kWh)"
+            },
+            "min": 0,
+            "step": 0.001
+          }
+        ],
+        "id": "report_battery_discharge"
+      },
+      {
+        "title": {
+          "en": "Report grid export counter",
+          "de": "Einspeisung-Zählerstand melden"
+        },
+        "titleFormatted": {
+          "en": "Report grid export counter: [[kwh]] kWh",
+          "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh"
+        },
+        "hint": {
+          "en": "Cumulative grid export (kWh), e.g. meter_power.exported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
+          "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "kwh",
+            "title": {
+              "en": "Counter (kWh)",
+              "de": "Zählerstand (kWh)"
+            },
+            "min": 0,
+            "step": 0.001
+          }
+        ],
+        "id": "report_grid_export"
+      },
+      {
+        "title": {
+          "en": "Report grid import counter",
+          "de": "Netzbezug-Zählerstand melden"
+        },
+        "titleFormatted": {
+          "en": "Report grid import counter: [[kwh]] kWh",
+          "de": "Netzbezug-Zählerstand melden: [[kwh]] kWh"
+        },
+        "hint": {
+          "en": "Cumulative grid import (kWh), e.g. meter_power.imported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
+          "de": "Kumulierter Netzbezug (kWh), z. B. meter_power.imported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          },
+          {
+            "type": "number",
+            "name": "kwh",
+            "title": {
+              "en": "Counter (kWh)",
+              "de": "Zählerstand (kWh)"
+            },
+            "min": 0,
+            "step": 0.001
+          }
+        ],
+        "id": "report_grid_import"
       }
     ]
   },
@@ -1142,11 +1282,104 @@
               "max": 500
             }
           ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Reference tariff (cost comparison)",
+            "de": "Referenztarif (Kostenvergleich)"
+          },
+          "children": [
+            {
+              "id": "ref_price",
+              "type": "number",
+              "label": {
+                "en": "Reference price (Rp./kWh)",
+                "de": "Referenzpreis (Rp./kWh)"
+              },
+              "value": 0,
+              "min": 0,
+              "hint": {
+                "en": "Your standard tariff, all-in incl. VAT, for comparison with the dynamic tariff. 0 = comparison off. Changes apply to all collected data.",
+                "de": "Dein Standardtarif, alles inklusive MWST, zum Vergleich mit dem dynamischen Tarif. 0 = Vergleich aus. Änderungen gelten rückwirkend für alle gesammelten Daten."
+              }
+            },
+            {
+              "id": "ref_nt_price",
+              "type": "number",
+              "label": {
+                "en": "Reference low tariff (Rp./kWh)",
+                "de": "Referenz-Niedertarif (Rp./kWh)"
+              },
+              "value": 0,
+              "min": 0,
+              "hint": {
+                "en": "Optional. 0 = only one reference price.",
+                "de": "Optional. 0 = nur ein Referenzpreis."
+              }
+            },
+            {
+              "id": "ref_nt_from",
+              "type": "text",
+              "label": {
+                "en": "Low tariff from (HH:MM)",
+                "de": "Niedertarif von (HH:MM)"
+              },
+              "value": "21:00"
+            },
+            {
+              "id": "ref_nt_to",
+              "type": "text",
+              "label": {
+                "en": "Low tariff until (HH:MM)",
+                "de": "Niedertarif bis (HH:MM)"
+              },
+              "value": "07:00"
+            },
+            {
+              "id": "ref_nt_weekend",
+              "type": "checkbox",
+              "label": {
+                "en": "Low tariff all weekend",
+                "de": "Niedertarif am ganzen Wochenende"
+              },
+              "value": false
+            },
+            {
+              "id": "ref_feed_in",
+              "type": "number",
+              "label": {
+                "en": "Reference feed-in price (Rp./kWh)",
+                "de": "Referenz-Einspeisevergütung (Rp./kWh)"
+              },
+              "value": 0,
+              "min": 0,
+              "hint": {
+                "en": "What you would get for exported energy with your standard tariff.",
+                "de": "Was du mit deinem Standardtarif für eingespeiste Energie bekommen würdest."
+              }
+            }
+          ]
         }
       ]
     }
   ],
   "widgets": {
+    "cost": {
+      "name": {
+        "en": "Innostrom costs",
+        "de": "Innostrom-Kosten"
+      },
+      "height": 260,
+      "api": {
+        "getCost": {
+          "method": "GET",
+          "path": "/cost"
+        }
+      },
+      "id": "cost",
+      "settings": []
+    },
     "price": {
       "name": {
         "en": "Innostrom price",

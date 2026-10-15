@@ -1,6 +1,6 @@
 {
   "id": "com.rickd.dynamictariffch",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -56,6 +56,18 @@
     "getSummary": {
       "method": "get",
       "path": "/summary"
+    },
+    "getCost": {
+      "method": "get",
+      "path": "/cost"
+    },
+    "putCostConfig": {
+      "method": "put",
+      "path": "/cost/config"
+    },
+    "resetCost": {
+      "method": "post",
+      "path": "/cost/reset"
     }
   },
   "support": "https://community.homey.app/t/160031",

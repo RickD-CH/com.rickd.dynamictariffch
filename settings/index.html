@@ -55,12 +55,21 @@
     h2 { font-size: 15px; margin: 0 0 10px; }
     p { line-height: 1.5; }
     .sub { color: var(--st-muted); margin: 0 0 20px; }
+    .tabs { display: flex; gap: 2px; overflow-x: auto; margin: 0 0 16px; border-bottom: 1px solid var(--st-border); }
+    .tab {
+      flex: 0 0 auto; background: transparent; border: 0; border-bottom: 2px solid transparent;
+      color: var(--st-muted); font-size: 14px; font-weight: 600; padding: 8px 12px; cursor: pointer; white-space: nowrap;
+    }
+    .tab.active { color: var(--st-accent); border-bottom-color: var(--st-accent); }
+    .panel { display: none; }
+    .panel.active { display: block; }
     .card {
       border: 1px solid var(--st-border); border-radius: 10px; padding: 16px 18px;
       margin-bottom: 16px; background: var(--st-card-bg);
     }
     ul { margin: 8px 0; padding-left: 20px; }
     li { margin-bottom: 4px; line-height: 1.4; }
+    ol { margin: 8px 0; padding-left: 22px; }
     .recommend { display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 6px 16px; margin-top: 8px; }
     .recommend dt { font-weight: 600; }
     .recommend dd { margin: 0; color: var(--st-muted); }
@@ -79,13 +88,17 @@
     .chip .num { font-size: 15px; font-weight: 700; }
     .chip .lbl { font-size: 10px; color: var(--st-muted); text-align: center; }
     .chart {
-      display: flex; align-items: flex-end; height: 90px; gap: 1px; margin-top: 16px;
+      position: relative; display: flex; align-items: flex-end; height: 90px; gap: 1px; margin-top: 16px;
       background: var(--st-chip-bg); border-radius: 8px; padding: 6px;
     }
+    .chart .refline { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; }
+    .kwhrow { display: flex; align-items: flex-end; height: 34px; gap: 1px; margin-top: 6px; padding: 0 6px; }
+    .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--st-accent); }
     .bar { flex: 1; min-width: 1px; border-radius: 1px; }
     .bar.past { opacity: .45; }
     .bar.now { outline: 2px solid var(--st-text); outline-offset: -1px; }
     .chart-labels { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--st-muted); }
+    .legend { font-size: 11px; color: var(--st-muted); margin-top: 6px; }
     .warn {
       margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(211,47,47,.12);
       color: var(--st-expensive); font-size: 12px; text-align: center;
@@ -93,37 +106,108 @@
     .last-update { font-size: 11px; color: var(--st-muted); margin-top: 10px; }
     .no-device, .load-error { text-align: center; color: var(--st-muted); padding: 20px 0; }
     .load-error { color: var(--st-expensive); }
+    code { background: var(--st-chip-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: right; padding: 6px 6px; border-bottom: 1px solid var(--st-border); white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { font-size: 11px; color: var(--st-muted); font-weight: 600; }
+    .scroll { overflow-x: auto; }
+    .good { color: var(--st-cheap); font-weight: 600; }
+    .bad { color: var(--st-expensive); font-weight: 600; }
     .btn {
       border: 1px solid var(--st-border); background: var(--st-chip-bg); color: var(--st-text);
       border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer;
     }
-    code { background: var(--st-chip-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+    .btn.primary { background: var(--st-accent); border-color: var(--st-accent); color: #fff; }
+    .btn.danger { color: var(--st-expensive); }
+    .form { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(90px, 140px); gap: 10px 14px; align-items: center; max-width: 520px; }
+    .form label { color: var(--st-text); }
+    .form input[type=text], .form input[type=number] {
+      width: 100%; padding: 7px 9px; font-size: 14px; border: 1px solid var(--st-border);
+      border-radius: 8px; background: var(--st-bg); color: var(--st-text);
+    }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .ok { color: var(--st-cheap); font-size: 13px; }
+    .err { color: var(--st-expensive); font-size: 13px; }
+    .status td:last-child { text-align: left; }
   </style>
 </head>
 <body>
   <h1 id="h1-title">Dynamischer Stromtarif CH</h1>
   <p class="sub" id="p-sub"></p>
 
-  <div class="card">
-    <h2 id="h2-features"></h2>
-    <ul id="ul-features"></ul>
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview" id="t-overview"></button>
+    <button class="tab" data-tab="costs" id="t-costs"></button>
+    <button class="tab" data-tab="reference" id="t-reference"></button>
+    <button class="tab" data-tab="help" id="t-help"></button>
+  </nav>
+
+  <div class="panel active" id="panel-overview">
+    <div class="card">
+      <h2 id="h2-features"></h2>
+      <ul id="ul-features"></ul>
+    </div>
+
+    <div class="card">
+      <h2 id="h2-recommend"></h2>
+      <p class="sub" id="p-recommend-sub" style="margin-bottom:0"></p>
+      <dl class="recommend" id="dl-recommend"></dl>
+    </div>
+
+    <div class="card" id="live-card">
+      <h2 id="h2-live"></h2>
+      <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2 id="h2-recommend"></h2>
-    <p class="sub" id="p-recommend-sub" style="margin-bottom:0"></p>
-    <dl class="recommend" id="dl-recommend"></dl>
+  <div class="panel" id="panel-costs">
+    <div class="card">
+      <h2 id="h2-costs"></h2>
+      <div id="cost-root"><div class="no-device" id="cost-loading"></div></div>
+    </div>
   </div>
 
-  <div class="card" id="live-card">
-    <h2 id="h2-live"></h2>
-    <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
+  <div class="panel" id="panel-reference">
+    <div class="card">
+      <h2 id="h2-ref"></h2>
+      <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
+      <div class="form">
+        <label for="ref-price" id="l-ref-price"></label><input type="number" id="ref-price" min="0" step="0.1" />
+        <label for="ref-nt-price" id="l-ref-nt-price"></label><input type="number" id="ref-nt-price" min="0" step="0.1" />
+        <label for="ref-nt-from" id="l-ref-nt-from"></label><input type="text" id="ref-nt-from" placeholder="21:00" />
+        <label for="ref-nt-to" id="l-ref-nt-to"></label><input type="text" id="ref-nt-to" placeholder="07:00" />
+        <label for="ref-nt-weekend" id="l-ref-nt-weekend"></label><input type="checkbox" id="ref-nt-weekend" />
+        <label for="ref-feed-in" id="l-ref-feed-in"></label><input type="number" id="ref-feed-in" min="0" step="0.1" />
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btn-ref-save"></button>
+        <span class="ok" id="ref-saved" hidden></span>
+        <span class="err" id="ref-error" hidden></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="h2-meters"></h2>
+      <p class="sub" id="p-meters-intro" style="margin-bottom:8px"></p>
+      <ol id="ol-meters"></ol>
+      <p class="sub" id="p-meters-note"></p>
+      <div class="scroll"><table class="status"><tbody id="tb-reports"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2 id="h2-reset"></h2>
+      <p class="sub" id="p-reset-hint" style="margin-bottom:12px"></p>
+      <button class="btn danger" id="btn-reset"></button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2 id="h2-forum"></h2>
-    <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
-    <button class="btn" id="btn-forum"></button>
+  <div class="panel" id="panel-help">
+    <div class="card">
+      <h2 id="h2-forum"></h2>
+      <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
+      <button class="btn" id="btn-forum"></button>
+    </div>
   </div>
 
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
@@ -133,13 +217,15 @@
     var T_DE = {
       title: 'Dynamischer Stromtarif CH',
       sub: '15-Minuten-Preise für Schweizer Netzbetreiber mit der Innostrom-Plattform (Swisspower)',
+      tabs: { overview: 'Übersicht', costs: 'Kosten', reference: 'Referenz & Zähler', help: 'Hilfe' },
       featuresHeading: 'Was die App kann',
       features: [
         'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
         'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
         '12 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung + manueller Refresh-Knopf',
-        '17 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen',
-        'Dashboard-Widget mit Preiskurve für heute und morgen, Refresh-Knopf und Zeitstempel der letzten Aktualisierung',
+        '21 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
+        'Zwei Dashboard-Widgets: Preiskurve für heute und morgen (mit Referenzlinie) und Kosten/Ersparnis gegenüber deinem Standardtarif',
+        'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
       ],
       recommendHeading: 'Empfohlene Einstellungen',
       recommendSub: 'Einstellbar pro Gerät, unter dessen Zahnrad-Symbol.',
@@ -148,6 +234,7 @@
         { dt: 'MWST', dd: '<code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert' },
         { dt: 'Einheitstarif (Fallback)', dd: '<code>0</code> (deaktiviert), bis der echte AEW-Tarif ab 2027 bekannt ist' },
         { dt: 'Preisniveau-Schwellen', dd: 'Standard (75/90/110/125%) — sinnvoll kalibrieren erst mit echten, schwankenden AEW-Daten möglich' },
+        { dt: 'Referenztarif', dd: 'Dein heutiger Standardtarif in Rp./kWh inkl. MWST (Registerkarte «Referenz & Zähler»)' },
       ],
       liveHeading: 'Aktuelle Werte',
       loading: 'Lädt…',
@@ -160,18 +247,51 @@
       forumButton: 'Zum Forum-Thread',
       chips: { energy: 'Energie', grid: 'Netz', next: 'Nächste', rank: 'Rang heute', min: 'Tiefster', avg: 'Ø heute', max: 'Höchster' },
       levels: { very_cheap: 'Sehr günstig', cheap: 'Günstig', normal: 'Normal', expensive: 'Teuer', very_expensive: 'Sehr teuer' },
+      costsHeading: 'Kosten und Ersparnis',
+      periods: { today: 'Heute', week: '7 Tage', month: 'Monat', total: 'Gesamt' },
+      cols: { period: 'Zeitraum', import: 'Bezug kWh', export: 'Einsp. kWh', dyn: 'Netto dynamisch', ref: 'Netto Referenz', diff: 'Differenz' },
+      saved: 'gespart', pricier: 'teurer',
+      batteryBenefit: 'Batterie-Nutzen (Schätzung, ist in den Zahlen oben bereits enthalten)',
+      unpriced: 'kWh ohne Preis (Daten fehlten) sind in den Kosten nicht enthalten:',
+      avgPrices: 'Ø Bezugspreis dynamisch / Referenz (Rp./kWh):',
+      dailyHeading: 'Letzte 30 Tage',
+      chartHeading: 'Heute: Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
+      noData: 'Noch keine Zählerstände gemeldet. Richte die Flows unter «Referenz & Zähler» ein.',
+      noRefNote: 'Ohne Referenzpreis werden nur die dynamischen Kosten angezeigt.',
+      costsFootnote: 'Schätzung ohne Grundgebühren — massgebend ist die Rechnung des Netzbetreibers. Netto = Bezugskosten minus Einspeisevergütung.',
+      refHeading: 'Referenztarif',
+      refHint: 'Dein Standardtarif zum Vergleich, alles in Rp./kWh inklusive MWST. Änderungen gelten rückwirkend für alle gesammelten Daten. Preis 0 = Vergleich aus.',
+      refLabels: { price: 'Referenzpreis (Rp./kWh)', ntPrice: 'Niedertarif (Rp./kWh, optional)', ntFrom: 'Niedertarif von (HH:MM)', ntTo: 'Niedertarif bis (HH:MM)', ntWeekend: 'Niedertarif am ganzen Wochenende', feedIn: 'Einspeisevergütung (Rp./kWh)' },
+      save: 'Speichern', savedMsg: 'Gespeichert', saveFailed: 'Speichern fehlgeschlagen: ',
+      metersHeading: 'Zählerstände melden (Flows)',
+      metersIntro: 'Die App liest keine anderen Geräte selbst. Dafür baust du pro Zähler einen Flow:',
+      metersSteps: [
+        'Wenn: «Zeit: alle 15 Minuten» (oder «Zählerstand hat sich geändert» deines Zählers)',
+        'Dann: «Netzbezug-Zählerstand melden» dieser App',
+        'Ziehe als Wert den kumulierten kWh-Zählerstand deines Zählers (z. B. meter_power.imported) als Token in das Feld',
+        'Dasselbe optional für Einspeisung sowie Batterie-Ladung und -Entladung',
+      ],
+      metersNote: 'Mindestens stündlich melden. Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Bei längerer Pause wird der Zuwachs der letzten Stunde zugerechnet.',
+      reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
+      never: 'noch nie gemeldet', ago: 'vor', min: 'Min.', hours: 'Std.', days: 'Tagen',
+      resetHeading: 'Kostendaten zurücksetzen',
+      resetHint: 'Löscht alle gesammelten Kostendaten und Zählerbasiswerte. Preisdaten bleiben erhalten.',
+      resetButton: 'Kostendaten löschen', resetConfirm: 'Wirklich löschen? Nochmals klicken', resetDone: 'Kostendaten gelöscht',
+      invalidTime: 'Ungültige Uhrzeit (Format HH:MM).',
     };
 
     var T_EN = {
       title: 'Swiss Dynamic Electricity Tariff',
       sub: '15-minute prices for Swiss grid operators using the Innostrom platform (Swisspower)',
+      tabs: { overview: 'Overview', costs: 'Costs', reference: 'Reference & meters', help: 'Help' },
       featuresHeading: 'What this app does',
       features: [
         'Pairing via metering point number + API token — the test/production environment is detected automatically',
         'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
         '12 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, last update + manual refresh button',
-        '17 Flow cards: price change, price thresholds, prices-for-tomorrow-available, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh',
-        'Dashboard widget with a price curve for today and tomorrow, a refresh button and the last update time',
+        '21 Flow cards: price change, price thresholds, prices-for-tomorrow-available, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
+        'Two dashboard widgets: price curve for today and tomorrow (with reference line) and costs/savings compared to your standard tariff',
+        'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
       ],
       recommendHeading: 'Recommended settings',
       recommendSub: 'Configurable per device, under its gear icon.',
@@ -180,6 +300,7 @@
         { dt: 'VAT', dd: '<code>8.1%</code> — current Swiss rate, adjust if it changes' },
         { dt: 'Flat-rate fallback', dd: '<code>0</code> (disabled), until the real AEW tariff from 2027 is known' },
         { dt: 'Price level thresholds', dd: 'Defaults (75/90/110/125%) — sensible calibration is only possible once real, fluctuating AEW data is available' },
+        { dt: 'Reference tariff', dd: 'Your current standard tariff in Rp./kWh incl. VAT ("Reference & meters" tab)' },
       ],
       liveHeading: 'Current values',
       loading: 'Loading…',
@@ -192,6 +313,37 @@
       forumButton: 'Go to forum thread',
       chips: { energy: 'Energy', grid: 'Grid', next: 'Next', rank: 'Rank today', min: 'Lowest', avg: 'Avg today', max: 'Highest' },
       levels: { very_cheap: 'Very cheap', cheap: 'Cheap', normal: 'Normal', expensive: 'Expensive', very_expensive: 'Very expensive' },
+      costsHeading: 'Costs and savings',
+      periods: { today: 'Today', week: '7 days', month: 'Month', total: 'Total' },
+      cols: { period: 'Period', import: 'Import kWh', export: 'Export kWh', dyn: 'Net dynamic', ref: 'Net reference', diff: 'Difference' },
+      saved: 'saved', pricier: 'more expensive',
+      batteryBenefit: 'Battery benefit (estimate, already included in the figures above)',
+      unpriced: 'kWh without a price (data was missing) are not included in the costs:',
+      avgPrices: 'Avg import price dynamic / reference (Rp./kWh):',
+      dailyHeading: 'Last 30 days',
+      chartHeading: 'Today: price (bars), reference (dashed) and import (blue, bottom)',
+      noData: 'No meter readings reported yet. Set up the Flows under "Reference & meters".',
+      noRefNote: 'Without a reference price only the dynamic costs are shown.',
+      costsFootnote: 'Estimate without base fees — your grid operator\'s bill is authoritative. Net = import costs minus feed-in revenue.',
+      refHeading: 'Reference tariff',
+      refHint: 'Your standard tariff for comparison, all in Rp./kWh including VAT. Changes apply retroactively to all collected data. Price 0 = comparison off.',
+      refLabels: { price: 'Reference price (Rp./kWh)', ntPrice: 'Low tariff (Rp./kWh, optional)', ntFrom: 'Low tariff from (HH:MM)', ntTo: 'Low tariff until (HH:MM)', ntWeekend: 'Low tariff all weekend', feedIn: 'Feed-in price (Rp./kWh)' },
+      save: 'Save', savedMsg: 'Saved', saveFailed: 'Saving failed: ',
+      metersHeading: 'Reporting meter readings (Flows)',
+      metersIntro: 'The app does not read other devices itself. Build one Flow per meter:',
+      metersSteps: [
+        'When: "Time: every 15 minutes" (or your meter\'s "reading has changed")',
+        'Then: this app\'s "Report grid import counter"',
+        'Drag your meter\'s cumulative kWh reading (e.g. meter_power.imported) into the field as a token',
+        'Optionally the same for export and for battery charge and discharge',
+      ],
+      metersNote: 'Report at least hourly. The first report only sets the baseline; from the second one kWh are priced. After a long pause the increase is attributed to the last hour.',
+      reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
+      never: 'never reported', ago: '', min: 'min ago', hours: 'h ago', days: 'days ago',
+      resetHeading: 'Reset cost data',
+      resetHint: 'Deletes all collected cost data and meter baselines. Price data is kept.',
+      resetButton: 'Delete cost data', resetConfirm: 'Really delete? Click again', resetDone: 'Cost data deleted',
+      invalidTime: 'Invalid time (format HH:MM).',
     };
 
     var T = DE ? T_DE : T_EN;
@@ -212,13 +364,26 @@
       return typeof value === 'number' ? value.toFixed(2) : '–';
     }
 
+    function chf(rp, signed) {
+      if (typeof rp !== 'number' || !isFinite(rp)) return '–';
+      var v = rp / 100;
+      return (signed && v > 0 ? '+' : '') + v.toFixed(2);
+    }
+
+    function diffCell(rp) {
+      if (typeof rp !== 'number' || !isFinite(rp)) return '<td>–</td>';
+      var cls = Math.abs(rp) < 0.5 ? '' : (rp > 0 ? 'good' : 'bad');
+      return '<td class="' + cls + '">' + chf(rp, true) + '</td>';
+    }
+
     function applyText() {
       document.documentElement.lang = DE ? 'de' : 'en';
       $('doc-title').textContent = T.title;
       $('h1-title').textContent = T.title;
       $('p-sub').textContent = T.sub;
+      ['overview', 'costs', 'reference', 'help'].forEach(function (k) { $('t-' + k).textContent = T.tabs[k]; });
       $('h2-features').textContent = T.featuresHeading;
-      $('ul-features').innerHTML = T.features.map(function (f) { return '<li>' + f + '</li>'; }).join('');
+      $('ul-features').innerHTML = T.features.map(function (f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('');
       $('h2-recommend').textContent = T.recommendHeading;
       $('p-recommend-sub').textContent = T.recommendSub;
       $('dl-recommend').innerHTML = T.recommend.map(function (r) {
@@ -226,6 +391,24 @@
       }).join('');
       $('h2-live').textContent = T.liveHeading;
       $('initial-loading').textContent = T.loading;
+      $('h2-costs').textContent = T.costsHeading;
+      $('cost-loading').textContent = T.loading;
+      $('h2-ref').textContent = T.refHeading;
+      $('p-ref-hint').textContent = T.refHint;
+      $('l-ref-price').textContent = T.refLabels.price;
+      $('l-ref-nt-price').textContent = T.refLabels.ntPrice;
+      $('l-ref-nt-from').textContent = T.refLabels.ntFrom;
+      $('l-ref-nt-to').textContent = T.refLabels.ntTo;
+      $('l-ref-nt-weekend').textContent = T.refLabels.ntWeekend;
+      $('l-ref-feed-in').textContent = T.refLabels.feedIn;
+      $('btn-ref-save').textContent = T.save;
+      $('h2-meters').textContent = T.metersHeading;
+      $('p-meters-intro').textContent = T.metersIntro;
+      $('ol-meters').innerHTML = T.metersSteps.map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
+      $('p-meters-note').textContent = T.metersNote;
+      $('h2-reset').textContent = T.resetHeading;
+      $('p-reset-hint').textContent = T.resetHint;
+      $('btn-reset').textContent = T.resetButton;
       $('h2-forum').textContent = T.forumTitle;
       $('hint-forum').textContent = T.forumHint;
       $('btn-forum').textContent = T.forumButton;
@@ -241,26 +424,49 @@
       return 'rgb(' + rgb.join(',') + ')';
     }
 
-    function chartHtml(slots) {
+    // slots: [{time, value|price, ref, kwh, isNow, isPast}]; withKwh adds the import row.
+    function chartHtml(slots, withKwh) {
       if (!slots || slots.length < 2) return '';
+      var valueOf = function (s) { return typeof s.value === 'number' ? s.value : s.price; };
       var values = [];
       for (var i = 0; i < slots.length; i += 1) {
-        if (typeof slots[i].value === 'number') values.push(slots[i].value);
+        if (typeof valueOf(slots[i]) === 'number') values.push(valueOf(slots[i]));
+        if (typeof slots[i].ref === 'number') values.push(slots[i].ref);
       }
       if (!values.length) return '';
       var min = Math.min.apply(null, values);
       var max = Math.max.apply(null, values);
       var span = max - min;
+      var pct = function (v) { return span > 0 ? (v - min) / span : 0.5; };
 
       var bars = slots.map(function (s) {
-        var hasValue = typeof s.value === 'number';
-        var ratio = hasValue ? (span > 0 ? (s.value - min) / span : 0.5) : 0;
+        var v = valueOf(s);
+        var hasValue = typeof v === 'number';
+        var ratio = hasValue ? pct(v) : 0;
         var heightPct = hasValue ? Math.max(4, Math.round(ratio * 100)) : 4;
         var color = hasValue ? interpolateColor(ratio) : 'var(--st-border)';
         var classes = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '');
-        var title = s.time + (hasValue ? ': ' + s.value.toFixed(2) + ' Rp./kWh' : '');
+        var title = s.time + (hasValue ? ': ' + v.toFixed(2) + ' Rp./kWh' : '');
         return '<div class="' + classes + '" style="height:' + heightPct + '%;background:' + color + '" title="' + escapeHtml(title) + '"></div>';
       }).join('');
+
+      var pts = [];
+      slots.forEach(function (s, idx) {
+        if (typeof s.ref === 'number') pts.push((idx + 0.5) + ',' + (100 - Math.round(pct(s.ref) * 100)));
+      });
+      var refLine = pts.length > 1
+        ? '<svg class="refline" viewBox="0 0 ' + slots.length + ' 100" preserveAspectRatio="none"><polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--st-accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-dasharray="4 3"/></svg>'
+        : '';
+
+      var kwhRow = '';
+      if (withKwh) {
+        var maxKwh = 0;
+        slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+        kwhRow = '<div class="kwhrow">' + slots.map(function (s) {
+          var h = maxKwh > 0 && s.kwh > 0 ? Math.max(6, Math.round((s.kwh / maxKwh) * 100)) : 0;
+          return '<div class="kbar" style="height:' + h + '%" title="' + escapeHtml(s.time + ': ' + (s.kwh || 0).toFixed(3) + ' kWh') + '"></div>';
+        }).join('') + '</div>';
+      }
 
       var lastIdx = slots.length - 1;
       var idxs = [0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx];
@@ -271,8 +477,7 @@
         return true;
       }).map(function (idx) { return '<span>' + slots[idx].time + '</span>'; }).join('');
 
-      return '' +
-        '<div class="chart">' + bars + '</div>' +
+      return '<div class="chart">' + bars + refLine + '</div>' + kwhRow +
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
@@ -303,9 +508,84 @@
           '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + escapeHtml(T.chips.avg) + '</div></div>' +
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + escapeHtml(T.chips.max) + '</div></div>' +
         '</div>' +
-        chartHtml(data.slots) +
+        chartHtml(data.slots, false) +
         (data.noTomorrow ? '<div class="warn">⚠ ' + escapeHtml(T.noTomorrow) + '</div>' : '') +
         (data.lastUpdate ? '<div class="last-update">' + escapeHtml(T.lastUpdate) + ' ' + escapeHtml(data.lastUpdate) + '</div>' : '');
+    }
+
+    function agoText(ms) {
+      if (!ms) return T.never;
+      var min = Math.max(0, Math.round((Date.now() - ms) / 60000));
+      if (min < 120) return (DE ? T.ago + ' ' : '') + min + ' ' + T.min;
+      var h = Math.round(min / 60);
+      if (h < 48) return (DE ? T.ago + ' ' : '') + h + ' ' + T.hours;
+      return (DE ? T.ago + ' ' : '') + Math.round(h / 24) + ' ' + T.days;
+    }
+
+    function summaryRow(label, s) {
+      return '<tr><td>' + escapeHtml(label) + '</td>' +
+        '<td>' + s.importKwh.toFixed(1) + '</td>' +
+        '<td>' + s.exportKwh.toFixed(1) + '</td>' +
+        '<td>' + chf(s.netCostDyn) + '</td>' +
+        '<td>' + (s.configured ? chf(s.netCostRef) : '–') + '</td>' +
+        diffCell(s.savings) + '</tr>';
+    }
+
+    function renderCost(data) {
+      var root = $('cost-root');
+      if (!data.paired) {
+        root.innerHTML = '<div class="no-device">' + escapeHtml(T.noDevice) + '</div>';
+        return;
+      }
+
+      var head = '<tr><th>' + T.cols.period + '</th><th>' + T.cols.import + '</th><th>' + T.cols.export + '</th><th>' +
+        T.cols.dyn + ' (CHF)</th><th>' + T.cols.ref + ' (CHF)</th><th>' + T.cols.diff + ' (CHF)</th></tr>';
+      var rows = ['today', 'week', 'month', 'total'].map(function (k) { return summaryRow(T.periods[k], data[k]); }).join('');
+
+      var total = data.month;
+      var notes = '';
+      if (!(data.total && data.total.importKwh > 0)) notes += '<p class="legend">' + escapeHtml(T.noData) + '</p>';
+      if (!data.ref || !(data.ref.price > 0)) notes += '<p class="legend">' + escapeHtml(T.noRefNote) + '</p>';
+      if (total.avgImportPriceDyn != null) {
+        notes += '<p class="legend">' + escapeHtml(T.avgPrices) + ' ' + total.avgImportPriceDyn.toFixed(1) + ' / ' +
+          (total.avgImportPriceRef != null ? total.avgImportPriceRef.toFixed(1) : '–') + '</p>';
+      }
+      if (data.total && data.total.batteryBenefit != null) {
+        notes += '<p class="legend">' + escapeHtml(T.batteryBenefit) + ': CHF ' + chf(data.total.batteryBenefit, true) + '</p>';
+      }
+      if (data.total && data.total.unpricedImportKwh > 0.001) {
+        notes += '<p class="legend">⚠ ' + escapeHtml(T.unpriced) + ' ' + data.total.unpricedImportKwh.toFixed(2) + ' kWh</p>';
+      }
+
+      var days = (data.days || []).slice().reverse();
+      var dayRows = days.map(function (d) { return summaryRow(d.key, d); }).join('');
+
+      root.innerHTML =
+        '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + notes +
+        '<h2 style="margin-top:18px">' + escapeHtml(T.chartHeading) + '</h2>' + chartHtml(data.chart, true) +
+        (days.length ? '<h2 style="margin-top:18px">' + escapeHtml(T.dailyHeading) + '</h2><div class="scroll"><table><thead>' + head + '</thead><tbody>' + dayRows + '</tbody></table></div>' : '') +
+        '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
+    }
+
+    // The form is filled once (and after saving) so the periodic refresh never overwrites input.
+    var refFormFilled = false;
+
+    function renderRef(data) {
+      if (!data.paired) return;
+      var r = data.ref || {};
+      if (!refFormFilled) {
+        refFormFilled = true;
+        $('ref-price').value = r.price || 0;
+        $('ref-nt-price').value = r.ntPrice || 0;
+        $('ref-nt-from').value = r.ntFrom || '';
+        $('ref-nt-to').value = r.ntTo || '';
+        $('ref-nt-weekend').checked = Boolean(r.ntWeekend);
+        $('ref-feed-in').value = r.feedIn || 0;
+      }
+      var reports = data.reports || {};
+      $('tb-reports').innerHTML = ['import', 'export', 'battery_charge', 'battery_discharge'].map(function (k) {
+        return '<tr><td>' + escapeHtml(T.reports[k]) + '</td><td>' + escapeHtml(agoText(reports[k])) + '</td></tr>';
+      }).join('');
     }
 
     function onHomeyReady(Homey) {
@@ -318,30 +598,101 @@
         });
       }
 
+      function loadSummary() {
+        return apiCall('GET', '/summary').then(render);
+      }
+
+      function loadCost() {
+        return apiCall('GET', '/cost').then(function (data) {
+          renderCost(data);
+          renderRef(data);
+        });
+      }
+
+      function loadAll() {
+        return Promise.all([
+          loadSummary().catch(function (err) {
+            console.error(err);
+            $('live-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';
+          }),
+          loadCost().catch(function (err) {
+            console.error(err);
+            $('cost-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';
+          }),
+        ]);
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (btn) {
+        btn.addEventListener('click', function () {
+          Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) { b.classList.remove('active'); });
+          Array.prototype.forEach.call(document.querySelectorAll('.panel'), function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          $('panel-' + btn.getAttribute('data-tab')).classList.add('active');
+        });
+      });
+
       $('btn-forum').addEventListener('click', function () {
         Homey.openURL('https://community.homey.app/t/app-pro-swiss-dynamic-electricity-tariff-15-minute-prices-for-innostrom-swisspower-tariffs/160031');
       });
 
-      function load() {
-        return apiCall('GET', '/summary').then(render);
-      }
-
-      // Homey.ready() is called only after the first load settles (success or failure) -
-      // matching com.rickd.devicewatchdog's settings page. Calling it beforehand risks
-      // Homey's own loading chrome resolving before this page has anything to show, and
-      // if something upstream ever threw synchronously it would also never be reached at
-      // all, leaving that chrome spinning forever - this shape can't do either.
-      load()
-        .catch(function (err) {
-          console.error(err);
-          $('live-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';
-        })
-        .then(function () {
-          Homey.ready();
-          setInterval(function () {
-            load().catch(function (err) { console.error(err); });
-          }, 60000);
+      $('btn-ref-save').addEventListener('click', function () {
+        var ok = $('ref-saved');
+        var err = $('ref-error');
+        ok.hidden = true;
+        err.hidden = true;
+        var body = {
+          price: Number($('ref-price').value) || 0,
+          ntPrice: Number($('ref-nt-price').value) || 0,
+          ntFrom: $('ref-nt-from').value.trim(),
+          ntTo: $('ref-nt-to').value.trim(),
+          ntWeekend: $('ref-nt-weekend').checked,
+          feedIn: Number($('ref-feed-in').value) || 0,
+        };
+        var timeOk = /^([01]?\d|2[0-3]):[0-5]\d$/;
+        if ((body.ntFrom && !timeOk.test(body.ntFrom)) || (body.ntTo && !timeOk.test(body.ntTo))) {
+          err.textContent = T.invalidTime;
+          err.hidden = false;
+          return;
+        }
+        apiCall('PUT', '/cost/config', body).then(function () {
+          ok.textContent = T.savedMsg;
+          ok.hidden = false;
+          setTimeout(function () { ok.hidden = true; }, 2500);
+          refFormFilled = false;
+          return loadCost();
+        }).catch(function (e) {
+          err.textContent = T.saveFailed + ((e && e.message) || e);
+          err.hidden = false;
         });
+      });
+
+      var resetArmed = false;
+      $('btn-reset').addEventListener('click', function () {
+        var btn = $('btn-reset');
+        if (!resetArmed) {
+          resetArmed = true;
+          btn.textContent = T.resetConfirm;
+          setTimeout(function () { resetArmed = false; btn.textContent = T.resetButton; }, 4000);
+          return;
+        }
+        resetArmed = false;
+        apiCall('POST', '/cost/reset').then(function () {
+          btn.textContent = T.resetDone;
+          setTimeout(function () { btn.textContent = T.resetButton; }, 2500);
+          return loadCost();
+        }).catch(function (e) {
+          console.error(e);
+          btn.textContent = T.resetButton;
+        });
+      });
+
+      // Homey.ready() is called only after the first load settles (success or failure).
+      loadAll().then(function () {
+        Homey.ready();
+        setInterval(function () {
+          loadAll().catch(function (e) { console.error(e); });
+        }, 60000);
+      });
     }
     window.onHomeyReady = onHomeyReady;
   </script>

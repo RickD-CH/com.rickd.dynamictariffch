@@ -61,6 +61,16 @@ class DynamicTariffApp extends Homey.App {
     this.homey.flow.getActionCard('find_cheapest_block_within')
       .registerRunListener(async (args) => args.device.actionFindCheapestBlockWithin(args));
 
+    [
+      ['report_grid_import', 'import'],
+      ['report_grid_export', 'export'],
+      ['report_battery_charge', 'battery_charge'],
+      ['report_battery_discharge', 'battery_discharge'],
+    ].forEach(([cardId, kind]) => {
+      this.homey.flow.getActionCard(cardId)
+        .registerRunListener(async (args) => args.device.actionReportCounter(kind, args.kwh));
+    });
+
     this.homey.flow.getActionCard('get_prices_today')
       .registerRunListener(async (args) => args.device.actionGetPricesToday());
 

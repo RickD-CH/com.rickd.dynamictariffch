@@ -1,6 +1,9 @@
 {
   "id": "innostrom",
-  "name": { "en": "Innostrom dynamic tariff", "de": "Innostrom dynamischer Tarif" },
+  "name": {
+    "en": "Innostrom dynamic tariff",
+    "de": "Innostrom dynamischer Tarif"
+  },
   "class": "sensor",
   "capabilities": [
     "measure_price_total",
@@ -18,11 +21,18 @@
   ],
   "capabilitiesOptions": {
     "button": {
-      "title": { "en": "Refresh prices now", "de": "Preise jetzt aktualisieren" }
+      "title": {
+        "en": "Refresh prices now",
+        "de": "Preise jetzt aktualisieren"
+      }
     }
   },
-  "platforms": ["local"],
-  "connectivity": ["lan"],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "lan"
+  ],
   "images": {
     "small": "{{driverAssetsPath}}/images/small.png",
     "large": "{{driverAssetsPath}}/images/large.png",
@@ -34,21 +44,34 @@
       "template": "login_credentials",
       "options": {
         "logo": "{{driverAssetsPath}}/pair-logo.png",
-        "usernameLabel": { "en": "Metering point number", "de": "Messpunktnummer" },
+        "usernameLabel": {
+          "en": "Metering point number",
+          "de": "Messpunktnummer"
+        },
         "usernameHint": {
           "en": "CH… number, 33 characters, as provided by your utility. Enter your own credentials.",
           "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben."
         },
-        "passwordLabel": { "en": "API token", "de": "API-Token" }
+        "passwordLabel": {
+          "en": "API token",
+          "de": "API-Token"
+        }
       }
     },
     {
       "id": "list_devices",
       "template": "list_devices",
-      "options": { "singular": true },
-      "navigation": { "next": "add_devices" }
+      "options": {
+        "singular": true
+      },
+      "navigation": {
+        "next": "add_devices"
+      }
     },
-    { "id": "add_devices", "template": "add_devices" }
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
   ],
   "repair": [
     {
@@ -56,40 +79,70 @@
       "template": "login_credentials",
       "options": {
         "logo": "{{driverAssetsPath}}/pair-logo.png",
-        "usernameLabel": { "en": "Metering point number", "de": "Messpunktnummer" },
+        "usernameLabel": {
+          "en": "Metering point number",
+          "de": "Messpunktnummer"
+        },
         "usernameHint": {
           "en": "Must match this device's metering point - use device settings instead to switch to a different metering point.",
           "de": "Muss mit der Messpunktnummer dieses Geräts übereinstimmen - für einen anderen Messpunkt stattdessen neu koppeln."
         },
-        "passwordLabel": { "en": "API token", "de": "API-Token" }
+        "passwordLabel": {
+          "en": "API token",
+          "de": "API-Token"
+        }
       }
     }
   ],
   "settings": [
     {
       "type": "group",
-      "label": { "en": "Access", "de": "Zugang" },
+      "label": {
+        "en": "Access",
+        "de": "Zugang"
+      },
       "children": [
         {
           "id": "metering_code",
           "type": "label",
-          "label": { "en": "Metering point number", "de": "Messpunktnummer" },
+          "label": {
+            "en": "Metering point number",
+            "de": "Messpunktnummer"
+          },
           "value": ""
         },
         {
           "id": "token",
           "type": "password",
-          "label": { "en": "API token", "de": "API-Token" },
+          "label": {
+            "en": "API token",
+            "de": "API-Token"
+          },
           "value": ""
         },
         {
           "id": "environment",
           "type": "dropdown",
-          "label": { "en": "Environment", "de": "Umgebung" },
+          "label": {
+            "en": "Environment",
+            "de": "Umgebung"
+          },
           "value": "production",
           "values": [
-            { "id": "production", "label": { "en": "Production", "de": "Produktiv" } },
-            { "id": "test", "label": { "en": "Test", "de": "Test" } }
+            {
+              "id": "production",
+              "label": {
+                "en": "Production",
+                "de": "Produktiv"
+              }
+            },
+            {
+              "id": "test",
+              "label": {
+                "en": "Test",
+                "de": "Test"
+              }
+            }
           ],
           "hint": {
             "en": "Test uses the public Innostrom test environment with constant prices, useful to verify the connection without a contract.",
@@ -100,23 +153,50 @@
     },
     {
       "type": "group",
-      "label": { "en": "Price", "de": "Preis" },
+      "label": {
+        "en": "Price",
+        "de": "Preis"
+      },
       "children": [
         {
           "id": "price_field",
           "type": "dropdown",
-          "label": { "en": "Price used for Flows", "de": "Preis für Flows" },
+          "label": {
+            "en": "Price used for Flows",
+            "de": "Preis für Flows"
+          },
           "value": "integrated",
           "values": [
-            { "id": "integrated", "label": { "en": "Total (energy + grid)", "de": "Gesamt (Energie + Netz)" } },
-            { "id": "electricity", "label": { "en": "Energy only", "de": "Nur Energie" } },
-            { "id": "grid", "label": { "en": "Grid only (incl. levies)", "de": "Nur Netz (inkl. Abgaben)" } }
+            {
+              "id": "integrated",
+              "label": {
+                "en": "Total (energy + grid)",
+                "de": "Gesamt (Energie + Netz)"
+              }
+            },
+            {
+              "id": "electricity",
+              "label": {
+                "en": "Energy only",
+                "de": "Nur Energie"
+              }
+            },
+            {
+              "id": "grid",
+              "label": {
+                "en": "Grid only (incl. levies)",
+                "de": "Nur Netz (inkl. Abgaben)"
+              }
+            }
           ]
         },
         {
           "id": "vat_percent",
           "type": "number",
-          "label": { "en": "VAT (%)", "de": "MWST (%)" },
+          "label": {
+            "en": "VAT (%)",
+            "de": "MWST (%)"
+          },
           "value": 8.1,
           "min": 0,
           "max": 100,
@@ -128,7 +208,10 @@
         {
           "id": "fallback_price",
           "type": "number",
-          "label": { "en": "Fallback price (CHF/kWh)", "de": "Einheitstarif (CHF/kWh)" },
+          "label": {
+            "en": "Fallback price (CHF/kWh)",
+            "de": "Einheitstarif (CHF/kWh)"
+          },
           "value": 0,
           "min": 0,
           "hint": {
@@ -140,12 +223,18 @@
     },
     {
       "type": "group",
-      "label": { "en": "Price level thresholds", "de": "Schwellen für Preisniveau" },
+      "label": {
+        "en": "Price level thresholds",
+        "de": "Schwellen für Preisniveau"
+      },
       "children": [
         {
           "id": "level_very_cheap_percent",
           "type": "number",
-          "label": { "en": "Very cheap below (% of daily average)", "de": "Sehr günstig unter (% vom Tagesmittel)" },
+          "label": {
+            "en": "Very cheap below (% of daily average)",
+            "de": "Sehr günstig unter (% vom Tagesmittel)"
+          },
           "value": 75,
           "min": 1,
           "max": 100
@@ -153,7 +242,10 @@
         {
           "id": "level_cheap_percent",
           "type": "number",
-          "label": { "en": "Cheap below (% of daily average)", "de": "Günstig unter (% vom Tagesmittel)" },
+          "label": {
+            "en": "Cheap below (% of daily average)",
+            "de": "Günstig unter (% vom Tagesmittel)"
+          },
           "value": 90,
           "min": 1,
           "max": 100
@@ -161,7 +253,10 @@
         {
           "id": "level_expensive_percent",
           "type": "number",
-          "label": { "en": "Expensive above (% of daily average)", "de": "Teuer über (% vom Tagesmittel)" },
+          "label": {
+            "en": "Expensive above (% of daily average)",
+            "de": "Teuer über (% vom Tagesmittel)"
+          },
           "value": 110,
           "min": 100,
           "max": 500
@@ -169,10 +264,91 @@
         {
           "id": "level_very_expensive_percent",
           "type": "number",
-          "label": { "en": "Very expensive above (% of daily average)", "de": "Sehr teuer über (% vom Tagesmittel)" },
+          "label": {
+            "en": "Very expensive above (% of daily average)",
+            "de": "Sehr teuer über (% vom Tagesmittel)"
+          },
           "value": 125,
           "min": 100,
           "max": 500
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Reference tariff (cost comparison)",
+        "de": "Referenztarif (Kostenvergleich)"
+      },
+      "children": [
+        {
+          "id": "ref_price",
+          "type": "number",
+          "label": {
+            "en": "Reference price (Rp./kWh)",
+            "de": "Referenzpreis (Rp./kWh)"
+          },
+          "value": 0,
+          "min": 0,
+          "hint": {
+            "en": "Your standard tariff, all-in incl. VAT, for comparison with the dynamic tariff. 0 = comparison off. Changes apply to all collected data.",
+            "de": "Dein Standardtarif, alles inklusive MWST, zum Vergleich mit dem dynamischen Tarif. 0 = Vergleich aus. Änderungen gelten rückwirkend für alle gesammelten Daten."
+          }
+        },
+        {
+          "id": "ref_nt_price",
+          "type": "number",
+          "label": {
+            "en": "Reference low tariff (Rp./kWh)",
+            "de": "Referenz-Niedertarif (Rp./kWh)"
+          },
+          "value": 0,
+          "min": 0,
+          "hint": {
+            "en": "Optional. 0 = only one reference price.",
+            "de": "Optional. 0 = nur ein Referenzpreis."
+          }
+        },
+        {
+          "id": "ref_nt_from",
+          "type": "text",
+          "label": {
+            "en": "Low tariff from (HH:MM)",
+            "de": "Niedertarif von (HH:MM)"
+          },
+          "value": "21:00"
+        },
+        {
+          "id": "ref_nt_to",
+          "type": "text",
+          "label": {
+            "en": "Low tariff until (HH:MM)",
+            "de": "Niedertarif bis (HH:MM)"
+          },
+          "value": "07:00"
+        },
+        {
+          "id": "ref_nt_weekend",
+          "type": "checkbox",
+          "label": {
+            "en": "Low tariff all weekend",
+            "de": "Niedertarif am ganzen Wochenende"
+          },
+          "value": false
+        },
+        {
+          "id": "ref_feed_in",
+          "type": "number",
+          "label": {
+            "en": "Reference feed-in price (Rp./kWh)",
+            "de": "Referenz-Einspeisevergütung (Rp./kWh)"
+          },
+          "value": 0,
+          "min": 0,
+          "hint": {
+            "en": "What you would get for exported energy with your standard tariff.",
+            "de": "Was du mit deinem Standardtarif für eingespeiste Energie bekommen würdest."
+          }
         }
       ]
     }

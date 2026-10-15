@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --cw-text: #1a1a1a;
+      --cw-muted: #767676;
+      --cw-border: #e0e0e0;
+      --cw-bg: #ffffff;
+      --cw-chip-bg: #f2f2f2;
+      --cw-good: #2e7d32;
+      --cw-bad: #d32f2f;
+      --cw-ref: #0277bd;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cw-text: #f2f2f2;
+        --cw-muted: #a0a0a0;
+        --cw-border: #3a3a3a;
+        --cw-bg: #1e1e20;
+        --cw-chip-bg: #2a2a2a;
+        --cw-good: #66bb6a;
+        --cw-bad: #ef5350;
+        --cw-ref: #4fc3f7;
+      }
+    }
+    .homey-dark-mode {
+      --cw-text: #f2f2f2;
+      --cw-muted: #a0a0a0;
+      --cw-border: #3a3a3a;
+      --cw-bg: #1e1e20;
+      --cw-chip-bg: #2a2a2a;
+      --cw-good: #66bb6a;
+      --cw-bad: #ef5350;
+      --cw-ref: #4fc3f7;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px; color: var(--cw-text); background: var(--cw-bg);
+      padding: 10px 12px 14px;
+    }
+    .top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .big { font-size: 28px; font-weight: 700; }
+    .big.good { color: var(--cw-good); }
+    .big.bad { color: var(--cw-bad); }
+    .cap { font-size: 11px; color: var(--cw-muted); margin-top: 2px; }
+    .stats { display: flex; gap: 8px; margin-top: 10px; }
+    .chip {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 4px; border-radius: 8px; background: var(--cw-chip-bg);
+    }
+    .chip .num { font-size: 14px; font-weight: 700; }
+    .chip .num.good { color: var(--cw-good); }
+    .chip .num.bad { color: var(--cw-bad); }
+    .chip .lbl { font-size: 9px; color: var(--cw-muted); text-align: center; }
+    .chart {
+      position: relative; display: flex; align-items: flex-end; height: 56px; gap: 1px; margin-top: 10px;
+      background: var(--cw-chip-bg); border-radius: 6px; padding: 4px;
+    }
+    .chart svg { position: absolute; left: 4px; top: 4px; width: calc(100% - 8px); height: calc(100% - 8px); pointer-events: none; }
+    .kwh { display: flex; align-items: flex-end; height: 22px; gap: 1px; margin-top: 4px; padding: 0 4px; }
+    .bar { flex: 1; min-width: 1px; border-radius: 1px; }
+    .bar.past { opacity: .5; }
+    .bar.now { outline: 2px solid var(--cw-text); outline-offset: -1px; }
+    .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--cw-ref); }
+    .legend { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; color: var(--cw-muted); }
+    .hint { margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--cw-chip-bg); color: var(--cw-muted); font-size: 11px; text-align: center; }
+    .loading, .load-error, .no-device { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 12px 0; }
+    .load-error { color: var(--cw-bad); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var lastDataJson = null;
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    // Rp. -> "CHF 1.23" with an explicit sign for differences.
+    function chf(rp, signed) {
+      if (typeof rp !== 'number' || !isFinite(rp)) return '–';
+      var v = rp / 100;
+      var s = (signed && v > 0 ? '+' : '') + v.toFixed(2);
+      return s;
+    }
+
+    function tone(rp) {
+      if (typeof rp !== 'number' || !isFinite(rp) || Math.abs(rp) < 0.5) return '';
+      return rp > 0 ? 'good' : 'bad';
+    }
+
+    function priceColor(ratio) {
+      var r = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
+      var cheap = [46, 125, 50];
+      var expensive = [211, 47, 47];
+      var rgb = cheap.map(function (c, i) { return Math.round(c + (expensive[i] - c) * r); });
+      return 'rgb(' + rgb.join(',') + ')';
+    }
+
+    function chartHtml(slots, hasRef) {
+      if (!slots || slots.length < 2) return '';
+      var values = [];
+      slots.forEach(function (s) {
+        if (typeof s.price === 'number') values.push(s.price);
+        if (hasRef && typeof s.ref === 'number') values.push(s.ref);
+      });
+      if (!values.length) return '';
+      var min = Math.min.apply(null, values);
+      var max = Math.max.apply(null, values);
+      var span = max - min;
+      var pct = function (v) { return span > 0 ? (v - min) / span : 0.5; };
+
+      var bars = slots.map(function (s) {
+        var has = typeof s.price === 'number';
+        var ratio = has ? pct(s.price) : 0;
+        var h = has ? Math.max(4, Math.round(ratio * 100)) : 4;
+        var cls = 'bar' + (s.isNow ? ' now' : '') + (s.isPast ? ' past' : '');
+        return '<div class="' + cls + '" style="height:' + h + '%;background:' + (has ? priceColor(ratio) : 'var(--cw-border)') + '"></div>';
+      }).join('');
+
+      var line = '';
+      if (hasRef) {
+        var pts = [];
+        slots.forEach(function (s, i) {
+          if (typeof s.ref === 'number') pts.push((i + 0.5) + ',' + (100 - Math.round(pct(s.ref) * 100)));
+        });
+        if (pts.length > 1) {
+          line = '<svg viewBox="0 0 ' + slots.length + ' 100" preserveAspectRatio="none">' +
+            '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--cw-ref)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-dasharray="4 3"/></svg>';
+        }
+      }
+
+      var maxKwh = 0;
+      slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+      var kbars = slots.map(function (s) {
+        var h = maxKwh > 0 ? Math.round((s.kwh / maxKwh) * 100) : 0;
+        return '<div class="kbar" style="height:' + (s.kwh > 0 ? Math.max(6, h) : 0) + '%"></div>';
+      }).join('');
+
+      var last = slots.length - 1;
+      var idxs = [0, Math.floor(last * 0.25), Math.floor(last * 0.5), Math.floor(last * 0.75), last];
+      var seen = {};
+      var labels = idxs.filter(function (i) { if (seen[i]) return false; seen[i] = true; return true; })
+        .map(function (i) { return '<span>' + slots[i].time + '</span>'; }).join('');
+
+      return '<div class="chart">' + bars + line + '</div>' +
+        '<div class="kwh">' + kbars + '</div>' +
+        '<div class="legend">' + labels + '</div>';
+    }
+
+    function render(Homey, data) {
+      var root = document.getElementById('root');
+      if (!data.paired) {
+        root.innerHTML = '<div class="no-device">' + Homey.__('costWidget.noDevice') + '</div>';
+        resize(Homey);
+        return;
+      }
+
+      var today = data.today;
+      var month = data.month;
+      var hasData = data.total && data.total.importKwh > 0;
+      var configured = data.ref && data.ref.price > 0;
+
+      var bigRp = configured ? today.savings : (today ? today.netCostDyn : null);
+      var bigCls = configured ? tone(bigRp) : '';
+      var bigCap = configured
+        ? (today.savings >= 0 ? Homey.__('costWidget.savedToday') : Homey.__('costWidget.moreExpensiveToday'))
+        : Homey.__('costWidget.costToday');
+
+      var avgDyn = today && today.avgImportPriceDyn != null ? today.avgImportPriceDyn.toFixed(1) : '–';
+      var avgRef = today && today.avgImportPriceRef != null ? today.avgImportPriceRef.toFixed(1) : '–';
+
+      var hint = '';
+      if (!configured) hint = Homey.__('costWidget.noRef');
+      else if (!hasData) hint = Homey.__('costWidget.noData');
+
+      root.innerHTML = '' +
+        '<div class="top"><div>' +
+          '<div class="big ' + bigCls + '">' + (bigRp == null ? '–' : 'CHF ' + chf(bigRp, configured)) + '</div>' +
+          '<div class="cap">' + escapeHtml(bigCap) + '</div>' +
+        '</div></div>' +
+        '<div class="stats">' +
+          '<div class="chip"><div class="num ' + (configured ? tone(month.savings) : '') + '">' + (configured ? chf(month.savings, true) : chf(month.netCostDyn)) + '</div><div class="lbl">' + Homey.__('costWidget.month') + ' (CHF)</div></div>' +
+          '<div class="chip"><div class="num">' + (today ? today.importKwh.toFixed(1) : '–') + '</div><div class="lbl">' + Homey.__('costWidget.importKwh') + '</div></div>' +
+          '<div class="chip"><div class="num">' + avgDyn + '</div><div class="lbl">' + Homey.__('costWidget.avgDyn') + '</div></div>' +
+          '<div class="chip"><div class="num">' + avgRef + '</div><div class="lbl">' + Homey.__('costWidget.avgRef') + '</div></div>' +
+        '</div>' +
+        chartHtml(data.chart, configured) +
+        (hint ? '<div class="hint">' + escapeHtml(hint) + '</div>' : '');
+      resize(Homey);
+    }
+
+    function resize(Homey) {
+      Homey.setHeight(Math.min(480, document.body.scrollHeight + 2));
+    }
+
+    function showError(Homey) {
+      document.getElementById('root').innerHTML = '<div class="load-error">' + Homey.__('costWidget.loadFailed') + '</div>';
+      resize(Homey);
+    }
+
+    function fetchCost(Homey) {
+      return Homey.api('GET', '/cost')
+        .then(function (data) {
+          var json = JSON.stringify(data);
+          if (json === lastDataJson) return;
+          lastDataJson = json;
+          render(Homey, data);
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastDataJson = null;
+          showError(Homey);
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      try {
+        document.getElementById('root').innerHTML = '<div class="loading">' + Homey.__('costWidget.loading') + '</div>';
+        Homey.ready({ height: 260 });
+        fetchCost(Homey);
+        setInterval(function () { fetchCost(Homey); }, 60000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="load-error">Widget error: ' + escapeHtml(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 260 }); } catch (e2) { /* nothing more to do */ }
+      }
+    }
+  </script>
+</body>
+</html>
