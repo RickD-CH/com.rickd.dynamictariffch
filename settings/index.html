@@ -512,7 +512,9 @@
     function chf(rp, signed) {
       if (typeof rp !== 'number' || !isFinite(rp)) return '–';
       var v = rp / 100;
-      return (signed && v > 0 ? '+' : '') + v.toFixed(2);
+      var t = v.toFixed(2);
+      if (t === '-0.00') t = '0.00';
+      return (signed && v > 0 && t !== '0.00' ? '+' : '') + t;
     }
 
     function diffCell(rp) {
