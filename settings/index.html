@@ -130,6 +130,12 @@
     .ok { color: var(--st-cheap); font-size: 13px; }
     .err { color: var(--st-expensive); font-size: 13px; }
     .status td:last-child { text-align: left; }
+    .viewsw { display: flex; gap: 6px; margin: 4px 0 12px; }
+    .viewsw .btn.active { background: var(--st-accent); border-color: var(--st-accent); color: #fff; }
+    .svgchart { position: relative; margin-top: 8px; }
+    .svgchart svg { width: 100%; height: 170px; display: block; background: var(--st-chip-bg); border-radius: 8px; }
+    .ylabels { position: absolute; left: 8px; top: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--st-muted); pointer-events: none; }
+    .swatch { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
     .manage-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--st-border); }
     .manage-row:first-of-type { border-top: 0; }
     .manage-row select { padding: 7px 9px; font-size: 14px; border: 1px solid var(--st-border); border-radius: 8px; background: var(--st-bg); color: var(--st-text); min-width: 140px; }
@@ -315,7 +321,13 @@
       unpriced: 'kWh ohne Preis (Daten fehlten) sind in den Kosten nicht enthalten:',
       avgPrices: 'Ø Bezugspreis dynamisch / Referenz (Rp./kWh):',
       dailyHeading: 'Letzte 30 Tage',
-      chartHeading: 'Heute: Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
+      chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
+      viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
+      cumHeading: 'Aufgelaufene Kosten (netto, CHF)',
+      cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
+      cumNote: 'Netto = Bezug minus Einspeisung, aufsummiert über den Tag. Der Abstand der Linien ist die Ersparnis.',
+      savingsHeading: 'Ersparnis pro Tag (CHF)', savingsCumHeading: 'Ersparnis kumuliert (CHF)',
+      noDayData: 'Für diesen Tag liegen noch keine Preise oder Zählerwerte vor.',
       noData: 'Noch keine Zählerstände gemeldet. Richte die Flows unter «Referenz & Zähler» ein.',
       noRefNote: 'Ohne Referenzpreis werden nur die dynamischen Kosten angezeigt.',
       costsFootnote: 'Schätzung ohne Grundgebühren — massgebend ist die Rechnung des Netzbetreibers. Netto = Bezugskosten minus Einspeisevergütung.',
@@ -409,7 +421,13 @@
       unpriced: 'kWh without a price (data was missing) are not included in the costs:',
       avgPrices: 'Avg import price dynamic / reference (Rp./kWh):',
       dailyHeading: 'Last 30 days',
-      chartHeading: 'Today: price (bars), reference (dashed) and import (blue, bottom)',
+      chartHeading: 'Price (bars), reference (dashed) and import (blue, bottom)',
+      viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
+      cumHeading: 'Accumulated costs (net, CHF)',
+      cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
+      cumNote: 'Net = import minus export, summed over the day. The gap between the lines is the saving.',
+      savingsHeading: 'Savings per day (CHF)', savingsCumHeading: 'Savings accumulated (CHF)',
+      noDayData: 'There are no prices or meter values for this day yet.',
       noData: 'No meter readings reported yet. Set up the Flows under "Reference & meters".',
       noRefNote: 'Without a reference price only the dynamic costs are shown.',
       costsFootnote: 'Estimate without base fees — your grid operator\'s bill is authoritative. Net = import costs minus feed-in revenue.',
@@ -651,7 +669,106 @@
         diffCell(s.savings) + '</tr>';
     }
 
+    // ----- cost curves (plain SVG) -----
+    var costView = 'today';
+    var lastCost = null;
+
+    function niceNum(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+
+    // series: [{ pts: [number|null...], color, dash }]; x labels are given separately.
+    function lineSvg(series, count, xLabels) {
+      var all = [];
+      series.forEach(function (s) { s.pts.forEach(function (v) { if (v != null) all.push(v); }); });
+      if (!all.length) return '';
+      var min = Math.min.apply(null, all.concat([0]));
+      var max = Math.max.apply(null, all.concat([0]));
+      var span = max - min || 1;
+      var y = function (v) { return 100 - ((v - min) / span) * 100; };
+      var lines = series.map(function (s) {
+        var p = [];
+        s.pts.forEach(function (v, i) { if (v != null) p.push((i + 0.5) + ',' + y(v).toFixed(2)); });
+        return p.length > 1 ? '<polyline points="' + p.join(' ') + '" fill="none" stroke="' + s.color + '" stroke-width="2" vector-effect="non-scaling-stroke"' + (s.dash ? ' stroke-dasharray="4 3"' : '') + '/>' : '';
+      }).join('');
+      var zero = '<line x1="0" x2="' + count + '" y1="' + y(0).toFixed(2) + '" y2="' + y(0).toFixed(2) + '" stroke="var(--st-border)" stroke-width="1" vector-effect="non-scaling-stroke"/>';
+      return '<div class="svgchart"><svg viewBox="0 0 ' + count + ' 100" preserveAspectRatio="none">' + zero + lines + '</svg>' +
+        '<div class="ylabels"><span>' + niceNum(max) + '</span><span>' + niceNum(min) + '</span></div></div>' +
+        '<div class="chart-labels">' + xLabels.map(function (l) { return '<span>' + escapeHtml(l) + '</span>'; }).join('') + '</div>';
+    }
+
+    function barSvg(values, labels) {
+      if (!values.length) return '';
+      var min = Math.min.apply(null, values.concat([0]));
+      var max = Math.max.apply(null, values.concat([0]));
+      var span = max - min || 1;
+      var y = function (v) { return 100 - ((v - min) / span) * 100; };
+      var zeroY = y(0);
+      var bars = values.map(function (v, i) {
+        var top = Math.min(y(v), zeroY);
+        var h = Math.max(Math.abs(y(v) - zeroY), 0.8);
+        return '<rect x="' + (i + 0.12) + '" y="' + top.toFixed(2) + '" width="0.76" height="' + h.toFixed(2) + '" fill="' + (v >= 0 ? 'var(--st-cheap)' : 'var(--st-expensive)') + '"><title>' + escapeHtml(labels[i] + ': ' + niceNum(v)) + '</title></rect>';
+      }).join('');
+      return '<div class="svgchart"><svg viewBox="0 0 ' + values.length + ' 100" preserveAspectRatio="none"><line x1="0" x2="' + values.length + '" y1="' + zeroY.toFixed(2) + '" y2="' + zeroY.toFixed(2) + '" stroke="var(--st-border)" stroke-width="1" vector-effect="non-scaling-stroke"/>' + bars + '</svg>' +
+        '<div class="ylabels"><span>' + niceNum(max) + '</span><span>' + niceNum(min) + '</span></div></div>' +
+        '<div class="chart-labels"><span>' + escapeHtml(labels[0]) + '</span><span>' + escapeHtml(labels[labels.length - 1]) + '</span></div>';
+    }
+
+    function dayCurveHtml(slots) {
+      if (!slots || slots.length < 2) return '<p class="legend">' + escapeHtml(T.noDayData) + '</p>';
+      var last = -1;
+      slots.forEach(function (s, i) { if (s.isNow || s.isPast) last = i; });
+      var dyn = []; var ref = [];
+      var cd = 0; var cr = 0; var hasRef = false; var anyKwh = false;
+      slots.forEach(function (s, i) {
+        if (i > last) { dyn.push(null); ref.push(null); return; }
+        var imp = s.kwh || 0; var exp = s.exp || 0;
+        if (imp || exp) anyKwh = true;
+        if (typeof s.price === 'number') cd += (imp * s.price - exp * (s.feedIn || 0)) / 100;
+        if (typeof s.ref === 'number') { hasRef = true; cr += (imp * s.ref - exp * (s.refFeedIn || 0)) / 100; }
+        dyn.push(cd);
+        ref.push(typeof s.ref === 'number' ? cr : null);
+      });
+      var series = [{ pts: dyn, color: 'var(--st-accent)' }];
+      if (hasRef) series.push({ pts: ref, color: 'var(--st-muted)', dash: true });
+      var idxs = [0, Math.floor((slots.length - 1) * 0.25), Math.floor((slots.length - 1) * 0.5), Math.floor((slots.length - 1) * 0.75), slots.length - 1];
+      var labels = idxs.map(function (i) { return slots[i].time; });
+      var summary = '<span class="swatch" style="background:var(--st-accent)"></span>' + escapeHtml(T.cumDyn) + ' ' + niceNum(cd) +
+        (hasRef ? ' &nbsp; <span class="swatch" style="background:var(--st-muted)"></span>' + escapeHtml(T.cumRef) + ' ' + niceNum(cr) +
+          ' &nbsp; ' + escapeHtml(T.cumDiff) + ' <span class="' + (cr - cd >= 0 ? 'good' : 'bad') + '">' + (cr - cd >= 0 ? '+' : '') + niceNum(cr - cd) + '</span>' : '');
+      return '<h2 style="margin-top:14px">' + escapeHtml(T.cumHeading) + '</h2>' +
+        (anyKwh ? '' : '<p class="legend">' + escapeHtml(T.noData) + '</p>') +
+        lineSvg(series, slots.length, labels) + '<p class="legend">' + summary + '</p><p class="legend">' + escapeHtml(T.cumNote) + '</p>' +
+        '<h2 style="margin-top:18px">' + escapeHtml(T.chartHeading) + '</h2>' + chartHtml(slots, true);
+    }
+
+    function thirtyDayHtml(days) {
+      var list = (days || []).filter(function (d) { return typeof d.savings === 'number'; });
+      if (!list.length) return '<p class="legend">' + escapeHtml(T.noDayData) + '</p>';
+      var vals = list.map(function (d) { return d.savings / 100; });
+      var labels = list.map(function (d) { return d.key.slice(5); });
+      var cum = []; var c = 0;
+      vals.forEach(function (v) { c += v; cum.push(c); });
+      return '<h2 style="margin-top:14px">' + escapeHtml(T.savingsHeading) + '</h2>' + barSvg(vals, labels) +
+        '<h2 style="margin-top:18px">' + escapeHtml(T.savingsCumHeading) + '</h2>' +
+        lineSvg([{ pts: cum, color: 'var(--st-accent)' }], cum.length, [labels[0], labels[labels.length - 1]]) +
+        '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
+    }
+
+    function renderCurves() {
+      var root = $('cost-curves');
+      if (!root || !lastCost) return;
+      var buttons = [['today', T.viewToday], ['yesterday', T.viewYesterday], ['30', T.view30]].map(function (b) {
+        return '<button class="btn small' + (costView === b[0] ? ' active' : '') + '" data-view="' + b[0] + '">' + escapeHtml(b[1]) + '</button>';
+      }).join('');
+      var body = costView === 'today' ? dayCurveHtml(lastCost.chart)
+        : (costView === 'yesterday' ? dayCurveHtml(lastCost.chartYesterday) : thirtyDayHtml(lastCost.days));
+      root.innerHTML = '<div class="viewsw">' + buttons + '</div>' + body;
+      Array.prototype.forEach.call(root.querySelectorAll('[data-view]'), function (b) {
+        b.addEventListener('click', function () { costView = b.getAttribute('data-view'); renderCurves(); });
+      });
+    }
+
     function renderCost(data) {
+      lastCost = data;
       var root = $('cost-root');
       if (!data.paired) {
         root.innerHTML = '<div class="no-device">' + escapeHtml(T.noDevice) + '</div>';
@@ -702,9 +819,10 @@
       root.innerHTML =
         '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + notes +
         consHtml +
-        '<h2 style="margin-top:18px">' + escapeHtml(T.chartHeading) + '</h2>' + chartHtml(data.chart, true) +
+        '<div id="cost-curves"></div>' +
         (days.length ? '<h2 style="margin-top:18px">' + escapeHtml(T.dailyHeading) + '</h2><div class="scroll"><table><thead>' + head + '</thead><tbody>' + dayRows + '</tbody></table></div>' : '') +
         '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
+      renderCurves();
     }
 
     // The periods are loaded once (and after saving) so the periodic refresh never overwrites input.

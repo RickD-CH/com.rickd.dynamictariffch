@@ -652,26 +652,39 @@ class InnostromDevice extends Homey.Device {
       consumersTotal: t.consumerSummary('0000-01-01', '9999-12-31', ref),
       days: t.daily(dayFrom, today, ref),
       reports: t.lastReports(),
-      chart: this.getCostChart(),
+      chart: this.getCostChart(0),
+      chartYesterday: this.getCostChart(1),
     };
   }
 
-  /** Today's quarter-hours: dynamic price, reference price and kWh imported. */
-  getCostChart() {
+  /**
+   * Quarter-hours of one day (0 = today, 1 = yesterday): dynamic and reference prices and the
+   * kWh imported / exported, for the cost curves.
+   */
+  getCostChart(dayOffset = 0) {
     const now = new Date();
-    const from = startOfLocalDay(now, this.tz);
+    const from = startOfLocalDay(addLocalDays(now, -dayOffset, this.tz), this.tz);
     const to = addLocalDays(from, 1, this.tz);
+    const dayKey = localDateKey(from, this.tz);
     const refs = this._refPeriods();
-    const kwh = new Map(this.costTracker.slotsOf(localDateKey(now, this.tz)).map((x) => [x[0], x[1]]));
+    const ref = refForDay(refs, dayKey);
+    const kwh = new Map(this.costTracker.slotsOf(dayKey).map((x) => [x[0], { imp: x[1], exp: x[2] }]));
     const nowSlot = floorToSlot(now).getTime();
-    return this.priceStore.range(from, to).map((s) => ({
-      time: formatHHMM(s.start, this.tz),
-      price: this._toDisplay(s.integrated),
-      ref: this._refPriceAt(s.start, refs),
-      kwh: kwh.get(s.start.getTime()) || 0,
-      isNow: s.start.getTime() === nowSlot,
-      isPast: s.start.getTime() < nowSlot,
-    }));
+    return this.priceStore.range(from, to).map((s) => {
+      const k = kwh.get(s.start.getTime()) || { imp: 0, exp: 0 };
+      const hasFeedIn = typeof s.feedIn === 'number' && Number.isFinite(s.feedIn);
+      return {
+        time: formatHHMM(s.start, this.tz),
+        price: this._toDisplay(s.integrated),
+        feedIn: hasFeedIn ? Math.round(s.feedIn * 10000) / 100 : null,
+        ref: this._refPriceAt(s.start, refs),
+        refFeedIn: ref && ref.price > 0 ? ref.feedIn : null,
+        kwh: k.imp,
+        exp: k.exp,
+        isNow: s.start.getTime() === nowSlot,
+        isPast: s.start.getTime() < nowSlot,
+      };
+    });
   }
 
   // ---------------------------------------------------------------------
