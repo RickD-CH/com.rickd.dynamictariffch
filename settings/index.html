@@ -109,10 +109,18 @@
     .load-error { color: var(--st-expensive); }
     code { background: var(--st-chip-bg); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: right; padding: 6px 6px; border-bottom: 1px solid var(--st-border); white-space: nowrap; }
+    table { table-layout: auto; font-size: 12px; }
+    th, td { text-align: right; padding: 6px 4px; border-bottom: 1px solid var(--st-border); white-space: nowrap; }
+    th { white-space: normal; line-height: 1.2; vertical-align: bottom; }
     th:first-child, td:first-child { text-align: left; }
     th { font-size: 11px; color: var(--st-muted); font-weight: 600; }
     .scroll { overflow-x: auto; }
+    @media (max-width: 480px) {
+      body { padding: 12px 12px 24px; }
+      .card { padding: 12px 12px; }
+      .svgchart svg { height: 130px; }
+      .tab { font-size: 13px; padding: 8px 7px; }
+    }
     .good { color: var(--st-cheap); font-weight: 600; }
     .bad { color: var(--st-expensive); font-weight: 600; }
     .btn {
@@ -317,6 +325,8 @@
       costsHeading: 'Kosten und Ersparnis',
       periods: { today: 'Heute', week: '7 Tage', month: 'Monat', total: 'Gesamt' },
       cols: { period: 'Zeitraum', import: 'Bezug kWh', export: 'Einsp. kWh', dyn: 'Netto dynamisch', ref: 'Netto Referenz', diff: 'Differenz' },
+      colsShort: { period: 'Zeitraum', import: 'Bezug', export: 'Einsp.', dyn: 'Dyn.', ref: 'Ref.', diff: 'Diff.' },
+      tableNote: 'Bezug und Einspeisung in kWh, Kosten netto in CHF. Dyn. = dynamischer Tarif, Ref. = Referenztarif, Diff. = gespart (grün) oder teurer (rot).',
       saved: 'gespart', pricier: 'teurer',
       batteryBenefit: 'Batterie-Nutzen durch den Tarif (Schätzung: Netzladung zum Bezugspreis, PV-Ladung zum entgangenen Einspeisepreis, Entladung zum ersparten Bezugspreis; bereits in den Zahlen oben enthalten)',
       unpriced: 'kWh ohne Preis (Daten fehlten) sind in den Kosten nicht enthalten:',
@@ -339,8 +349,8 @@
       fixedDiffHint: 'Optional: Grundpreis, Messentgelt usw. des dynamischen Tarifs minus die deines Referenztarifs. Positiv = dynamisch teurer, negativ = günstiger. Wird pro Kalendertag von der Ersparnis abgezogen; 0, wenn beides gleich ist.',
       negativePrice: 'Negativ',
       consumersHeading: 'Verbraucher (Monat)',
-      consCols: { name: 'Verbraucher', kwh: 'kWh', avg: 'Ø Preis', day: 'Tagesmittel', adv: 'Vorteil', ref: 'ggü. Referenz (CHF)' },
-      consNote: 'Wert zum Netzpreis der jeweiligen Viertelstunde (PV-Anteil ist nicht herausgerechnet). Vorteil = Tagesmittel minus Ø Preis in Rp./kWh, positiv = zu günstigeren Zeiten gelaufen.',
+      consCols: { name: 'Verbraucher', kwh: 'kWh', avg: 'Ø Rp.', day: 'Tag Ø', adv: 'Vorteil', ref: 'Ref. CHF' },
+      consNote: 'Ø Rp. = Durchschnittspreis, zu dem der Verbraucher lief; Tag Ø = Tagesmittel. Vorteil = Tag Ø minus Ø Rp. (positiv = zu günstigeren Zeiten gelaufen). Ref. CHF = Ersparnis gegenüber dem Referenztarif. Bewertet zum Netzpreis der jeweiligen Viertelstunde, der PV-Anteil ist nicht herausgerechnet.',
       fixedNote: 'In der Differenz enthalten: Fixkosten-Differenz (CHF):',
       negImpNote: 'Bezug bei negativem Preis (Gutschrift), kWh:',
       negExpNote: 'Einspeisung bei negativem Preis (Kosten), kWh:',
@@ -418,6 +428,8 @@
       costsHeading: 'Costs and savings',
       periods: { today: 'Today', week: '7 days', month: 'Month', total: 'Total' },
       cols: { period: 'Period', import: 'Import kWh', export: 'Export kWh', dyn: 'Net dynamic', ref: 'Net reference', diff: 'Difference' },
+      colsShort: { period: 'Period', import: 'Import', export: 'Export', dyn: 'Dyn.', ref: 'Ref.', diff: 'Diff.' },
+      tableNote: 'Import and export in kWh, net costs in CHF. Dyn. = dynamic tariff, Ref. = reference tariff, Diff. = saved (green) or more expensive (red).',
       saved: 'saved', pricier: 'more expensive',
       batteryBenefit: 'Battery benefit from the tariff (estimate: grid charge at the import price, PV charge at the forgone feed-in price, discharge at the import price it avoided; already included in the figures above)',
       unpriced: 'kWh without a price (data was missing) are not included in the costs:',
@@ -440,8 +452,8 @@
       fixedDiffHint: 'Optional: base fee, metering fee etc. of the dynamic tariff minus those of your reference tariff. Positive = dynamic is more expensive, negative = cheaper. Deducted from the savings per calendar day; 0 if both are equal.',
       negativePrice: 'Negative',
       consumersHeading: 'Consumers (month)',
-      consCols: { name: 'Consumer', kwh: 'kWh', avg: 'Avg price', day: 'Day average', adv: 'Advantage', ref: 'vs reference (CHF)' },
-      consNote: 'Valued at the grid price of each quarter-hour (the PV share is not subtracted). Advantage = day average minus avg price in Rp./kWh, positive = ran at cheaper times.',
+      consCols: { name: 'Consumer', kwh: 'kWh', avg: 'Avg Rp.', day: 'Day avg', adv: 'Adv.', ref: 'Ref. CHF' },
+      consNote: 'Avg Rp. = average price the consumer ran at; Day avg = day average. Advantage = day avg minus avg Rp. (positive = ran at cheaper times). Ref. CHF = saving against the reference tariff. Valued at the grid price of each quarter-hour, the PV share is not subtracted.',
       fixedNote: 'Included in the difference: fixed-cost difference (CHF):',
       negImpNote: 'Import at a negative price (credit), kWh:',
       negExpNote: 'Export at a negative price (cost), kWh:',
@@ -792,8 +804,8 @@
         return;
       }
 
-      var head = '<tr><th>' + T.cols.period + '</th><th>' + T.cols.import + '</th><th>' + T.cols.export + '</th><th>' +
-        T.cols.dyn + ' (CHF)</th><th>' + T.cols.ref + ' (CHF)</th><th>' + T.cols.diff + ' (CHF)</th></tr>';
+      var C2 = T.colsShort;
+      var head = '<tr><th>' + C2.period + '</th><th>' + C2.import + '</th><th>' + C2.export + '</th><th>' + C2.dyn + '</th><th>' + C2.ref + '</th><th>' + C2.diff + '</th></tr>';
       var rows = ['today', 'week', 'month', 'total'].map(function (k) { return summaryRow(T.periods[k], data[k]); }).join('');
 
       var total = data.month;
@@ -831,10 +843,10 @@
       }
 
       var days = (data.days || []).slice().reverse();
-      var dayRows = days.map(function (d) { return summaryRow(d.key, d); }).join('');
+      var dayRows = days.map(function (d) { return summaryRow(d.key.slice(8) + '.' + d.key.slice(5, 7) + '.', d); }).join('');
 
       root.innerHTML =
-        '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>' + notes +
+        '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div><p class="legend">' + escapeHtml(T.tableNote) + '</p>' + notes +
         consHtml +
         '<div id="cost-curves"></div>' +
         (days.length ? '<h2 style="margin-top:18px">' + escapeHtml(T.dailyHeading) + '</h2><div class="scroll"><table><thead>' + head + '</thead><tbody>' + dayRows + '</tbody></table></div>' : '') +
