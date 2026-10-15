@@ -130,6 +130,12 @@
     .ok { color: var(--st-cheap); font-size: 13px; }
     .err { color: var(--st-expensive); font-size: 13px; }
     .status td:last-child { text-align: left; }
+    .checklist { list-style: none; padding: 0; margin: 8px 0 0; }
+    .checklist li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+    .checklist .mark { flex: 0 0 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--st-muted); text-align: center; line-height: 19px; font-size: 12px; margin-top: 1px; }
+    .checklist li.done .mark { background: var(--st-cheap); border-color: var(--st-cheap); color: #fff; }
+    .checklist .t { font-weight: 600; }
+    .checklist .d { color: var(--st-muted); font-size: 13px; line-height: 1.4; }
     .period { border: 1px solid var(--st-border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: var(--st-bg); }
     .inline { display: flex; gap: 8px; align-items: center; }
     .inline input { flex: 1; min-width: 0; }
@@ -186,6 +192,12 @@
   </div>
 
   <div class="panel" id="panel-reference">
+    <div class="card">
+      <h2 id="h2-setup"></h2>
+      <p class="sub" id="p-setup-intro" style="margin-bottom:8px"></p>
+      <ol class="checklist" id="ol-setup"></ol>
+    </div>
+
     <div class="card">
       <h2 id="h2-ref"></h2>
       <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
@@ -285,13 +297,21 @@
       refAdd: 'Zeitraum hinzufügen', refRemove: 'Zeitraum entfernen', refNone: 'Noch kein Referenztarif. Mit «Zeitraum hinzufügen» beginnen.',
       calc: 'Rechner', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Zeile hinzufügen', calcExcl: 'Beträge sind ohne MWST (MWST wird addiert)', calcExclExport: 'Auf die Einspeisung wird keine MWST gerechnet.', calcSum: 'Ergebnis', calcApply: 'Übernehmen', calcNamePh: 'z. B. Netznutzung',
       save: 'Speichern', savedMsg: 'Gespeichert', saveFailed: 'Speichern fehlgeschlagen: ',
+      setupHeading: 'Einrichtung in 3 Schritten',
+      setupIntro: 'So kommen Kosten und Ersparnis in das Widget und in den Tab «Kosten»:',
+      setupSteps: [
+        { t: 'Referenztarif eintragen', d: 'Weiter unten bei «Referenztarif»: dein bisheriger Preis für Bezug (Rp./kWh inkl. MWST) und die Einspeisevergütung, direkt oder mit dem Rechner aus den Zeilen deiner Rechnung. Speichern nicht vergessen.' },
+        { t: 'Zählerstände per Flow melden', d: 'Einen Flow anlegen: Wenn «Zeit: alle 15 Minuten», dann die Karten dieser App «Netzbezug-Zählerstand melden», «Einspeisung-Zählerstand melden» und optional für die Batterie «…Ladung…» und «…Entladung…». Als Wert ziehst du den kumulierten kWh-Zähler deines Geräts als Token in das Feld (Details unten).' },
+        { t: 'Kurz warten', d: 'Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Zähler mit grober Auflösung (z. B. Wechselrichter) ändern sich nur alle paar Minuten, dann dauert es entsprechend länger.' },
+      ],
       metersHeading: 'Zählerstände melden (Flows)',
       metersIntro: 'Die App liest keine anderen Geräte selbst. Dafür baust du pro Zähler einen Flow:',
       metersSteps: [
-        'Wenn: «Zeit: alle 15 Minuten» (oder «Zählerstand hat sich geändert» deines Zählers)',
-        'Dann: «Netzbezug-Zählerstand melden» dieser App',
-        'Ziehe als Wert den kumulierten kWh-Zählerstand deines Zählers (z. B. meter_power.imported) als Token in das Feld',
-        'Dasselbe optional für Einspeisung sowie Batterie-Ladung und -Entladung',
+        'Neuer Flow, Trigger «Zeit: Alle 15 Minuten» (oder «Zählerstand hat sich geändert» deines Zählers)',
+        'Aktion: «Netzbezug-Zählerstand melden» (Gerät: dein Innostrom-Gerät)',
+        'Im Feld «Zählerstand» auf das Token-Symbol tippen, dein Zähler-Gerät wählen und den kumulierten Wert in kWh nehmen, der immer weiter hochzählt (nicht die Leistung in W und nicht «heute»)',
+        'Dasselbe als weitere Aktionen im selben Flow: «Einspeisung-Zählerstand melden» sowie optional «Batterie-Ladung…» und «Batterie-Entladung…»',
+        'Beispiel Huawei EMMA: Bezug = meter_power des Energiezählers, Einspeisung = meter_power.exported, Batterie = meter_power.charged / meter_power.discharged der LUNA2000',
       ],
       metersNote: 'Mindestens stündlich melden. Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Bei längerer Pause wird der Zuwachs der letzten Stunde zugerechnet.',
       reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
@@ -357,13 +377,21 @@
       refAdd: 'Add period', refRemove: 'Remove period', refNone: 'No reference tariff yet. Start with "Add period".',
       calc: 'Calculator', calcName: 'Name', calcValue: 'CHF/kWh', calcAddLine: 'Add line', calcExcl: 'Amounts are excl. VAT (VAT is added)', calcExclExport: 'No VAT is applied to feed-in.', calcSum: 'Result', calcApply: 'Apply', calcNamePh: 'e.g. grid usage',
       save: 'Save', savedMsg: 'Saved', saveFailed: 'Saving failed: ',
+      setupHeading: 'Set up in 3 steps',
+      setupIntro: 'This is how costs and savings get into the widget and the "Costs" tab:',
+      setupSteps: [
+        { t: 'Enter your reference tariff', d: 'Further down under "Reference tariff": your previous import price (Rp./kWh incl. VAT) and feed-in price, entered directly or with the calculator from the lines of your bill. Don\'t forget to save.' },
+        { t: 'Report meter readings from a Flow', d: 'Create a Flow: When "Time: every 15 minutes", then this app\'s cards "Report grid import counter", "Report grid export counter" and optionally "…battery charge…" and "…discharge…". As the value, drag your device\'s cumulative kWh counter into the field as a token (details below).' },
+        { t: 'Wait a little', d: 'The first report only sets the baseline; from the second one kWh are priced. Counters with coarse resolution (e.g. inverters) only change every few minutes, so it takes correspondingly longer.' },
+      ],
       metersHeading: 'Reporting meter readings (Flows)',
       metersIntro: 'The app does not read other devices itself. Build one Flow per meter:',
       metersSteps: [
-        'When: "Time: every 15 minutes" (or your meter\'s "reading has changed")',
-        'Then: this app\'s "Report grid import counter"',
-        'Drag your meter\'s cumulative kWh reading (e.g. meter_power.imported) into the field as a token',
-        'Optionally the same for export and for battery charge and discharge',
+        'New Flow, trigger "Time: Every 15 minutes" (or your meter\'s "reading has changed")',
+        'Action: "Report grid import counter" (device: your Innostrom device)',
+        'In the "Counter" field tap the token icon, pick your meter device and take the cumulative value in kWh that keeps counting up (not the power in W and not "today")',
+        'Add the same as further actions in that Flow: "Report grid export counter" and optionally "Battery charge…" and "Battery discharge…"',
+        'Example Huawei EMMA: import = meter_power of the energy meter, export = meter_power.exported, battery = meter_power.charged / meter_power.discharged of the LUNA2000',
       ],
       metersNote: 'Report at least hourly. The first report only sets the baseline; from the second one kWh are priced. After a long pause the increase is attributed to the last hour.',
       reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
@@ -428,6 +456,8 @@
       $('p-ref-hint').textContent = T.refHint;
       $('btn-ref-add').textContent = T.refAdd;
       $('btn-ref-save').textContent = T.save;
+      $('h2-setup').textContent = T.setupHeading;
+      $('p-setup-intro').textContent = T.setupIntro;
       $('h2-meters').textContent = T.metersHeading;
       $('p-meters-intro').textContent = T.metersIntro;
       $('ol-meters').innerHTML = T.metersSteps.map(function (s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('');
@@ -673,6 +703,14 @@
         renderRefPeriods();
       }
       var reports = data.reports || {};
+      var refDone = Boolean(data.total && data.total.configured);
+      var reportedAny = Object.keys(reports).some(function (k) { return reports[k]; });
+      var dataDone = Boolean(data.total && (data.total.importKwh > 0 || data.total.exportKwh > 0));
+      var done = [refDone, reportedAny, dataDone];
+      $('ol-setup').innerHTML = T.setupSteps.map(function (st, i) {
+        return '<li class="' + (done[i] ? 'done' : '') + '"><span class="mark">' + (done[i] ? '✓' : (i + 1)) + '</span><span><div class="t">' +
+          escapeHtml(st.t) + '</div><div class="d">' + escapeHtml(st.d) + '</div></span></li>';
+      }).join('');
       $('tb-reports').innerHTML = ['import', 'export', 'battery_charge', 'battery_discharge'].map(function (k) {
         return '<tr><td>' + escapeHtml(T.reports[k]) + '</td><td>' + escapeHtml(agoText(reports[k])) + '</td></tr>';
       }).join('');

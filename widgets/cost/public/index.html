@@ -70,6 +70,14 @@
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--cw-ref); }
     .legend { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; color: var(--cw-muted); }
     .hint { margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--cw-chip-bg); color: var(--cw-muted); font-size: 11px; text-align: center; }
+    .setup { padding: 4px 2px; }
+    .setup .title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .setup ol { list-style: none; margin: 0; padding: 0; }
+    .setup li { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 12px; }
+    .setup .mark { flex: 0 0 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--cw-muted); text-align: center; line-height: 15px; font-size: 11px; }
+    .setup li.done { color: var(--cw-muted); }
+    .setup li.done .mark { background: var(--cw-good); border-color: var(--cw-good); color: #fff; }
+    .setup .where { margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--cw-chip-bg); color: var(--cw-muted); font-size: 11px; text-align: center; }
     .loading, .load-error, .no-device { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 12px 0; }
     .load-error { color: var(--cw-bad); }
   </style>
@@ -180,9 +188,21 @@
       var avgDyn = today && today.avgImportPriceDyn != null ? today.avgImportPriceDyn.toFixed(1) : '–';
       var avgRef = today && today.avgImportPriceRef != null ? today.avgImportPriceRef.toFixed(1) : '–';
 
-      var hint = '';
-      if (!configured) hint = Homey.__('costWidget.noRef');
-      else if (!hasData) hint = Homey.__('costWidget.noData');
+      if (!configured || !hasData) {
+        var reported = Object.keys(data.reports || {}).some(function (k) { return data.reports[k]; });
+        var steps = [
+          [configured, Homey.__('costWidget.setupRef')],
+          [reported, Homey.__('costWidget.setupMeters')],
+          [hasData, Homey.__('costWidget.setupWait')],
+        ];
+        root.innerHTML = '<div class="setup"><div class="title">' + escapeHtml(Homey.__('costWidget.setupTitle')) + '</div><ol>' +
+          steps.map(function (st, idx) {
+            return '<li class="' + (st[0] ? 'done' : '') + '"><span class="mark">' + (st[0] ? '✓' : (idx + 1)) + '</span><span>' + escapeHtml(st[1]) + '</span></li>';
+          }).join('') +
+          '</ol><div class="where">' + escapeHtml(Homey.__('costWidget.setupWhere')) + '</div></div>';
+        resize(Homey);
+        return;
+      }
 
       root.innerHTML = '' +
         '<div class="top"><div>' +
@@ -195,8 +215,7 @@
           '<div class="chip"><div class="num">' + avgDyn + '</div><div class="lbl">' + Homey.__('costWidget.avgDyn') + '</div></div>' +
           '<div class="chip"><div class="num">' + avgRef + '</div><div class="lbl">' + Homey.__('costWidget.avgRef') + '</div></div>' +
         '</div>' +
-        chartHtml(data.chart, configured) +
-        (hint ? '<div class="hint">' + escapeHtml(hint) + '</div>' : '');
+        chartHtml(data.chart, configured);
       resize(Homey);
     }
 
