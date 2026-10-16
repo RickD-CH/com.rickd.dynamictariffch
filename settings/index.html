@@ -122,7 +122,10 @@
     .pt-dot.very_expensive { background: #d32f2f; }
     .kwhlabel { font-size: 10px; color: var(--st-muted); margin-top: 8px; padding: 0 6px; }
     .swb { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--st-accent); margin-right: 5px; vertical-align: -1px; }
-    .kwhrow { display: flex; align-items: flex-end; height: 34px; gap: 1px; margin-top: 6px; padding: 0 6px; }
+    .kwhwrap { position: relative; }
+    .kwhwrap .ylabels { top: 0; bottom: 0; }
+    .kwhwrap .ylabels span { background: var(--st-card-bg); padding: 0 3px; border-radius: 3px; opacity: .88; }
+    .kwhrow { display: flex; align-items: flex-end; height: 40px; gap: 1px; margin-top: 6px; padding: 0 6px; }
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--st-accent); }
     .bar { flex: 1; min-width: 1px; border-radius: 1px; }
     .bar.past { opacity: .45; }
@@ -747,10 +750,10 @@
       var maxKwh = 0;
       slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
       if (withKwh && maxKwh > 0) {
-        kwhRow = '<div class="kwhlabel"><i class="swb"></i>' + escapeHtml(T.kwhLabel) + ' · max. ' + maxKwh.toFixed(2) + ' kWh</div><div class="kwhrow">' + slots.map(function (s) {
+        kwhRow = '<div class="kwhlabel"><i class="swb"></i>' + escapeHtml(T.kwhLabel) + '</div><div class="kwhwrap"><div class="ylabels"><span>' + (maxKwh >= 1 ? maxKwh.toFixed(1) : maxKwh.toFixed(2)) + ' kWh</span><span>0</span></div><div class="kwhrow">' + slots.map(function (s) {
           var h = maxKwh > 0 && s.kwh > 0 ? Math.max(6, Math.round((s.kwh / maxKwh) * 100)) : 0;
           return '<div class="kbar" style="height:' + h + '%" title="' + escapeHtml(s.time + ': ' + (s.kwh || 0).toFixed(3) + ' kWh') + '"></div>';
-        }).join('') + '</div>';
+        }).join('') + '</div></div>';
       }
 
       var lastIdx = slots.length - 1;
