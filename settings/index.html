@@ -92,6 +92,8 @@
       background: var(--st-chip-bg); border-radius: 8px; padding: 6px;
     }
     .chart .refline { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; }
+    .kwhlabel { font-size: 10px; color: var(--st-muted); margin-top: 8px; padding: 0 6px; }
+    .swb { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--st-accent); margin-right: 5px; vertical-align: -1px; }
     .kwhrow { display: flex; align-items: flex-end; height: 34px; gap: 1px; margin-top: 6px; padding: 0 6px; }
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--st-accent); }
     .bar { flex: 1; min-width: 1px; border-radius: 1px; }
@@ -385,6 +387,7 @@
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Leistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
       dayToday: 'Heute', dayTomorrow: 'Morgen',
+      kwhLabel: 'Bezug aus dem Netz pro Viertelstunde',
       cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
       cumNote: 'Netto = Bezug minus Einspeisung, aufsummiert über den Tag. Der Abstand der Linien ist die Ersparnis.',
@@ -502,6 +505,7 @@
       batCap: 'Usable battery (kWh)', batPow: 'Max. power (kW)', batEff: 'Round-trip efficiency (%)',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
       dayToday: 'Today', dayTomorrow: 'Tomorrow',
+      kwhLabel: 'Grid import per quarter-hour',
       cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
       cumNote: 'Net = import minus export, summed over the day. The gap between the lines is the saving.',
@@ -694,7 +698,7 @@
       var maxKwh = 0;
       slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
       if (withKwh && maxKwh > 0) {
-        kwhRow = '<div class="kwhrow">' + slots.map(function (s) {
+        kwhRow = '<div class="kwhlabel"><i class="swb"></i>' + escapeHtml(T.kwhLabel) + ' · max. ' + maxKwh.toFixed(2) + ' kWh</div><div class="kwhrow">' + slots.map(function (s) {
           var h = maxKwh > 0 && s.kwh > 0 ? Math.max(6, Math.round((s.kwh / maxKwh) * 100)) : 0;
           return '<div class="kbar" style="height:' + h + '%" title="' + escapeHtml(s.time + ': ' + (s.kwh || 0).toFixed(3) + ' kWh') + '"></div>';
         }).join('') + '</div>';
