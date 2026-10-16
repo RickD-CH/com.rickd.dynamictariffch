@@ -80,6 +80,10 @@
     "deleteCostData": {
       "method": "post",
       "path": "/cost/delete"
+    },
+    "getShadow": {
+      "method": "get",
+      "path": "/cost/shadow"
     }
   },
   "support": "https://community.homey.app/t/160031",

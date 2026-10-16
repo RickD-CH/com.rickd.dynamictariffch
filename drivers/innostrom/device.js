@@ -6,6 +6,7 @@ const { PriceStore } = require('../../lib/PriceStore');
 const {
   CostTracker, normalizeRefs, refForDay, refImportPrice,
 } = require('../../lib/CostTracker');
+const { analyzeDay } = require('../../lib/ShadowBattery');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -625,6 +626,41 @@ class InnostromDevice extends Homey.Device {
     }
     await this._flushCost();
     return result;
+  }
+
+  /** Battery parameters for the shadow analysis (app settings, with defaults for a LUNA2000-class battery). */
+  _batteryParams() {
+    const p = this.homey.settings.get('battery_params') || {};
+    const num = (v, d) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d);
+    return {
+      capacityKwh: num(p.capacityKwh, 13.8),
+      powerKw: num(p.powerKw, 5),
+      roundTrip: Math.min(1, num(p.roundTrip, 0.9)),
+    };
+  }
+
+  /**
+   * Shadow battery analysis: for every full day since tracking started, what the battery
+   * actually did against what an optimal plan would have done (PV surplus only, and with
+   * grid charging). Costs in Rp. Nothing is controlled.
+   */
+  getShadow() {
+    const params = this._batteryParams();
+    const todayKey = localDateKey(new Date(), this.tz);
+    const keys = this.costTracker.shadowDayKeys(todayKey).slice(-14);
+    const days = keys.map((k) => analyzeDay(this.costTracker.shadowInputs(k), params));
+    const total = days.reduce((a, d) => ({
+      noBattery: a.noBattery + d.noBattery,
+      actual: a.actual + d.actual,
+      pvOnly: a.pvOnly + d.pvOnly,
+      withGrid: a.withGrid + d.withGrid,
+      gridChargeValue: a.gridChargeValue + d.gridChargeValue,
+      unused: a.unused + d.unused,
+      batteryGain: a.batteryGain + d.batteryGain,
+    }), {
+      noBattery: 0, actual: 0, pvOnly: 0, withGrid: 0, gridChargeValue: 0, unused: 0, batteryGain: 0,
+    });
+    return { params, days, total };
   }
 
   async resetCost() {

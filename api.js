@@ -16,6 +16,12 @@ module.exports = {
     return { paired: true, name: device.getName(), ...device.getCostOverview() };
   },
 
+  async getShadow({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    return { paired: true, ...device.getShadow() };
+  },
+
   async putCostConfig({ homey, body }) {
     const periods = sanitizeRefPeriods(body && body.periods);
     homey.settings.set('ref_periods', periods);
@@ -37,14 +43,33 @@ module.exports = {
   async getAppConfig({ homey }) {
     const raw = homey.settings.get('vat_percent');
     const v = Number(raw);
-    return { vatPercent: raw !== null && raw !== undefined && Number.isFinite(v) && v >= 0 ? v : null };
+    return {
+      vatPercent: raw !== null && raw !== undefined && Number.isFinite(v) && v >= 0 ? v : null,
+      battery: homey.settings.get('battery_params') || null,
+    };
   },
 
   async putAppConfig({ homey, body }) {
-    const v = Number(body && body.vatPercent);
-    if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
-    homey.settings.set('vat_percent', Math.round(v * 100) / 100);
-    return { vatPercent: homey.settings.get('vat_percent') };
+    const out = {};
+    if (body && body.vatPercent !== undefined) {
+      const v = Number(body.vatPercent);
+      if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
+      homey.settings.set('vat_percent', Math.round(v * 100) / 100);
+      out.vatPercent = homey.settings.get('vat_percent');
+    }
+    if (body && body.battery) {
+      const cap = Number(body.battery.capacityKwh);
+      const pow = Number(body.battery.powerKw);
+      const eff = Number(body.battery.roundTrip);
+      if (!(cap > 0 && cap <= 100) || !(pow > 0 && pow <= 50) || !(eff > 0.5 && eff <= 1)) throw new Error('Invalid battery');
+      homey.settings.set('battery_params', {
+        capacityKwh: Math.round(cap * 10) / 10,
+        powerKw: Math.round(pow * 10) / 10,
+        roundTrip: Math.round(eff * 1000) / 1000,
+      });
+      out.battery = homey.settings.get('battery_params');
+    }
+    return out;
   },
 
   async getSummary({ homey }) {
