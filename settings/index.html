@@ -98,17 +98,23 @@
     .pt-blocks { font-size: 11px; color: var(--st-muted); display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
     .pt-blocks .c b { color: var(--st-cheap); }
     .pt-blocks .p b { color: var(--st-expensive); }
-    .pt-list { max-height: 300px; overflow-y: auto; border-top: 1px solid var(--st-border); }
-    .pt-row { display: grid; grid-template-columns: 52px 1fr 14px; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--st-border); cursor: pointer; }
-    .pt-row .t { color: var(--st-muted); font-variant-numeric: tabular-nums; }
-    .pt-row .p { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .pt-row .tag { margin-left: 6px; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--st-chip-bg); }
-    .pt-row .tag.c { color: var(--st-cheap); }
-    .pt-row .tag.k { color: var(--st-expensive); }
-    .pt-row.now { background: var(--st-chip-bg); }
-    .pt-row.now .t { color: var(--st-text); font-weight: 700; }
-    .pt-row.past { opacity: .5; }
-    .pt-row.quarter { padding-left: 24px; font-size: 12px; cursor: default; }
+    .pt-grid { display: grid; grid-auto-flow: column; gap: 4px; margin-top: 6px; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(var(--r4), 30px); }
+    @media (min-width: 560px) { .pt-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(var(--r6), 30px); } }
+    .pt-cell { display: flex; align-items: center; gap: 4px; padding: 0 6px; height: 30px; border-radius: 7px; background: var(--st-chip-bg); border-left: 3px solid transparent; cursor: pointer; min-width: 0; }
+    .pt-cell .t { color: var(--st-muted); font-size: 10.5px; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+    .pt-cell .p { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; flex: 1 1 auto; text-align: right; }
+    .pt-cell.cheap { border-left-color: var(--st-cheap); }
+    .pt-cell.pricey { border-left-color: var(--st-expensive); }
+    .pt-cell.past { opacity: .5; }
+    .pt-cell.now { outline: 2px solid var(--st-accent); outline-offset: -2px; }
+    .pt-cell.sel { background: var(--st-border); }
+    .pt-detail { margin-top: 8px; padding: 6px 8px; border-radius: 8px; background: var(--st-chip-bg); min-height: 44px; }
+    .pt-detail .ttl { font-size: 10.5px; color: var(--st-muted); margin-bottom: 4px; }
+    .pt-q { display: flex; gap: 6px; }
+    .pt-q .q { flex: 1; text-align: center; padding: 3px 0; border-radius: 6px; background: var(--st-card-bg); }
+    .pt-q .q .qt { display: block; font-size: 10px; color: var(--st-muted); }
+    .pt-q .q .qp { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
+    .pt-q .q.now { outline: 2px solid var(--st-accent); outline-offset: -2px; }
     .pt-dot { width: 10px; height: 10px; border-radius: 50%; background: #9e9e9e; }
     .pt-dot.very_cheap { background: #2e7d32; }
     .pt-dot.cheap { background: #66bb6a; }
@@ -413,7 +419,7 @@
       dayToday: 'Heute', dayTomorrow: 'Morgen', refShort: 'Ref.',
       viewChart: 'Kurve', viewTable: 'Tabelle', ptCheapTag: 'günstig', ptPeakTag: 'Spitze',
       ptCheapLine: 'Günstigster 2-h-Block', ptPeakLine: 'Teuerster 2-h-Block',
-      ptPending: 'Die Preise für morgen sind noch nicht veröffentlicht.', ptHint: 'Stunde antippen für Viertelstunden. Preise in Rp./kWh.',
+      ptPending: 'Die Preise für morgen sind noch nicht veröffentlicht.', ptHint: 'Stunde antippen für Viertelstunden. Grüner/roter Rand = günstiger/teurer 2-h-Block. Preise in Rp./kWh.', ptTap: 'Stunde antippen für Viertelstunden',
       kwhLabel: 'Bezug aus dem Netz pro Viertelstunde',
       cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
@@ -536,7 +542,7 @@
       dayToday: 'Today', dayTomorrow: 'Tomorrow', refShort: 'Ref.',
       viewChart: 'Chart', viewTable: 'Table', ptCheapTag: 'cheap', ptPeakTag: 'peak',
       ptCheapLine: 'Cheapest 2 h block', ptPeakLine: 'Most expensive 2 h block',
-      ptPending: 'Tomorrow\'s prices are not published yet.', ptHint: 'Tap an hour for quarter-hours. Prices in Rp./kWh.',
+      ptPending: 'Tomorrow\'s prices are not published yet.', ptHint: 'Tap an hour for quarter-hours. Green/red edge = cheap/peak 2 h block. Prices in Rp./kWh.', ptTap: 'Tap an hour for quarter-hours',
       kwhLabel: 'Grid import per quarter-hour',
       cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
@@ -766,7 +772,7 @@
     // ----- overview: chart or table -----
     var liveView = 'chart';
     var tableDay = 'today';
-    var tableExpanded = {};
+    var tableSel = {};
     var lastPrices = null;
 
     function priceTableHtml() {
@@ -783,18 +789,19 @@
       var blocks = '<div class="pt-blocks">' +
         (d.cheapBlock ? '<span class="c">' + escapeHtml(T.ptCheapLine) + ': <b>' + d.cheapBlock.start + '–' + d.cheapBlock.end + '</b> · Ø ' + d.cheapBlock.avg.toFixed(1) + ' Rp.</span>' : '') +
         (d.priciestBlock ? '<span class="p">' + escapeHtml(T.ptPeakLine) + ': <b>' + d.priciestBlock.start + '–' + d.priciestBlock.end + '</b> · Ø ' + d.priciestBlock.avg.toFixed(1) + ' Rp.</span>' : '') + '</div>';
-      var rows = d.hours.map(function (h) {
-        var key = d.key + '-' + h.hour;
-        var tag = (h.cheap ? '<span class="tag c">' + escapeHtml(T.ptCheapTag) + '</span>' : '') + (h.pricey ? '<span class="tag k">' + escapeHtml(T.ptPeakTag) + '</span>' : '');
-        var out = '<div class="pt-row' + (h.isNow ? ' now' : '') + (h.isPast ? ' past' : '') + '" data-ptkey="' + escapeHtml(key) + '"><span class="t">' + h.hour + '</span><span><span class="p">' + h.avg.toFixed(1) + '</span>' + tag + '</span><span class="pt-dot ' + (h.level || '') + '"></span></div>';
-        if (tableExpanded[key]) {
-          out += h.quarters.map(function (q) {
-            return '<div class="pt-row quarter' + (q.isNow ? ' now' : '') + '"><span class="t">' + q.time + '</span><span class="p">' + q.value.toFixed(1) + '</span><span class="pt-dot ' + (q.level || '') + '"></span></div>';
-          }).join('');
-        }
-        return out;
+      var now = d.hours.filter(function (h) { return h.isNow; })[0];
+      var sel = tableSel[tableDay] !== undefined ? tableSel[tableDay] : (now ? now.hour : null);
+      var n = d.hours.length;
+      var cells = d.hours.map(function (h) {
+        var cls = 'pt-cell' + (h.cheap ? ' cheap' : '') + (h.pricey ? ' pricey' : '') + (h.isNow ? ' now' : '') + (h.isPast ? ' past' : '') + (h.hour === sel ? ' sel' : '');
+        return '<div class="' + cls + '" data-pthour="' + h.hour + '"><span class="t">' + h.hour.slice(0, 2) + '</span><span class="p">' + h.avg.toFixed(1) + '</span><span class="pt-dot ' + (h.level || '') + '"></span></div>';
       }).join('');
-      return tabs + blocks + '<div class="pt-list">' + rows + '</div><p class="legend">' + escapeHtml(T.ptHint) + '</p>';
+      var hourSel = d.hours.filter(function (h) { return h.hour === sel; })[0];
+      var detail = hourSel
+        ? '<div class="pt-detail"><div class="ttl">' + hourSel.hour + ' – ' + String(parseInt(hourSel.hour, 10) + 1).padStart(2, '0') + ':00 · Ø ' + hourSel.avg.toFixed(1) + ' Rp./kWh</div><div class="pt-q">' +
+          hourSel.quarters.map(function (q) { return '<div class="q' + (q.isNow ? ' now' : '') + '"><span class="qt">' + q.time + '</span><span class="qp">' + q.value.toFixed(1) + '</span></div>'; }).join('') + '</div></div>'
+        : '<div class="pt-detail"><div class="ttl">' + escapeHtml(T.ptTap) + '</div></div>';
+      return tabs + blocks + '<div class="pt-grid" style="--r4:' + Math.ceil(n / 4) + ';--r6:' + Math.ceil(n / 6) + '">' + cells + '</div>' + detail + '<p class="legend">' + escapeHtml(T.ptHint) + '</p>';
     }
 
     function applyLiveView() {
@@ -806,14 +813,7 @@
         b.classList.toggle('active', b.getAttribute('data-lv') === liveView);
       });
       if (liveView !== 'table') return;
-      var keep = table.querySelector('.pt-list') ? table.querySelector('.pt-list').scrollTop : null;
       table.innerHTML = priceTableHtml();
-      var list = table.querySelector('.pt-list');
-      if (list) {
-        var nowRow = list.querySelector('.pt-row.now:not(.quarter)');
-        if (keep !== null) list.scrollTop = keep;
-        else if (nowRow && tableDay === 'today') list.scrollTop = Math.max(0, nowRow.offsetTop - list.offsetTop);
-      }
     }
 
     function bindLiveView() {
@@ -823,8 +823,8 @@
       $('price-table').addEventListener('click', function (e) {
         var day = e.target.closest ? e.target.closest('[data-ptday]') : null;
         if (day) { if (!day.disabled) { tableDay = day.getAttribute('data-ptday'); $('price-table').innerHTML = ''; applyLiveView(); } return; }
-        var row = e.target.closest ? e.target.closest('.pt-row[data-ptkey]') : null;
-        if (row) { var k = row.getAttribute('data-ptkey'); tableExpanded[k] = !tableExpanded[k]; applyLiveView(); }
+        var cell = e.target.closest ? e.target.closest('.pt-cell') : null;
+        if (cell) { var hr = cell.getAttribute('data-pthour'); tableSel[tableDay] = tableSel[tableDay] === hr ? null : hr; applyLiveView(); }
       });
       applyLiveView();
     }
