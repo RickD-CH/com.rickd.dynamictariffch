@@ -30,11 +30,4 @@ module.exports = {
     };
   },
 
-  async refresh({ homey }) {
-    const device = firstDevice(homey);
-    if (!device) throw new Error('No device paired');
-    await device.actionRefresh();
-    return true;
-  },
-
 };

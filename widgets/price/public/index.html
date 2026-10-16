@@ -89,11 +89,6 @@
       margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--pw-border);
     }
     .last-update { font-size: 10px; color: var(--pw-muted); }
-    .refresh-btn {
-      border: none; background: var(--pw-chip-bg); color: var(--pw-text); border-radius: 8px;
-      padding: 6px 12px; font-size: 12px; -webkit-tap-highlight-color: transparent;
-    }
-    .refresh-btn:disabled { opacity: .5; }
     .loading, .load-error, .no-device { text-align: center; color: var(--pw-muted); font-size: 12px; padding: 12px 0; }
     .load-error { color: var(--pw-expensive); }
   </style>
@@ -208,20 +203,7 @@
         (data.noTomorrow ? '<div class="warn">⚠ ' + Homey.__('widget.noTomorrow') + '</div>' : '') +
         '<div class="footer">' +
           '<span class="last-update">' + (data.lastUpdate ? Homey.__('widget.lastUpdate') + ' ' + escapeHtml(data.lastUpdate) : '') + '</span>' +
-          '<button class="refresh-btn" id="refresh-btn">' + Homey.__('widget.refresh') + '</button>' +
         '</div>';
-
-      var btn = document.getElementById('refresh-btn');
-      btn.addEventListener('click', function () {
-        btn.disabled = true;
-        Homey.api('POST', '/refresh')
-          .catch(function (err) { console.error(err); })
-          .then(function () { return fetchSummary(Homey); })
-          .then(function () {
-            var b = document.getElementById('refresh-btn');
-            if (b) b.disabled = false;
-          });
-      });
 
       resizeToContent(Homey);
     }
@@ -254,14 +236,14 @@
     function onHomeyReady(Homey) {
       try {
         document.getElementById('root').innerHTML = '<div class="loading">' + Homey.__('widget.loading') + '</div>';
-        Homey.ready({ height: 230 });
+        Homey.ready({ height: 210 });
         fetchSummary(Homey);
         // Widgets aren't pushed updates - poll instead, so a dashboard left open catches
         // the next quarter-hour's price without needing to be reopened.
         refreshTimer = setInterval(function () { fetchSummary(Homey); }, 60000);
       } catch (err) {
         document.getElementById('root').innerHTML = '<div class="load-error">Widget error: ' + escapeHtml(err && err.message ? err.message : err) + '</div>';
-        try { Homey.ready({ height: 230 }); } catch (e2) { /* nothing more we can do */ }
+        try { Homey.ready({ height: 210 }); } catch (e2) { /* nothing more we can do */ }
       }
     }
   </script>
