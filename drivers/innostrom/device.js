@@ -7,6 +7,7 @@ const {
   CostTracker, normalizeRefs, refForDay, refImportPrice,
 } = require('../../lib/CostTracker');
 const { analyzeDay } = require('../../lib/ShadowBattery');
+const { buildDayTable } = require('../../lib/PriceTable');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -644,6 +645,31 @@ class InnostromDevice extends Homey.Device {
     }
     await this._flushCost();
     return result;
+  }
+
+  /** Hourly price table for today and tomorrow (price list widget and overview table). */
+  getPriceTable() {
+    const now = new Date();
+    const todayStart = startOfLocalDay(now, this.tz);
+    const days = [0, 1].map((offset) => {
+      const from = addLocalDays(todayStart, offset, this.tz);
+      const to = addLocalDays(from, 1, this.tz);
+      const table = buildDayTable({
+        slots: this.priceStore.range(from, to),
+        nowMs: now.getTime(),
+        tz: this.tz,
+        thresholds: this._levelThresholds,
+        toDisplay: (raw) => this._toDisplay(raw),
+        futureOnlyCheapest: offset === 0,
+      });
+      const p = localParts(from, this.tz);
+      return {
+        key: offset === 0 ? 'today' : 'tomorrow',
+        date: `${String(p.day).padStart(2, '0')}.${String(p.month).padStart(2, '0')}.`,
+        ...table,
+      };
+    });
+    return { days, lastUpdate: this.getCapabilityValue('last_update') };
   }
 
   /** Cheapest contiguous block of `hours` ahead in the known data, for the price widget. */

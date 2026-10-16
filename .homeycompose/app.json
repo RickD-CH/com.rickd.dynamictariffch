@@ -84,6 +84,10 @@
     "getShadow": {
       "method": "get",
       "path": "/cost/shadow"
+    },
+    "getPrices": {
+      "method": "get",
+      "path": "/prices"
     }
   },
   "support": "https://community.homey.app/t/160031",

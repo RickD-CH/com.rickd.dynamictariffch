@@ -94,6 +94,26 @@
     .chart .refline { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; }
     .chart .ylabels span, .chart .reflabel { background: var(--st-chip-bg); padding: 0 3px; border-radius: 3px; opacity: .88; }
     .chart .reflabel { position: absolute; right: 8px; transform: translateY(-110%); font-size: 10px; color: var(--st-accent); pointer-events: none; }
+    .pt-tabs { display: flex; gap: 6px; margin: 4px 0 8px; }
+    .pt-blocks { font-size: 11px; color: var(--st-muted); display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px; }
+    .pt-blocks .c b { color: var(--st-cheap); }
+    .pt-blocks .p b { color: var(--st-expensive); }
+    .pt-list { max-height: 300px; overflow-y: auto; border-top: 1px solid var(--st-border); }
+    .pt-row { display: grid; grid-template-columns: 52px 1fr 14px; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--st-border); cursor: pointer; }
+    .pt-row .t { color: var(--st-muted); font-variant-numeric: tabular-nums; }
+    .pt-row .p { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pt-row .tag { margin-left: 6px; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--st-chip-bg); }
+    .pt-row .tag.c { color: var(--st-cheap); }
+    .pt-row .tag.k { color: var(--st-expensive); }
+    .pt-row.now { background: var(--st-chip-bg); }
+    .pt-row.now .t { color: var(--st-text); font-weight: 700; }
+    .pt-row.past { opacity: .5; }
+    .pt-row.quarter { padding-left: 24px; font-size: 12px; cursor: default; }
+    .pt-dot { width: 10px; height: 10px; border-radius: 50%; background: #9e9e9e; }
+    .pt-dot.very_cheap { background: #2e7d32; }
+    .pt-dot.cheap { background: #66bb6a; }
+    .pt-dot.expensive { background: #fb8c00; }
+    .pt-dot.very_expensive { background: #d32f2f; }
     .kwhlabel { font-size: 10px; color: var(--st-muted); margin-top: 8px; padding: 0 6px; }
     .swb { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--st-accent); margin-right: 5px; vertical-align: -1px; }
     .kwhrow { display: flex; align-items: flex-end; height: 34px; gap: 1px; margin-top: 6px; padding: 0 6px; }
@@ -146,7 +166,7 @@
     .status td:last-child { text-align: left; }
     .subhead { font-weight: 600; margin: 16px 0 4px; }
     .viewsw { display: flex; gap: 6px; margin: 4px 0 12px; }
-    .viewsw .btn.active { background: var(--st-accent); border-color: var(--st-accent); color: #fff; }
+    .pt-tabs .btn.active, .viewsw .btn.active { background: var(--st-accent); border-color: var(--st-accent); color: #fff; }
     .svgchart { position: relative; margin-top: 8px; }
     .svgchart svg { width: 100%; height: 170px; display: block; background: var(--st-chip-bg); border-radius: 8px; }
     .ylabels { position: absolute; left: 8px; top: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--st-muted); pointer-events: none; }
@@ -391,6 +411,9 @@
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
       dayToday: 'Heute', dayTomorrow: 'Morgen', refShort: 'Ref.',
+      viewChart: 'Kurve', viewTable: 'Tabelle', ptCheapTag: 'günstig', ptPeakTag: 'Spitze',
+      ptCheapLine: 'Günstigster 2-h-Block', ptPeakLine: 'Teuerster 2-h-Block',
+      ptPending: 'Die Preise für morgen sind noch nicht veröffentlicht.', ptHint: 'Stunde antippen für Viertelstunden. Preise in Rp./kWh.',
       kwhLabel: 'Bezug aus dem Netz pro Viertelstunde',
       cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
@@ -511,6 +534,9 @@
       batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
       dayToday: 'Today', dayTomorrow: 'Tomorrow', refShort: 'Ref.',
+      viewChart: 'Chart', viewTable: 'Table', ptCheapTag: 'cheap', ptPeakTag: 'peak',
+      ptCheapLine: 'Cheapest 2 h block', ptPeakLine: 'Most expensive 2 h block',
+      ptPending: 'Tomorrow\'s prices are not published yet.', ptHint: 'Tap an hour for quarter-hours. Prices in Rp./kWh.',
       kwhLabel: 'Grid import per quarter-hour',
       cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
@@ -737,6 +763,72 @@
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
+    // ----- overview: chart or table -----
+    var liveView = 'chart';
+    var tableDay = 'today';
+    var tableExpanded = {};
+    var lastPrices = null;
+
+    function priceTableHtml() {
+      var p = lastPrices;
+      if (!p || !p.paired) return '<p class="legend">' + escapeHtml(T.noDevice) + '</p>';
+      var days = {};
+      p.days.forEach(function (d) { days[d.key] = d; });
+      if (tableDay === 'tomorrow' && !days.tomorrow.available) tableDay = 'today';
+      var d = days[tableDay];
+      var tabs = '<div class="pt-tabs">' +
+        '<button class="btn small' + (tableDay === 'today' ? ' active' : '') + '" data-ptday="today">' + escapeHtml(T.dayToday) + ' ' + escapeHtml(days.today.date) + '</button>' +
+        '<button class="btn small' + (tableDay === 'tomorrow' ? ' active' : '') + '" data-ptday="tomorrow"' + (days.tomorrow.available ? '' : ' disabled') + '>' + escapeHtml(T.dayTomorrow) + ' ' + escapeHtml(days.tomorrow.date) + '</button></div>';
+      if (!d.available) return tabs + '<p class="legend">' + escapeHtml(T.ptPending) + '</p>';
+      var blocks = '<div class="pt-blocks">' +
+        (d.cheapBlock ? '<span class="c">' + escapeHtml(T.ptCheapLine) + ': <b>' + d.cheapBlock.start + '–' + d.cheapBlock.end + '</b> · Ø ' + d.cheapBlock.avg.toFixed(1) + ' Rp.</span>' : '') +
+        (d.priciestBlock ? '<span class="p">' + escapeHtml(T.ptPeakLine) + ': <b>' + d.priciestBlock.start + '–' + d.priciestBlock.end + '</b> · Ø ' + d.priciestBlock.avg.toFixed(1) + ' Rp.</span>' : '') + '</div>';
+      var rows = d.hours.map(function (h) {
+        var key = d.key + '-' + h.hour;
+        var tag = (h.cheap ? '<span class="tag c">' + escapeHtml(T.ptCheapTag) + '</span>' : '') + (h.pricey ? '<span class="tag k">' + escapeHtml(T.ptPeakTag) + '</span>' : '');
+        var out = '<div class="pt-row' + (h.isNow ? ' now' : '') + (h.isPast ? ' past' : '') + '" data-ptkey="' + escapeHtml(key) + '"><span class="t">' + h.hour + '</span><span><span class="p">' + h.avg.toFixed(1) + '</span>' + tag + '</span><span class="pt-dot ' + (h.level || '') + '"></span></div>';
+        if (tableExpanded[key]) {
+          out += h.quarters.map(function (q) {
+            return '<div class="pt-row quarter' + (q.isNow ? ' now' : '') + '"><span class="t">' + q.time + '</span><span class="p">' + q.value.toFixed(1) + '</span><span class="pt-dot ' + (q.level || '') + '"></span></div>';
+          }).join('');
+        }
+        return out;
+      }).join('');
+      return tabs + blocks + '<div class="pt-list">' + rows + '</div><p class="legend">' + escapeHtml(T.ptHint) + '</p>';
+    }
+
+    function applyLiveView() {
+      var chart = $('live-chart'); var table = $('price-table');
+      if (!chart || !table) return;
+      chart.style.display = liveView === 'chart' ? '' : 'none';
+      table.style.display = liveView === 'table' ? '' : 'none';
+      Array.prototype.forEach.call(document.querySelectorAll('[data-lv]'), function (b) {
+        b.classList.toggle('active', b.getAttribute('data-lv') === liveView);
+      });
+      if (liveView !== 'table') return;
+      var keep = table.querySelector('.pt-list') ? table.querySelector('.pt-list').scrollTop : null;
+      table.innerHTML = priceTableHtml();
+      var list = table.querySelector('.pt-list');
+      if (list) {
+        var nowRow = list.querySelector('.pt-row.now:not(.quarter)');
+        if (keep !== null) list.scrollTop = keep;
+        else if (nowRow && tableDay === 'today') list.scrollTop = Math.max(0, nowRow.offsetTop - list.offsetTop);
+      }
+    }
+
+    function bindLiveView() {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-lv]'), function (b) {
+        b.addEventListener('click', function () { liveView = b.getAttribute('data-lv'); applyLiveView(); });
+      });
+      $('price-table').addEventListener('click', function (e) {
+        var day = e.target.closest ? e.target.closest('[data-ptday]') : null;
+        if (day) { if (!day.disabled) { tableDay = day.getAttribute('data-ptday'); $('price-table').innerHTML = ''; applyLiveView(); } return; }
+        var row = e.target.closest ? e.target.closest('.pt-row[data-ptkey]') : null;
+        if (row) { var k = row.getAttribute('data-ptkey'); tableExpanded[k] = !tableExpanded[k]; applyLiveView(); }
+      });
+      applyLiveView();
+    }
+
     function render(data) {
       var root = $('live-root');
 
@@ -765,9 +857,11 @@
           '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + escapeHtml(T.chips.avg) + '</div></div>' +
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + escapeHtml(T.chips.max) + '</div></div>' +
         '</div>' +
-        chartHtml(data.slots, true) +
+        '<div class="pt-tabs"><button class="btn small" data-lv="chart">' + escapeHtml(T.viewChart) + '</button><button class="btn small" data-lv="table">' + escapeHtml(T.viewTable) + '</button></div>' +
+        '<div id="live-chart">' + chartHtml(data.slots, true) + '</div><div id="price-table"></div>' +
         (data.noTomorrow ? '<div class="warn">⚠ ' + escapeHtml(T.noTomorrow) + '</div>' : '') +
         (data.lastUpdate ? '<div class="last-update">' + escapeHtml(T.lastUpdate) + ' ' + escapeHtml(data.lastUpdate) + '</div>' : '');
+      bindLiveView();
     }
 
     function agoText(ms) {
@@ -1164,6 +1258,10 @@
         });
       }
 
+      function loadPrices() {
+        return apiCall('GET', '/prices').then(function (p) { lastPrices = p; applyLiveView(); });
+      }
+
       function loadShadow() {
         return apiCall('GET', '/cost/shadow').then(renderShadow);
       }
@@ -1171,6 +1269,7 @@
       function loadAll() {
         return Promise.all([
           loadShadow().catch(function (err) { console.error(err); }),
+          loadPrices().catch(function (err) { console.error(err); }),
           loadSummary().catch(function (err) {
             console.error(err);
             $('live-root').innerHTML = '<div class="load-error">' + escapeHtml(T.loadFailed) + '</div>';

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --pl-text: #1a1a1a;
+      --pl-muted: #767676;
+      --pl-border: #e0e0e0;
+      --pl-bg: #ffffff;
+      --pl-chip-bg: #f2f2f2;
+      --pl-accent: #0277bd;
+      --pl-vcheap: #2e7d32;
+      --pl-cheap: #66bb6a;
+      --pl-normal: #9e9e9e;
+      --pl-exp: #fb8c00;
+      --pl-vexp: #d32f2f;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pl-text: #f2f2f2; --pl-muted: #a0a0a0; --pl-border: #3a3a3a; --pl-bg: #1e1e20;
+        --pl-chip-bg: #2a2a2a; --pl-accent: #4fc3f7; --pl-vcheap: #66bb6a; --pl-cheap: #81c784;
+        --pl-normal: #8d8d8d; --pl-exp: #ffa726; --pl-vexp: #ef5350;
+      }
+    }
+    .homey-dark-mode {
+      --pl-text: #f2f2f2; --pl-muted: #a0a0a0; --pl-border: #3a3a3a; --pl-bg: #1e1e20;
+      --pl-chip-bg: #2a2a2a; --pl-accent: #4fc3f7; --pl-vcheap: #66bb6a; --pl-cheap: #81c784;
+      --pl-normal: #8d8d8d; --pl-exp: #ffa726; --pl-vexp: #ef5350;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px; color: var(--pl-text); background: var(--pl-bg); padding: 10px 12px 10px;
+    }
+    .tabs { display: flex; gap: 6px; }
+    .tab {
+      flex: 1; border: none; background: var(--pl-chip-bg); color: var(--pl-text); border-radius: 8px;
+      padding: 6px 8px; font-size: 12px; font-weight: 600; -webkit-tap-highlight-color: transparent;
+    }
+    .tab.active { background: var(--pl-accent); color: #fff; }
+    .tab:disabled { opacity: .45; }
+    .blocks { margin-top: 8px; font-size: 11px; color: var(--pl-muted); display: flex; flex-direction: column; gap: 2px; }
+    .blocks b { font-weight: 700; }
+    .blocks .c b { color: var(--pl-vcheap); }
+    .blocks .p b { color: var(--pl-vexp); }
+    .list { margin-top: 8px; height: 214px; overflow-y: auto; border-top: 1px solid var(--pl-border); -webkit-overflow-scrolling: touch; }
+    .row {
+      display: grid; grid-template-columns: 52px 1fr 14px; align-items: center; gap: 8px;
+      padding: 6px 4px; border-bottom: 1px solid var(--pl-border); cursor: pointer;
+    }
+    .row .t { color: var(--pl-muted); font-variant-numeric: tabular-nums; }
+    .row .p { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .row .tag { margin-left: 6px; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--pl-chip-bg); }
+    .row .tag.c { color: var(--pl-vcheap); }
+    .row .tag.k { color: var(--pl-vexp); }
+    .row.now { background: var(--pl-chip-bg); }
+    .row.now .t { color: var(--pl-text); font-weight: 700; }
+    .row.past { opacity: .5; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pl-normal); }
+    .dot.very_cheap { background: var(--pl-vcheap); }
+    .dot.cheap { background: var(--pl-cheap); }
+    .dot.normal { background: var(--pl-normal); }
+    .dot.expensive { background: var(--pl-exp); }
+    .dot.very_expensive { background: var(--pl-vexp); }
+    .quarter { padding-left: 24px; background: transparent; font-size: 12px; cursor: default; }
+    .quarter.now .t { color: var(--pl-text); font-weight: 700; }
+    .foot { margin-top: 6px; font-size: 10px; color: var(--pl-muted); display: flex; justify-content: space-between; gap: 8px; }
+    .loading, .load-error, .no-device, .pending { text-align: center; color: var(--pl-muted); font-size: 12px; padding: 18px 0; }
+    .load-error { color: var(--pl-vexp); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var day = 'today';
+    var expanded = {};
+    var lastJson = null;
+    var firstRender = true;
+    var scrolledFor = null;
+
+    function esc(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function f1(v) { return typeof v === 'number' ? v.toFixed(1) : '–'; }
+
+    function rowsHtml(Homey, d) {
+      return d.hours.map(function (h, i) {
+        var cls = 'row' + (h.isNow ? ' now' : '') + (h.isPast ? ' past' : '');
+        var tag = (h.cheap ? '<span class="tag c">' + esc(Homey.__('priceList.cheapTag')) + '</span>' : '') +
+          (h.pricey ? '<span class="tag k">' + esc(Homey.__('priceList.priceyTag')) + '</span>' : '');
+        var key = d.key + '-' + h.hour;
+        var out = '<div class="' + cls + '" data-key="' + esc(key) + '"' + (h.isNow ? ' id="now-row"' : '') + '>' +
+          '<span class="t">' + esc(h.hour) + '</span>' +
+          '<span><span class="p">' + f1(h.avg) + '</span>' + tag + '</span>' +
+          '<span class="dot ' + (h.level || '') + '"></span></div>';
+        if (expanded[key]) {
+          out += h.quarters.map(function (q) {
+            return '<div class="row quarter' + (q.isNow ? ' now' : '') + '"><span class="t">' + esc(q.time) + '</span>' +
+              '<span class="p">' + f1(q.value) + '</span><span class="dot ' + (q.level || '') + '"></span></div>';
+          }).join('');
+        }
+        return out;
+      }).join('');
+    }
+
+    function render(Homey, data) {
+      var root = document.getElementById('root');
+      if (!data.paired) {
+        root.innerHTML = '<div class="no-device">' + esc(Homey.__('priceList.noDevice')) + '</div>';
+        return;
+      }
+      var days = {};
+      data.days.forEach(function (d) { days[d.key] = d; });
+      if (day === 'tomorrow' && !days.tomorrow.available) day = 'today';
+      var d = days[day];
+
+      var tabs = '<div class="tabs">' +
+        '<button class="tab' + (day === 'today' ? ' active' : '') + '" data-day="today">' + esc(Homey.__('priceList.today')) + ' ' + esc(days.today.date) + '</button>' +
+        '<button class="tab' + (day === 'tomorrow' ? ' active' : '') + '" data-day="tomorrow"' + (days.tomorrow.available ? '' : ' disabled') + '>' + esc(Homey.__('priceList.tomorrow')) + ' ' + esc(days.tomorrow.date) + '</button></div>';
+
+      var body;
+      if (!d.available) {
+        body = '<div class="pending">' + esc(Homey.__('priceList.tomorrowPending')) + '</div>';
+      } else {
+        body = '<div class="blocks">' +
+          (d.cheapBlock ? '<span class="c">' + esc(Homey.__('priceList.blockLine')) + ': <b>' + d.cheapBlock.start + '–' + d.cheapBlock.end + '</b> · Ø ' + f1(d.cheapBlock.avg) + ' Rp.</span>' : '') +
+          (d.priciestBlock ? '<span class="p">' + esc(Homey.__('priceList.peakLine')) + ': <b>' + d.priciestBlock.start + '–' + d.priciestBlock.end + '</b> · Ø ' + f1(d.priciestBlock.avg) + ' Rp.</span>' : '') +
+          '</div><div class="list" id="list">' + rowsHtml(Homey, d) + '</div>' +
+          '<div class="foot"><span>' + esc(Homey.__('priceList.tapHint')) + '</span><span>' + esc(Homey.__('priceList.price')) + '</span></div>';
+      }
+      var scrollTop = document.getElementById('list') ? document.getElementById('list').scrollTop : 0;
+      root.innerHTML = tabs + body;
+
+      var list = document.getElementById('list');
+      if (list) {
+        // Today: show the current hour at the top on the first view of that day, afterwards keep the position.
+        if (day === 'today' && scrolledFor !== 'today') {
+          var nowRow = document.getElementById('now-row');
+          if (nowRow) list.scrollTop = Math.max(0, nowRow.offsetTop - list.offsetTop);
+          scrolledFor = 'today';
+        } else if (day === 'tomorrow' && scrolledFor !== 'tomorrow') {
+          list.scrollTop = 0;
+          scrolledFor = 'tomorrow';
+        } else {
+          list.scrollTop = scrollTop;
+        }
+        list.addEventListener('click', function (e) {
+          var row = e.target.closest ? e.target.closest('.row[data-key]') : null;
+          if (!row) return;
+          var key = row.getAttribute('data-key');
+          expanded[key] = !expanded[key];
+          render(Homey, data);
+        });
+      }
+      Array.prototype.forEach.call(root.querySelectorAll('.tab'), function (b) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          day = b.getAttribute('data-day');
+          scrolledFor = null;
+          render(Homey, data);
+        });
+      });
+    }
+
+    function fetchPrices(Homey) {
+      return Homey.api('GET', '/prices')
+        .then(function (data) {
+          var json = JSON.stringify(data);
+          if (json === lastJson) return;
+          lastJson = json;
+          render(Homey, data);
+          if (firstRender) { firstRender = false; }
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastJson = null;
+          document.getElementById('root').innerHTML = '<div class="load-error">' + esc(Homey.__('priceList.loadFailed')) + '</div>';
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      try {
+        document.getElementById('root').innerHTML = '<div class="loading">' + esc(Homey.__('priceList.loading')) + '</div>';
+        Homey.ready({ height: 340 });
+        fetchPrices(Homey);
+        setInterval(function () { fetchPrices(Homey); }, 60000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="load-error">Widget error: ' + esc(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 340 }); } catch (e2) { /* nothing more to do */ }
+      }
+    }
+  </script>
+</body>
+</html>

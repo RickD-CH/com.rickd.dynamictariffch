@@ -85,6 +85,10 @@
     "getShadow": {
       "method": "get",
       "path": "/cost/shadow"
+    },
+    "getPrices": {
+      "method": "get",
+      "path": "/prices"
     }
   },
   "support": "https://community.homey.app/t/160031",
@@ -1356,6 +1360,21 @@
         }
       },
       "id": "price",
+      "settings": []
+    },
+    "prices": {
+      "name": {
+        "en": "Innostrom price list",
+        "de": "Innostrom-Preisliste"
+      },
+      "height": 340,
+      "api": {
+        "getPrices": {
+          "method": "GET",
+          "path": "/prices"
+        }
+      },
+      "id": "prices",
       "settings": []
     }
   },

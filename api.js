@@ -16,6 +16,12 @@ module.exports = {
     return { paired: true, name: device.getName(), ...device.getCostOverview() };
   },
 
+  async getPrices({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    return { paired: true, name: device.getName(), ...device.getPriceTable() };
+  },
+
   async getShadow({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

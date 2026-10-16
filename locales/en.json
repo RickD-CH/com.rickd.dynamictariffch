@@ -55,5 +55,24 @@
     "legendDyn": "Dynamic",
     "legendRef": "Reference",
     "curveTitle": "Net cost today"
+  },
+  "priceList": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load prices.",
+    "noDevice": "No device paired.",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "tomorrowPending": "Tomorrow's prices are not published yet.",
+    "hour": "Hour",
+    "price": "Rp./kWh",
+    "cheapBlock": "cheapest block",
+    "priciestBlock": "most expensive block",
+    "cheapTag": "cheap block",
+    "priceyTag": "peak block",
+    "now": "now",
+    "tapHint": "Tap an hour for quarter-hours",
+    "blockLine": "Cheapest 2 h",
+    "peakLine": "Most expensive 2 h",
+    "updated": "Updated:"
   }
 }

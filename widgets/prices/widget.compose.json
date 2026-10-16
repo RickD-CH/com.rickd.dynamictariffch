@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en": "Innostrom price list",
+    "de": "Innostrom-Preisliste"
+  },
+  "height": 340,
+  "api": {
+    "getPrices": {
+      "method": "GET",
+      "path": "/prices"
+    }
+  }
+}
