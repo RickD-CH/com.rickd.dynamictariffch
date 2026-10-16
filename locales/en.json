@@ -34,7 +34,8 @@
     "negative": "Negative price",
     "cheapBlock": "Cheapest 2 h block",
     "tomorrow": "tomorrow",
-    "inHours": "in"
+    "inHours": "in",
+    "importToggle": "Grid import"
   },
   "costWidget": {
     "loading": "Loading…",

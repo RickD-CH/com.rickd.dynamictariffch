@@ -34,7 +34,8 @@
     "negative": "Negativer Preis",
     "cheapBlock": "Günstigster 2-h-Block",
     "tomorrow": "morgen",
-    "inHours": "in"
+    "inHours": "in",
+    "importToggle": "Bezug"
   },
   "costWidget": {
     "loading": "Lädt…",
