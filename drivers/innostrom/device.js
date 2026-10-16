@@ -66,6 +66,14 @@ class InnostromDevice extends Homey.Device {
     this._costTimer = null;
 
     this._onAppSetting = (key) => {
+      if (key === 'feed_in_mode' || key === 'ref_periods') {
+        // Stored per-day prices include the feed-in price: recompute them with the new setting.
+        this.costTracker.dayPrices = {};
+        const now = new Date();
+        this.costTracker.ensureDayPrices(localDateKey(now, this.tz), now, (st) => this._costPricesAt(st));
+        this._markCostDirty();
+        return;
+      }
       if (key !== 'vat_percent') return;
       this._vatPercent = this._readVat(this.getSettings());
       this._updateCapabilities(new Date()).catch((err) => this.error('MWST-Update fehlgeschlagen:', err));
@@ -566,14 +574,24 @@ class InnostromDevice extends Homey.Device {
     const slot = this.priceStore.slots.get(start.getTime());
     const hasTotal = slot && typeof slot.integrated === 'number' && Number.isFinite(slot.integrated);
     const dyn = hasTotal ? this._toDisplay(slot.integrated) : this._toDisplay(null);
-    let feedIn = null;
-    if (slot) {
-      const hasFeedIn = typeof slot.feedIn === 'number' && Number.isFinite(slot.feedIn);
-      feedIn = hasFeedIn ? Math.round(slot.feedIn * 10000) / 100 : 0;
-    }
+    const feedIn = slot ? this._feedInRp(start, slot) : null;
     const stats = slot ? this.priceStore.dayStats(start) : null;
     const dayAvg = stats ? this._toDisplay(stats.avg) : null;
     return { dyn, feedIn, dayAvg };
+  }
+
+  /**
+   * Feed-in price (Rp./kWh) used for export on the dynamic side of the comparison. AEW describes
+   * the dynamic tariff for consumption only, so by default export is valued like the reference
+   * tariff (no difference); "api" uses the feed_in component the API delivers.
+   */
+  _feedInRp(start, slot) {
+    if (this.homey.settings.get('feed_in_mode') === 'api') {
+      const has = typeof slot.feedIn === 'number' && Number.isFinite(slot.feedIn);
+      return has ? Math.round(slot.feedIn * 10000) / 100 : 0;
+    }
+    const ref = refForDay(this._refPeriods(), localDateKey(start, this.tz));
+    return ref && ref.price > 0 ? ref.feedIn : 0;
   }
 
   actionReportCounter(kind, kwh) {
@@ -725,11 +743,10 @@ class InnostromDevice extends Homey.Device {
     const nowSlot = floorToSlot(now).getTime();
     return this.priceStore.range(from, to).map((s) => {
       const k = kwh.get(s.start.getTime()) || { imp: 0, exp: 0 };
-      const hasFeedIn = typeof s.feedIn === 'number' && Number.isFinite(s.feedIn);
       return {
         time: formatHHMM(s.start, this.tz),
         price: this._toDisplay(s.integrated),
-        feedIn: hasFeedIn ? Math.round(s.feedIn * 10000) / 100 : null,
+        feedIn: this._feedInRp(s.start, s),
         ref: this._refPriceAt(s.start, refs),
         refFeedIn: ref && ref.price > 0 ? ref.feedIn : null,
         kwh: k.imp,

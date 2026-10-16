@@ -46,6 +46,7 @@ module.exports = {
     return {
       vatPercent: raw !== null && raw !== undefined && Number.isFinite(v) && v >= 0 ? v : null,
       battery: homey.settings.get('battery_params') || null,
+      feedInMode: homey.settings.get('feed_in_mode') === 'api' ? 'api' : 'reference',
     };
   },
 
@@ -56,6 +57,11 @@ module.exports = {
       if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
       homey.settings.set('vat_percent', Math.round(v * 100) / 100);
       out.vatPercent = homey.settings.get('vat_percent');
+    }
+    if (body && body.feedInMode !== undefined) {
+      if (!['reference', 'api'].includes(body.feedInMode)) throw new Error('Invalid mode');
+      homey.settings.set('feed_in_mode', body.feedInMode);
+      out.feedInMode = body.feedInMode;
     }
     if (body && body.battery) {
       const cap = Number(body.battery.capacityKwh);
