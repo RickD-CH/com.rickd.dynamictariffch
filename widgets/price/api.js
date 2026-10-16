@@ -26,6 +26,7 @@ module.exports = {
       noTomorrow: device.getCapabilityValue('alarm_no_tomorrow'),
       lastUpdate: device.getCapabilityValue('last_update'),
       slots: device.getChartSlots(),
+      cheapBlock: device.getCheapBlockInfo(2),
     };
   },
 

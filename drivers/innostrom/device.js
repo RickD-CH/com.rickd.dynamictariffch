@@ -628,6 +628,23 @@ class InnostromDevice extends Homey.Device {
     return result;
   }
 
+  /** Cheapest contiguous block of `hours` ahead in the known data, for the price widget. */
+  getCheapBlockInfo(hours = 2) {
+    const now = new Date();
+    const end = this.priceStore.coveredUntil(now);
+    if (!end) return null;
+    const block = this.priceStore.cheapestBlock(floorToSlot(now), end, Math.round(hours * 4));
+    if (!block) return null;
+    return {
+      hours,
+      start: formatHHMM(block.start, this.tz),
+      end: formatHHMM(block.end, this.tz),
+      avg: this._toDisplay(block.avg),
+      tomorrow: localDateKey(block.start, this.tz) !== localDateKey(now, this.tz),
+      minutesUntilStart: Math.max(0, Math.round((block.start.getTime() - now.getTime()) / 60000)),
+    };
+  }
+
   /** Battery parameters for the shadow analysis (app settings, with defaults for a LUNA2000-class battery). */
   _batteryParams() {
     const p = this.homey.settings.get('battery_params') || {};

@@ -99,6 +99,7 @@ module.exports = {
         fallback_price: device.getSetting('fallback_price'),
       },
       slots: device.getChartSlots(),
+      cheapBlock: device.getCheapBlockInfo(2),
     };
   },
 

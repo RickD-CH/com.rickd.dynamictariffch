@@ -32,7 +32,10 @@
       "expensive": "Expensive",
       "very_expensive": "Very expensive"
     },
-    "negative": "Negative price"
+    "negative": "Negative price",
+    "cheapBlock": "Cheapest 2 h block",
+    "tomorrow": "tomorrow",
+    "inHours": "in"
   },
   "costWidget": {
     "loading": "Loading…",
@@ -49,6 +52,9 @@
     "setupRef": "Enter your reference tariff",
     "setupMeters": "Report meter readings from a Flow",
     "setupWait": "Values appear after the second reading",
-    "setupWhere": "App settings → tab \"Reference & meters\" (guide included)"
+    "setupWhere": "App settings → tab \"Reference & meters\" (guide included)",
+    "legendDyn": "Dynamic",
+    "legendRef": "Reference",
+    "curveTitle": "Net cost today"
   }
 }

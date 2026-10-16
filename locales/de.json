@@ -32,7 +32,10 @@
       "expensive": "Teuer",
       "very_expensive": "Sehr teuer"
     },
-    "negative": "Negativer Preis"
+    "negative": "Negativer Preis",
+    "cheapBlock": "Günstigster 2-h-Block",
+    "tomorrow": "morgen",
+    "inHours": "in"
   },
   "costWidget": {
     "loading": "Lädt…",
@@ -49,6 +52,9 @@
     "setupRef": "Referenztarif eintragen",
     "setupMeters": "Zählerstände per Flow melden",
     "setupWait": "Werte erscheinen ab der zweiten Meldung",
-    "setupWhere": "App-Einstellungen → Tab «Referenz & Zähler» (mit Anleitung)"
+    "setupWhere": "App-Einstellungen → Tab «Referenz & Zähler» (mit Anleitung)",
+    "legendDyn": "Dynamisch",
+    "legendRef": "Referenz",
+    "curveTitle": "Nettokosten heute"
   }
 }

@@ -58,6 +58,8 @@
       background: var(--pw-chip-bg);
     }
     .name { font-size: 11px; color: var(--pw-muted); margin-top: 2px; }
+    .cheap { margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--pw-chip-bg); font-size: 11px; display: flex; justify-content: space-between; gap: 8px; }
+    .cheap b { color: var(--pw-cheap); }
     .stats { display: flex; gap: 8px; margin-top: 10px; }
     .chip {
       flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -201,6 +203,7 @@
           '<div class="chip"><div class="num">' + fmt(data.avg) + '</div><div class="lbl">' + Homey.__('widget.avg') + '</div></div>' +
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + Homey.__('widget.max') + '</div></div>' +
         '</div>' +
+        (data.cheapBlock ? '<div class="cheap"><span>' + escapeHtml(Homey.__('widget.cheapBlock')) + ': <b>' + (data.cheapBlock.tomorrow ? escapeHtml(Homey.__('widget.tomorrow')) + ' ' : '') + data.cheapBlock.start + '–' + data.cheapBlock.end + '</b></span><span>Ø ' + data.cheapBlock.avg.toFixed(1) + ' Rp.</span></div>' : '') +
         chartHtml(data.slots) +
         (data.noTomorrow ? '<div class="warn">⚠ ' + Homey.__('widget.noTomorrow') + '</div>' : '') +
         '<div class="footer">' +

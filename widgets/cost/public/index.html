@@ -68,6 +68,11 @@
     .bar.past { opacity: .5; }
     .bar.now { outline: 2px solid var(--cw-text); outline-offset: -1px; }
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--cw-ref); }
+    .curvehead { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; font-size: 10px; color: var(--cw-muted); flex-wrap: wrap; }
+    .sw { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 3px; border-radius: 2px; }
+    .sw.dash { background: var(--cw-muted); }
+    .curve { margin-top: 4px; background: var(--cw-chip-bg); border-radius: 6px; padding: 4px; }
+    .curve svg { width: 100%; height: 64px; display: block; }
     .legend { display: flex; justify-content: space-between; margin-top: 4px; font-size: 9px; color: var(--cw-muted); }
     .hint { margin-top: 10px; padding: 6px 8px; border-radius: 8px; background: var(--cw-chip-bg); color: var(--cw-muted); font-size: 11px; text-align: center; }
     .setup { padding: 4px 2px; }
@@ -113,6 +118,40 @@
       var expensive = [211, 47, 47];
       var rgb = cheap.map(function (c, i) { return Math.round(c + (expensive[i] - c) * r); });
       return 'rgb(' + rgb.join(',') + ')';
+    }
+
+    // Net cost accumulated over today for the dynamic and the reference tariff (Rp.).
+    function curveHtml(Homey, slots, hasRef) {
+      if (!slots || slots.length < 2) return '';
+      var last = -1;
+      slots.forEach(function (s, i) { if (s.isNow || s.isPast) last = i; });
+      var dyn = []; var ref = []; var cd = 0; var cr = 0;
+      slots.forEach(function (s, i) {
+        if (i > last) return;
+        var imp = s.kwh || 0; var exp = s.exp || 0;
+        if (typeof s.price === 'number') cd += imp * s.price - exp * (s.feedIn || 0);
+        if (typeof s.ref === 'number') cr += imp * s.ref - exp * (s.refFeedIn || 0);
+        dyn.push(cd); ref.push(typeof s.ref === 'number' ? cr : null);
+      });
+      var all = dyn.concat(hasRef ? ref.filter(function (v) { return v != null; }) : []).concat([0]);
+      var min = Math.min.apply(null, all); var max = Math.max.apply(null, all);
+      if (max - min < 2) max = min + 2;
+      var y = function (v) { return 100 - ((v - min) / (max - min)) * 100; };
+      var pts = function (arr) {
+        var p = [];
+        arr.forEach(function (v, i) { if (v != null) p.push((i + 0.5) + ',' + y(v).toFixed(1)); });
+        return p.join(' ');
+      };
+      var zero = '<line x1="0" x2="' + slots.length + '" y1="' + y(0).toFixed(1) + '" y2="' + y(0).toFixed(1) + '" stroke="var(--cw-border)" stroke-width="1" vector-effect="non-scaling-stroke"/>';
+      var lines = (hasRef ? '<polyline points="' + pts(ref) + '" fill="none" stroke="var(--cw-muted)" stroke-width="2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>' : '') +
+        '<polyline points="' + pts(dyn) + '" fill="none" stroke="var(--cw-ref)" stroke-width="2.5" vector-effect="non-scaling-stroke"/>';
+      var big = Math.max(Math.abs(cd), Math.abs(cr)) >= 100;
+      var fmtV = function (rp) { return big ? 'CHF ' + (rp / 100).toFixed(2) : rp.toFixed(1) + ' Rp.'; };
+      var idxs = [0, Math.floor((slots.length - 1) * 0.5), slots.length - 1];
+      return '<div class="curvehead"><span>' + escapeHtml(Homey.__('costWidget.curveTitle')) + '</span><span><i class="sw" style="background:var(--cw-ref)"></i>' + escapeHtml(Homey.__('costWidget.legendDyn')) + ' ' + fmtV(cd) +
+        (hasRef ? ' &nbsp;<i class="sw dash"></i>' + escapeHtml(Homey.__('costWidget.legendRef')) + ' ' + fmtV(cr) : '') + '</span></div>' +
+        '<div class="curve"><svg viewBox="0 0 ' + slots.length + ' 100" preserveAspectRatio="none">' + zero + lines + '</svg></div>' +
+        '<div class="legend">' + idxs.map(function (i) { return '<span>' + slots[i].time + '</span>'; }).join('') + '</div>';
     }
 
     function chartHtml(slots, hasRef) {
@@ -215,7 +254,7 @@
           '<div class="chip"><div class="num">' + avgDyn + '</div><div class="lbl">' + Homey.__('costWidget.avgDyn') + '</div></div>' +
           '<div class="chip"><div class="num">' + avgRef + '</div><div class="lbl">' + Homey.__('costWidget.avgRef') + '</div></div>' +
         '</div>' +
-        chartHtml(data.chart, configured);
+        curveHtml(Homey, data.chart, configured);
       resize(Homey);
     }
 
