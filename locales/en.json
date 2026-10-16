@@ -73,6 +73,7 @@
     "tapHint": "Tap an hour for quarter-hours",
     "blockLine": "Cheapest 2 h",
     "peakLine": "Most expensive 2 h",
-    "updated": "Updated:"
+    "updated": "Updated:",
+    "legend": "Tap an hour for quarter-hours · green/red edge = cheap/peak block"
   }
 }

@@ -3,7 +3,7 @@
     "en": "Innostrom price list",
     "de": "Innostrom-Preisliste"
   },
-  "height": 340,
+  "height": 400,
   "api": {
     "getPrices": {
       "method": "GET",
