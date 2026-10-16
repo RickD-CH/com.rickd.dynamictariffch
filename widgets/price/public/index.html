@@ -76,7 +76,6 @@
     .bar { flex: 1; min-width: 1px; border-radius: 1px; }
     .bar.past { opacity: .45; }
     .bar.now { outline: 2px solid var(--pw-text); outline-offset: -1px; }
-    .chart.tall { height: 80px; }
     .kover { position: absolute; left: 4px; top: 4px; width: calc(100% - 8px); height: calc(100% - 8px); display: flex; align-items: flex-end; gap: 1px; pointer-events: none; }
     .kbar { flex: 1; min-width: 1px; border-radius: 1px; background: var(--pw-ref); opacity: .7; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
     .kmax { position: absolute; right: 6px; top: 3px; font-size: 9px; font-weight: 600; color: var(--pw-ref); background: var(--pw-chip-bg); padding: 0 3px; border-radius: 3px; opacity: .9; }
@@ -187,7 +186,7 @@
       }
 
       return '' +
-        '<div class="chart' + (overlay ? ' tall' : '') + '">' + bars + overlay + refLine + '</div>' +
+        '<div class="chart">' + bars + overlay + refLine + '</div>' +
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
