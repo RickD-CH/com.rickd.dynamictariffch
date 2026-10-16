@@ -92,6 +92,8 @@
       background: var(--st-chip-bg); border-radius: 8px; padding: 6px;
     }
     .chart .refline { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; }
+    .chart .ylabels span, .chart .reflabel { background: var(--st-chip-bg); padding: 0 3px; border-radius: 3px; opacity: .88; }
+    .chart .reflabel { position: absolute; right: 8px; transform: translateY(-110%); font-size: 10px; color: var(--st-accent); pointer-events: none; }
     .kwhlabel { font-size: 10px; color: var(--st-muted); margin-top: 8px; padding: 0 6px; }
     .swb { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--st-accent); margin-right: 5px; vertical-align: -1px; }
     .kwhrow { display: flex; align-items: flex-end; height: 34px; gap: 1px; margin-top: 6px; padding: 0 6px; }
@@ -388,7 +390,7 @@
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
-      dayToday: 'Heute', dayTomorrow: 'Morgen',
+      dayToday: 'Heute', dayTomorrow: 'Morgen', refShort: 'Ref.',
       kwhLabel: 'Bezug aus dem Netz pro Viertelstunde',
       cumHeading: 'Aufgelaufene Kosten (netto)',
       cumDyn: 'Dynamischer Tarif', cumRef: 'Referenztarif', cumDiff: 'Differenz',
@@ -508,7 +510,7 @@
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
       batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
-      dayToday: 'Today', dayTomorrow: 'Tomorrow',
+      dayToday: 'Today', dayTomorrow: 'Tomorrow', refShort: 'Ref.',
       kwhLabel: 'Grid import per quarter-hour',
       cumHeading: 'Accumulated costs (net)',
       cumDyn: 'Dynamic tariff', cumRef: 'Reference tariff', cumDiff: 'Difference',
@@ -704,6 +706,11 @@
         ? '<svg class="refline" viewBox="0 0 ' + slots.length + ' 100" preserveAspectRatio="none"><polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--st-accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-dasharray="4 3"/></svg>'
         : '';
 
+      // Price axis: highest and lowest value (Rp./kWh) and the reference line with its value.
+      var refSlot = slots.filter(function (s) { return typeof s.ref === 'number'; })[0];
+      var yLabels = '<div class="ylabels"><span>' + niceNum(max, 1) + ' Rp.</span><span>' + niceNum(min, 1) + '</span></div>' +
+        (refSlot ? '<span class="reflabel" style="top: calc(6px + (100% - 12px) * ' + ((100 - pct(refSlot.ref) * 100) / 100).toFixed(3) + ')">' + escapeHtml(T.refShort) + ' ' + niceNum(refSlot.ref, 1) + '</span>' : '');
+
       var kwhRow = '';
       var maxKwh = 0;
       slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
@@ -726,7 +733,7 @@
         return '<span>' + prefix + slots[idx].time + '</span>';
       }).join('');
 
-      return '<div class="chart">' + bars + refLine + '</div>' + kwhRow +
+      return '<div class="chart">' + bars + refLine + yLabels + '</div>' + kwhRow +
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
