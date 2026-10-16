@@ -183,11 +183,14 @@
       <div class="form">
         <label for="vat-input" id="l-vat"></label><input type="number" id="vat-input" min="0" max="100" step="0.1" />
       </div>
-      <div class="form" style="margin-top:12px;">
-        <label for="feedin-mode" id="l-feedin-mode"></label>
-        <select id="feedin-mode"><option value="reference"></option><option value="api"></option></select>
-      </div>
-      <p class="legend" id="p-feedin-hint"></p>
+      <details style="margin-top:12px;">
+        <summary id="sum-feedin"></summary>
+        <div class="form" style="margin-top:10px;">
+          <label for="feedin-mode" id="l-feedin-mode"></label>
+          <select id="feedin-mode"><option value="reference"></option><option value="api"></option></select>
+        </div>
+        <p class="legend" id="p-feedin-hint"></p>
+      </details>
       <p class="legend" id="p-vat-hint"></p>
       <div class="row">
         <button class="btn primary" id="btn-vat-save"></button>
@@ -322,7 +325,8 @@
       recommendHeading: 'Empfohlene Einstellungen',
       recommendSub: 'MWST und Referenztarif hier in der App, alles andere pro Gerät unter dessen Zahnrad-Symbol.',
       generalHeading: 'Allgemein',
-      feedInLabel: 'Einspeisung im dynamischen Tarif',
+      feedInSummary: 'Erweitert: Einspeisung im dynamischen Tarif',
+      feedInLabel: 'Einspeisung bewerten',
       feedInRef: 'wie Referenztarif (vorsichtig)',
       feedInApi: 'Preis aus der API (feed_in)',
       feedInHint: 'Die AEW beschreibt den dynamischen Tarif für den Bezug. Ob und wie Einspeisung dynamisch vergütet wird, ist offen. Standard: Einspeisung wird wie im Referenztarif bewertet und verändert den Vergleich nicht. «API» nutzt den feed_in-Preis, den die API liefert, und gilt nur für neu erfasste Daten.',
@@ -436,7 +440,8 @@
       recommendHeading: 'Recommended settings',
       recommendSub: 'VAT and reference tariff here in the app, everything else per device under its gear icon.',
       generalHeading: 'General',
-      feedInLabel: 'Feed-in in the dynamic tariff',
+      feedInSummary: 'Advanced: feed-in in the dynamic tariff',
+      feedInLabel: 'Value feed-in',
       feedInRef: 'like the reference tariff (cautious)',
       feedInApi: 'price from the API (feed_in)',
       feedInHint: 'AEW describes the dynamic tariff for consumption. Whether and how feed-in is paid dynamically is open. Default: feed-in is valued like the reference tariff and does not change the comparison. "API" uses the feed_in price the API delivers and only applies to newly collected data.',
@@ -581,6 +586,7 @@
       $('h2-general').textContent = T.generalHeading;
       $('l-vat').textContent = T.vatLabel;
       $('p-vat-hint').textContent = T.vatHint;
+      $('sum-feedin').textContent = T.feedInSummary;
       $('l-feedin-mode').textContent = T.feedInLabel;
       $('feedin-mode').options[0].textContent = T.feedInRef;
       $('feedin-mode').options[1].textContent = T.feedInApi;
