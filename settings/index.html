@@ -861,7 +861,7 @@
           '<div class="chip"><div class="num">' + fmt(data.max) + '</div><div class="lbl">' + escapeHtml(T.chips.max) + '</div></div>' +
         '</div>' +
         '<div class="pt-tabs"><button class="btn small" data-lv="chart">' + escapeHtml(T.viewChart) + '</button><button class="btn small" data-lv="table">' + escapeHtml(T.viewTable) + '</button></div>' +
-        '<div id="live-chart">' + chartHtml(data.slots, true) + '</div><div id="price-table"></div>' +
+        '<div id="live-chart">' + chartHtml(data.slots, false) + '</div><div id="price-table"></div>' +
         (data.noTomorrow ? '<div class="warn">⚠ ' + escapeHtml(T.noTomorrow) + '</div>' : '') +
         (data.lastUpdate ? '<div class="last-update">' + escapeHtml(T.lastUpdate) + ' ' + escapeHtml(data.lastUpdate) + '</div>' : '');
       bindLiveView();
