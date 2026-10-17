@@ -3,7 +3,7 @@ Draft for the community thread (replaces the old "Settings guide and FAQ" post).
 Replace every [SCREENSHOT: ...] with an image before posting.
 -->
 
-# Settings guide and FAQ (v0.2.1)
+# Settings guide and FAQ (v0.2.2)
 
 ## 1. Pairing
 
@@ -28,7 +28,7 @@ The page has four tabs.
 
 [SCREENSHOT: costs tab with curves and the day arrows]
 
-**Settings.** Collapsible sections: Setup (a 3-step checklist that folds away when done), General (VAT, and under "Advanced" how feed-in is valued), Appearance (automatic / light / dark), Reference tariff, Battery, Meter readings, Manage data.
+**Settings.** Collapsible sections: Setup (a 3-step checklist that folds away when done), General (VAT, and under "Advanced" how feed-in is valued), Hourly prices for an EMS (unit, VAT and decimals of the hourly price list), Appearance (automatic / light / dark), Reference tariff, Battery, Meter readings, Manage data.
 
 [SCREENSHOT: settings tab with the setup checklist]
 
@@ -90,8 +90,8 @@ The trigger card gives you the average price and the end time as tokens.
 
 **Feed an energy management app with hourly prices**
 - *When* "Tomorrow's prices are available"
-- *Then* "Get tomorrow's hourly prices" and hand the token to your EMS card. The token is a JSON array of 24 values (Rp./kWh incl. VAT, index 0 = 00:00-01:00), for example `[19.8,18.2,17.5,...]`.
-- The format of the list is set in the app settings (section "Hourly prices for an EMS"): Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals. If your EMS expects CHF/kWh, choose that there instead of converting in a script.
+- *Then* "Get tomorrow's hourly prices" and hand the token to your EMS card. The token is a JSON array of 24 values, index 0 = 00:00-01:00. By default the values are Rp./kWh incl. VAT, for example `[19.8,18.2,17.5,...]`.
+- The format of the list is set in the app settings (section "Hourly prices for an EMS"): Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals. If your EMS expects CHF/kWh (like the Huawei FusionSolar EMS), choose CHF/kWh there and the list comes out as `[0.198,0.182,0.175,...]`, so you do not need a HomeyScript to divide by 100.
 - On the spring-forward day the 02:00 hour does not exist, so this card fails that day instead of returning an incomplete array.
 
 **Not on the dynamic tariff yet?** Put a Logic yes/no variable ("dynamic tariff active") in front of your price Flows, so they only run from your start date.
