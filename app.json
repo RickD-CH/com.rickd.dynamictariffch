@@ -89,6 +89,10 @@
     "getPrices": {
       "method": "get",
       "path": "/prices"
+    },
+    "getCostChart": {
+      "method": "get",
+      "path": "/cost/chart/:offset"
     }
   },
   "support": "https://community.homey.app/t/160031",
