@@ -200,6 +200,7 @@
     .calc-sum { font-weight: 600; margin: 8px 0; }
     details { margin-top: 10px; }
     summary { cursor: pointer; color: var(--st-muted); font-size: 13px; }
+    .btn:disabled { opacity: .45; cursor: default; }
     .btn.small { padding: 4px 10px; font-size: 12px; }
     details.sec > summary { cursor: pointer; list-style: none; display: block; }
     details.sec > summary::-webkit-details-marker { display: none; }
@@ -419,10 +420,10 @@
       shadowNone: 'Noch kein voller Tag ausgewertet. Der erste erscheint nach Mitternacht.',
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
-      viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage',
+      viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage', dayPrev: 'Vorheriger Tag', dayNext: 'Nächster Tag', view30Need: '30 Tage: ab 7 Tagen mit Daten (aktuell ', view30Days: ')',
       dayToday: 'Heute', dayTomorrow: 'Morgen', refShort: 'Ref.',
       viewChart: 'Kurve', viewTable: 'Tabelle', ptCheapTag: 'günstig', ptPeakTag: 'Spitze',
-      ptCheapLine: 'Günstigster 2-h-Block', ptPeakLine: 'Teuerster 2-h-Block',
+      ptCheapLine: 'Günstigster 2-h-Block', ptFromNowLine: 'Günstigster 2-h-Block ab jetzt', ptPeakLine: 'Teuerster 2-h-Block',
       ptPending: 'Die Preise für morgen sind noch nicht veröffentlicht.', ptHint: 'Stunde antippen für Viertelstunden. Grüner/roter Rand = günstiger/teurer 2-h-Block. Preise in Rp./kWh.', ptTap: 'Stunde antippen für Viertelstunden',
       kwhLabel: 'Bezug aus dem Netz pro Viertelstunde',
       cumHeading: 'Aufgelaufene Kosten (netto)',
@@ -542,10 +543,10 @@
       shadowNone: 'No full day analysed yet. The first one appears after midnight.',
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
       batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)',
-      viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days',
+      viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days', dayPrev: 'Previous day', dayNext: 'Next day', view30Need: '30 days: needs 7 days with data (now ', view30Days: ')',
       dayToday: 'Today', dayTomorrow: 'Tomorrow', refShort: 'Ref.',
       viewChart: 'Chart', viewTable: 'Table', ptCheapTag: 'cheap', ptPeakTag: 'peak',
-      ptCheapLine: 'Cheapest 2 h block', ptPeakLine: 'Most expensive 2 h block',
+      ptCheapLine: 'Cheapest 2 h block', ptFromNowLine: 'Cheapest 2 h block from now', ptPeakLine: 'Most expensive 2 h block',
       ptPending: 'Tomorrow\'s prices are not published yet.', ptHint: 'Tap an hour for quarter-hours. Green/red edge = cheap/peak 2 h block. Prices in Rp./kWh.', ptTap: 'Tap an hour for quarter-hours',
       kwhLabel: 'Grid import per quarter-hour',
       cumHeading: 'Accumulated costs (net)',
@@ -796,6 +797,7 @@
       if (!d.available) return tabs + '<p class="legend">' + escapeHtml(T.ptPending) + '</p>';
       var blocks = '<div class="pt-blocks">' +
         (d.cheapBlock ? '<span class="c">' + escapeHtml(T.ptCheapLine) + ': <b>' + d.cheapBlock.start + '–' + d.cheapBlock.end + '</b> · Ø ' + d.cheapBlock.avg.toFixed(1) + ' Rp.</span>' : '') +
+        (d.cheapFromNow && d.cheapBlock && (d.cheapFromNow.start !== d.cheapBlock.start || d.cheapFromNow.end !== d.cheapBlock.end) ? '<span class="c">' + escapeHtml(T.ptFromNowLine) + ': <b>' + d.cheapFromNow.start + '–' + d.cheapFromNow.end + '</b> · Ø ' + d.cheapFromNow.avg.toFixed(1) + ' Rp.</span>' : '') +
         (d.priciestBlock ? '<span class="p">' + escapeHtml(T.ptPeakLine) + ': <b>' + d.priciestBlock.start + '–' + d.priciestBlock.end + '</b> · Ø ' + d.priciestBlock.avg.toFixed(1) + ' Rp.</span>' : '') + '</div>';
       var now = d.hours.filter(function (h) { return h.isNow; })[0];
       var sel = tableSel[tableDay] !== undefined ? tableSel[tableDay] : (now ? now.hour : null);
@@ -893,7 +895,11 @@
     }
 
     // ----- cost curves (plain SVG) -----
-    var costView = 'today';
+    var costView = 'day';
+    var costDay = 0;
+    var costDayCache = {};
+    var MIN_DAYS_30 = 7;
+    var apiFn = null; // set by onHomeyReady
     var lastCost = null;
 
     function niceNum(v, dec) { return (Math.round(v * Math.pow(10, dec == null ? 2 : dec)) / Math.pow(10, dec == null ? 2 : dec)).toFixed(dec == null ? 2 : dec); }
@@ -984,17 +990,63 @@
         '<p class="legend">' + escapeHtml(T.costsFootnote) + '</p>';
     }
 
+    function dayLabel(offset) {
+      var d = new Date();
+      d.setDate(d.getDate() - offset);
+      var date = d.getDate() + '.' + (d.getMonth() + 1) + '.';
+      if (offset === 0) return T.viewToday + ' ' + date;
+      if (offset === 1) return T.viewYesterday + ' ' + date;
+      return d.toLocaleDateString(DE ? 'de-CH' : 'en-GB', { weekday: 'short' }) + ' ' + date;
+    }
+
+    function costDaySlots(offset) {
+      if (offset === 0) return lastCost.chart;
+      if (offset === 1) return lastCost.chartYesterday;
+      return costDayCache[offset] || null;
+    }
+
+    function fetchCostDay(offset) {
+      if (costDayCache[offset]) return;
+      if (!apiFn) return;
+      apiFn('GET', '/cost/chart/' + offset).then(function (r) {
+        costDayCache[offset] = r.slots || [];
+      }).catch(function (e) {
+        console.error(e);
+        costDayCache[offset] = [];
+      }).then(function () {
+        if (costView === 'day' && costDay === offset) renderCurves();
+      });
+    }
+
     function renderCurves() {
       var root = $('cost-curves');
       if (!root || !lastCost) return;
-      var buttons = [['today', T.viewToday], ['yesterday', T.viewYesterday], ['30', T.view30]].map(function (b) {
-        return '<button class="btn small' + (costView === b[0] ? ' active' : '') + '" data-view="' + b[0] + '">' + escapeHtml(b[1]) + '</button>';
-      }).join('');
-      var body = costView === 'today' ? dayCurveHtml(lastCost.chart)
-        : (costView === 'yesterday' ? dayCurveHtml(lastCost.chartYesterday) : thirtyDayHtml(lastCost.days));
-      root.innerHTML = '<div class="viewsw">' + buttons + '</div>' + body;
+      var daysWithData = (lastCost.days || []).filter(function (d) { return typeof d.savings === 'number'; }).length;
+      var can30 = daysWithData >= MIN_DAYS_30;
+      if (costView === '30' && !can30) costView = 'day';
+      var nav = '<button class="btn small" data-step="1" aria-label="' + escapeHtml(T.dayPrev) + '"' + (costDay >= 13 ? ' disabled' : '') + '>◀</button>' +
+        '<button class="btn small' + (costView === 'day' ? ' active' : '') + '" data-view="day">' + escapeHtml(dayLabel(costDay)) + '</button>' +
+        '<button class="btn small" data-step="-1" aria-label="' + escapeHtml(T.dayNext) + '"' + (costDay <= 0 ? ' disabled' : '') + '>▶</button>' +
+        '<button class="btn small' + (costView === '30' ? ' active' : '') + '" data-view="30"' + (can30 ? '' : ' disabled') + '>' + escapeHtml(T.view30) + '</button>';
+      var body;
+      if (costView === '30') {
+        body = thirtyDayHtml(lastCost.days);
+      } else {
+        var slots = costDaySlots(costDay);
+        if (slots === null) { fetchCostDay(costDay); body = '<p class="legend">' + escapeHtml(T.loading) + '</p>'; }
+        else body = dayCurveHtml(slots);
+      }
+      root.innerHTML = '<div class="viewsw">' + nav + '</div>' +
+        (can30 ? '' : '<p class="legend" style="margin-top:-6px">' + escapeHtml(T.view30Need + daysWithData + T.view30Days) + '</p>') + body;
+      Array.prototype.forEach.call(root.querySelectorAll('[data-step]'), function (b) {
+        b.addEventListener('click', function () {
+          var next = costDay + Number(b.getAttribute('data-step'));
+          if (next < 0 || next > 13) return;
+          costDay = next; costView = 'day'; renderCurves();
+        });
+      });
       Array.prototype.forEach.call(root.querySelectorAll('[data-view]'), function (b) {
-        b.addEventListener('click', function () { costView = b.getAttribute('data-view'); renderCurves(); });
+        b.addEventListener('click', function () { if (!b.disabled) { costView = b.getAttribute('data-view'); renderCurves(); } });
       });
     }
 
@@ -1243,6 +1295,8 @@
         });
       }
 
+      apiFn = apiCall;
+
       var vatFilled = false;
 
       function loadSummary() {
@@ -1379,6 +1433,7 @@
           ok.hidden = false;
           setTimeout(function () { ok.hidden = true; }, 2500);
           refFormFilled = false;
+          costDayCache = {};
           return loadCost();
         }).catch(function (e) {
           err.textContent = T.saveFailed + ((e && e.message) || e);
@@ -1409,6 +1464,7 @@
             msg.textContent = text;
             msg.hidden = false;
             setTimeout(function () { msg.hidden = true; }, 4000);
+            costDayCache = {};
             return loadCost();
           }).catch(function (e) {
             err.textContent = T.saveFailed + ((e && e.message) || e);

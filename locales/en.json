@@ -75,6 +75,7 @@
     "blockLine": "Cheapest 2 h",
     "peakLine": "Most expensive 2 h",
     "updated": "Updated:",
-    "legend": "Tap an hour for quarter-hours · green/red edge = cheap/peak block"
+    "legend": "Tap an hour for quarter-hours · green/red edge = cheap/peak block",
+    "fromNowLine": "Cheapest 2 h from now"
   }
 }

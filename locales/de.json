@@ -75,6 +75,7 @@
     "blockLine": "Günstigster 2-h-Block",
     "peakLine": "Teuerster 2-h-Block",
     "updated": "Aktualisiert:",
-    "legend": "Stunde antippen für Viertelstunden · grüner/roter Rand = günstiger/teurer Block"
+    "legend": "Stunde antippen für Viertelstunden · grüner/roter Rand = günstiger/teurer Block",
+    "fromNowLine": "Günstigster 2-h-Block ab jetzt"
   }
 }

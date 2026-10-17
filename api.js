@@ -16,6 +16,14 @@ module.exports = {
     return { paired: true, name: device.getName(), ...device.getCostOverview() };
   },
 
+  async getCostChart({ homey, params }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    const offset = Number(params && params.offset);
+    if (!Number.isInteger(offset) || offset < 0 || offset > 13) throw new Error('Invalid day offset');
+    return { paired: true, offset, slots: device.getCostChart(offset) };
+  },
+
   async getPrices({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

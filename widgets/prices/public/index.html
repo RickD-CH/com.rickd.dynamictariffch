@@ -131,6 +131,7 @@
         root.innerHTML = tabs +
           '<div class="blocks">' +
             (d.cheapBlock ? '<span class="c">' + esc(Homey.__('priceList.blockLine')) + ': <b>' + d.cheapBlock.start + '–' + d.cheapBlock.end + '</b> · Ø ' + f1(d.cheapBlock.avg) + ' Rp.</span>' : '') +
+            (d.cheapFromNow && d.cheapBlock && (d.cheapFromNow.start !== d.cheapBlock.start || d.cheapFromNow.end !== d.cheapBlock.end) ? '<span class="c">' + esc(Homey.__('priceList.fromNowLine')) + ': <b>' + d.cheapFromNow.start + '–' + d.cheapFromNow.end + '</b> · Ø ' + f1(d.cheapFromNow.avg) + ' Rp.</span>' : '') +
             (d.priciestBlock ? '<span class="p">' + esc(Homey.__('priceList.peakLine')) + ': <b>' + d.priciestBlock.start + '–' + d.priciestBlock.end + '</b> · Ø ' + f1(d.priciestBlock.avg) + ' Rp.</span>' : '') +
           '</div>' +
           '<div class="grid" id="grid" style="grid-template-rows: repeat(' + rows + ', 30px); grid-template-columns: repeat(4, minmax(0, 1fr));">' + cells + '</div>' +

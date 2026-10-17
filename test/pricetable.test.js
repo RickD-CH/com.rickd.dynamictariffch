@@ -73,3 +73,19 @@ test('zu wenige Daten: nicht verfügbar', () => {
   }).available, false);
   assert.equal(addLocalDays(new Date(), 0, TZ) instanceof Date, true);
 });
+
+test('cheapFromNow: bester Block ab jetzt, cheapBlock bleibt der des ganzen Tages', () => {
+  const slots = fx('synthetic-aew-day.json').prices.map(normalizeSlot);
+  const dayStart = startOfLocalDay(slots[0].start, TZ);
+  const lateMs = dayStart.getTime() + 20 * 3600 * 1000;
+  const t = buildDayTable({
+    slots, nowMs: lateMs, tz: TZ, thresholds: TH, toDisplay,
+  });
+  assert.ok(t.cheapFromNow, 'there is still a block left today');
+  assert.ok(t.cheapFromNow.avg >= t.cheapBlock.avg - 1e-9);
+  assert.ok(parseInt(t.cheapFromNow.start, 10) >= 20 || t.cheapFromNow.start.startsWith('20'));
+  const early = buildDayTable({
+    slots, nowMs: dayStart.getTime(), tz: TZ, thresholds: TH, toDisplay,
+  });
+  assert.deepEqual(early.cheapFromNow, early.cheapBlock);
+});

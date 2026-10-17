@@ -271,3 +271,15 @@ test('Daten verwalten: Tage, Verbraucher und Zählerbasis löschen', () => {
   assert.equal(t.deleteConsumer('WP'), false);
   assert.equal(t.consumerSummary('2027-01-01', '2027-12-31', REF).length, 0);
 });
+
+test('dayPriceRows: gespeicherte Tagespreise als Viertelstundenzeilen', () => {
+  const t = new CostTracker();
+  const start = new Date('2026-10-14T22:00:00Z'); // local midnight in Zurich
+  t.ensureDayPrices('2026-10-15', start, (s) => ({ dyn: 20 + (s.getTime() - start.getTime()) / 900000 / 100, feedIn: 5 }));
+  const rows = t.dayPriceRows('2026-10-15');
+  assert.equal(rows.length, 96);
+  assert.equal(rows[0].price, 20);
+  assert.equal(rows[0].feedIn, 5);
+  assert.equal(rows[1].start.getTime() - rows[0].start.getTime(), 900000);
+  assert.deepEqual(t.dayPriceRows('2026-01-01'), []);
+});

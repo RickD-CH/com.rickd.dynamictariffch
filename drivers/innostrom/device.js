@@ -766,12 +766,17 @@ class InnostromDevice extends Homey.Device {
     const ref = refForDay(refs, dayKey);
     const kwh = new Map(this.costTracker.slotsOf(dayKey).map((x) => [x[0], { imp: x[1], exp: x[2] }]));
     const nowSlot = floorToSlot(now).getTime();
-    return this.priceStore.range(from, to).map((s) => {
+    let rows = this.priceStore.range(from, to).map((s) => ({
+      start: s.start, price: this._toDisplay(s.integrated), feedIn: this._feedInRp(s.start, s),
+    }));
+    // The price store only keeps yesterday and later; older days come from the stored day prices.
+    if (rows.length < 4) rows = this.costTracker.dayPriceRows(dayKey);
+    return rows.map((s) => {
       const k = kwh.get(s.start.getTime()) || { imp: 0, exp: 0 };
       return {
         time: formatHHMM(s.start, this.tz),
-        price: this._toDisplay(s.integrated),
-        feedIn: this._feedInRp(s.start, s),
+        price: s.price,
+        feedIn: s.feedIn,
         ref: this._refPriceAt(s.start, refs),
         refFeedIn: ref && ref.price > 0 ? ref.feedIn : null,
         kwh: k.imp,
