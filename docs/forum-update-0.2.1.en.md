@@ -29,6 +29,9 @@ Four tabs (Overview, Costs, Settings, Help). Page through the last 14 days in th
 - Feed-in in the comparison is valued like your reference tariff by default, because it depends on your grid operator whether it is paid dynamically. "Advanced" switches to the API's feed-in price.
 - VAT is now set once in the app settings instead of per device.
 
+**A note on the screenshots**
+All screenshots in this thread come from a live test with real data, but only about two days so far. Longer series (weeks of costs, the 30-day view, the battery analysis over many days) are not available yet, so the numbers you see are a first impression, not a result. I will add longer data as it comes in.
+
 **What I would like feedback on**
 - Does the comparison match your first dynamic bill?
 - Is anything unclear in the settings page or the example Flows in the settings guide above?
