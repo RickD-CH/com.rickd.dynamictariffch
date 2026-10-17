@@ -82,8 +82,12 @@ module.exports = {
       const pow = Number(body.battery.powerKw);
       const eff = Number(body.battery.roundTrip);
       const old = homey.settings.get('battery_params') || {};
-      const minSoc = body.battery.minSocPct !== undefined ? Number(body.battery.minSocPct) : (old.minSocPct !== undefined ? old.minSocPct : 5);
-      const maxSoc = body.battery.maxSocPct !== undefined ? Number(body.battery.maxSocPct) : (old.maxSocPct !== undefined ? old.maxSocPct : 90);
+      const limit = (given, kept, dflt) => {
+        if (given !== undefined) return Number(given);
+        return kept !== undefined ? kept : dflt;
+      };
+      const minSoc = limit(body.battery.minSocPct, old.minSocPct, 5);
+      const maxSoc = limit(body.battery.maxSocPct, old.maxSocPct, 90);
       if (!(cap > 0 && cap <= 100) || !(pow > 0 && pow <= 50) || !(eff > 0.5 && eff <= 1)) throw new Error('Invalid battery');
       if (!(minSoc >= 0 && minSoc <= 50) || !(maxSoc >= 50 && maxSoc <= 100)) throw new Error('Invalid charge limits');
       homey.settings.set('battery_params', {
