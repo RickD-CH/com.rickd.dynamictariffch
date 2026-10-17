@@ -409,7 +409,7 @@
       unpriced: 'kWh ohne Preis (Daten fehlten) sind in den Kosten nicht enthalten:',
       avgPrices: 'Ø Bezugspreis dynamisch / Referenz (Rp./kWh):',
       dailyHeading: 'Letzte 30 Tage',
-      chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau, unten)',
+      chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau)',
       batHeading: 'Batterie (für die Schattenrechnung)',
       batHint: 'Nutzbare Kapazität, maximale Leistung (gilt für Laden und Entladen gleichermassen, in kW am Netzanschluss) und Wirkungsgrad hin und zurück deiner Batterie. Sie bestimmen, was ein optimaler Ladeplan im Kosten-Tab bringen würde.',
       shadowHeading: 'Batterie-Potenzial (Schattenrechnung)',
@@ -532,7 +532,7 @@
       unpriced: 'kWh without a price (data was missing) are not included in the costs:',
       avgPrices: 'Avg import price dynamic / reference (Rp./kWh):',
       dailyHeading: 'Last 30 days',
-      chartHeading: 'Price (bars), reference (dashed) and import (blue, bottom)',
+      chartHeading: 'Price (bars), reference (dashed) and import (blue)',
       batHeading: 'Battery (for the shadow calculation)',
       batHint: 'Usable capacity, maximum power (the same for charging and discharging, in kW on the AC side) and round-trip efficiency of your battery. They determine what an optimal charging plan would bring in the Costs tab.',
       shadowHeading: 'Battery potential (shadow calculation)',
@@ -750,6 +750,7 @@
       var kwhRow = '';
       var maxKwh = 0;
       slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+      if (maxKwh > 0) maxKwh = Math.max(maxKwh, 0.05); // avoid blowing up meter noise to full height
       var overlay = '';
       if (withKwh && maxKwh > 0) {
         var kLabel = (maxKwh >= 1 ? maxKwh.toFixed(1) : maxKwh.toFixed(2)) + ' kWh';

@@ -660,7 +660,6 @@ class InnostromDevice extends Homey.Device {
         tz: this.tz,
         thresholds: this._levelThresholds,
         toDisplay: (raw) => this._toDisplay(raw),
-        futureOnlyCheapest: offset === 0,
       });
       const p = localParts(from, this.tz);
       return {

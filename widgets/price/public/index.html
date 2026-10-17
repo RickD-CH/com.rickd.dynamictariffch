@@ -178,6 +178,7 @@
       var overlay = '';
       var maxKwh = 0;
       slots.forEach(function (s) { if (s.kwh > maxKwh) maxKwh = s.kwh; });
+      if (maxKwh > 0) maxKwh = Math.max(maxKwh, 0.05); // avoid blowing up meter noise to full height
       if (showImport && maxKwh > 0) {
         overlay = '<div class="kover">' + slots.map(function (s) {
           var h = s.kwh > 0 ? Math.max(5, Math.round((s.kwh / maxKwh) * 100)) : 0;
