@@ -105,6 +105,7 @@ module.exports = {
   async getSummary({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };
+    device.ensureFresh();
 
     return {
       paired: true,

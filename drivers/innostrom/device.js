@@ -100,10 +100,6 @@ class InnostromDevice extends Homey.Device {
     this._scheduleTick();
     this._scheduleDailyFetch();
 
-    if (this.hasCapability('button')) {
-      this.registerCapabilityListener('button', () => this.actionRefresh());
-    }
-
     this._initialFetch().catch((err) => this.error('Initialabruf fehlgeschlagen:', err));
   }
 
@@ -114,6 +110,11 @@ class InnostromDevice extends Homey.Device {
    * whatever the manifest declares that this specific device instance is still missing.
    */
   async _migrateCapabilities() {
+    // The tile's refresh button was dropped: the Flow card "Reload prices now" remains, and the
+    // settings page reloads missing prices by itself.
+    if (this.hasCapability('button')) {
+      await this.removeCapability('button').catch((err) => this.error('Capability button konnte nicht entfernt werden:', err));
+    }
     const declared = (this.driver.manifest && this.driver.manifest.capabilities) || [];
     for (const capabilityId of declared) {
       if (!this.hasCapability(capabilityId)) {
@@ -286,6 +287,18 @@ class InnostromDevice extends Homey.Device {
   async actionRefresh() {
     await this._initialFetch();
     return true;
+  }
+
+  /**
+   * Called when the settings page asks for the summary: if there is no price for right now
+   * (fresh install, failed fetch), reload in the background. Throttled to every 5 minutes.
+   */
+  ensureFresh() {
+    const now = Date.now();
+    if (this.priceStore.at(new Date(now))) return;
+    if (this._lastAutoFetch && now - this._lastAutoFetch < 5 * 60 * 1000) return;
+    this._lastAutoFetch = now;
+    this._initialFetch().catch((err) => this.error('Automatischer Abruf fehlgeschlagen:', err));
   }
 
   // ---------------------------------------------------------------------

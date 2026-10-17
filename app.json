@@ -1089,17 +1089,8 @@
         "price_rank_today",
         "price_level",
         "alarm_no_tomorrow",
-        "last_update",
-        "button"
+        "last_update"
       ],
-      "capabilitiesOptions": {
-        "button": {
-          "title": {
-            "en": "Refresh prices now",
-            "de": "Preise jetzt aktualisieren"
-          }
-        }
-      },
       "platforms": [
         "local"
       ],
