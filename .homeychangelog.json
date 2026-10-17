@@ -1,4 +1,8 @@
 {
+  "0.2.2": {
+    "en": "The hourly price cards can now output exactly what your energy management system expects: choose Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals in the app settings. No conversion script needed any more.",
+    "de": "Die Stundenpreis-Karten geben jetzt genau das aus, was dein Energiemanagementsystem erwartet: In den App-Einstellungen wählst du Rp./kWh oder CHF/kWh, mit oder ohne MWST und die Anzahl Nachkommastellen. Ein Umrechnungs-Script ist nicht mehr nötig."
+  },
   "0.2.1": {
     "en": "Updated the app description: it now presents the three widgets and the cost comparison.",
     "de": "App-Beschreibung aktualisiert: Sie stellt jetzt die drei Widgets und den Kostenvergleich vor."

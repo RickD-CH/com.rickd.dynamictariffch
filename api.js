@@ -1,6 +1,7 @@
 'use strict';
 
 const { sanitizeRefPeriods } = require('./lib/CostTracker');
+const { normalizeHourlyOutput, parseHourlyOutput } = require('./lib/HourlyOutput');
 
 // Shows the first paired innostrom device - same simplification as the widget's api.js.
 function firstDevice(homey) {
@@ -61,6 +62,7 @@ module.exports = {
       vatPercent: raw !== null && raw !== undefined && Number.isFinite(v) && v >= 0 ? v : null,
       battery: homey.settings.get('battery_params') || null,
       feedInMode: homey.settings.get('feed_in_mode') === 'api' ? 'api' : 'reference',
+      hourlyOutput: normalizeHourlyOutput(homey.settings.get('hourly_output')),
     };
   },
 
@@ -71,6 +73,10 @@ module.exports = {
       if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
       homey.settings.set('vat_percent', Math.round(v * 100) / 100);
       out.vatPercent = homey.settings.get('vat_percent');
+    }
+    if (body && body.hourlyOutput !== undefined) {
+      homey.settings.set('hourly_output', parseHourlyOutput(body.hourlyOutput));
+      out.hourlyOutput = homey.settings.get('hourly_output');
     }
     if (body && body.feedInMode !== undefined) {
       if (!['reference', 'api'].includes(body.feedInMode)) throw new Error('Invalid mode');

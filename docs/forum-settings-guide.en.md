@@ -91,6 +91,7 @@ The trigger card gives you the average price and the end time as tokens.
 **Feed an energy management app with hourly prices**
 - *When* "Tomorrow's prices are available"
 - *Then* "Get tomorrow's hourly prices" and hand the token to your EMS card. The token is a JSON array of 24 values (Rp./kWh incl. VAT, index 0 = 00:00-01:00), for example `[19.8,18.2,17.5,...]`.
+- The format of the list is set in the app settings (section "Hourly prices for an EMS"): Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals. If your EMS expects CHF/kWh, choose that there instead of converting in a script.
 - On the spring-forward day the 02:00 hour does not exist, so this card fails that day instead of returning an incomplete array.
 
 **Not on the dynamic tariff yet?** Put a Logic yes/no variable ("dynamic tariff active") in front of your price Flows, so they only run from your start date.

@@ -8,6 +8,7 @@ const {
 } = require('../../lib/CostTracker');
 const { analyzeDay } = require('../../lib/ShadowBattery');
 const { buildDayTable } = require('../../lib/PriceTable');
+const { normalizeHourlyOutput, formatHourlyPrice } = require('../../lib/HourlyOutput');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -550,7 +551,8 @@ class InnostromDevice extends Homey.Device {
   }
 
   // 24 hourly values (index 0 = 00:00-01:00 local ... 23 = 23:00-24:00), averaged from
-  // our 15-min slots, same CHF->Rp./VAT conversion as measure_price_total. For feeding
+  // our 15-min slots, in the unit / VAT mode / precision chosen in the app settings (default:
+  // Rp./kWh incl. VAT like measure_price_total). For feeding
   // third-party EMS apps (e.g. FusionSolar's ems_set_price_forecast) that expect one
   // value per hour rather than per quarter-hour - JSON-encoded since Homey Flow tokens
   // have no array type, matching how Power by the Hour's own "Prices" token works.
@@ -562,9 +564,12 @@ class InnostromDevice extends Homey.Device {
       if (typeof slot.integrated !== 'number' || !Number.isFinite(slot.integrated)) continue;
       buckets[localParts(slot.start, this.tz).hour].push(slot.integrated);
     }
-    return buckets.map((values) => this._toDisplay(
-      values.length ? values.reduce((a, b) => a + b, 0) / values.length : null,
-    ));
+    const out = normalizeHourlyOutput(this.homey.settings.get('hourly_output'));
+    return buckets.map((values) => {
+      let chf = values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
+      if (chf === null && Number.isFinite(this._fallbackPrice)) chf = this._fallbackPrice;
+      return formatHourlyPrice(chf, this._vatPercent, out);
+    });
   }
 
   async actionGetPricesToday() {
