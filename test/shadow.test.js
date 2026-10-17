@@ -84,3 +84,23 @@ test('CostTracker liefert Schattentage mit Preisen und Residuum', () => {
   const back = CostTracker.fromJSON(JSON.parse(JSON.stringify(t.toJSON())), { tz: TZ });
   assert.deepEqual(back.shadowDayKeys('2027-01-16'), ['2027-01-15']);
 });
+
+test('Ladebereich: Reserve und Obergrenze begrenzen den Nutzen', () => {
+  // 10 kWh battery, huge price spread: the usable window decides how much can be shifted
+  const day = { r: [0, 0, 6], p: [10, 10, 50], f: [0, 0, 0] };
+  const params = {
+    capacityKwh: 10, powerKw: 50, roundTrip: 1, allowGridCharge: true,
+  };
+  const wide = optimalCost({ ...day, ...params, startFrac: 0.5 });
+  const narrow = optimalCost({
+    ...day, ...params, startFrac: 0.5, minFrac: 0.05, maxFrac: 0.9,
+  });
+  assert.ok(narrow >= wide - 1e-9, 'a narrower window is never cheaper');
+  const noBat = noBatteryCost(day);
+  assert.ok(narrow <= noBat + 1e-9);
+  // window 50..60 % with start 50 %: only 1 kWh can be shifted (10 -> 50 Rp.)
+  const capped = optimalCost({
+    ...day, ...params, startFrac: 0.5, minFrac: 0.5, maxFrac: 0.6,
+  });
+  assert.ok(Math.abs(capped - (noBat - 1 * (50 - 10))) < 1e-6);
+});

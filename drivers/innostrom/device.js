@@ -692,10 +692,20 @@ class InnostromDevice extends Homey.Device {
   _batteryParams() {
     const p = this.homey.settings.get('battery_params') || {};
     const num = (v, d) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d);
+    const pct = (v, d, lo, hi) => {
+      const n = v === null || v === undefined || v === '' ? NaN : Number(v);
+      return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
+    };
+    const minSocPct = pct(p.minSocPct, 5, 0, 50);
+    const maxSocPct = pct(p.maxSocPct, 90, 50, 100);
     return {
       capacityKwh: num(p.capacityKwh, 13.8),
       powerKw: num(p.powerKw, 5),
       roundTrip: Math.min(1, num(p.roundTrip, 0.9)),
+      minSocPct,
+      maxSocPct,
+      minFrac: minSocPct / 100,
+      maxFrac: maxSocPct / 100,
     };
   }
 

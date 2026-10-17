@@ -320,6 +320,8 @@
         <label for="bat-cap" id="l-bat-cap"></label><input type="number" id="bat-cap" min="1" step="0.1" />
         <label for="bat-pow" id="l-bat-pow"></label><input type="number" id="bat-pow" min="0.5" step="0.1" />
         <label for="bat-eff" id="l-bat-eff"></label><input type="number" id="bat-eff" min="50" max="100" step="1" />
+        <label for="bat-min" id="l-bat-min"></label><input type="number" id="bat-min" min="0" max="50" step="1" />
+        <label for="bat-max" id="l-bat-max"></label><input type="number" id="bat-max" min="50" max="100" step="1" />
       </div>
       <div class="row">
         <button class="btn primary" id="btn-bat-save"></button>
@@ -445,14 +447,14 @@
       dailyHeading: 'Letzte 30 Tage',
       chartHeading: 'Preis (Balken), Referenz (gestrichelt) und Bezug (blau)',
       batHeading: 'Batterie (für die Schattenrechnung)',
-      batHint: 'Nutzbare Kapazität, maximale Leistung (gilt für Laden und Entladen gleichermassen, in kW am Netzanschluss) und Wirkungsgrad hin und zurück deiner Batterie. Sie bestimmen, was ein optimaler Ladeplan im Kosten-Tab bringen würde.',
+      batHint: 'Nutzbare Kapazität, maximale Leistung (gilt für Laden und Entladen gleichermassen, in kW am Netzanschluss) und Wirkungsgrad hin und zurück deiner Batterie sowie der Ladebereich (Standard 5 bis 90 %), in dem ein Ladeplan die Batterie bewegen darf. Sie bestimmen, was ein optimaler Ladeplan im Kosten-Tab bringen würde.',
       shadowHeading: 'Batterie-Potenzial (Schattenrechnung)',
       shadowIntro: 'Es wird nichts gesteuert. Für jeden vollen Tag wird nachgerechnet, was ein optimaler Ladeplan gebracht hätte. Grundlage sind deine gemeldeten Zähler und die Preise. Alle Beträge sind die Netto-Stromkosten des Tages in CHF, kleiner ist besser.',
       shadowCols: { day: 'Tag', actual: 'Real', pv: 'Nur PV', grid: 'Mit Netz', val: 'Wert Netzl.' },
       shadowNote: 'Real = tatsächliche Kosten zu dynamischen Preisen. Nur PV = optimaler Plan, der nur PV-Überschuss lädt. Mit Netz = optimaler Plan mit Laden aus dem Netz. Wert Netzl. = Nur PV minus Mit Netz, also was das Laden zu günstigen Zeiten zusätzlich wert gewesen wäre. Die Batterie speist in der Rechnung nie ins Netz ein. Schätzung: Die Zähler ändern sich grob, die Aufteilung auf Viertelstunden ist ungenau.',
       shadowNone: 'Noch kein voller Tag ausgewertet. Der erste erscheint nach Mitternacht.',
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
-      batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
+      batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)', batMin: 'Minimaler Ladestand (%)', batMax: 'Maximaler Ladestand (%)',
       appearanceHeading: 'Darstellung', themeAuto: 'Automatisch', themeLight: 'Hell', themeDark: 'Dunkel',
       themeHint: 'Automatisch übernimmt die Einstellung deines Geräts bzw. der Homey-App. Gilt nur für diese Einstellungsseite, die Widgets folgen immer Homey.',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage', dayPrev: 'Vorheriger Tag', dayNext: 'Nächster Tag', view30Need: '30 Tage: ab 7 Tagen mit Daten (aktuell ', view30Days: ')',
@@ -570,14 +572,14 @@
       dailyHeading: 'Last 30 days',
       chartHeading: 'Price (bars), reference (dashed) and import (blue)',
       batHeading: 'Battery (for the shadow calculation)',
-      batHint: 'Usable capacity, maximum power (the same for charging and discharging, in kW on the AC side) and round-trip efficiency of your battery. They determine what an optimal charging plan would bring in the Costs tab.',
+      batHint: 'Usable capacity, maximum power (the same for charging and discharging, in kW on the AC side) and round-trip efficiency of your battery, plus the charge range (default 5 to 90 %) a charging plan may use. They determine what an optimal charging plan would bring in the Costs tab.',
       shadowHeading: 'Battery potential (shadow calculation)',
       shadowIntro: 'Nothing is controlled. For every full day this recomputes what an optimal charging plan would have brought, based on your reported meters and the prices. All amounts are the net electricity costs of the day in CHF, lower is better.',
       shadowCols: { day: 'Day', actual: 'Actual', pv: 'PV only', grid: 'With grid', val: 'Grid value' },
       shadowNote: 'Actual = real costs at dynamic prices. PV only = optimal plan that charges from PV surplus only. With grid = optimal plan that may also charge from the grid. Grid value = PV only minus With grid, i.e. what charging at cheap times would additionally have been worth. In the calculation the battery never exports to the grid. An estimate: the meters change coarsely, so the split into quarter-hours is imprecise.',
       shadowNone: 'No full day analysed yet. The first one appears after midnight.',
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
-      batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)',
+      batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)', batMin: 'Minimum charge level (%)', batMax: 'Maximum charge level (%)',
       appearanceHeading: 'Appearance', themeAuto: 'Automatic', themeLight: 'Light', themeDark: 'Dark',
       themeHint: 'Automatic follows your device or the Homey app. Applies to this settings page only; widgets always follow Homey.',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days', dayPrev: 'Previous day', dayNext: 'Next day', view30Need: '30 days: needs 7 days with data (now ', view30Days: ')',
@@ -707,6 +709,8 @@
       $('l-bat-cap').textContent = T.batCap;
       $('l-bat-pow').textContent = T.batPow;
       $('l-bat-eff').textContent = T.batEff;
+      $('l-bat-min').textContent = T.batMin;
+      $('l-bat-max').textContent = T.batMax;
       $('btn-bat-save').textContent = T.save;
       $('cost-loading').textContent = T.loading;
       $('h2-ref').textContent = T.refHeading;
@@ -1113,6 +1117,8 @@
         $('bat-cap').value = data.params.capacityKwh;
         $('bat-pow').value = data.params.powerKw;
         $('bat-eff').value = Math.round(data.params.roundTrip * 100);
+        $('bat-min').value = data.params.minSocPct;
+        $('bat-max').value = data.params.maxSocPct;
       }
       var days = data.days || [];
       if (!days.length) { root.innerHTML = '<p class="legend">' + escapeHtml(T.shadowNone) + '</p>'; return; }
@@ -1422,7 +1428,7 @@
       $('btn-bat-save').addEventListener('click', function () {
         var ok = $('bat-saved'); var err = $('bat-error');
         ok.hidden = true; err.hidden = true;
-        var body = { battery: { capacityKwh: Number($('bat-cap').value), powerKw: Number($('bat-pow').value), roundTrip: Number($('bat-eff').value) / 100 } };
+        var body = { battery: { capacityKwh: Number($('bat-cap').value), powerKw: Number($('bat-pow').value), roundTrip: Number($('bat-eff').value) / 100, minSocPct: Number($('bat-min').value), maxSocPct: Number($('bat-max').value) } };
         apiCall('PUT', '/config', body).then(function () {
           ok.textContent = T.savedMsg; ok.hidden = false;
           setTimeout(function () { ok.hidden = true; }, 2500);
