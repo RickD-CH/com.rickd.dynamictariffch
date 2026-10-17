@@ -200,6 +200,7 @@
     .calc-sum { font-weight: 600; margin: 8px 0; }
     details { margin-top: 10px; }
     summary { cursor: pointer; color: var(--st-muted); font-size: 13px; }
+    .empty-note { margin: 14px 0; padding: 22px 16px; text-align: center; font-size: 15px; font-weight: 600; line-height: 1.4; border-radius: 10px; background: var(--st-chip-bg); color: var(--st-text); }
     .btn:disabled { opacity: .45; cursor: default; }
     .btn.small { padding: 4px 10px; font-size: 12px; }
     details.sec > summary { cursor: pointer; list-style: none; display: block; }
@@ -945,7 +946,7 @@
     }
 
     function dayCurveHtml(slots) {
-      if (!slots || slots.length < 2) return '<p class="legend">' + escapeHtml(T.noDayData) + '</p>';
+      if (!slots || slots.length < 2) return '<div class="empty-note">' + escapeHtml(T.noDayData) + '</div>';
       var last = -1;
       slots.forEach(function (s, i) { if (s.isNow || s.isPast) last = i; });
       var dyn = []; var ref = [];
@@ -979,7 +980,7 @@
 
     function thirtyDayHtml(days) {
       var list = (days || []).filter(function (d) { return typeof d.savings === 'number'; });
-      if (!list.length) return '<p class="legend">' + escapeHtml(T.noDayData) + '</p>';
+      if (!list.length) return '<div class="empty-note">' + escapeHtml(T.noDayData) + '</div>';
       var vals = list.map(function (d) { return d.savings / 100; });
       var labels = list.map(function (d) { return d.key.slice(5); });
       var cum = []; var c = 0;
