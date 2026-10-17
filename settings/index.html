@@ -44,6 +44,32 @@
       --st-expensive: #ef5350;
       --st-accent: #4fc3f7;
     }
+    [data-theme="light"] {
+      color-scheme: light;
+      --st-text: #1a1a1a;
+      --st-muted: #767676;
+      --st-border: #e0e0e0;
+      --st-bg: #ffffff;
+      --st-card-bg: #f7f7f8;
+      --st-chip-bg: #f2f2f2;
+      --st-cheap: #2e7d32;
+      --st-normal: #767676;
+      --st-expensive: #d32f2f;
+      --st-accent: #0277bd;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --st-text: #f2f2f2;
+      --st-muted: #a0a0a0;
+      --st-border: #3a3a3c;
+      --st-bg: #131314;
+      --st-card-bg: #1e1e20;
+      --st-chip-bg: #2a2a2c;
+      --st-cheap: #66bb6a;
+      --st-normal: #a0a0a0;
+      --st-expensive: #ef5350;
+      --st-accent: #4fc3f7;
+    }
     * { box-sizing: border-box; }
     html, body { height: auto; min-height: 100%; margin: 0; }
     body {
@@ -270,6 +296,12 @@
     </details>
 
     <details class="card sec">
+      <summary><h2 id="h2-appearance"></h2></summary>
+      <div class="viewsw" id="theme-sw"></div>
+      <p class="legend" id="p-theme-hint"></p>
+    </details>
+
+    <details class="card sec">
       <summary><h2 id="h2-ref"></h2></summary>
       <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
       <div id="ref-periods"></div>
@@ -421,6 +453,8 @@
       shadowNone: 'Noch kein voller Tag ausgewertet. Der erste erscheint nach Mitternacht.',
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)',
+      appearanceHeading: 'Darstellung', themeAuto: 'Automatisch', themeLight: 'Hell', themeDark: 'Dunkel',
+      themeHint: 'Automatisch übernimmt die Einstellung deines Geräts bzw. der Homey-App. Gilt nur für diese Einstellungsseite, die Widgets folgen immer Homey.',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage', dayPrev: 'Vorheriger Tag', dayNext: 'Nächster Tag', view30Need: '30 Tage: ab 7 Tagen mit Daten (aktuell ', view30Days: ')',
       dayToday: 'Heute', dayTomorrow: 'Morgen', refShort: 'Ref.',
       viewChart: 'Kurve', viewTable: 'Tabelle', ptCheapTag: 'günstig', ptPeakTag: 'Spitze',
@@ -544,6 +578,8 @@
       shadowNone: 'No full day analysed yet. The first one appears after midnight.',
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
       batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)',
+      appearanceHeading: 'Appearance', themeAuto: 'Automatic', themeLight: 'Light', themeDark: 'Dark',
+      themeHint: 'Automatic follows your device or the Homey app. Applies to this settings page only; widgets always follow Homey.',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days', dayPrev: 'Previous day', dayNext: 'Next day', view30Need: '30 days: needs 7 days with data (now ', view30Days: ')',
       dayToday: 'Today', dayTomorrow: 'Tomorrow', refShort: 'Ref.',
       viewChart: 'Chart', viewTable: 'Table', ptCheapTag: 'cheap', ptPeakTag: 'peak',
@@ -650,6 +686,9 @@
         return '<dt>' + escapeHtml(r.dt) + '</dt><dd>' + r.dd + '</dd>';
       }).join('');
       $('h2-general').textContent = T.generalHeading;
+      $('h2-appearance').textContent = T.appearanceHeading;
+      $('p-theme-hint').textContent = T.themeHint;
+      applyTheme(themeMode);
       $('l-vat').textContent = T.vatLabel;
       $('p-vat-hint').textContent = T.vatHint;
       $('sum-feedin').textContent = T.feedInSummary;
@@ -901,6 +940,19 @@
     var costDayCache = {};
     var MIN_DAYS_30 = 7;
     var apiFn = null; // set by onHomeyReady
+    var themeMode = 'auto';
+
+    function applyTheme(mode) {
+      themeMode = mode === 'light' || mode === 'dark' ? mode : 'auto';
+      [document.documentElement, document.body].forEach(function (el) {
+        if (themeMode === 'auto') el.removeAttribute('data-theme'); else el.setAttribute('data-theme', themeMode);
+      });
+      var sw = document.getElementById('theme-sw');
+      if (!sw) return;
+      sw.innerHTML = [['auto', T.themeAuto], ['light', T.themeLight], ['dark', T.themeDark]].map(function (b) {
+        return '<button class="btn small' + (themeMode === b[0] ? ' active' : '') + '" data-theme-mode="' + b[0] + '">' + escapeHtml(b[1]) + '</button>';
+      }).join('');
+    }
     var lastCost = null;
 
     function niceNum(v, dec) { return (Math.round(v * Math.pow(10, dec == null ? 2 : dec)) / Math.pow(10, dec == null ? 2 : dec)).toFixed(dec == null ? 2 : dec); }
@@ -1297,6 +1349,15 @@
       }
 
       apiFn = apiCall;
+
+      // Appearance is stored in the app settings so it survives reopening and follows the user.
+      Homey.get('ui_theme', function (err, value) { if (!err) applyTheme(value); });
+      $('theme-sw').addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-theme-mode]') : null;
+        if (!b) return;
+        applyTheme(b.getAttribute('data-theme-mode'));
+        Homey.set('ui_theme', themeMode, function (err) { if (err) console.error(err); });
+      });
 
       var vatFilled = false;
 
