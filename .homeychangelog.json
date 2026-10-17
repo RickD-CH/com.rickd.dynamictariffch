@@ -1,7 +1,7 @@
 {
   "0.2.1": {
-    "en": "Updated the app description: it now presents the three widgets, the cost comparison and the settings page.",
-    "de": "App-Beschreibung aktualisiert: Sie stellt jetzt die drei Widgets, den Kostenvergleich und die Einstellungsseite vor."
+    "en": "Updated the app description: it now presents the three widgets and the cost comparison.",
+    "de": "App-Beschreibung aktualisiert: Sie stellt jetzt die drei Widgets und den Kostenvergleich vor."
   },
   "0.2.0": {
     "en": "New: cost comparison against a reference tariff. Report meter readings (grid import/export, battery, single consumers such as an EV or heat pump) from your Flows and see costs, savings and the battery benefit in a new widget and in a new \"Costs\" tab. The tab shows cost and savings curves and lets you page through the last 14 days; the 30-day view appears once enough data has been collected. The reference tariff can be entered directly or calculated from the lines of your bill, with validity periods for tariff changes and an optional fixed-cost difference. A shadow calculation shows what an optimal battery charging plan would have brought (within a configurable charge range, default 5 to 90 %), without controlling anything. The settings page now has tabs, tools to clean up collected data, VAT, and an appearance option (automatic, light, dark). Feed-in is valued like the reference tariff by default (switchable to the API price under Advanced). A third widget shows an hourly price list for today and tomorrow, with the cheapest block of the day and from now on; the same table can be switched on in the app overview. The price widget can optionally overlay your grid import. The refresh button on the device tile is gone (the Flow card \"Reload prices now\" stays, and missing prices are reloaded when you open the app settings).",
