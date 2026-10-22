@@ -29,6 +29,18 @@ module.exports = {
     return { paired: true, offset, slots: device.getCostChart(offset) };
   },
 
+  async testDigest({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.testDigest();
+  },
+
+  async testReportsMissing({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.testReportsMissing();
+  },
+
   async getStatus({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

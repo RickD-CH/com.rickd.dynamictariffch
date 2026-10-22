@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Cost today (previous tariff)",
+    "de": "Kosten heute (bisheriger Tarif)"
+  },
+  "desc": {
+    "en": "The same consumption priced with your reference tariff.",
+    "de": "Derselbe Verbrauch zum Preis deines Referenztarifs."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "units": {
+    "en": "CHF",
+    "de": "CHF"
+  },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

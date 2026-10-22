@@ -117,6 +117,14 @@
     "getStatus": {
       "method": "get",
       "path": "/status"
+    },
+    "testDigest": {
+      "method": "post",
+      "path": "/test/digest"
+    },
+    "testReportsMissing": {
+      "method": "post",
+      "path": "/test/reports"
     }
   },
   "support": "https://community.homey.app/t/160031",
@@ -194,6 +202,107 @@
           }
         ],
         "id": "cheapest_block_starts"
+      },
+      {
+        "title": {
+          "en": "The day has been summarised",
+          "de": "Der Tag ist ausgewertet"
+        },
+        "hint": {
+          "en": "Fires once a day at about 00:35 for the previous day, if meter readings you reported produced data for it. Use the tokens for a daily message.",
+          "de": "Löst einmal pro Tag gegen 00:35 für den Vortag aus, wenn deine gemeldeten Zählerstände dafür Daten ergeben haben. Mit den Tokens baust du eine tägliche Meldung."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "date",
+            "type": "string",
+            "title": {
+              "en": "Date",
+              "de": "Datum"
+            },
+            "example": "21.10."
+          },
+          {
+            "name": "importKwh",
+            "type": "number",
+            "title": {
+              "en": "Grid import (kWh)",
+              "de": "Netzbezug (kWh)"
+            },
+            "example": 14.5
+          },
+          {
+            "name": "exportKwh",
+            "type": "number",
+            "title": {
+              "en": "Grid export (kWh)",
+              "de": "Einspeisung (kWh)"
+            },
+            "example": 0.4
+          },
+          {
+            "name": "costDyn",
+            "type": "number",
+            "title": {
+              "en": "Cost, dynamic tariff (CHF)",
+              "de": "Kosten dynamischer Tarif (CHF)"
+            },
+            "example": 5.35
+          },
+          {
+            "name": "costRef",
+            "type": "number",
+            "title": {
+              "en": "Cost, previous tariff (CHF)",
+              "de": "Kosten bisheriger Tarif (CHF)"
+            },
+            "example": 3.78
+          },
+          {
+            "name": "savings",
+            "type": "number",
+            "title": {
+              "en": "Savings (CHF)",
+              "de": "Ersparnis (CHF)"
+            },
+            "example": -1.57
+          },
+          {
+            "name": "avgImportPrice",
+            "type": "number",
+            "title": {
+              "en": "Average import price (Rp./kWh)",
+              "de": "Ø Bezugspreis (Rp./kWh)"
+            },
+            "example": 34.2
+          },
+          {
+            "name": "batteryBenefit",
+            "type": "number",
+            "title": {
+              "en": "Battery benefit (CHF)",
+              "de": "Batterie-Nutzen (CHF)"
+            },
+            "example": 0.8
+          },
+          {
+            "name": "compared",
+            "type": "boolean",
+            "title": {
+              "en": "Comparison possible",
+              "de": "Vergleich möglich"
+            },
+            "example": true
+          }
+        ],
+        "id": "day_summarised"
       },
       {
         "title": {
@@ -1417,6 +1526,64 @@
               "max": 500
             }
           ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Displayed values",
+            "de": "Angezeigte Werte"
+          },
+          "children": [
+            {
+              "id": "show_costs",
+              "type": "dropdown",
+              "value": "auto",
+              "label": {
+                "en": "Cost values",
+                "de": "Kostenwerte"
+              },
+              "values": [
+                {
+                  "id": "auto",
+                  "label": {
+                    "en": "Automatic (only if you report meters)",
+                    "de": "Automatisch (nur wenn du Zähler meldest)"
+                  }
+                },
+                {
+                  "id": "always",
+                  "label": {
+                    "en": "Always",
+                    "de": "Immer"
+                  }
+                },
+                {
+                  "id": "never",
+                  "label": {
+                    "en": "Never",
+                    "de": "Nie"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "Cost today, cost with the previous tariff, savings today and this month and average import price. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
+                "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+              }
+            },
+            {
+              "id": "show_feedin",
+              "type": "checkbox",
+              "value": true,
+              "label": {
+                "en": "Feed-in price",
+                "de": "Einspeisevergütung"
+              },
+              "hint": {
+                "en": "Shows the feed-in price delivered by the API. Turning it off removes the value and its Insights history.",
+                "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt."
+              }
+            }
+          ]
         }
       ]
     }
@@ -1498,6 +1665,69 @@
       "setable": false,
       "uiComponent": "sensor",
       "icon": "/assets/capabilities/alarm.svg"
+    },
+    "avg_import_price_today": {
+      "type": "number",
+      "title": {
+        "en": "Average import price today",
+        "de": "Ø Bezugspreis heute"
+      },
+      "desc": {
+        "en": "Average price of the grid import reported today, weighted by consumption.",
+        "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "cost_ref_today": {
+      "type": "number",
+      "title": {
+        "en": "Cost today (previous tariff)",
+        "de": "Kosten heute (bisheriger Tarif)"
+      },
+      "desc": {
+        "en": "The same consumption priced with your reference tariff.",
+        "de": "Derselbe Verbrauch zum Preis deines Referenztarifs."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "units": {
+        "en": "CHF",
+        "de": "CHF"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "cost_today": {
+      "type": "number",
+      "title": {
+        "en": "Cost today",
+        "de": "Kosten heute"
+      },
+      "desc": {
+        "en": "Net cost of today with the dynamic tariff (import minus feed-in), from the meter readings you report.",
+        "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "CHF",
+        "de": "CHF"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
     },
     "last_update": {
       "type": "string",
@@ -1657,6 +1887,27 @@
       "icon": "/assets/capabilities/price.svg",
       "insights": true
     },
+    "price_feedin": {
+      "type": "number",
+      "title": {
+        "en": "Feed-in price",
+        "de": "Einspeisevergütung"
+      },
+      "desc": {
+        "en": "Feed-in price delivered by the API for the current slot. Whether and how your utility pays it depends on your tariff.",
+        "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "Rp./kWh",
+        "de": "Rp./kWh"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
     "price_level": {
       "type": "enum",
       "title": {
@@ -1729,6 +1980,48 @@
       "decimals": 0,
       "min": 1,
       "icon": "/assets/capabilities/rank.svg"
+    },
+    "savings_month": {
+      "type": "number",
+      "title": {
+        "en": "Savings this month",
+        "de": "Ersparnis Monat"
+      },
+      "desc": {
+        "en": "Reference tariff minus dynamic tariff since the 1st of the month.",
+        "de": "Referenztarif minus dynamischer Tarif seit dem 1. des Monats."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
+      "units": {
+        "en": "CHF",
+        "de": "CHF"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "savings_today": {
+      "type": "number",
+      "title": {
+        "en": "Savings today",
+        "de": "Ersparnis heute"
+      },
+      "desc": {
+        "en": "Reference tariff minus dynamic tariff for today. Negative = the dynamic tariff is more expensive. Empty without a reference tariff.",
+        "de": "Referenztarif minus dynamischer Tarif für heute. Negativ = der dynamische Tarif ist teurer. Leer ohne Referenztarif."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "CHF",
+        "de": "CHF"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
     }
   }
 }

@@ -11,6 +11,7 @@ const { buildDayTable } = require('../../lib/PriceTable');
 const { normalizeHourlyOutput, formatHourlyPrice } = require('../../lib/HourlyOutput');
 const CostBackup = require('../../lib/CostBackup');
 const StatusRules = require('../../lib/StatusRules');
+const DailyDigest = require('../../lib/DailyDigest');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -108,11 +109,13 @@ class InnostromDevice extends Homey.Device {
     this._triggerNoPricesForTomorrow = this.homey.flow.getDeviceTriggerCard('no_prices_for_tomorrow');
     this._triggerReportsMissing = this.homey.flow.getDeviceTriggerCard('reports_missing');
     this._triggerReportsBack = this.homey.flow.getDeviceTriggerCard('reports_back');
+    this._triggerDaySummarised = this.homey.flow.getDeviceTriggerCard('day_summarised');
 
     await this._updateCapabilities(new Date());
     this._scheduleTick();
     this._scheduleDailyFetch();
 
+    await this._syncOptionalCapabilities();
     this._scheduleBackup();
     this._initialFetch().catch((err) => this.error('Initialabruf fehlgeschlagen:', err));
   }
@@ -204,6 +207,10 @@ class InnostromDevice extends Homey.Device {
     const credentialsChanged = ['token', 'environment'].some((k) => changedKeys.includes(k));
     this._applySettings(newSettings);
     if (this.priceStore) this.priceStore.field = this._priceField;
+
+    if (changedKeys.some((k) => k === 'show_costs' || k === 'show_feedin')) {
+      await this._syncOptionalCapabilities(newSettings);
+    }
 
     if (credentialsChanged) {
       this._backoffIndex = 0;
@@ -304,6 +311,78 @@ class InnostromDevice extends Homey.Device {
     }
     this.error('Abruf fehlgeschlagen, gebe auf bis zum nächsten geplanten Versuch:', err);
     return 'gave-up';
+  }
+
+  // ---------------------------------------------------------------------
+  // Optional capabilities (device settings "Displayed values") and the daily summary
+  // ---------------------------------------------------------------------
+
+  _wantCosts(settings) {
+    const mode = settings.show_costs || 'auto';
+    if (mode === 'always') return true;
+    if (mode === 'never') return false;
+    return Object.keys(this.costTracker.days).length > 0 || Object.keys(this.costTracker.counters).length > 0;
+  }
+
+  /** Adds or removes the optional capability groups according to the device settings. */
+  async _syncOptionalCapabilities(settings = this.getSettings()) {
+    const groups = [
+      { wanted: this._wantCosts(settings), caps: ['cost_today', 'cost_ref_today', 'savings_today', 'savings_month', 'avg_import_price_today'] },
+      { wanted: settings.show_feedin !== false, caps: ['price_feedin'] },
+    ];
+    for (const g of groups) {
+      for (const id of g.caps) {
+        if (g.wanted && !this.hasCapability(id)) {
+          await this.addCapability(id).catch((err) => this.error(`Capability ${id} konnte nicht hinzugefügt werden:`, err));
+        } else if (!g.wanted && this.hasCapability(id)) {
+          await this.removeCapability(id).catch((err) => this.error(`Capability ${id} konnte nicht entfernt werden:`, err));
+        }
+      }
+    }
+  }
+
+  async _updateCostCapabilities(now) {
+    if (!this.hasCapability('cost_today')) return;
+    const todayKey = localDateKey(now, this.tz);
+    const refs = this._refPeriods();
+    const today = this.costTracker.summary(todayKey, todayKey, refs);
+    const month = this.costTracker.summary(`${todayKey.slice(0, 7)}-01`, todayKey, refs);
+    for (const [id, value] of Object.entries(DailyDigest.costValues(today, month))) {
+      if (this.hasCapability(id)) await this._setCapabilitySafe(id, value);
+    }
+  }
+
+  _buildDigest(dayKey) {
+    return DailyDigest.buildDigest(this.costTracker.summary(dayKey, dayKey, this._refPeriods()), dayKey);
+  }
+
+  /** Fires "the day has been summarised" once a day after 00:35 for the previous day. */
+  async _checkDigest(now) {
+    if (!isAtOrAfterLocal(now, this.tz, { hour: 0, minute: 35 })) return;
+    const yesterdayKey = localDateKey(addLocalDays(now, -1, this.tz), this.tz);
+    const last = this._status.lastDigest;
+    if (last === yesterdayKey) return;
+    this._status.lastDigest = yesterdayKey;
+    await this.setStoreValue('status', this._status).catch(() => {});
+    if (last === undefined) return; // first run after the update: do not fire for an old day
+    const digest = this._buildDigest(yesterdayKey);
+    if (!digest) return;
+    this._triggerDaySummarised.trigger(this, digest, {})
+      .catch((err) => this.error('Trigger day_summarised fehlgeschlagen:', err));
+  }
+
+  /** Test helpers for the settings page: fire the triggers on demand so Flows can be built. */
+  async testDigest() {
+    const yesterdayKey = localDateKey(addLocalDays(new Date(), -1, this.tz), this.tz);
+    const digest = this._buildDigest(yesterdayKey);
+    if (!digest) return { fired: false };
+    await this._triggerDaySummarised.trigger(this, digest, {});
+    return { fired: true, tokens: digest };
+  }
+
+  async testReportsMissing() {
+    await this._triggerReportsMissing.trigger(this, { age: 95, kinds: this.homey.__('device.kindImport') }, {});
+    return { fired: true };
   }
 
   /** Remembers the outcome of a fetch for the status card (error text never contains the token). */
@@ -484,9 +563,11 @@ class InnostromDevice extends Homey.Device {
 
   async _onTick() {
     const now = new Date();
+    await this._syncOptionalCapabilities();
     await this._updateCapabilities(now);
     await this._checkCheapestBlockStarts(now);
     await this._checkReports(now);
+    await this._checkDigest(now);
   }
 
   // ---------------------------------------------------------------------
@@ -523,6 +604,10 @@ class InnostromDevice extends Homey.Device {
 
     const level = this.priceStore.level(now, this._levelThresholds);
     await this._setCapabilitySafe('price_level', level);
+    if (this.hasCapability('price_feedin')) {
+      await this._setCapabilitySafe('price_feedin', cur && Number.isFinite(cur.feedIn) ? Math.round(cur.feedIn * 10000) / 100 : null);
+    }
+    await this._updateCostCapabilities(now);
 
     const tomorrowFull = this.priceStore.hasFullDay(tomorrow, { ratio: TOMORROW_COVERAGE_RATIO });
     const shouldAlarm = !tomorrowFull && isAtOrAfterLocal(now, this.tz, NO_TOMORROW_ALARM_TIME);
@@ -779,6 +864,7 @@ class InnostromDevice extends Homey.Device {
   }
 
   _markCostDirty() {
+    this._updateCostCapabilities(new Date()).catch((err) => this.error('Kosten-Werte fehlgeschlagen:', err));
     if (this._costTimer) return;
     this._costTimer = this.homey.setTimeout(() => {
       this._costTimer = null;

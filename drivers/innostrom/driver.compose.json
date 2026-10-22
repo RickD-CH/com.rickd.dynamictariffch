@@ -250,6 +250,64 @@
           "max": 500
         }
       ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Displayed values",
+        "de": "Angezeigte Werte"
+      },
+      "children": [
+        {
+          "id": "show_costs",
+          "type": "dropdown",
+          "value": "auto",
+          "label": {
+            "en": "Cost values",
+            "de": "Kostenwerte"
+          },
+          "values": [
+            {
+              "id": "auto",
+              "label": {
+                "en": "Automatic (only if you report meters)",
+                "de": "Automatisch (nur wenn du Zähler meldest)"
+              }
+            },
+            {
+              "id": "always",
+              "label": {
+                "en": "Always",
+                "de": "Immer"
+              }
+            },
+            {
+              "id": "never",
+              "label": {
+                "en": "Never",
+                "de": "Nie"
+              }
+            }
+          ],
+          "hint": {
+            "en": "Cost today, cost with the previous tariff, savings today and this month and average import price. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
+            "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+          }
+        },
+        {
+          "id": "show_feedin",
+          "type": "checkbox",
+          "value": true,
+          "label": {
+            "en": "Feed-in price",
+            "de": "Einspeisevergütung"
+          },
+          "hint": {
+            "en": "Shows the feed-in price delivered by the API. Turning it off removes the value and its Insights history.",
+            "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt."
+          }
+        }
+      ]
     }
   ]
 }

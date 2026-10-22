@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Cost today",
+    "de": "Kosten heute"
+  },
+  "desc": {
+    "en": "Net cost of today with the dynamic tariff (import minus feed-in), from the meter readings you report.",
+    "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "CHF",
+    "de": "CHF"
+  },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

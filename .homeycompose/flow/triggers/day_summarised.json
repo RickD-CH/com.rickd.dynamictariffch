@@ -1,0 +1,100 @@
+{
+  "title": {
+    "en": "The day has been summarised",
+    "de": "Der Tag ist ausgewertet"
+  },
+  "hint": {
+    "en": "Fires once a day at about 00:35 for the previous day, if meter readings you reported produced data for it. Use the tokens for a daily message.",
+    "de": "Löst einmal pro Tag gegen 00:35 für den Vortag aus, wenn deine gemeldeten Zählerstände dafür Daten ergeben haben. Mit den Tokens baust du eine tägliche Meldung."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "date",
+      "type": "string",
+      "title": {
+        "en": "Date",
+        "de": "Datum"
+      },
+      "example": "21.10."
+    },
+    {
+      "name": "importKwh",
+      "type": "number",
+      "title": {
+        "en": "Grid import (kWh)",
+        "de": "Netzbezug (kWh)"
+      },
+      "example": 14.5
+    },
+    {
+      "name": "exportKwh",
+      "type": "number",
+      "title": {
+        "en": "Grid export (kWh)",
+        "de": "Einspeisung (kWh)"
+      },
+      "example": 0.4
+    },
+    {
+      "name": "costDyn",
+      "type": "number",
+      "title": {
+        "en": "Cost, dynamic tariff (CHF)",
+        "de": "Kosten dynamischer Tarif (CHF)"
+      },
+      "example": 5.35
+    },
+    {
+      "name": "costRef",
+      "type": "number",
+      "title": {
+        "en": "Cost, previous tariff (CHF)",
+        "de": "Kosten bisheriger Tarif (CHF)"
+      },
+      "example": 3.78
+    },
+    {
+      "name": "savings",
+      "type": "number",
+      "title": {
+        "en": "Savings (CHF)",
+        "de": "Ersparnis (CHF)"
+      },
+      "example": -1.57
+    },
+    {
+      "name": "avgImportPrice",
+      "type": "number",
+      "title": {
+        "en": "Average import price (Rp./kWh)",
+        "de": "Ø Bezugspreis (Rp./kWh)"
+      },
+      "example": 34.2
+    },
+    {
+      "name": "batteryBenefit",
+      "type": "number",
+      "title": {
+        "en": "Battery benefit (CHF)",
+        "de": "Batterie-Nutzen (CHF)"
+      },
+      "example": 0.8
+    },
+    {
+      "name": "compared",
+      "type": "boolean",
+      "title": {
+        "en": "Comparison possible",
+        "de": "Vergleich möglich"
+      },
+      "example": true
+    }
+  ]
+}

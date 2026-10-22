@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Average import price today",
+    "de": "Ø Bezugspreis heute"
+  },
+  "desc": {
+    "en": "Average price of the grid import reported today, weighted by consumption.",
+    "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh"
+  },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

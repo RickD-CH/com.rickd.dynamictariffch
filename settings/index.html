@@ -340,6 +340,14 @@
     </details>
 
     <details class="card sec">
+      <summary><h2 id="h2-flowtest"></h2></summary>
+      <p class="legend" id="p-flowtest-hint"></p>
+      <div class="viewsw" style="margin-top:10px"><button class="btn small" id="btn-test-digest"></button><button class="btn small" id="btn-test-reports"></button></div>
+      <p class="ok" id="flowtest-msg" hidden></p>
+      <p class="err" id="flowtest-err" hidden></p>
+    </details>
+
+    <details class="card sec">
       <summary><h2 id="h2-hourly"></h2></summary>
       <p class="legend" id="p-hourly-hint"></p>
       <div class="form" style="margin-top:12px;">
@@ -486,8 +494,8 @@
       features: [
         'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
         'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
-        '12 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
-        '25 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, Zählermeldungen bleiben aus/kommen wieder, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
+        '12 Capabilities (plus 6 wählbare: Kostenwerte und Einspeisepreis): aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
+        '26 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, Tageszusammenfassung, Zählermeldungen bleiben aus/kommen wieder, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
         'Zwei Dashboard-Widgets: Preiskurve für heute und morgen (mit Referenzlinie) und Kosten/Ersparnis gegenüber deinem Standardtarif',
         'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
       ],
@@ -601,6 +609,7 @@
       stNoReports: 'Noch keine Zählermeldungen. Sie sind optional und werden nur für den Kostenvergleich gebraucht.', stMonitorOff: 'Überwachung aus', stMonitorOn: 'Warnung nach', stHours: 'h',
       stKind_import: 'Netzbezug', stKind_export: 'Einspeisung', stKind_battery_charge: 'Batterie laden', stKind_battery_discharge: 'Batterie entladen',
       stReportsLate: 'Zählermeldungen bleiben aus', stNever: 'nie', stMetering: 'Messpunkt', stVersion: 'App-Version', stBackup: 'Letzte Sicherung',
+      flowtestHeading: 'Flows testen', flowtestHint: 'Löst einen Auslöser sofort aus, damit du deine Flows bauen und prüfen kannst. Alle Flows, die diesen Auslöser benutzen, laufen wirklich.', flowtestDigest: 'Tageszusammenfassung auslösen (für gestern)', flowtestReports: 'Zählermeldungen bleiben aus auslösen (Beispielwerte)', flowtestFired: 'Ausgelöst', flowtestNoData: 'Gestern gibt es keine Daten, es wurde nichts ausgelöst.',
       monitorTimeline: 'Timeline', monitorWhich: 'Welche Zähler überwachen?', monitorNeverReported: 'noch nie gemeldet', monitorConsumersNote: 'Verbraucher (Standard aus)',
       monitorHeading: 'Überwachung', monitorHint: 'Warnt, wenn Zählerstände, die du per Flow meldest, nicht mehr ankommen. Es wird nur überwacht, was mindestens einmal gemeldet wurde. Wer keine Zähler meldet, bekommt nie eine Warnung. Bei Warnung schaltet die Capability «Zählermeldungen fehlen» ein, und auf Wunsch kommt eine Meldung in die Timeline (einmal pro Vorfall). 0 = aus.',
       monitorHours: 'Warnung nach (Stunden)', monitorNotify: 'Meldung in der Timeline (einmal pro Vorfall)', monitorInvalid: 'Bitte eine Zahl von 0 bis 48 eingeben.',
@@ -634,8 +643,8 @@
       features: [
         'Pairing via metering point number + API token — the test/production environment is detected automatically',
         'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
-        '12 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
-        '25 Flow cards: price change, price thresholds, prices-for-tomorrow-available, meter readings stopped/are back, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
+        '12 capabilities (plus 6 optional: cost values and feed-in price): current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
+        '26 Flow cards: price change, price thresholds, prices-for-tomorrow-available, day summarised, meter readings stopped/are back, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
         'Two dashboard widgets: price curve for today and tomorrow (with reference line) and costs/savings compared to your standard tariff',
         'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
       ],
@@ -749,6 +758,7 @@
       stNoReports: 'No meter readings yet. They are optional and only needed for the cost comparison.', stMonitorOff: 'Monitoring off', stMonitorOn: 'Warning after', stHours: 'h',
       stKind_import: 'Grid import', stKind_export: 'Grid export', stKind_battery_charge: 'Battery charge', stKind_battery_discharge: 'Battery discharge',
       stReportsLate: 'Meter readings stopped arriving', stNever: 'never', stMetering: 'Metering point', stVersion: 'App version', stBackup: 'Last backup',
+      flowtestHeading: 'Test Flows', flowtestHint: 'Fires a trigger right away so you can build and check your Flows. All Flows that use this trigger really run.', flowtestDigest: 'Fire "day summarised" (for yesterday)', flowtestReports: 'Fire "meter readings stopped arriving" (sample values)', flowtestFired: 'Fired', flowtestNoData: 'There is no data for yesterday, nothing was fired.',
       monitorTimeline: 'Timeline', monitorWhich: 'Which meters to monitor?', monitorNeverReported: 'never reported', monitorConsumersNote: 'Consumers (off by default)',
       monitorHeading: 'Monitoring', monitorHint: 'Warns when meter readings you report from a Flow stop arriving. Only what has been reported at least once is monitored, so nobody who does not report meters gets a warning. On a warning the capability "Meter readings missing" turns on and, if you like, a message goes to the timeline (once per incident). 0 = off.',
       monitorHours: 'Warn after (hours)', monitorNotify: 'Timeline message (once per incident)', monitorInvalid: 'Please enter a number from 0 to 48.',
@@ -872,6 +882,10 @@
       $('h2-manage').textContent = T.manageHeading;
       $('h2-status').textContent = T.statusHeading;
       $('h2-monitor').textContent = T.monitorHeading;
+      $('h2-flowtest').textContent = T.flowtestHeading;
+      $('p-flowtest-hint').textContent = T.flowtestHint;
+      $('btn-test-digest').textContent = T.flowtestDigest;
+      $('btn-test-reports').textContent = T.flowtestReports;
       $('p-monitor-hint').textContent = T.monitorHint;
       $('l-monitor-hours').textContent = T.monitorHours;
       $('l-monitor-notify').textContent = T.monitorNotify;
@@ -1795,6 +1809,16 @@
         });
       });
 
+      function flowTest(path) {
+        var ok = $('flowtest-msg'); var err = $('flowtest-err');
+        ok.hidden = true; err.hidden = true;
+        apiCall('POST', path).then(function (r) {
+          ok.textContent = r && r.fired ? T.flowtestFired : T.flowtestNoData; ok.hidden = false;
+          setTimeout(function () { ok.hidden = true; }, 4000);
+        }).catch(function (e) { err.textContent = T.saveFailed + ((e && e.message) || e); err.hidden = false; });
+      }
+      $('btn-test-digest').addEventListener('click', function () { flowTest('/test/digest'); });
+      $('btn-test-reports').addEventListener('click', function () { flowTest('/test/reports'); });
       $('btn-monitor-save').addEventListener('click', function () {
         var ok = $('monitor-saved'); var err = $('monitor-error');
         ok.hidden = true; err.hidden = true;

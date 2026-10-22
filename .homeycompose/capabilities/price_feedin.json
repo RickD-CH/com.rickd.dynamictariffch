@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Feed-in price",
+    "de": "Einspeisevergütung"
+  },
+  "desc": {
+    "en": "Feed-in price delivered by the API for the current slot. Whether and how your utility pays it depends on your tariff.",
+    "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh"
+  },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

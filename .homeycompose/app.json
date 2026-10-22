@@ -116,6 +116,14 @@
     "getStatus": {
       "method": "get",
       "path": "/status"
+    },
+    "testDigest": {
+      "method": "post",
+      "path": "/test/digest"
+    },
+    "testReportsMissing": {
+      "method": "post",
+      "path": "/test/reports"
     }
   },
   "support": "https://community.homey.app/t/160031",
