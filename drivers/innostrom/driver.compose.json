@@ -16,6 +16,7 @@
     "price_rank_today",
     "price_level",
     "alarm_no_tomorrow",
+    "alarm_reports_missing",
     "last_update"
   ],
   "platforms": [

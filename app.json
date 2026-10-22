@@ -113,6 +113,10 @@
     "restoreBackup": {
       "method": "post",
       "path": "/backup/restore"
+    },
+    "getStatus": {
+      "method": "get",
+      "path": "/status"
     }
   },
   "support": "https://community.homey.app/t/160031",
@@ -1109,6 +1113,7 @@
         "price_rank_today",
         "price_level",
         "alarm_no_tomorrow",
+        "alarm_reports_missing",
         "last_update"
       ],
       "platforms": [
@@ -1403,6 +1408,21 @@
       "desc": {
         "en": "True when no prices for tomorrow are available yet (normally published by ~16:00).",
         "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert)."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/alarm.svg"
+    },
+    "alarm_reports_missing": {
+      "type": "boolean",
+      "title": {
+        "en": "Meter readings missing",
+        "de": "Zählermeldungen fehlen"
+      },
+      "desc": {
+        "en": "True when meter readings you reported from a Flow stopped arriving (see the monitoring threshold in the app settings). Never true if you do not report meter readings.",
+        "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest."
       },
       "getable": true,
       "setable": false,

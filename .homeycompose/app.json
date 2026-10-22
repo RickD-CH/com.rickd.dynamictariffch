@@ -112,6 +112,10 @@
     "restoreBackup": {
       "method": "post",
       "path": "/backup/restore"
+    },
+    "getStatus": {
+      "method": "get",
+      "path": "/status"
     }
   },
   "support": "https://community.homey.app/t/160031",

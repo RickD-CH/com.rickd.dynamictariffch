@@ -7,7 +7,12 @@
     "errorNoCheapestBlock": "No contiguous block of that length found in the time window (data missing).",
     "errorInvalidCounter": "Invalid counter value (must be a number, 0 or more).",
     "errorPricesIncomplete": "Hourly prices incomplete (data missing and no fallback flat rate configured).",
-    "errorConsumerLimit": "Too many consumers (maximum 6). Remove cost data to start over."
+    "errorConsumerLimit": "Too many consumers (maximum 6). Remove cost data to start over.",
+    "reportsMissing": "No meter readings received for {{age}} ({{kinds}}). Check the Flow that reports your meters.",
+    "kindImport": "grid import",
+    "kindExport": "grid export",
+    "kindBatteryCharge": "battery charge",
+    "kindBatteryDischarge": "battery discharge"
   },
   "repair": {
     "meteringCodeMismatch": "This metering point number doesn't match the existing device. Pair a new device instead to switch to a different metering point."

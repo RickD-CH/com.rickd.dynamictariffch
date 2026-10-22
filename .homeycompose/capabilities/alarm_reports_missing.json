@@ -1,0 +1,15 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Meter readings missing",
+    "de": "Zählermeldungen fehlen"
+  },
+  "desc": {
+    "en": "True when meter readings you reported from a Flow stopped arriving (see the monitoring threshold in the app settings). Never true if you do not report meter readings.",
+    "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/alarm.svg"
+}

@@ -2,6 +2,7 @@
 
 const { sanitizeRefPeriods } = require('./lib/CostTracker');
 const { normalizeHourlyOutput, parseHourlyOutput } = require('./lib/HourlyOutput');
+const { normalizeHours } = require('./lib/StatusRules');
 
 // Shows the first paired innostrom device - same simplification as the widget's api.js.
 function firstDevice(homey) {
@@ -23,6 +24,12 @@ module.exports = {
     const offset = Number(params && params.offset);
     if (!Number.isInteger(offset) || offset < 0 || offset > 13) throw new Error('Invalid day offset');
     return { paired: true, offset, slots: device.getCostChart(offset) };
+  },
+
+  async getStatus({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    return { paired: true, ...device.getStatus() };
   },
 
   async getBackupStatus({ homey }) {
@@ -94,6 +101,8 @@ module.exports = {
       battery: homey.settings.get('battery_params') || null,
       feedInMode: homey.settings.get('feed_in_mode') === 'api' ? 'api' : 'reference',
       hourlyOutput: normalizeHourlyOutput(homey.settings.get('hourly_output')),
+      monitorHours: normalizeHours(homey.settings.get('monitor_hours')),
+      monitorNotify: homey.settings.get('monitor_notify') !== false,
     };
   },
 
@@ -104,6 +113,16 @@ module.exports = {
       if (!Number.isFinite(v) || v < 0 || v > 100) throw new Error('Invalid VAT');
       homey.settings.set('vat_percent', Math.round(v * 100) / 100);
       out.vatPercent = homey.settings.get('vat_percent');
+    }
+    if (body && body.monitorHours !== undefined) {
+      const h = Number(body.monitorHours);
+      if (!Number.isFinite(h) || h < 0 || h > 48) throw new Error('Invalid monitoring threshold');
+      homey.settings.set('monitor_hours', normalizeHours(h));
+      out.monitorHours = homey.settings.get('monitor_hours');
+    }
+    if (body && body.monitorNotify !== undefined) {
+      homey.settings.set('monitor_notify', Boolean(body.monitorNotify));
+      out.monitorNotify = Boolean(body.monitorNotify);
     }
     if (body && body.hourlyOutput !== undefined) {
       homey.settings.set('hourly_output', parseHourlyOutput(body.hourlyOutput));

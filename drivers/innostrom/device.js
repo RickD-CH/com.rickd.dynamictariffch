@@ -10,6 +10,7 @@ const { analyzeDay } = require('../../lib/ShadowBattery');
 const { buildDayTable } = require('../../lib/PriceTable');
 const { normalizeHourlyOutput, formatHourlyPrice } = require('../../lib/HourlyOutput');
 const CostBackup = require('../../lib/CostBackup');
+const StatusRules = require('../../lib/StatusRules');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -69,9 +70,14 @@ class InnostromDevice extends Homey.Device {
     this._costTimer = null;
     this._backupTimer = null;
     this._restoring = false;
+    this._status = this.getStoreValue('status') || {};
 
     this._onAppSetting = (key) => {
       if (this._restoring) return;
+      if (key === 'monitor_hours' || key === 'monitor_notify') {
+        this._checkReports(new Date()).catch((err) => this.error('Überwachung fehlgeschlagen:', err));
+        return;
+      }
       if (key === 'feed_in_mode' || key === 'ref_periods') {
         // Stored per-day prices include the feed-in price: recompute them with the new setting.
         this.costTracker.dayPrices = {};
@@ -261,6 +267,7 @@ class InnostromDevice extends Homey.Device {
       this._scheduleDailyFetch();
     } else if (!isAtOrAfterLocal(new Date(), this.tz, DAILY_RETRY_CUTOFF)) {
       this._retryTimer = this.homey.setTimeout(() => this._runDailyFetch(), 15 * 60 * 1000);
+      this._status.nextPlanned = Date.now() + 15 * 60 * 1000;
     } else {
       this._scheduleDailyFetch();
     }
@@ -275,10 +282,12 @@ class InnostromDevice extends Homey.Device {
     this.priceStore.prune(startOfLocalDay(addLocalDays(new Date(), -1, this.tz), this.tz));
     await this.setStoreValue('slots', this.priceStore.toJSON());
     await this._setCapabilitySafe('last_update', formatDateTime(new Date(), this.tz));
+    await this._recordFetch(null);
   }
 
   /** @returns {Promise<'auth'|'retrying'|'gave-up'>} */
   async _handleFetchError(err, retryFn) {
+    await this._recordFetch(err);
     if (err instanceof InnostromError && err.code === 'AUTH') {
       await this.setUnavailable(this.homey.__('device.unavailableAuth'));
       return 'auth';
@@ -287,11 +296,119 @@ class InnostromDevice extends Homey.Device {
       const minutes = BACKOFF_MINUTES[Math.min(this._backoffIndex, BACKOFF_MINUTES.length - 1)];
       this._backoffIndex += 1;
       this._retryTimer = this.homey.setTimeout(() => retryFn(), minutes * 60 * 1000);
+      this._status.nextPlanned = Date.now() + minutes * 60 * 1000;
       this.error(`Abruf fehlgeschlagen (${err.code}), neuer Versuch in ${minutes} Min.:`, err.message);
       return 'retrying';
     }
     this.error('Abruf fehlgeschlagen, gebe auf bis zum nächsten geplanten Versuch:', err);
     return 'gave-up';
+  }
+
+  /** Remembers the outcome of a fetch for the status card (error text never contains the token). */
+  async _recordFetch(err) {
+    const now = Date.now();
+    this._status.lastFetchAttempt = now;
+    if (!err) {
+      this._status.lastFetchOk = now;
+      this._status.failures = 0;
+      this._status.lastError = null;
+    } else {
+      this._status.failures = (this._status.failures || 0) + 1;
+      this._status.lastError = { code: (err && err.code) || 'ERROR', message: String((err && err.message) || err).slice(0, 140), at: now };
+    }
+    await this.setStoreValue('status', this._status).catch((e) => this.error('Status speichern fehlgeschlagen:', e));
+  }
+
+  _monitorSettings() {
+    return {
+      hours: StatusRules.normalizeHours(this.homey.settings.get('monitor_hours')),
+      notify: this.homey.settings.get('monitor_notify') !== false,
+    };
+  }
+
+  _consumerReportTimes() {
+    return Object.fromEntries(Object.entries(this.costTracker.consumers)
+      .map(([name, c]) => [name, c.counter && c.counter.v ? c.counter.v.time : null]));
+  }
+
+  _assessReports(nowMs) {
+    return StatusRules.assessReports({
+      now: nowMs,
+      last: this.costTracker.lastReports(),
+      consumers: this._consumerReportTimes(),
+      thresholdHours: this._monitorSettings().hours,
+    });
+  }
+
+  /** Alarm capability + one timeline message per incident when reported meters stop arriving. */
+  async _checkReports(now) {
+    const a = this._assessReports(now.getTime());
+    const alarm = a.level === 'warn' || a.level === 'alarm';
+    await this._setCapabilitySafe('alarm_reports_missing', alarm);
+    if (alarm && !this._status.reportsAlarm) {
+      this._status.reportsAlarm = true;
+      await this.setStoreValue('status', this._status).catch(() => {});
+      if (this._monitorSettings().notify) {
+        const oldest = Math.max(...a.kinds.filter((k) => k.ageMin !== null).map((k) => k.ageMin));
+        const age = oldest >= 120 ? `${Math.round(oldest / 60)} h` : `${oldest} min`;
+        const names = {
+          import: 'kindImport', export: 'kindExport', battery_charge: 'kindBatteryCharge', battery_discharge: 'kindBatteryDischarge',
+        };
+        const kinds = a.stale.map((k) => this.homey.__(`device.${names[k]}`)).join(', ');
+        await this.homey.notifications.createNotification({ excerpt: this.homey.__('device.reportsMissing', { age, kinds }) })
+          .catch((err) => this.error('Timeline-Meldung fehlgeschlagen:', err));
+      }
+    } else if (!alarm && this._status.reportsAlarm) {
+      this._status.reportsAlarm = false;
+      await this.setStoreValue('status', this._status).catch(() => {});
+    }
+  }
+
+  /** Everything the status card shows. Ages in minutes, times in ms. */
+  getStatus() {
+    const now = new Date();
+    const nowMs = now.getTime();
+    const s = this._status || {};
+    const today = startOfLocalDay(now, this.tz);
+    const tomorrow = addLocalDays(today, 1, this.tz);
+    const dayAfter = addLocalDays(tomorrow, 1, this.tz);
+    const slotsOf = (from, to) => this.priceStore.range(from, to).filter((x) => Number.isFinite(x.integrated)).length;
+    const expected = (from, to) => Math.round((to.getTime() - from.getTime()) / SLOT_MS);
+    const tomorrowFull = this.priceStore.hasFullDay(tomorrow, { ratio: TOMORROW_COVERAGE_RATIO });
+    const lastOkAgeMin = s.lastFetchOk ? Math.round((nowMs - s.lastFetchOk) / 60000) : null;
+    const prices = StatusRules.assessPrices({
+      unavailable: !this.getAvailable(),
+      haveCurrentPrice: Boolean(this.priceStore.at(now)),
+      failures: s.failures || 0,
+      lastOkAgeMin,
+      tomorrowMissingAfterCutoff: !tomorrowFull && isAtOrAfterLocal(now, this.tz, { hour: 16, minute: 30 }),
+    });
+    const reports = this._assessReports(nowMs);
+    const backups = this._readBackups();
+    return {
+      level: StatusRules.overallLevel([prices.level, reports.level]),
+      environment: this._environment,
+      priceField: this._priceField,
+      metering: this._meteringHint(),
+      appVersion: this.homey.manifest.version,
+      available: this.getAvailable(),
+      prices: {
+        level: prices.level,
+        issues: prices.issues,
+        lastOk: s.lastFetchOk || null,
+        lastOkAgeMin,
+        lastAttempt: s.lastFetchAttempt || null,
+        failures: s.failures || 0,
+        lastError: s.lastError || null,
+        nextPlanned: s.nextPlanned && s.nextPlanned > nowMs ? s.nextPlanned : null,
+        todaySlots: slotsOf(today, tomorrow),
+        todayExpected: expected(today, tomorrow),
+        tomorrowSlots: slotsOf(tomorrow, dayAfter),
+        tomorrowExpected: expected(tomorrow, dayAfter),
+      },
+      reports: { ...reports, thresholdHours: this._monitorSettings().hours, notify: this._monitorSettings().notify },
+      backup: backups[0] ? { createdAt: backups[0].createdAt, days: backups[0].days } : null,
+    };
   }
 
   async actionRefresh() {
@@ -337,6 +454,7 @@ class InnostromDevice extends Homey.Device {
     let target = fromLocal(p.year, p.month, p.day, DAILY_FETCH_TIME.hour, DAILY_FETCH_TIME.minute, this.tz);
     if (target <= now) target = addLocalDays(target, 1, this.tz);
 
+    this._status.nextPlanned = target.getTime();
     this._dailyTimer = this.homey.setTimeout(() => {
       this._runDailyFetch().catch((err) => this.error('Täglicher Abruf fehlgeschlagen:', err));
     }, target.getTime() - now.getTime());
@@ -346,6 +464,7 @@ class InnostromDevice extends Homey.Device {
     const now = new Date();
     await this._updateCapabilities(now);
     await this._checkCheapestBlockStarts(now);
+    await this._checkReports(now);
   }
 
   // ---------------------------------------------------------------------

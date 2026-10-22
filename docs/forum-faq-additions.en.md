@@ -42,3 +42,7 @@ Widgets poll the app once a minute. A new price shows up at the start of the nex
 [details="How do I back up my cost data? What happens if I remove the device?"]
 From version 0.2.3 the app backs up the cost data every night at 03:30 and when you remove the device, in the app settings (it survives re-adding the device). If the new device has no cost data, the Costs tab offers to restore it. You can also export the backup as text (App settings, Settings tab, "Manage data", "Backup") and import it later or on another Homey. The token is never part of a backup.
 [/details]
+
+[details="What does the Status card in the app overview show? When does the app warn me?"]
+The Status card (under the live values) shows when prices were last fetched and when the next fetch is planned, how many quarter-hours are available for today and tomorrow, the last error, and when each reported meter reading last arrived. If you report meter readings from a Flow and they stop arriving for longer than the threshold (App settings, "Monitoring", default 1 hour), the card turns amber, the capability "Meter readings missing" switches on and, if enabled, a message goes to the timeline (once per incident). Only meters you have reported at least once are monitored; if you do not report any, you never get a warning. Set the threshold to 0 to switch monitoring off.
+[/details]

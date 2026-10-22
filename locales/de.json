@@ -7,7 +7,12 @@
     "errorNoCheapestBlock": "Kein zusammenhängender Block dieser Länge im Zeitfenster gefunden (Daten fehlen).",
     "errorInvalidCounter": "Ungültiger Zählerstand (muss eine Zahl von 0 oder mehr sein).",
     "errorPricesIncomplete": "Stundenpreise unvollständig (Daten fehlen und kein Einheitstarif als Fallback eingestellt).",
-    "errorConsumerLimit": "Zu viele Verbraucher (maximal 6). Kostendaten zurücksetzen, um neu zu beginnen."
+    "errorConsumerLimit": "Zu viele Verbraucher (maximal 6). Kostendaten zurücksetzen, um neu zu beginnen.",
+    "reportsMissing": "Seit {{age}} keine Zählermeldungen mehr ({{kinds}}). Prüfe den Flow, der deine Zähler meldet.",
+    "kindImport": "Netzbezug",
+    "kindExport": "Einspeisung",
+    "kindBatteryCharge": "Batterie laden",
+    "kindBatteryDischarge": "Batterie entladen"
   },
   "repair": {
     "meteringCodeMismatch": "Diese Messpunktnummer stimmt nicht mit dem bestehenden Gerät überein. Für einen anderen Messpunkt bitte neu koppeln statt reparieren."

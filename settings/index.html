@@ -208,6 +208,17 @@
     .ylabels { position: absolute; left: 8px; top: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--st-muted); pointer-events: none; }
     .swatch { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
     .bk-text { width: 100%; box-sizing: border-box; font-family: ui-monospace, Consolas, monospace; font-size: 11px; padding: 8px; border: 1px solid var(--st-border); border-radius: 8px; background: var(--st-bg); color: var(--st-text); }
+    .warn.amber { background: rgba(251,140,0,.14); color: var(--st-text); }
+    .st-line { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 12px; color: var(--st-muted); font-weight: 400; }
+    .st-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; background: var(--st-normal); }
+    .st-dot.ok { background: var(--st-cheap); }
+    .st-dot.warn { background: #fb8c00; }
+    .st-dot.alarm { background: var(--st-expensive); }
+    table.stat { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table.stat td { padding: 7px 4px; border-top: 1px solid var(--st-border); vertical-align: top; font-size: 12px; }
+    table.stat td:first-child { color: var(--st-muted); width: 34%; white-space: nowrap; }
+    table.stat .warnTxt { color: #fb8c00; font-weight: 600; }
+    table.stat .alarmTxt { color: var(--st-expensive); font-weight: 600; }
     .bk-check { display: flex; gap: 8px; align-items: center; margin: 10px 0 6px; font-size: 12px; }
     .manage-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--st-border); }
     .manage-row:first-of-type { border-top: 0; }
@@ -250,10 +261,16 @@
   </nav>
 
 <div class="panel active" id="panel-overview">
+    <div class="warn" id="status-banner" hidden></div>
     <div class="card" id="live-card">
       <h2 id="h2-live"></h2>
       <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
     </div>
+
+    <details class="card sec" id="status-card">
+      <summary><h2 id="h2-status"></h2><div class="st-line"><span class="st-dot" id="status-dot"></span><span id="status-summary"></span></div></summary>
+      <div id="status-body"></div>
+    </details>
   </div>
 
   <div class="panel" id="panel-costs">
@@ -301,6 +318,21 @@
         <button class="btn primary" id="btn-vat-save"></button>
         <span class="ok" id="vat-saved" hidden></span>
         <span class="err" id="vat-error" hidden></span>
+      </div>
+    </details>
+
+    <details class="card sec">
+      <summary><h2 id="h2-monitor"></h2></summary>
+      <p class="legend" id="p-monitor-hint"></p>
+      <div class="form" style="margin-top:12px;">
+        <label for="monitor-hours" id="l-monitor-hours"></label>
+        <input type="number" id="monitor-hours" min="0" max="48" step="0.25" />
+      </div>
+      <label class="bk-check"><input type="checkbox" id="monitor-notify" /> <span id="l-monitor-notify"></span></label>
+      <div class="row">
+        <button class="btn primary" id="btn-monitor-save"></button>
+        <span class="ok" id="monitor-saved" hidden></span>
+        <span class="err" id="monitor-error" hidden></span>
       </div>
     </details>
 
@@ -451,7 +483,7 @@
       features: [
         'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
         'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
-        '11 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, letzte Aktualisierung',
+        '12 Capabilities: aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
         '22 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
         'Zwei Dashboard-Widgets: Preiskurve für heute und morgen (mit Referenzlinie) und Kosten/Ersparnis gegenüber deinem Standardtarif',
         'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
@@ -558,6 +590,16 @@
       reportsHeading: 'Letzte Meldungen deiner Zähler',
       reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
       never: 'noch nie gemeldet', ago: 'vor', min: 'Min.', hours: 'Std.', days: 'Tagen',
+      statusHeading: 'Status', stOk: 'Alles in Ordnung', stPrices: 'Preise', stConn: 'Verbindung', stReports: 'Zählermeldungen', stDevice: 'Gerät',
+      stLastOk: 'Letzter Abruf', stNext: 'Nächster Abruf', stData: 'Daten', stToday: 'heute', stTomorrow: 'morgen', stAgo: 'vor', stToWord: 'um', stTodayWord: 'heute', stTomorrowWord: 'morgen',
+      stEnv: 'Umgebung', stEnvProd: 'Produktion', stEnvTest: 'Test (konstante Preise)', stPriceField: 'Preisart', stLastError: 'Letzter Fehler', stFailures: 'Fehlversuche in Folge',
+      stIssue_auth: 'Zugangsdaten abgelehnt (Token oder Messpunktnummer prüfen)', stIssue_no_current_price: 'Kein Preis für jetzt vorhanden',
+      stIssue_fetch_failing: 'Der Abruf schlägt wiederholt fehl', stIssue_stale: 'Die Preise sind älter als 26 Stunden', stIssue_no_tomorrow: 'Die Preise für morgen fehlen noch',
+      stNoReports: 'Noch keine Zählermeldungen. Sie sind optional und werden nur für den Kostenvergleich gebraucht.', stMonitorOff: 'Überwachung aus', stMonitorOn: 'Warnung nach', stHours: 'h',
+      stKind_import: 'Netzbezug', stKind_export: 'Einspeisung', stKind_battery_charge: 'Batterie laden', stKind_battery_discharge: 'Batterie entladen',
+      stReportsLate: 'Zählermeldungen bleiben aus', stNever: 'nie', stMetering: 'Messpunkt', stVersion: 'App-Version', stBackup: 'Letzte Sicherung',
+      monitorHeading: 'Überwachung', monitorHint: 'Warnt, wenn Zählerstände, die du per Flow meldest, nicht mehr ankommen. Es wird nur überwacht, was mindestens einmal gemeldet wurde. Wer keine Zähler meldet, bekommt nie eine Warnung. Bei Warnung schaltet die Capability «Zählermeldungen fehlen» ein, und auf Wunsch kommt eine Meldung in die Timeline (einmal pro Vorfall). 0 = aus.',
+      monitorHours: 'Warnung nach (Stunden)', monitorNotify: 'Meldung in der Timeline (einmal pro Vorfall)', monitorInvalid: 'Bitte eine Zahl von 0 bis 48 eingeben.',
       backupHeading: 'Sicherung',
       backupNone: 'Noch keine Sicherung. Sie entsteht automatisch, sobald Kostendaten vorliegen.',
       backupLast: 'Letzte automatische Sicherung', backupDaysWord: 'Tage', backupConsumersWord: 'Verbraucher',
@@ -588,7 +630,7 @@
       features: [
         'Pairing via metering point number + API token — the test/production environment is detected automatically',
         'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
-        '11 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, last update',
+        '12 capabilities: current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
         '22 Flow cards: price change, price thresholds, prices-for-tomorrow-available, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
         'Two dashboard widgets: price curve for today and tomorrow (with reference line) and costs/savings compared to your standard tariff',
         'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
@@ -695,6 +737,16 @@
       reportsHeading: 'Last reports from your meters',
       reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
       never: 'never reported', ago: '', min: 'min ago', hours: 'h ago', days: 'days ago',
+      statusHeading: 'Status', stOk: 'Everything is fine', stPrices: 'Prices', stConn: 'Connection', stReports: 'Meter readings', stDevice: 'Device',
+      stLastOk: 'Last fetch', stNext: 'Next fetch', stData: 'Data', stToday: 'today', stTomorrow: 'tomorrow', stAgo: 'ago', stToWord: 'at', stTodayWord: 'today', stTomorrowWord: 'tomorrow',
+      stEnv: 'Environment', stEnvProd: 'Production', stEnvTest: 'Test (constant prices)', stPriceField: 'Price type', stLastError: 'Last error', stFailures: 'Failed attempts in a row',
+      stIssue_auth: 'Credentials rejected (check token or metering point number)', stIssue_no_current_price: 'No price for right now',
+      stIssue_fetch_failing: 'Fetching keeps failing', stIssue_stale: 'Prices are older than 26 hours', stIssue_no_tomorrow: 'Prices for tomorrow are still missing',
+      stNoReports: 'No meter readings yet. They are optional and only needed for the cost comparison.', stMonitorOff: 'Monitoring off', stMonitorOn: 'Warning after', stHours: 'h',
+      stKind_import: 'Grid import', stKind_export: 'Grid export', stKind_battery_charge: 'Battery charge', stKind_battery_discharge: 'Battery discharge',
+      stReportsLate: 'Meter readings stopped arriving', stNever: 'never', stMetering: 'Metering point', stVersion: 'App version', stBackup: 'Last backup',
+      monitorHeading: 'Monitoring', monitorHint: 'Warns when meter readings you report from a Flow stop arriving. Only what has been reported at least once is monitored, so nobody who does not report meters gets a warning. On a warning the capability "Meter readings missing" turns on and, if you like, a message goes to the timeline (once per incident). 0 = off.',
+      monitorHours: 'Warn after (hours)', monitorNotify: 'Timeline message (once per incident)', monitorInvalid: 'Please enter a number from 0 to 48.',
       backupHeading: 'Backup',
       backupNone: 'No backup yet. It is created automatically as soon as there is cost data.',
       backupLast: 'Last automatic backup', backupDaysWord: 'days', backupConsumersWord: 'consumers',
@@ -813,6 +865,12 @@
       }).join('');
       $('p-meters-note').textContent = T.metersNote;
       $('h2-manage').textContent = T.manageHeading;
+      $('h2-status').textContent = T.statusHeading;
+      $('h2-monitor').textContent = T.monitorHeading;
+      $('p-monitor-hint').textContent = T.monitorHint;
+      $('l-monitor-hours').textContent = T.monitorHours;
+      $('l-monitor-notify').textContent = T.monitorNotify;
+      $('btn-monitor-save').textContent = T.save;
       $('h3-backup').textContent = T.backupHeading;
       $('p-backup-hint').textContent = T.backupHint;
       $('btn-backup-save').textContent = T.backupSaveBtn;
@@ -1500,6 +1558,8 @@
             $('vat-input').value = cfg.vatPercent == null ? 8.1 : cfg.vatPercent;
             $('feedin-mode').value = cfg.feedInMode === 'api' ? 'api' : 'reference';
             appVat = cfg.vatPercent == null ? 8.1 : cfg.vatPercent;
+            $('monitor-hours').value = cfg.monitorHours == null ? 1 : cfg.monitorHours;
+            $('monitor-notify').checked = cfg.monitorNotify !== false;
             var ho = cfg.hourlyOutput || {};
             $('hourly-unit').value = ho.unit === 'chf' ? 'chf' : 'rp';
             $('hourly-vat').value = ho.vat === 'excl' ? 'excl' : 'incl';
@@ -1515,6 +1575,72 @@
 
       function loadShadow() {
         return apiCall('GET', '/cost/shadow').then(renderShadow);
+      }
+
+      function ageText(min) {
+        if (min === null || min === undefined) return T.stNever;
+        if (min < 60) return min + ' min';
+        if (min < 48 * 60) return Math.floor(min / 60) + ' h ' + (min % 60 ? (min % 60) + ' min' : '');
+        return Math.floor(min / 1440) + ' d';
+      }
+
+      function clockText(ms) {
+        var d = new Date(ms); var now = new Date();
+        var t = d.toLocaleTimeString(DE ? 'de-CH' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+        var dayMs = 86400000;
+        var diff = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / dayMs);
+        return (diff === 0 ? T.stTodayWord : diff === 1 ? T.stTomorrowWord : d.getDate() + '.' + (d.getMonth() + 1) + '.') + ' ' + t;
+      }
+
+      function renderStatus(st) {
+        var banner = $('status-banner'); var card = $('status-card');
+        if (!st || !st.paired) { card.hidden = true; banner.hidden = true; return; }
+        card.hidden = false;
+        var msgs = [];
+        (st.prices.issues || []).forEach(function (c) { msgs.push(T['stIssue_' + c] || c); });
+        var rep = st.reports;
+        if (rep && (rep.level === 'warn' || rep.level === 'alarm')) {
+          msgs.push(T.stReportsLate + ': ' + rep.kinds.filter(function (k) { return k.level === 'warn' || k.level === 'alarm'; }).map(function (k) { return T['stKind_' + k.kind] + ' (' + ageText(k.ageMin) + ')'; }).join(', '));
+        }
+        $('status-dot').className = 'st-dot ' + (st.level === 'alarm' ? 'alarm' : st.level === 'warn' ? 'warn' : 'ok');
+        $('status-summary').textContent = msgs.length ? msgs[0] : T.stOk;
+        banner.hidden = msgs.length === 0;
+        banner.className = 'warn' + (st.level === 'alarm' ? '' : ' amber');
+        banner.textContent = '';
+        msgs.forEach(function (m, i) { banner.appendChild(document.createTextNode((i ? ' · ' : '') + m)); });
+
+        var p = st.prices;
+        var lvlCls = function (l) { return l === 'alarm' ? 'alarmTxt' : l === 'warn' ? 'warnTxt' : ''; };
+        var priceLines = [
+          T.stLastOk + ': ' + (p.lastOk ? T.stAgo + ' ' + ageText(p.lastOkAgeMin) : T.stNever),
+          T.stNext + ': ' + (p.nextPlanned ? clockText(p.nextPlanned) : '–'),
+          T.stData + ': ' + T.stToday + ' ' + p.todaySlots + '/' + p.todayExpected + ', ' + T.stTomorrow + ' ' + p.tomorrowSlots + '/' + p.tomorrowExpected,
+        ];
+        if (p.failures) priceLines.push(T.stFailures + ': ' + p.failures);
+        if (p.lastError) priceLines.push(T.stLastError + ': ' + p.lastError.code + ' – ' + p.lastError.message + ' (' + T.stAgo + ' ' + ageText(Math.round((Date.now() - p.lastError.at) / 60000)) + ')');
+        var issueHtml = (p.issues || []).map(function (c) { return '<div class="' + lvlCls(p.level) + '">' + escapeHtml(T['stIssue_' + c] || c) + '</div>'; }).join('');
+
+        var repHtml;
+        if (!rep.monitored) {
+          repHtml = escapeHtml(T.stNoReports);
+        } else {
+          repHtml = rep.kinds.filter(function (k) { return k.last !== null; }).map(function (k) {
+            return '<div class="' + lvlCls(k.level) + '">' + escapeHtml(T['stKind_' + k.kind]) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(k.ageMin)) + '</div>';
+          }).join('') + (rep.consumers || []).map(function (c) {
+            return '<div class="legend">' + escapeHtml(c.name) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(c.ageMin)) + '</div>';
+          }).join('') + '<div class="legend">' + escapeHtml(rep.thresholdHours > 0 ? T.stMonitorOn + ' ' + rep.thresholdHours + ' ' + T.stHours : T.stMonitorOff) + '</div>';
+        }
+        $('status-body').innerHTML = '<table class="stat"><tbody>' +
+          '<tr><td>' + escapeHtml(T.stPrices) + '</td><td>' + priceLines.map(escapeHtml).join('<br>') + issueHtml + '</td></tr>' +
+          '<tr><td>' + escapeHtml(T.stConn) + '</td><td>' + escapeHtml(T.stEnv) + ': ' + escapeHtml(st.environment === 'test' ? T.stEnvTest : T.stEnvProd) + '<br>' + escapeHtml(T.stPriceField) + ': ' + escapeHtml(st.priceField) + '</td></tr>' +
+          '<tr><td>' + escapeHtml(T.stReports) + '</td><td>' + repHtml + '</td></tr>' +
+          '<tr><td>' + escapeHtml(T.stDevice) + '</td><td>' + escapeHtml(T.stMetering) + ': ' + escapeHtml(st.metering || '–') + '<br>' + escapeHtml(T.stVersion) + ': ' + escapeHtml(st.appVersion || '–') +
+          (st.backup ? '<br>' + escapeHtml(T.stBackup) + ': ' + escapeHtml(fmtStamp(st.backup.createdAt)) + ' (' + st.backup.days + ' ' + escapeHtml(T.backupDaysWord) + ')' : '') + '</td></tr>' +
+          '</tbody></table>';
+      }
+
+      function loadStatus() {
+        return apiCall('GET', '/status').then(renderStatus);
       }
 
       function fmtStamp(ms) {
@@ -1574,6 +1700,7 @@
 
       function loadAll() {
         return Promise.all([
+          loadStatus().catch(function (err) { console.error(err); }),
           loadBackup().catch(function (err) { console.error(err); }),
           loadShadow().catch(function (err) { console.error(err); }),
           loadPrices().catch(function (err) { console.error(err); }),
@@ -1636,6 +1763,18 @@
         });
       });
 
+      $('btn-monitor-save').addEventListener('click', function () {
+        var ok = $('monitor-saved'); var err = $('monitor-error');
+        ok.hidden = true; err.hidden = true;
+        var raw = $('monitor-hours').value;
+        var h = Number(raw);
+        if (raw === '' || !isFinite(h) || h < 0 || h > 48) { err.textContent = T.monitorInvalid; err.hidden = false; return; }
+        apiCall('PUT', '/config', { monitorHours: h, monitorNotify: $('monitor-notify').checked }).then(function () {
+          ok.textContent = T.savedMsg; ok.hidden = false;
+          setTimeout(function () { ok.hidden = true; }, 2500);
+          return loadStatus();
+        }).catch(function (e) { err.textContent = T.saveFailed + ((e && e.message) || e); err.hidden = false; });
+      });
       $('btn-backup-save').addEventListener('click', function () {
         apiCall('POST', '/backup/save').then(function (r) {
           backupMessage(r && r.saved ? T.backupSaved : T.backupNone, false);
