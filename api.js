@@ -25,6 +25,37 @@ module.exports = {
     return { paired: true, offset, slots: device.getCostChart(offset) };
   },
 
+  async getBackupStatus({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) return { paired: false };
+    return { paired: true, ...device.getBackupStatus() };
+  },
+
+  async saveBackup({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    const done = await device.writeBackup();
+    return { saved: Boolean(done), ...(done || {}) };
+  },
+
+  async exportBackup({ homey }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.exportBackup();
+  },
+
+  async inspectBackup({ homey, body }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.inspectBackup(body && body.text);
+  },
+
+  async restoreBackup({ homey, body }) {
+    const device = firstDevice(homey);
+    if (!device) throw new Error('No device paired');
+    return device.restoreBackup(body || {});
+  },
+
   async getPrices({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };

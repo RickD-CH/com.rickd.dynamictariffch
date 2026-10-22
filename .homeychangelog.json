@@ -1,4 +1,8 @@
 {
+  "0.2.3": {
+    "en": "Your cost data is now backed up automatically every night in the app settings, so it survives removing and re-adding the device. You can also export it as text and restore it from the app settings (Manage data). The token is never part of a backup.",
+    "de": "Deine Kostendaten werden jetzt jede Nacht automatisch in den App-Einstellungen gesichert und überstehen so das Entfernen und erneute Hinzufügen des Geräts. Du kannst sie auch als Text exportieren und in den App-Einstellungen (Daten verwalten) wiederherstellen. Das Token ist nie Teil einer Sicherung."
+  },
   "0.2.2": {
     "en": "The hourly price cards can now output exactly what your energy management system expects: choose Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals in the app settings. No conversion script needed any more.",
     "de": "Die Stundenpreis-Karten geben jetzt genau das aus, was dein Energiemanagementsystem erwartet: In den App-Einstellungen wählst du Rp./kWh oder CHF/kWh, mit oder ohne MWST und die Anzahl Nachkommastellen. Ein Umrechnungs-Script ist nicht mehr nötig."

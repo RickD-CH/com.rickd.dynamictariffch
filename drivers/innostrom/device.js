@@ -9,6 +9,7 @@ const {
 const { analyzeDay } = require('../../lib/ShadowBattery');
 const { buildDayTable } = require('../../lib/PriceTable');
 const { normalizeHourlyOutput, formatHourlyPrice } = require('../../lib/HourlyOutput');
+const CostBackup = require('../../lib/CostBackup');
 const {
   SLOT_MS, localParts, localDateKey, startOfLocalDay, addLocalDays, floorToSlot, windowAround, fromLocal, parseHHMM,
 } = require('../../lib/time');
@@ -66,8 +67,11 @@ class InnostromDevice extends Homey.Device {
 
     this.costTracker = CostTracker.fromJSON(this.getStoreValue('cost'), { tz: this.tz });
     this._costTimer = null;
+    this._backupTimer = null;
+    this._restoring = false;
 
     this._onAppSetting = (key) => {
+      if (this._restoring) return;
       if (key === 'feed_in_mode' || key === 'ref_periods') {
         // Stored per-day prices include the feed-in price: recompute them with the new setting.
         this.costTracker.dayPrices = {};
@@ -101,6 +105,7 @@ class InnostromDevice extends Homey.Device {
     this._scheduleTick();
     this._scheduleDailyFetch();
 
+    this._scheduleBackup();
     this._initialFetch().catch((err) => this.error('Initialabruf fehlgeschlagen:', err));
   }
 
@@ -133,12 +138,16 @@ class InnostromDevice extends Homey.Device {
   async onDeleted() {
     this.homey.settings.removeListener('set', this._onAppSetting);
     this._clearTimers();
+    // Last chance to keep the cost data: the app-level backup survives removing the device.
+    await this.writeBackup().catch((err) => this.error('Sicherung beim Löschen fehlgeschlagen:', err));
   }
 
   _clearTimers() {
     if (this._tickTimer) this.homey.clearTimeout(this._tickTimer);
     if (this._dailyTimer) this.homey.clearTimeout(this._dailyTimer);
     if (this._retryTimer) this.homey.clearTimeout(this._retryTimer);
+    if (this._backupTimer) this.homey.clearTimeout(this._backupTimer);
+    this._backupTimer = null;
     this._tickTimer = null;
     this._dailyTimer = null;
     this._retryTimer = null;
@@ -749,6 +758,159 @@ class InnostromDevice extends Homey.Device {
       noBattery: 0, actual: 0, pvOnly: 0, withGrid: 0, gridChargeValue: 0, unused: 0, batteryGain: 0,
     });
     return { params, days, total };
+  }
+
+  // ---------------------------------------------------------------------
+  // Backup of the cost data (app-level copy + manual text export/import)
+  // ---------------------------------------------------------------------
+
+  _backupKey() {
+    return `cost_backup_${this.getData().id}`;
+  }
+
+  _readBackups() {
+    const v = this.homey.settings.get(this._backupKey());
+    return v && Array.isArray(v.items) ? v.items : [];
+  }
+
+  _hasCostData() {
+    return Object.keys(this.costTracker.days).length > 0 || Object.keys(this.costTracker.consumers).length > 0;
+  }
+
+  _meteringHint() {
+    const id = String(this.getData().id || '');
+    return id ? `…${id.slice(-4)}` : null;
+  }
+
+  _settingsSnapshot() {
+    const out = {};
+    for (const k of ['ref_periods', 'vat_percent', 'battery_params', 'feed_in_mode', 'hourly_output']) {
+      const v = this.homey.settings.get(k);
+      if (v !== null && v !== undefined) out[k] = v;
+    }
+    return out;
+  }
+
+  _costText({ withSettings = true } = {}) {
+    return CostBackup.pack({
+      cost: this.costTracker.toJSON(),
+      settings: withSettings ? this._settingsSnapshot() : {},
+      appVersion: this.homey.manifest.version,
+      metering: this._meteringHint(),
+    });
+  }
+
+  /** Keeps the two most recent daily backups in the app settings (survive removing the device). */
+  async writeBackup() {
+    if (!this._hasCostData()) return null;
+    const dayKey = localDateKey(new Date(), this.tz);
+    const meta = {
+      createdAt: Date.now(),
+      day: dayKey,
+      days: Object.keys(this.costTracker.days).length,
+      consumers: Object.keys(this.costTracker.consumers).length,
+      text: this._costText(),
+    };
+    let items = this._readBackups();
+    if (items[0] && items[0].day === dayKey) items[0] = meta;
+    else items.unshift(meta);
+    items = items.slice(0, 2);
+    this.homey.settings.set(this._backupKey(), { items });
+    return { createdAt: meta.createdAt, days: meta.days, consumers: meta.consumers };
+  }
+
+  /** First backup shortly after start when none is fresh, then every night at 03:30 local. */
+  _scheduleBackup(initial = true) {
+    if (this._backupTimer) this.homey.clearTimeout(this._backupTimer);
+    const items = this._readBackups();
+    const stale = !items.length || Date.now() - items[0].createdAt > 20 * 3600 * 1000;
+    let delay;
+    if (initial && stale) {
+      delay = 90 * 1000;
+    } else {
+      const now = new Date();
+      const p = localParts(now, this.tz);
+      let target = fromLocal(p.year, p.month, p.day, 3, 30, this.tz);
+      if (target <= now) target = addLocalDays(target, 1, this.tz);
+      delay = target.getTime() - now.getTime();
+    }
+    this._backupTimer = this.homey.setTimeout(() => {
+      this.writeBackup()
+        .catch((err) => this.error('Sicherung fehlgeschlagen:', err))
+        .then(() => this._scheduleBackup(false))
+        .catch((err) => this.error('Sicherung neu planen fehlgeschlagen:', err));
+    }, delay);
+  }
+
+  getBackupStatus() {
+    const items = this._readBackups().map((i) => ({
+      createdAt: i.createdAt, day: i.day, days: i.days, consumers: i.consumers,
+    }));
+    const deviceHasData = this._hasCostData();
+    return {
+      items,
+      deviceHasData,
+      restorable: items.length > 0 && !deviceHasData,
+      metering: this._meteringHint(),
+      appVersion: this.homey.manifest.version,
+    };
+  }
+
+  /** Backup text for the manual export (cost data and app settings, never the token). */
+  exportBackup() {
+    const text = this._costText();
+    return { text, summary: CostBackup.summarize(CostBackup.unpack(text)) };
+  }
+
+  inspectBackup(text) {
+    try {
+      return CostBackup.summarize(CostBackup.unpack(text));
+    } catch (err) {
+      if (err instanceof CostBackup.BackupError) throw new Error('Invalid backup');
+      throw err;
+    }
+  }
+
+  async restoreBackup({
+    source, index, text, mode, includeSettings,
+  } = {}) {
+    if (mode !== 'replace' && mode !== 'merge') throw new Error('Invalid mode');
+    let raw = text;
+    if (source === 'app') {
+      const item = this._readBackups()[Number(index) || 0];
+      if (!item) throw new Error('No backup');
+      raw = item.text;
+    }
+    let backup;
+    try {
+      backup = CostBackup.unpack(raw);
+    } catch (err) {
+      if (err instanceof CostBackup.BackupError) throw new Error('Invalid backup');
+      throw err;
+    }
+    const incoming = CostBackup.withoutBaselines(backup.cost);
+    const next = mode === 'merge' ? CostBackup.mergeCost(this.costTracker.toJSON(), incoming) : incoming;
+    // Keep a copy of what is about to be replaced.
+    if (this._hasCostData()) await this.writeBackup();
+
+    this.costTracker = CostTracker.fromJSON(next, { tz: this.tz });
+    await this._flushCost();
+
+    const applied = [];
+    if (includeSettings) {
+      this._restoring = true;
+      try {
+        for (const [k, v] of Object.entries(backup.settings)) {
+          this.homey.settings.set(k, v);
+          applied.push(k);
+        }
+      } finally {
+        this._restoring = false;
+      }
+      this._vatPercent = this._readVat(this.getSettings());
+      await this._updateCapabilities(new Date());
+    }
+    return { summary: CostBackup.summarize({ ...backup, cost: next }), settings: applied };
   }
 
   async resetCost() {

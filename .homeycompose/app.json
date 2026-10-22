@@ -1,6 +1,6 @@
 {
   "id": "com.rickd.dynamictariffch",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -92,6 +92,26 @@
     "getCostChart": {
       "method": "get",
       "path": "/cost/chart/:offset"
+    },
+    "getBackupStatus": {
+      "method": "get",
+      "path": "/backup"
+    },
+    "saveBackup": {
+      "method": "post",
+      "path": "/backup/save"
+    },
+    "exportBackup": {
+      "method": "post",
+      "path": "/backup/export"
+    },
+    "inspectBackup": {
+      "method": "post",
+      "path": "/backup/inspect"
+    },
+    "restoreBackup": {
+      "method": "post",
+      "path": "/backup/restore"
     }
   },
   "support": "https://community.homey.app/t/160031",

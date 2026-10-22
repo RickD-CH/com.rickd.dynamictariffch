@@ -207,6 +207,8 @@
     .svgchart svg { width: 100%; height: 170px; display: block; background: var(--st-chip-bg); border-radius: 8px; }
     .ylabels { position: absolute; left: 8px; top: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--st-muted); pointer-events: none; }
     .swatch { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px; }
+    .bk-text { width: 100%; box-sizing: border-box; font-family: ui-monospace, Consolas, monospace; font-size: 11px; padding: 8px; border: 1px solid var(--st-border); border-radius: 8px; background: var(--st-bg); color: var(--st-text); }
+    .bk-check { display: flex; gap: 8px; align-items: center; margin: 10px 0 6px; font-size: 12px; }
     .manage-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--st-border); }
     .manage-row:first-of-type { border-top: 0; }
     .manage-row select { padding: 7px 9px; font-size: 14px; border: 1px solid var(--st-border); border-radius: 8px; background: var(--st-bg); color: var(--st-text); min-width: 140px; }
@@ -255,6 +257,13 @@
   </div>
 
   <div class="panel" id="panel-costs">
+    <div class="card" id="backup-notice" hidden>
+      <h2 id="h2-backup-found"></h2>
+      <p class="sub" id="p-backup-found" style="margin-bottom:12px"></p>
+      <button class="btn primary" id="btn-backup-restore-app"></button>
+      <p class="err" id="backup-notice-err" hidden></p>
+    </div>
+
     <div class="card">
       <h2 id="h2-costs"></h2>
       <div id="cost-root"><div class="no-device" id="cost-loading"></div></div>
@@ -383,6 +392,27 @@
       <div class="manage-row">
         <span class="legend" id="p-reset-hint"></span>
         <button class="btn danger" id="btn-reset"></button>
+      </div>
+      <div class="manage-row" style="display:block">
+        <h3 id="h3-backup" style="font-size:14px;margin:0 0 6px"></h3>
+        <p class="legend" id="p-backup-status" style="margin-top:0"></p>
+        <p class="legend" id="p-backup-hint"></p>
+        <div class="viewsw"><button class="btn small" id="btn-backup-save"></button><button class="btn small" id="btn-backup-export"></button></div>
+        <div id="backup-export-box" hidden>
+          <p class="legend" id="p-export-hint"></p>
+          <textarea id="backup-export-text" readonly rows="4" class="bk-text"></textarea>
+          <button class="btn small" id="btn-backup-copy"></button>
+        </div>
+      </div>
+      <div class="manage-row" style="display:block">
+        <label for="backup-import-text" id="l-backup-import" style="display:block;margin-bottom:6px"></label>
+        <textarea id="backup-import-text" rows="3" class="bk-text"></textarea>
+        <div class="viewsw" style="margin-top:8px"><button class="btn small" id="btn-backup-check"></button></div>
+        <p class="legend" id="p-backup-check" hidden></p>
+        <div id="backup-restore-row" hidden>
+          <label class="bk-check"><input type="checkbox" id="backup-with-settings" checked /> <span id="l-backup-settings"></span></label>
+          <div class="viewsw"><button class="btn" id="btn-backup-merge"></button><button class="btn danger" id="btn-backup-replace"></button></div>
+        </div>
       </div>
       <p class="ok" id="manage-msg" hidden></p>
       <p class="err" id="manage-err" hidden></p>
@@ -527,6 +557,16 @@
       reportsHeading: 'Letzte Meldungen deiner Zähler',
       reports: { import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung' },
       never: 'noch nie gemeldet', ago: 'vor', min: 'Min.', hours: 'Std.', days: 'Tagen',
+      backupHeading: 'Sicherung',
+      backupNone: 'Noch keine Sicherung. Sie entsteht automatisch, sobald Kostendaten vorliegen.',
+      backupLast: 'Letzte automatische Sicherung', backupDaysWord: 'Tage', backupConsumersWord: 'Verbraucher',
+      backupHint: 'Die App sichert jede Nacht um 03:30 und beim Entfernen des Geräts. Die Sicherung liegt in den App-Einstellungen und übersteht das Neukoppeln des Geräts.',
+      backupSaveBtn: 'Jetzt sichern', backupExportBtn: 'Als Text exportieren', backupCopy: 'Kopieren', backupCopied: 'Kopiert',
+      backupExportHint: 'Sicherung als Text, zum Aufbewahren oder für eine andere Homey. Sie enthält nie das Token.',
+      backupImportLabel: 'Sicherungstext einfügen', backupCheck: 'Prüfen', backupInvalid: 'Das ist keine gültige Sicherung.',
+      backupWithSettings: 'Einstellungen mitnehmen (Referenztarif, MWST, Batterie)', backupMerge: 'Zusammenführen', backupReplace: 'Ersetzen',
+      backupFoundHeading: 'Sicherung gefunden', backupFoundText: 'Für dieses Gerät gibt es eine Sicherung, die Kostendaten sind aber leer.', backupRestore: 'Wiederherstellen',
+      backupRestored: 'Wiederhergestellt', backupSaved: 'Gesichert', backupCheckOk: 'Gültige Sicherung', backupFrom: 'vom', backupPeriod: 'Zeitraum',
       manageHeading: 'Daten verwalten',
       manageHint: 'Zum Aufräumen, zum Beispiel nach Testdaten. Jede Löschaktion verlangt einen zweiten Klick. Preisdaten und Referenztarif bleiben immer erhalten.',
       delFrom: 'Von (leer = ab Anfang)', delTo: 'Bis (leer = bis heute)',
@@ -653,6 +693,16 @@
       reportsHeading: 'Last reports from your meters',
       reports: { import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge' },
       never: 'never reported', ago: '', min: 'min ago', hours: 'h ago', days: 'days ago',
+      backupHeading: 'Backup',
+      backupNone: 'No backup yet. It is created automatically as soon as there is cost data.',
+      backupLast: 'Last automatic backup', backupDaysWord: 'days', backupConsumersWord: 'consumers',
+      backupHint: 'The app backs up every night at 03:30 and when the device is removed. The backup is kept in the app settings and survives re-adding the device.',
+      backupSaveBtn: 'Back up now', backupExportBtn: 'Export as text', backupCopy: 'Copy', backupCopied: 'Copied',
+      backupExportHint: 'Backup as text, to keep or to use on another Homey. It never contains the token.',
+      backupImportLabel: 'Paste backup text', backupCheck: 'Check', backupInvalid: 'This is not a valid backup.',
+      backupWithSettings: 'Include settings (reference tariff, VAT, battery)', backupMerge: 'Merge', backupReplace: 'Replace',
+      backupFoundHeading: 'Backup found', backupFoundText: 'There is a backup for this device, but the cost data is empty.', backupRestore: 'Restore',
+      backupRestored: 'Restored', backupSaved: 'Backed up', backupCheckOk: 'Valid backup', backupFrom: 'from', backupPeriod: 'Period',
       manageHeading: 'Manage data',
       manageHint: 'For cleaning up, for example after test data. Every delete needs a second click. Price data and the reference tariff are always kept.',
       delFrom: 'From (empty = from the start)', delTo: 'Until (empty = until today)',
@@ -760,6 +810,19 @@
       }).join('');
       $('p-meters-note').textContent = T.metersNote;
       $('h2-manage').textContent = T.manageHeading;
+      $('h3-backup').textContent = T.backupHeading;
+      $('p-backup-hint').textContent = T.backupHint;
+      $('btn-backup-save').textContent = T.backupSaveBtn;
+      $('btn-backup-export').textContent = T.backupExportBtn;
+      $('btn-backup-copy').textContent = T.backupCopy;
+      $('p-export-hint').textContent = T.backupExportHint;
+      $('l-backup-import').textContent = T.backupImportLabel;
+      $('btn-backup-check').textContent = T.backupCheck;
+      $('l-backup-settings').textContent = T.backupWithSettings;
+      $('btn-backup-merge').textContent = T.backupMerge;
+      $('btn-backup-replace').textContent = T.backupReplace;
+      $('h2-backup-found').textContent = T.backupFoundHeading;
+      $('btn-backup-restore-app').textContent = T.backupRestore;
       $('p-manage-hint').textContent = T.manageHint;
       $('l-del-from').textContent = T.delFrom;
       $('l-del-to').textContent = T.delTo;
@@ -1451,8 +1514,43 @@
         return apiCall('GET', '/cost/shadow').then(renderShadow);
       }
 
+      function fmtStamp(ms) {
+        return new Date(ms).toLocaleString(DE ? 'de-CH' : 'en-GB', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function renderBackup(st) {
+        var notice = $('backup-notice');
+        if (!st || !st.paired) { notice.hidden = true; $('p-backup-status').textContent = ''; return; }
+        var it = st.items && st.items[0];
+        $('p-backup-status').textContent = it
+          ? T.backupLast + ': ' + fmtStamp(it.createdAt) + ' · ' + it.days + ' ' + T.backupDaysWord + ', ' + it.consumers + ' ' + T.backupConsumersWord
+          : T.backupNone;
+        notice.hidden = !st.restorable;
+        if (st.restorable && it) {
+          $('p-backup-found').textContent = T.backupFoundText + ' (' + T.backupFrom + ' ' + fmtStamp(it.createdAt) + ', ' + it.days + ' ' + T.backupDaysWord + ')';
+        }
+      }
+
+      function loadBackup() {
+        return apiCall('GET', '/backup').then(renderBackup);
+      }
+
+      function reloadAfterRestore() {
+        vatFilled = false; batFilled = false; refFormFilled = false;
+        costDayCache = {};
+        return loadAll();
+      }
+
+      function backupMessage(text, isError) {
+        var el = $(isError ? 'manage-err' : 'manage-msg');
+        $('manage-msg').hidden = true; $('manage-err').hidden = true;
+        el.textContent = text; el.hidden = false;
+        setTimeout(function () { el.hidden = true; }, 4000);
+      }
+
       function loadAll() {
         return Promise.all([
+          loadBackup().catch(function (err) { console.error(err); }),
           loadShadow().catch(function (err) { console.error(err); }),
           loadPrices().catch(function (err) { console.error(err); }),
           loadSummary().catch(function (err) {
@@ -1512,6 +1610,67 @@
         }).catch(function (e) {
           err.textContent = T.saveFailed + ((e && e.message) || e); err.hidden = false;
         });
+      });
+
+      $('btn-backup-save').addEventListener('click', function () {
+        apiCall('POST', '/backup/save').then(function (r) {
+          backupMessage(r && r.saved ? T.backupSaved : T.backupNone, false);
+          return loadBackup();
+        }).catch(function (e) { backupMessage(T.saveFailed + ((e && e.message) || e), true); });
+      });
+      $('btn-backup-export').addEventListener('click', function () {
+        apiCall('POST', '/backup/export').then(function (r) {
+          $('backup-export-text').value = r.text;
+          $('backup-export-box').hidden = false;
+        }).catch(function (e) { backupMessage(T.saveFailed + ((e && e.message) || e), true); });
+      });
+      $('btn-backup-copy').addEventListener('click', function () {
+        var ta = $('backup-export-text');
+        var done = function () { backupMessage(T.backupCopied, false); };
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand('copy'); done(); }); return; }
+        } catch (e) { /* fall through */ }
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e2) { /* the text stays selected for manual copy */ }
+      });
+      $('btn-backup-check').addEventListener('click', function () {
+        var out = $('p-backup-check');
+        $('backup-restore-row').hidden = true;
+        apiCall('POST', '/backup/inspect', { text: $('backup-import-text').value }).then(function (sm) {
+          out.textContent = T.backupCheckOk + ': ' + sm.days + ' ' + T.backupDaysWord + (sm.firstDay ? ' (' + sm.firstDay + ' – ' + sm.lastDay + ')' : '') +
+            (sm.consumers && sm.consumers.length ? ', ' + sm.consumers.join(', ') : '') + (sm.createdAt ? ' · ' + T.backupFrom + ' ' + fmtStamp(sm.createdAt) : '');
+          out.hidden = false;
+          $('backup-restore-row').hidden = false;
+        }).catch(function () {
+          out.textContent = T.backupInvalid; out.hidden = false;
+        });
+      });
+      function restoreFromText(mode) {
+        return apiCall('POST', '/backup/restore', { source: 'text', text: $('backup-import-text').value, mode: mode, includeSettings: $('backup-with-settings').checked }).then(function () {
+          backupMessage(T.backupRestored, false);
+          $('backup-import-text').value = ''; $('backup-restore-row').hidden = true; $('p-backup-check').hidden = true;
+          return reloadAfterRestore();
+        }).catch(function (e) { backupMessage(T.saveFailed + ((e && e.message) || e), true); });
+      }
+      $('btn-backup-merge').addEventListener('click', function () { restoreFromText('merge'); });
+      (function () {
+        var armedRep = false; var btn = $('btn-backup-replace');
+        btn.addEventListener('click', function () {
+          if (!armedRep) {
+            armedRep = true; btn.textContent = T.confirm;
+            setTimeout(function () { armedRep = false; btn.textContent = T.backupReplace; }, 4000);
+            return;
+          }
+          armedRep = false; btn.textContent = T.backupReplace;
+          restoreFromText('replace');
+        });
+      }());
+      $('btn-backup-restore-app').addEventListener('click', function () {
+        var err = $('backup-notice-err'); err.hidden = true;
+        apiCall('POST', '/backup/restore', { source: 'app', index: 0, mode: 'replace', includeSettings: false }).then(function () {
+          backupMessage(T.backupRestored, false);
+          return reloadAfterRestore();
+        }).catch(function (e) { err.textContent = T.saveFailed + ((e && e.message) || e); err.hidden = false; });
       });
 
       $('btn-vat-save').addEventListener('click', function () {

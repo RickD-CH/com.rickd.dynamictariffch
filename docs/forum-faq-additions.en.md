@@ -38,3 +38,7 @@ App settings, Settings tab, "Manage data": delete single days or a consumer, res
 [details="The widget does not update."]
 Widgets poll the app once a minute. A new price shows up at the start of the next quarter-hour. If a widget stays empty, open the app settings once: the app reloads missing prices by itself.
 [/details]
+
+[details="How do I back up my cost data? What happens if I remove the device?"]
+From version 0.2.3 the app backs up the cost data every night at 03:30 and when you remove the device, in the app settings (it survives re-adding the device). If the new device has no cost data, the Costs tab offers to restore it. You can also export the backup as text (App settings, Settings tab, "Manage data", "Backup") and import it later or on another Homey. The token is never part of a backup.
+[/details]
