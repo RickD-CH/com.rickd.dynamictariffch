@@ -328,6 +328,8 @@
         <label for="monitor-hours" id="l-monitor-hours"></label>
         <input type="number" id="monitor-hours" min="0" max="48" step="0.25" />
       </div>
+      <p class="legend" id="p-monitor-list"></p>
+      <div id="monitor-list"></div>
       <label class="bk-check"><input type="checkbox" id="monitor-notify" /> <span id="l-monitor-notify"></span></label>
       <div class="row">
         <button class="btn primary" id="btn-monitor-save"></button>
@@ -598,6 +600,7 @@
       stNoReports: 'Noch keine Zählermeldungen. Sie sind optional und werden nur für den Kostenvergleich gebraucht.', stMonitorOff: 'Überwachung aus', stMonitorOn: 'Warnung nach', stHours: 'h',
       stKind_import: 'Netzbezug', stKind_export: 'Einspeisung', stKind_battery_charge: 'Batterie laden', stKind_battery_discharge: 'Batterie entladen',
       stReportsLate: 'Zählermeldungen bleiben aus', stNever: 'nie', stMetering: 'Messpunkt', stVersion: 'App-Version', stBackup: 'Letzte Sicherung',
+      monitorWhich: 'Welche Zähler überwachen?', monitorNeverReported: 'noch nie gemeldet', monitorConsumersNote: 'Verbraucher (Standard aus)',
       monitorHeading: 'Überwachung', monitorHint: 'Warnt, wenn Zählerstände, die du per Flow meldest, nicht mehr ankommen. Es wird nur überwacht, was mindestens einmal gemeldet wurde. Wer keine Zähler meldet, bekommt nie eine Warnung. Bei Warnung schaltet die Capability «Zählermeldungen fehlen» ein, und auf Wunsch kommt eine Meldung in die Timeline (einmal pro Vorfall). 0 = aus.',
       monitorHours: 'Warnung nach (Stunden)', monitorNotify: 'Meldung in der Timeline (einmal pro Vorfall)', monitorInvalid: 'Bitte eine Zahl von 0 bis 48 eingeben.',
       backupHeading: 'Sicherung',
@@ -745,6 +748,7 @@
       stNoReports: 'No meter readings yet. They are optional and only needed for the cost comparison.', stMonitorOff: 'Monitoring off', stMonitorOn: 'Warning after', stHours: 'h',
       stKind_import: 'Grid import', stKind_export: 'Grid export', stKind_battery_charge: 'Battery charge', stKind_battery_discharge: 'Battery discharge',
       stReportsLate: 'Meter readings stopped arriving', stNever: 'never', stMetering: 'Metering point', stVersion: 'App version', stBackup: 'Last backup',
+      monitorWhich: 'Which meters to monitor?', monitorNeverReported: 'never reported', monitorConsumersNote: 'Consumers (off by default)',
       monitorHeading: 'Monitoring', monitorHint: 'Warns when meter readings you report from a Flow stop arriving. Only what has been reported at least once is monitored, so nobody who does not report meters gets a warning. On a warning the capability "Meter readings missing" turns on and, if you like, a message goes to the timeline (once per incident). 0 = off.',
       monitorHours: 'Warn after (hours)', monitorNotify: 'Timeline message (once per incident)', monitorInvalid: 'Please enter a number from 0 to 48.',
       backupHeading: 'Backup',
@@ -870,6 +874,7 @@
       $('p-monitor-hint').textContent = T.monitorHint;
       $('l-monitor-hours').textContent = T.monitorHours;
       $('l-monitor-notify').textContent = T.monitorNotify;
+      $('p-monitor-list').textContent = T.monitorWhich;
       $('btn-monitor-save').textContent = T.save;
       $('h3-backup').textContent = T.backupHeading;
       $('p-backup-hint').textContent = T.backupHint;
@@ -1560,6 +1565,8 @@
             appVat = cfg.vatPercent == null ? 8.1 : cfg.vatPercent;
             $('monitor-hours').value = cfg.monitorHours == null ? 1 : cfg.monitorHours;
             $('monitor-notify').checked = cfg.monitorNotify !== false;
+            monitorCfg = { kinds: cfg.monitorKinds || {}, consumers: cfg.monitorConsumers || [] };
+            monitorListFilled = false; renderMonitorList();
             var ho = cfg.hourlyOutput || {};
             $('hourly-unit').value = ho.unit === 'chf' ? 'chf' : 'rp';
             $('hourly-vat').value = ho.vat === 'excl' ? 'excl' : 'incl';
@@ -1625,9 +1632,9 @@
           repHtml = escapeHtml(T.stNoReports);
         } else {
           repHtml = rep.kinds.filter(function (k) { return k.last !== null; }).map(function (k) {
-            return '<div class="' + lvlCls(k.level) + '">' + escapeHtml(T['stKind_' + k.kind]) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(k.ageMin)) + '</div>';
+            return '<div class="' + (k.enabled ? lvlCls(k.level) : 'legend') + '">' + escapeHtml(T['stKind_' + k.kind]) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(k.ageMin)) + '</div>';
           }).join('') + (rep.consumers || []).map(function (c) {
-            return '<div class="legend">' + escapeHtml(c.name) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(c.ageMin)) + '</div>';
+            return '<div class="' + (c.monitored ? lvlCls(c.level) : 'legend') + '">' + escapeHtml(c.name) + ': ' + escapeHtml(T.stAgo) + ' ' + escapeHtml(ageText(c.ageMin)) + '</div>';
           }).join('') + '<div class="legend">' + escapeHtml(rep.thresholdHours > 0 ? T.stMonitorOn + ' ' + rep.thresholdHours + ' ' + T.stHours : T.stMonitorOff) + '</div>';
         }
         $('status-body').innerHTML = '<table class="stat"><tbody>' +
@@ -1639,8 +1646,31 @@
           '</tbody></table>';
       }
 
+      var monitorListFilled = false;
+      var lastReportsInfo = null;
+      var monitorCfg = { kinds: {}, consumers: [] };
+
+      function renderMonitorList() {
+        var box = $('monitor-list');
+        if (!lastReportsInfo || monitorListFilled) return;
+        monitorListFilled = true;
+        var html = lastReportsInfo.kinds.map(function (k) {
+          var on = monitorCfg.kinds[k.kind] !== false;
+          return '<label class="bk-check"><input type="checkbox" data-mk="' + k.kind + '"' + (on && k.last !== null ? ' checked' : '') + (k.last === null ? ' disabled' : '') + ' /> <span>' + escapeHtml(T['stKind_' + k.kind]) + (k.last === null ? ' (' + escapeHtml(T.monitorNeverReported) + ')' : '') + '</span></label>';
+        }).join('');
+        if ((lastReportsInfo.consumers || []).length) {
+          html += '<p class="legend">' + escapeHtml(T.monitorConsumersNote) + '</p>' + lastReportsInfo.consumers.map(function (c) {
+            return '<label class="bk-check"><input type="checkbox" data-mc="' + escapeHtml(c.name) + '"' + (monitorCfg.consumers.indexOf(c.name) >= 0 ? ' checked' : '') + ' /> <span>' + escapeHtml(c.name) + '</span></label>';
+          }).join('');
+        }
+        box.innerHTML = html;
+      }
+
       function loadStatus() {
-        return apiCall('GET', '/status').then(renderStatus);
+        return apiCall('GET', '/status').then(function (st) {
+          renderStatus(st);
+          if (st && st.paired) { lastReportsInfo = st.reports; renderMonitorList(); }
+        });
       }
 
       function fmtStamp(ms) {
@@ -1769,9 +1799,14 @@
         var raw = $('monitor-hours').value;
         var h = Number(raw);
         if (raw === '' || !isFinite(h) || h < 0 || h > 48) { err.textContent = T.monitorInvalid; err.hidden = false; return; }
-        apiCall('PUT', '/config', { monitorHours: h, monitorNotify: $('monitor-notify').checked }).then(function () {
+        var kinds = {}; var consumers = [];
+        Array.prototype.forEach.call(document.querySelectorAll('#monitor-list [data-mk]'), function (el) { if (!el.disabled) kinds[el.getAttribute('data-mk')] = el.checked; });
+        Array.prototype.forEach.call(document.querySelectorAll('#monitor-list [data-mc]'), function (el) { if (el.checked) consumers.push(el.getAttribute('data-mc')); });
+        apiCall('PUT', '/config', { monitorHours: h, monitorNotify: $('monitor-notify').checked, monitorKinds: kinds, monitorConsumers: consumers }).then(function () {
           ok.textContent = T.savedMsg; ok.hidden = false;
           setTimeout(function () { ok.hidden = true; }, 2500);
+          monitorCfg = { kinds: Object.assign({}, monitorCfg.kinds, kinds), consumers: consumers };
+          monitorListFilled = false;
           return loadStatus();
         }).catch(function (e) { err.textContent = T.saveFailed + ((e && e.message) || e); err.hidden = false; });
       });

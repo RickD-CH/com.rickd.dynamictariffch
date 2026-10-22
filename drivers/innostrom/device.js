@@ -74,7 +74,7 @@ class InnostromDevice extends Homey.Device {
 
     this._onAppSetting = (key) => {
       if (this._restoring) return;
-      if (key === 'monitor_hours' || key === 'monitor_notify') {
+      if (['monitor_hours', 'monitor_notify', 'monitor_kinds', 'monitor_consumers'].includes(key)) {
         this._checkReports(new Date()).catch((err) => this.error('Überwachung fehlgeschlagen:', err));
         return;
       }
@@ -322,9 +322,13 @@ class InnostromDevice extends Homey.Device {
   }
 
   _monitorSettings() {
+    const kinds = this.homey.settings.get('monitor_kinds');
+    const consumers = this.homey.settings.get('monitor_consumers');
     return {
       hours: StatusRules.normalizeHours(this.homey.settings.get('monitor_hours')),
       notify: this.homey.settings.get('monitor_notify') !== false,
+      kinds: kinds && typeof kinds === 'object' ? kinds : {},
+      consumers: Array.isArray(consumers) ? consumers : [],
     };
   }
 
@@ -339,6 +343,8 @@ class InnostromDevice extends Homey.Device {
       last: this.costTracker.lastReports(),
       consumers: this._consumerReportTimes(),
       thresholdHours: this._monitorSettings().hours,
+      enabledKinds: this._monitorSettings().kinds,
+      monitoredConsumers: this._monitorSettings().consumers,
     });
   }
 
@@ -350,21 +356,22 @@ class InnostromDevice extends Homey.Device {
     if (alarm && !this._status.reportsAlarm) {
       this._status.reportsAlarm = true;
       await this.setStoreValue('status', this._status).catch(() => {});
-      if (this._monitorSettings().notify) {
-        const oldest = Math.max(...a.kinds.filter((k) => k.ageMin !== null).map((k) => k.ageMin));
-        const age = oldest >= 120 ? `${Math.round(oldest / 60)} h` : `${oldest} min`;
-        const names = {
-          import: 'kindImport', export: 'kindExport', battery_charge: 'kindBatteryCharge', battery_discharge: 'kindBatteryDischarge',
-        };
-        const kinds = a.stale.map((k) => this.homey.__(`device.${names[k]}`)).join(', ');
-        await this.homey.notifications.createNotification({ excerpt: this.homey.__('device.reportsMissing', { age, kinds }) })
-          .catch((err) => this.error('Timeline-Meldung fehlgeschlagen:', err));
-      }
-      const worstAge = Math.max(...a.kinds.filter((k) => k.ageMin !== null).map((k) => k.ageMin));
-      const kindNames = {
+      const kindKeys = {
         import: 'kindImport', export: 'kindExport', battery_charge: 'kindBatteryCharge', battery_discharge: 'kindBatteryDischarge',
       };
-      this._triggerReportsMissing.trigger(this, { age: worstAge, kinds: a.stale.map((k) => this.homey.__(`device.${kindNames[k]}`)).join(', ') }, {})
+      const late = (x) => x.level === 'warn' || x.level === 'alarm';
+      const lateItems = [...a.kinds.filter(late), ...a.consumers.filter(late)];
+      const worstAge = Math.max(...lateItems.map((x) => x.ageMin));
+      const names = [
+        ...a.stale.map((k) => this.homey.__(`device.${kindKeys[k]}`)),
+        ...a.staleConsumers,
+      ].join(', ');
+      if (this._monitorSettings().notify) {
+        const age = worstAge >= 120 ? `${Math.round(worstAge / 60)} h` : `${worstAge} min`;
+        await this.homey.notifications.createNotification({ excerpt: this.homey.__('device.reportsMissing', { age, kinds: names }) })
+          .catch((err) => this.error('Timeline-Meldung fehlgeschlagen:', err));
+      }
+      this._triggerReportsMissing.trigger(this, { age: worstAge, kinds: names }, {})
         .catch((err) => this.error('Trigger reports_missing fehlgeschlagen:', err));
     } else if (!alarm && this._status.reportsAlarm) {
       this._status.reportsAlarm = false;

@@ -95,3 +95,34 @@ test('overallLevel: schlechtester Wert, none/off zählen als ok', () => {
   assert.equal(overallLevel(['none', 'off']), 'ok');
   assert.equal(overallLevel(['alarm', 'warn']), 'alarm');
 });
+
+test('abgeschaltete Zähler lösen keinen Alarm aus, die anderen weiterhin', () => {
+  const last = { import: ago(5), battery_discharge: ago(400) };
+  assert.equal(assessReports({ now: NOW, last, thresholdHours: 1 }).level, 'alarm');
+  const off = assessReports({
+    now: NOW, last, thresholdHours: 1, enabledKinds: { battery_discharge: false },
+  });
+  assert.equal(off.level, 'ok');
+  assert.equal(off.kinds.find((k) => k.kind === 'battery_discharge').enabled, false);
+  assert.deepEqual(off.stale, []);
+  const still = assessReports({
+    now: NOW, last: { import: ago(90), battery_discharge: ago(400) }, thresholdHours: 1, enabledKinds: { battery_discharge: false },
+  });
+  assert.deepEqual(still.stale, ['import']);
+});
+
+test('Verbraucher: nur die ausgewählten werden überwacht', () => {
+  const consumers = { WP: ago(300), EV: ago(300) };
+  const none = assessReports({
+    now: NOW, last: { import: ago(5) }, consumers, thresholdHours: 1,
+  });
+  assert.equal(none.level, 'ok');
+  assert.deepEqual(none.staleConsumers, []);
+  const wp = assessReports({
+    now: NOW, last: { import: ago(5) }, consumers, thresholdHours: 1, monitoredConsumers: ['WP'],
+  });
+  assert.equal(wp.level, 'warn');
+  assert.deepEqual(wp.staleConsumers, ['WP']);
+  assert.equal(wp.consumers.find((c) => c.name === 'EV').monitored, false);
+  assert.equal(wp.consumers.find((c) => c.name === 'EV').level, 'none');
+});

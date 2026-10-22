@@ -2,7 +2,10 @@
 
 const { sanitizeRefPeriods } = require('./lib/CostTracker');
 const { normalizeHourlyOutput, parseHourlyOutput } = require('./lib/HourlyOutput');
-const { normalizeHours } = require('./lib/StatusRules');
+const { normalizeHours, GRID_KINDS } = require('./lib/StatusRules');
+
+/** All four grid kinds as booleans (missing = on). */
+const monitorKinds = (v) => Object.fromEntries(GRID_KINDS.map((k) => [k, !(v && typeof v === 'object' && v[k] === false)]));
 
 // Shows the first paired innostrom device - same simplification as the widget's api.js.
 function firstDevice(homey) {
@@ -103,6 +106,8 @@ module.exports = {
       hourlyOutput: normalizeHourlyOutput(homey.settings.get('hourly_output')),
       monitorHours: normalizeHours(homey.settings.get('monitor_hours')),
       monitorNotify: homey.settings.get('monitor_notify') !== false,
+      monitorKinds: monitorKinds(homey.settings.get('monitor_kinds')),
+      monitorConsumers: Array.isArray(homey.settings.get('monitor_consumers')) ? homey.settings.get('monitor_consumers') : [],
     };
   },
 
@@ -119,6 +124,17 @@ module.exports = {
       if (!Number.isFinite(h) || h < 0 || h > 48) throw new Error('Invalid monitoring threshold');
       homey.settings.set('monitor_hours', normalizeHours(h));
       out.monitorHours = homey.settings.get('monitor_hours');
+    }
+    if (body && body.monitorKinds !== undefined) {
+      if (!body.monitorKinds || typeof body.monitorKinds !== 'object' || Array.isArray(body.monitorKinds)) throw new Error('Invalid monitored meters');
+      homey.settings.set('monitor_kinds', monitorKinds(body.monitorKinds));
+      out.monitorKinds = homey.settings.get('monitor_kinds');
+    }
+    if (body && body.monitorConsumers !== undefined) {
+      const list = body.monitorConsumers;
+      if (!Array.isArray(list) || list.length > 6 || !list.every((n) => typeof n === 'string' && n.length > 0 && n.length <= 30)) throw new Error('Invalid monitored consumers');
+      homey.settings.set('monitor_consumers', list);
+      out.monitorConsumers = list;
     }
     if (body && body.monitorNotify !== undefined) {
       homey.settings.set('monitor_notify', Boolean(body.monitorNotify));
