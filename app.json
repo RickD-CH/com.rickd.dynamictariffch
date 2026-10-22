@@ -342,6 +342,62 @@
       },
       {
         "title": {
+          "en": "Meter readings are arriving again",
+          "de": "Zählermeldungen kommen wieder an"
+        },
+        "hint": {
+          "en": "Fires when all reported meters are within the monitoring threshold again after an incident.",
+          "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "id": "reports_back"
+      },
+      {
+        "title": {
+          "en": "Meter readings stopped arriving",
+          "de": "Zählermeldungen bleiben aus"
+        },
+        "hint": {
+          "en": "Fires once per incident when a meter reading you report from a Flow has not arrived for longer than the monitoring threshold (App settings, \"Monitoring\").",
+          "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»)."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "age",
+            "type": "number",
+            "title": {
+              "en": "Minutes since the last reading",
+              "de": "Minuten seit der letzten Meldung"
+            },
+            "example": 95
+          },
+          {
+            "name": "kinds",
+            "type": "string",
+            "title": {
+              "en": "Affected meters",
+              "de": "Betroffene Zähler"
+            },
+            "example": "grid import, grid export"
+          }
+        ],
+        "id": "reports_missing"
+      },
+      {
+        "title": {
           "en": "Tomorrow's prices are available",
           "de": "Die Preise für morgen sind verfügbar"
         },
@@ -630,6 +686,20 @@
           }
         ],
         "id": "price_is_below"
+      },
+      {
+        "title": {
+          "en": "Meter readings !{{are|aren't}} missing",
+          "de": "Zählermeldungen !{{fehlen|fehlen nicht}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=innostrom"
+          }
+        ],
+        "id": "reports_missing"
       }
     ],
     "actions": [

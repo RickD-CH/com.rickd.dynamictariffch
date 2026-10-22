@@ -1,0 +1,37 @@
+{
+  "title": {
+    "en": "Meter readings stopped arriving",
+    "de": "Zählermeldungen bleiben aus"
+  },
+  "hint": {
+    "en": "Fires once per incident when a meter reading you report from a Flow has not arrived for longer than the monitoring threshold (App settings, \"Monitoring\").",
+    "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»)."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "age",
+      "type": "number",
+      "title": {
+        "en": "Minutes since the last reading",
+        "de": "Minuten seit der letzten Meldung"
+      },
+      "example": 95
+    },
+    {
+      "name": "kinds",
+      "type": "string",
+      "title": {
+        "en": "Affected meters",
+        "de": "Betroffene Zähler"
+      },
+      "example": "grid import, grid export"
+    }
+  ]
+}

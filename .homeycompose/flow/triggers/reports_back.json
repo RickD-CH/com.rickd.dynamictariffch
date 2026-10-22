@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Meter readings are arriving again",
+    "de": "Zählermeldungen kommen wieder an"
+  },
+  "hint": {
+    "en": "Fires when all reported meters are within the monitoring threshold again after an incident.",
+    "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
+  ]
+}

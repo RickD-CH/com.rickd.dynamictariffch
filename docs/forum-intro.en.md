@@ -25,9 +25,9 @@ Report cumulative meter readings from a Flow (grid import/export, battery, singl
 **App settings page**
 Overview with live values, curve or hourly table, a Costs tab (page through the last 14 days), setup checklist, VAT, reference tariff, battery and data tools. English and German, light and dark.
 
-### Flow cards (22)
-- **When (6):** the price changed; the price rises above / drops below a threshold (only fires when crossing it); tomorrow's prices are available; no prices for tomorrow at 18:30; the cheapest block begins.
-- **And (5):** price below X; price level is X; the current slot is among the N cheapest / most expensive hours of a window; the current slot is in the cheapest contiguous block.
+### Flow cards (25)
+- **When (8):** the price changed; meter readings stopped arriving / are arriving again; the price rises above / drops below a threshold (only fires when crossing it); tomorrow's prices are available; no prices for tomorrow at 18:30; the cheapest block begins.
+- **And (6):** meter readings are missing; price below X; price level is X; the current slot is among the N cheapest / most expensive hours of a window; the current slot is in the cheapest contiguous block.
 - **Then (11):** find the cheapest block in a fixed daily window, from now until a time, or within the next N hours; get today's / tomorrow's 24 hourly prices as a JSON array for EMS apps (unit Rp. or CHF per kWh, VAT and decimals are configurable in the app settings); reload prices now; report meter counters (grid import/export, battery charge/discharge, single consumers) for the cost comparison.
 
 ## Setup

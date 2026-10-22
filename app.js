@@ -46,6 +46,9 @@ class DynamicTariffApp extends Homey.App {
     this.homey.flow.getConditionCard('price_is_below')
       .registerRunListener(async (args) => args.device.conditionPriceBelow(args));
 
+    this.homey.flow.getConditionCard('reports_missing')
+      .registerRunListener(async (args) => args.device.conditionReportsMissing());
+
     this.homey.flow.getConditionCard('level_is')
       .registerRunListener(async (args) => args.device.conditionLevelIs(args));
 

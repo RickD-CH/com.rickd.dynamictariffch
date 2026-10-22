@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "Meter readings !{{are|aren't}} missing",
+    "de": "Zählermeldungen !{{fehlen|fehlen nicht}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
+  ]
+}

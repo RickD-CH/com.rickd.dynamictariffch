@@ -106,6 +106,8 @@ class InnostromDevice extends Homey.Device {
     this._triggerPriceAbove = this.homey.flow.getDeviceTriggerCard('price_above');
     this._triggerCheapestBlockStarts = this.homey.flow.getDeviceTriggerCard('cheapest_block_starts');
     this._triggerNoPricesForTomorrow = this.homey.flow.getDeviceTriggerCard('no_prices_for_tomorrow');
+    this._triggerReportsMissing = this.homey.flow.getDeviceTriggerCard('reports_missing');
+    this._triggerReportsBack = this.homey.flow.getDeviceTriggerCard('reports_back');
 
     await this._updateCapabilities(new Date());
     this._scheduleTick();
@@ -358,10 +360,23 @@ class InnostromDevice extends Homey.Device {
         await this.homey.notifications.createNotification({ excerpt: this.homey.__('device.reportsMissing', { age, kinds }) })
           .catch((err) => this.error('Timeline-Meldung fehlgeschlagen:', err));
       }
+      const worstAge = Math.max(...a.kinds.filter((k) => k.ageMin !== null).map((k) => k.ageMin));
+      const kindNames = {
+        import: 'kindImport', export: 'kindExport', battery_charge: 'kindBatteryCharge', battery_discharge: 'kindBatteryDischarge',
+      };
+      this._triggerReportsMissing.trigger(this, { age: worstAge, kinds: a.stale.map((k) => this.homey.__(`device.${kindNames[k]}`)).join(', ') }, {})
+        .catch((err) => this.error('Trigger reports_missing fehlgeschlagen:', err));
     } else if (!alarm && this._status.reportsAlarm) {
       this._status.reportsAlarm = false;
       await this.setStoreValue('status', this._status).catch(() => {});
+      this._triggerReportsBack.trigger(this, {}, {})
+        .catch((err) => this.error('Trigger reports_back fehlgeschlagen:', err));
     }
+  }
+
+  conditionReportsMissing() {
+    const a = this._assessReports(Date.now());
+    return a.level === 'warn' || a.level === 'alarm';
   }
 
   /** Everything the status card shows. Ages in minutes, times in ms. */
