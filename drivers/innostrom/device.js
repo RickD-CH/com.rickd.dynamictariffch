@@ -864,7 +864,15 @@ class InnostromDevice extends Homey.Device {
 
   inspectBackup(text) {
     try {
-      return CostBackup.summarize(CostBackup.unpack(text));
+      const backup = CostBackup.unpack(text);
+      const mine = new Set(Object.keys(this.costTracker.days));
+      const theirs = new Set(Object.keys(backup.cost.days));
+      const compare = {
+        newDays: [...theirs].filter((k) => !mine.has(k)).length,
+        sharedDays: [...theirs].filter((k) => mine.has(k)).length,
+        onlyOnDevice: [...mine].filter((k) => !theirs.has(k)).length,
+      };
+      return { ...CostBackup.summarize(backup), compare };
     } catch (err) {
       if (err instanceof CostBackup.BackupError) throw new Error('Invalid backup');
       throw err;

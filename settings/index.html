@@ -409,6 +409,7 @@
         <textarea id="backup-import-text" rows="3" class="bk-text"></textarea>
         <div class="viewsw" style="margin-top:8px"><button class="btn small" id="btn-backup-check"></button></div>
         <p class="legend" id="p-backup-check" hidden></p>
+        <div id="backup-preview" hidden></div>
         <div id="backup-restore-row" hidden>
           <label class="bk-check"><input type="checkbox" id="backup-with-settings" checked /> <span id="l-backup-settings"></span></label>
           <div class="viewsw"><button class="btn" id="btn-backup-merge"></button><button class="btn danger" id="btn-backup-replace"></button></div>
@@ -566,6 +567,7 @@
       backupImportLabel: 'Sicherungstext einfügen', backupCheck: 'Prüfen', backupInvalid: 'Das ist keine gültige Sicherung.',
       backupWithSettings: 'Einstellungen mitnehmen (Referenztarif, MWST, Batterie)', backupMerge: 'Zusammenführen', backupReplace: 'Ersetzen',
       backupFoundHeading: 'Sicherung gefunden', backupFoundText: 'Für dieses Gerät gibt es eine Sicherung, die Kostendaten sind aber leer.', backupRestore: 'Wiederherstellen',
+      previewDay: 'Tag', previewImport: 'Bezug kWh', previewNet: 'Netto CHF', previewMore: 'weitere ältere Tage', previewTotal: 'Total', previewCompareMerge: 'Zusammenführen fügt hinzu:', previewCompareReplace: 'Ersetzen entfernt', previewDaysOnlyOnDevice: 'Tage, die nur auf diesem Gerät sind', previewNewDays: 'neue Tage', previewSharedDays: 'bereits vorhanden', previewBattery: 'Batterie laden / entladen kWh',
       backupRestored: 'Wiederhergestellt', backupSaved: 'Gesichert', backupCheckOk: 'Gültige Sicherung', backupFrom: 'vom', backupPeriod: 'Zeitraum',
       manageHeading: 'Daten verwalten',
       manageHint: 'Zum Aufräumen, zum Beispiel nach Testdaten. Jede Löschaktion verlangt einen zweiten Klick. Preisdaten und Referenztarif bleiben immer erhalten.',
@@ -702,6 +704,7 @@
       backupImportLabel: 'Paste backup text', backupCheck: 'Check', backupInvalid: 'This is not a valid backup.',
       backupWithSettings: 'Include settings (reference tariff, VAT, battery)', backupMerge: 'Merge', backupReplace: 'Replace',
       backupFoundHeading: 'Backup found', backupFoundText: 'There is a backup for this device, but the cost data is empty.', backupRestore: 'Restore',
+      previewDay: 'Day', previewImport: 'Import kWh', previewNet: 'Net CHF', previewMore: 'older days not shown', previewTotal: 'Total', previewCompareMerge: 'Merge adds:', previewCompareReplace: 'Replace removes', previewDaysOnlyOnDevice: 'days that exist only on this device', previewNewDays: 'new days', previewSharedDays: 'already present', previewBattery: 'Battery charge / discharge kWh',
       backupRestored: 'Restored', backupSaved: 'Backed up', backupCheckOk: 'Valid backup', backupFrom: 'from', backupPeriod: 'Period',
       manageHeading: 'Manage data',
       manageHint: 'For cleaning up, for example after test data. Every delete needs a second click. Price data and the reference tariff are always kept.',
@@ -1541,6 +1544,27 @@
         return loadAll();
       }
 
+      function renderBackupPreview(sm) {
+        var box = $('backup-preview');
+        var p = sm.preview;
+        if (!p || !p.rows || !p.rows.length) { box.hidden = true; box.innerHTML = ''; return; }
+        var chfv = function (rp) { return (rp / 100).toFixed(2); };
+        var rows = p.rows.slice(0, 10).map(function (r) {
+          return '<tr><td>' + r.key.slice(8) + '.' + r.key.slice(5, 7) + '.</td><td>' + r.importKwh.toFixed(2) + '</td><td>' + chfv(r.netCostDyn) + '</td></tr>';
+        }).join('');
+        var more = (p.rows.length - 10) + p.hiddenRows;
+        var cons = (p.consumerTotals || []).map(function (c) { return escapeHtml(c.name) + ' ' + c.kwh.toFixed(1) + ' kWh'; }).join(', ');
+        var cmp = sm.compare
+          ? '<p class="legend">' + escapeHtml(T.previewCompareMerge) + ' <b>' + sm.compare.newDays + '</b> ' + escapeHtml(T.previewNewDays) + ' (' + sm.compare.sharedDays + ' ' + escapeHtml(T.previewSharedDays) + '). ' +
+            escapeHtml(T.previewCompareReplace) + ' <b>' + sm.compare.onlyOnDevice + '</b> ' + escapeHtml(T.previewDaysOnlyOnDevice) + '.</p>'
+          : '';
+        box.innerHTML = '<div class="scroll"><table><thead><tr><th>' + escapeHtml(T.previewDay) + '</th><th>' + escapeHtml(T.previewImport) + '</th><th>' + escapeHtml(T.previewNet) + '</th></tr></thead><tbody>' + rows +
+          '<tr><td><b>' + escapeHtml(T.previewTotal) + '</b></td><td><b>' + p.total.importKwh.toFixed(2) + '</b></td><td><b>' + chfv(p.total.netCostDyn) + '</b></td></tr></tbody></table></div>' +
+          (more > 0 ? '<p class="legend">+ ' + more + ' ' + escapeHtml(T.previewMore) + '</p>' : '') +
+          '<p class="legend">' + escapeHtml(T.previewBattery) + ': ' + p.total.batteryChargeKwh.toFixed(1) + ' / ' + p.total.batteryDischargeKwh.toFixed(1) + (cons ? ' · ' + cons : '') + '</p>' + cmp;
+        box.hidden = false;
+      }
+
       function backupMessage(text, isError) {
         var el = $(isError ? 'manage-err' : 'manage-msg');
         $('manage-msg').hidden = true; $('manage-err').hidden = true;
@@ -1635,20 +1659,21 @@
       });
       $('btn-backup-check').addEventListener('click', function () {
         var out = $('p-backup-check');
-        $('backup-restore-row').hidden = true;
+        $('backup-restore-row').hidden = true; $('backup-preview').hidden = true;
         apiCall('POST', '/backup/inspect', { text: $('backup-import-text').value }).then(function (sm) {
           out.textContent = T.backupCheckOk + ': ' + sm.days + ' ' + T.backupDaysWord + (sm.firstDay ? ' (' + sm.firstDay + ' – ' + sm.lastDay + ')' : '') +
             (sm.consumers && sm.consumers.length ? ', ' + sm.consumers.join(', ') : '') + (sm.createdAt ? ' · ' + T.backupFrom + ' ' + fmtStamp(sm.createdAt) : '');
           out.hidden = false;
+          renderBackupPreview(sm);
           $('backup-restore-row').hidden = false;
         }).catch(function () {
-          out.textContent = T.backupInvalid; out.hidden = false;
+          out.textContent = T.backupInvalid; out.hidden = false; $('backup-preview').hidden = true;
         });
       });
       function restoreFromText(mode) {
         return apiCall('POST', '/backup/restore', { source: 'text', text: $('backup-import-text').value, mode: mode, includeSettings: $('backup-with-settings').checked }).then(function () {
           backupMessage(T.backupRestored, false);
-          $('backup-import-text').value = ''; $('backup-restore-row').hidden = true; $('p-backup-check').hidden = true;
+          $('backup-import-text').value = ''; $('backup-restore-row').hidden = true; $('p-backup-check').hidden = true; $('backup-preview').hidden = true;
           return reloadAfterRestore();
         }).catch(function (e) { backupMessage(T.saveFailed + ((e && e.message) || e), true); });
       }

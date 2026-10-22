@@ -159,3 +159,16 @@ test('grosse Datenmenge: 366 Tage bleiben klein und unverändert', () => {
   const back = unpack(text);
   assert.equal(Object.keys(back.cost.days).length, Object.keys(json.days).length);
 });
+
+test('Vorschau: neueste Tage zuerst, Summen und Verbrauchertotale', () => {
+  const t = sampleTracker();
+  const s = summarize(unpack(pack({ cost: t.toJSON() })));
+  assert.equal(s.preview.rows.length, 3);
+  assert.equal(s.preview.rows[0].key, '2027-01-15');
+  assert.equal(s.preview.rows[2].key, '2027-01-13');
+  assert.equal(s.preview.hiddenRows, 0);
+  const sum = s.preview.rows.reduce((a, r) => a + r.importKwh, 0);
+  assert.ok(Math.abs(sum - s.preview.total.importKwh) < 1e-9);
+  assert.equal(s.preview.consumerTotals[0].name, 'Wärmepumpe');
+  assert.ok(s.preview.consumerTotals[0].kwh > 0);
+});
