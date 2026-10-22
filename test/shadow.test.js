@@ -104,3 +104,16 @@ test('Ladebereich: Reserve und Obergrenze begrenzen den Nutzen', () => {
   });
   assert.ok(Math.abs(capped - (noBat - 1 * (50 - 10))) < 1e-6);
 });
+
+test('Effizienz: Anteil des bestmöglichen Batterie-Nutzens, 0 bis 100 %, null bei wenig Potenzial', () => {
+  const { efficiency } = require('../lib/ShadowBattery');
+  // 17.10.: ohne Batterie 595, real 504, Plan mit Netz 463 Rp.
+  assert.equal(efficiency(595, 504, 463).percent, 69);
+  // real besser als der Plan: gedeckelt auf 100
+  assert.equal(efficiency(349, 117, 168).percent, 100);
+  // schlechter als ohne Batterie: nicht unter 0
+  assert.equal(efficiency(500, 560, 400).percent, 0);
+  // kaum Potenzial: keine Aussage
+  assert.equal(efficiency(500, 495, 495).percent, null);
+  assert.equal(efficiency(500, 500, 505).percent, null);
+});

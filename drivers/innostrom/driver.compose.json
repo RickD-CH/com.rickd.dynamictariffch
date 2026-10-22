@@ -295,6 +295,42 @@
           }
         },
         {
+          "id": "show_battery",
+          "type": "dropdown",
+          "value": "auto",
+          "label": {
+            "en": "Battery analysis values",
+            "de": "Werte der Batterie-Analyse"
+          },
+          "values": [
+            {
+              "id": "auto",
+              "label": {
+                "en": "Automatic (only if you report battery meters)",
+                "de": "Automatisch (nur wenn du Batterie-Zähler meldest)"
+              }
+            },
+            {
+              "id": "always",
+              "label": {
+                "en": "Always",
+                "de": "Immer"
+              }
+            },
+            {
+              "id": "never",
+              "label": {
+                "en": "Never",
+                "de": "Nie"
+              }
+            }
+          ],
+          "hint": {
+            "en": "Battery efficiency and the value of grid charging over the last 14 days. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
+            "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+          }
+        },
+        {
           "id": "show_feedin",
           "type": "checkbox",
           "value": true,

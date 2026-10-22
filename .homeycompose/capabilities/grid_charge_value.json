@@ -1,0 +1,21 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Value of grid charging (14 days)",
+    "de": "Wert der Netzladung (14 Tage)"
+  },
+  "desc": {
+    "en": "What charging the battery from the grid at cheap times would additionally have been worth over the last 14 analysed days (an estimate, upper bound).",
+    "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze)."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": null,
+  "units": {
+    "en": "CHF",
+    "de": "CHF"
+  },
+  "decimals": 2,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

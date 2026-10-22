@@ -300,6 +300,24 @@
               "de": "Vergleich möglich"
             },
             "example": true
+          },
+          {
+            "name": "batteryEfficiency",
+            "type": "number",
+            "title": {
+              "en": "Battery efficiency (%)",
+              "de": "Batterie-Effizienz (%)"
+            },
+            "example": 69
+          },
+          {
+            "name": "gridChargeValue",
+            "type": "number",
+            "title": {
+              "en": "Value of grid charging (CHF)",
+              "de": "Wert der Netzladung (CHF)"
+            },
+            "example": 1.32
           }
         ],
         "id": "day_summarised"
@@ -1571,6 +1589,42 @@
               }
             },
             {
+              "id": "show_battery",
+              "type": "dropdown",
+              "value": "auto",
+              "label": {
+                "en": "Battery analysis values",
+                "de": "Werte der Batterie-Analyse"
+              },
+              "values": [
+                {
+                  "id": "auto",
+                  "label": {
+                    "en": "Automatic (only if you report battery meters)",
+                    "de": "Automatisch (nur wenn du Batterie-Zähler meldest)"
+                  }
+                },
+                {
+                  "id": "always",
+                  "label": {
+                    "en": "Always",
+                    "de": "Immer"
+                  }
+                },
+                {
+                  "id": "never",
+                  "label": {
+                    "en": "Never",
+                    "de": "Nie"
+                  }
+                }
+              ],
+              "hint": {
+                "en": "Battery efficiency and the value of grid charging over the last 14 days. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
+                "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+              }
+            },
+            {
               "id": "show_feedin",
               "type": "checkbox",
               "value": true,
@@ -1687,6 +1741,29 @@
       "icon": "/assets/capabilities/price.svg",
       "insights": true
     },
+    "battery_efficiency": {
+      "type": "number",
+      "title": {
+        "en": "Battery efficiency",
+        "de": "Batterie-Effizienz"
+      },
+      "desc": {
+        "en": "Share of the best possible battery benefit (optimal charging plan) that your real days achieved, over the last 14 analysed days. Needs reported battery meters.",
+        "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": {
+        "en": "%",
+        "de": "%"
+      },
+      "decimals": 0,
+      "min": 0,
+      "max": 100,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
     "cost_ref_today": {
       "type": "number",
       "title": {
@@ -1721,6 +1798,27 @@
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
+      "units": {
+        "en": "CHF",
+        "de": "CHF"
+      },
+      "decimals": 2,
+      "icon": "/assets/capabilities/price.svg",
+      "insights": true
+    },
+    "grid_charge_value": {
+      "type": "number",
+      "title": {
+        "en": "Value of grid charging (14 days)",
+        "de": "Wert der Netzladung (14 Tage)"
+      },
+      "desc": {
+        "en": "What charging the battery from the grid at cheap times would additionally have been worth over the last 14 analysed days (an estimate, upper bound).",
+        "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze)."
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": null,
       "units": {
         "en": "CHF",
         "de": "CHF"

@@ -46,3 +46,7 @@ From version 0.2.3 the app backs up the cost data every night at 03:30 and when 
 [details="What does the Status card in the app overview show? When does the app warn me?"]
 The Status card (under the live values) shows when prices were last fetched and when the next fetch is planned, how many quarter-hours are available for today and tomorrow, the last error, and when each reported meter reading last arrived. If you report meter readings from a Flow and they stop arriving for longer than the threshold (App settings, "Monitoring", default 1 hour), the card turns amber, the capability "Meter readings missing" switches on and, if enabled, a message goes to the timeline (once per incident). Only meters you have reported at least once are monitored; if you do not report any, you never get a warning. Set the threshold to 0 to switch monitoring off.
 [/details]
+
+[details="What does the battery efficiency mean?"]
+For every full day the app computes the best possible battery benefit (an optimal charging plan with perfect foresight, inside your battery's charge range) and compares it with what your real day achieved. Efficiency is the share you reached, from 0 to 100 %. Days with almost nothing to gain are ignored. It is an estimate: the meters change coarsely, so a day can even beat the plan. The app only shows the numbers, it controls nothing. You can also get them as device values (device settings, "Battery analysis values") and in the daily summary trigger.
+[/details]

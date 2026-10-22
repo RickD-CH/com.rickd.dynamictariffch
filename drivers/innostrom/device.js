@@ -6,7 +6,7 @@ const { PriceStore } = require('../../lib/PriceStore');
 const {
   CostTracker, normalizeRefs, refForDay, refImportPrice,
 } = require('../../lib/CostTracker');
-const { analyzeDay } = require('../../lib/ShadowBattery');
+const { analyzeDay, efficiency } = require('../../lib/ShadowBattery');
 const { buildDayTable } = require('../../lib/PriceTable');
 const { normalizeHourlyOutput, formatHourlyPrice } = require('../../lib/HourlyOutput');
 const CostBackup = require('../../lib/CostBackup');
@@ -208,7 +208,7 @@ class InnostromDevice extends Homey.Device {
     this._applySettings(newSettings);
     if (this.priceStore) this.priceStore.field = this._priceField;
 
-    if (changedKeys.some((k) => k === 'show_costs' || k === 'show_feedin')) {
+    if (changedKeys.some((k) => k === 'show_costs' || k === 'show_feedin' || k === 'show_battery')) {
       await this._syncOptionalCapabilities(newSettings);
     }
 
@@ -324,11 +324,28 @@ class InnostromDevice extends Homey.Device {
     return Object.keys(this.costTracker.days).length > 0 || Object.keys(this.costTracker.counters).length > 0;
   }
 
+  _wantBattery(settings) {
+    const mode = settings.show_battery || 'auto';
+    if (mode === 'always') return true;
+    if (mode === 'never') return false;
+    return Boolean(this.costTracker.counters.battery_charge || this.costTracker.counters.battery_discharge);
+  }
+
+  async _updateBatteryCapabilities() {
+    if (!this.hasCapability('battery_efficiency')) return;
+    const s = this.getShadow();
+    await this._setCapabilitySafe('battery_efficiency', s.total.efficiency === null ? null : s.total.efficiency);
+    if (this.hasCapability('grid_charge_value')) {
+      await this._setCapabilitySafe('grid_charge_value', s.days.length ? Math.round(s.total.gridChargeValue) / 100 : null);
+    }
+  }
+
   /** Adds or removes the optional capability groups according to the device settings. */
   async _syncOptionalCapabilities(settings = this.getSettings()) {
     const groups = [
       { wanted: this._wantCosts(settings), caps: ['cost_today', 'cost_ref_today', 'savings_today', 'savings_month', 'avg_import_price_today'] },
       { wanted: settings.show_feedin !== false, caps: ['price_feedin'] },
+      { wanted: this._wantBattery(settings), caps: ['battery_efficiency', 'grid_charge_value'] },
     ];
     for (const g of groups) {
       for (const id of g.caps) {
@@ -353,7 +370,16 @@ class InnostromDevice extends Homey.Device {
   }
 
   _buildDigest(dayKey) {
-    return DailyDigest.buildDigest(this.costTracker.summary(dayKey, dayKey, this._refPeriods()), dayKey);
+    let shadow = null;
+    const todayKey = localDateKey(new Date(), this.tz);
+    if (this.costTracker.shadowDayKeys(todayKey).includes(dayKey)) {
+      try {
+        shadow = analyzeDay(this.costTracker.shadowInputs(dayKey), this._batteryParams());
+      } catch (err) {
+        this.error('Batterie-Analyse für die Tageszusammenfassung fehlgeschlagen:', err);
+      }
+    }
+    return DailyDigest.buildDigest(this.costTracker.summary(dayKey, dayKey, this._refPeriods()), dayKey, shadow);
   }
 
   /** Fires "the day has been summarised" once a day after 00:35 for the previous day. */
@@ -608,6 +634,7 @@ class InnostromDevice extends Homey.Device {
       await this._setCapabilitySafe('price_feedin', cur && Number.isFinite(cur.feedIn) ? Math.round(cur.feedIn * 10000) / 100 : null);
     }
     await this._updateCostCapabilities(now);
+    await this._updateBatteryCapabilities();
 
     const tomorrowFull = this.priceStore.hasFullDay(tomorrow, { ratio: TOMORROW_COVERAGE_RATIO });
     const shouldAlarm = !tomorrowFull && isAtOrAfterLocal(now, this.tz, NO_TOMORROW_ALARM_TIME);
@@ -972,6 +999,9 @@ class InnostromDevice extends Homey.Device {
     const params = this._batteryParams();
     const todayKey = localDateKey(new Date(), this.tz);
     const keys = this.costTracker.shadowDayKeys(todayKey).slice(-14);
+    // The analysis is a dynamic program per day: only redo it when a day or a parameter changed.
+    const cacheKey = `${keys.join(',')}|${JSON.stringify(params)}|${keys.length ? Object.keys(this.costTracker.slots[keys[keys.length - 1]] || {}).length : 0}`;
+    if (this._shadowCache && this._shadowCache.key === cacheKey) return this._shadowCache.value;
     const days = keys.map((k) => analyzeDay(this.costTracker.shadowInputs(k), params));
     const total = days.reduce((a, d) => ({
       noBattery: a.noBattery + d.noBattery,
@@ -984,7 +1014,13 @@ class InnostromDevice extends Homey.Device {
     }), {
       noBattery: 0, actual: 0, pvOnly: 0, withGrid: 0, gridChargeValue: 0, unused: 0, batteryGain: 0,
     });
-    return { params, days, total };
+    const eff = efficiency(total.noBattery, total.actual, total.withGrid);
+    total.potential = eff.potential;
+    total.realized = eff.realized;
+    total.efficiency = eff.percent;
+    const value = { params, days, total };
+    this._shadowCache = { key: cacheKey, value };
+    return value;
   }
 
   // ---------------------------------------------------------------------

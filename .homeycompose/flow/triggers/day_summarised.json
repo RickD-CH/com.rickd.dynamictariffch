@@ -95,6 +95,24 @@
         "de": "Vergleich möglich"
       },
       "example": true
+    },
+    {
+      "name": "batteryEfficiency",
+      "type": "number",
+      "title": {
+        "en": "Battery efficiency (%)",
+        "de": "Batterie-Effizienz (%)"
+      },
+      "example": 69
+    },
+    {
+      "name": "gridChargeValue",
+      "type": "number",
+      "title": {
+        "en": "Value of grid charging (CHF)",
+        "de": "Wert der Netzladung (CHF)"
+      },
+      "example": 1.32
     }
   ]
 }

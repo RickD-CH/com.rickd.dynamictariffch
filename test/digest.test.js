@@ -66,3 +66,14 @@ test('Capability-Werte: mit Referenz gefüllt, ohne Referenz leer (null)', () =>
   assert.equal(none.savings_month, null);
   assert.ok(none.cost_today > 0);
 });
+
+test('Tageszusammenfassung mit Batterie-Analyse: Effizienz und Wert der Netzladung', () => {
+  const t = day(REF);
+  const s = t.summary('2027-01-14', '2027-01-14', REF);
+  const d = buildDigest(s, '2027-01-14', { efficiency: 69, gridChargeValue: 132 });
+  assert.equal(d.batteryEfficiency, 69);
+  assert.equal(d.gridChargeValue, 1.32);
+  const none = buildDigest(s, '2027-01-14', { efficiency: null, gridChargeValue: 0 });
+  assert.equal(none.batteryEfficiency, 0);
+  assert.equal(buildDigest(s, '2027-01-14').batteryEfficiency, 0);
+});

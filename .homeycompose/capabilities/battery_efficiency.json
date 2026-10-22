@@ -1,0 +1,23 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Battery efficiency",
+    "de": "Batterie-Effizienz"
+  },
+  "desc": {
+    "en": "Share of the best possible battery benefit (optimal charging plan) that your real days achieved, over the last 14 analysed days. Needs reported battery meters.",
+    "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler."
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "units": {
+    "en": "%",
+    "de": "%"
+  },
+  "decimals": 0,
+  "min": 0,
+  "max": 100,
+  "icon": "/assets/capabilities/price.svg",
+  "insights": true
+}

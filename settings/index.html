@@ -494,7 +494,7 @@
       features: [
         'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
         'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
-        '12 Capabilities (plus 6 wählbare: Kostenwerte und Einspeisepreis): aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
+        '12 Capabilities (plus 8 wählbare: Kostenwerte, Einspeisepreis und Batterie-Analyse): aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
         '26 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, Tageszusammenfassung, Zählermeldungen bleiben aus/kommen wieder, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
         'Zwei Dashboard-Widgets: Preiskurve für heute und morgen (mit Referenzlinie) und Kosten/Ersparnis gegenüber deinem Standardtarif',
         'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
@@ -543,7 +543,8 @@
       batHint: 'Nutzbare Kapazität, maximale Leistung (gilt für Laden und Entladen gleichermassen, in kW am Netzanschluss) und Wirkungsgrad hin und zurück deiner Batterie sowie der Ladebereich (Standard 5 bis 90 %), in dem ein Ladeplan die Batterie bewegen darf. Sie bestimmen, was ein optimaler Ladeplan im Kosten-Tab bringen würde.',
       shadowHeading: 'Batterie-Potenzial (Schattenrechnung)',
       shadowIntro: 'Es wird nichts gesteuert. Für jeden vollen Tag wird nachgerechnet, was ein optimaler Ladeplan gebracht hätte. Grundlage sind deine gemeldeten Zähler und die Preise. Alle Beträge sind die Netto-Stromkosten des Tages in CHF, kleiner ist besser.',
-      shadowCols: { day: 'Tag', actual: 'Real', pv: 'Nur PV', grid: 'Mit Netz', val: 'Wert Netzl.' },
+      shadowCols: { day: 'Tag', actual: 'Real', pv: 'Nur PV', grid: 'Mit Netz', val: 'Wert Netzl.', eff: 'Effizienz' },
+      shadowEff: 'Effizienz gesamt:', shadowEffNote: 'Effizienz = Anteil des bestmöglichen Batterie-Nutzens (Ohne Batterie minus Mit Netz), den dein realer Tag erreicht hat, 0 bis 100 %. Tage mit weniger als CHF 0.10 Potenzial zählen nicht. Ein Tag kann den Plan schlagen, weil die Rechnung nur eine Schätzung ist.',
       shadowNote: 'Real = tatsächliche Kosten zu dynamischen Preisen. Nur PV = optimaler Plan, der nur PV-Überschuss lädt. Mit Netz = optimaler Plan mit Laden aus dem Netz. Wert Netzl. = Nur PV minus Mit Netz, also was das Laden zu günstigen Zeiten zusätzlich wert gewesen wäre. Die Batterie speist in der Rechnung nie ins Netz ein. Schätzung: Die Zähler ändern sich grob, die Aufteilung auf Viertelstunden ist ungenau.',
       shadowNone: 'Noch kein voller Tag ausgewertet. Der erste erscheint nach Mitternacht.',
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
@@ -643,7 +644,7 @@
       features: [
         'Pairing via metering point number + API token — the test/production environment is detected automatically',
         'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
-        '12 capabilities (plus 6 optional: cost values and feed-in price): current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
+        '12 capabilities (plus 8 optional: cost values, feed-in price and battery analysis): current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
         '26 Flow cards: price change, price thresholds, prices-for-tomorrow-available, day summarised, meter readings stopped/are back, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
         'Two dashboard widgets: price curve for today and tomorrow (with reference line) and costs/savings compared to your standard tariff',
         'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
@@ -692,7 +693,8 @@
       batHint: 'Usable capacity, maximum power (the same for charging and discharging, in kW on the AC side) and round-trip efficiency of your battery, plus the charge range (default 5 to 90 %) a charging plan may use. They determine what an optimal charging plan would bring in the Costs tab.',
       shadowHeading: 'Battery potential (shadow calculation)',
       shadowIntro: 'Nothing is controlled. For every full day this recomputes what an optimal charging plan would have brought, based on your reported meters and the prices. All amounts are the net electricity costs of the day in CHF, lower is better.',
-      shadowCols: { day: 'Day', actual: 'Actual', pv: 'PV only', grid: 'With grid', val: 'Grid value' },
+      shadowCols: { day: 'Day', actual: 'Actual', pv: 'PV only', grid: 'With grid', val: 'Grid value', eff: 'Efficiency' },
+      shadowEff: 'Overall efficiency:', shadowEffNote: 'Efficiency = share of the best possible battery benefit (No battery minus With grid) that your real day achieved, 0 to 100 %. Days with less than CHF 0.10 potential do not count. A day can beat the plan because the calculation is only an estimate.',
       shadowNote: 'Actual = real costs at dynamic prices. PV only = optimal plan that charges from PV surplus only. With grid = optimal plan that may also charge from the grid. Grid value = PV only minus With grid, i.e. what charging at cheap times would additionally have been worth. In the calculation the battery never exports to the grid. An estimate: the meters change coarsely, so the split into quarter-hours is imprecise.',
       shadowNone: 'No full day analysed yet. The first one appears after midnight.',
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
@@ -1318,13 +1320,15 @@
       if (!days.length) { root.innerHTML = '<p class="legend">' + escapeHtml(T.shadowNone) + '</p>'; return; }
       var C = T.shadowCols;
       var row = function (label, d) {
-        return '<tr><td>' + escapeHtml(label) + '</td><td>' + chf(d.actual) + '</td><td>' + chf(d.pvOnly) + '</td><td>' + chf(d.withGrid) + '</td><td class="' + (d.gridChargeValue > 0.5 ? 'good' : '') + '">' + chf(d.gridChargeValue) + '</td></tr>';
+        return '<tr><td>' + escapeHtml(label) + '</td><td>' + chf(d.actual) + '</td><td>' + chf(d.pvOnly) + '</td><td>' + chf(d.withGrid) + '</td><td class="' + (d.gridChargeValue > 0.5 ? 'good' : '') + '">' + chf(d.gridChargeValue) + '</td><td>' + (typeof d.efficiency === 'number' ? d.efficiency + ' %' : '–') + '</td></tr>';
       };
       var body = days.slice().reverse().map(function (d) { return row(d.key.slice(8) + '.' + d.key.slice(5, 7) + '.', d); }).join('');
       var t = data.total;
-      root.innerHTML = '<div class="scroll"><table><thead><tr><th>' + C.day + '</th><th>' + C.actual + '</th><th>' + C.pv + '</th><th>' + C.grid + '</th><th>' + C.val + '</th></tr></thead><tbody>' +
+      root.innerHTML = '<div class="scroll"><table><thead><tr><th>' + C.day + '</th><th>' + C.actual + '</th><th>' + C.pv + '</th><th>' + C.grid + '</th><th>' + C.val + '</th><th>' + C.eff + '</th></tr></thead><tbody>' +
         row(T.shadowSum, t) + body + '</tbody></table></div>' +
         '<p class="legend">' + escapeHtml(T.shadowUnused) + ' <b>CHF ' + chf(t.unused) + '</b> &nbsp; ' + escapeHtml(T.shadowValue) + ' <b>CHF ' + chf(t.gridChargeValue) + '</b></p>' +
+        '<p class="legend">' + escapeHtml(T.shadowEff) + ' <b>' + (typeof t.efficiency === 'number' ? t.efficiency + ' %' : '–') + '</b></p>' +
+        '<p class="legend">' + escapeHtml(T.shadowEffNote) + '</p>' +
         '<p class="legend">' + escapeHtml(T.shadowNote) + '</p>';
     }
 
