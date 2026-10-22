@@ -1,0 +1,159 @@
+[details="Which utilities?"]
+Any Swiss utility that offers its dynamic tariff via Innostrom (Swisspower). AEW Classic Dynamic (from 1 January 2027) is the first target.
+
+[/details]
+
+[details="Where do I get the metering point number and the token?"]
+Your grid operator provides both when you sign up for its dynamic tariff. To just try the app, use the public test credentials (see Pairing): you get constant dummy prices.
+
+[/details]
+
+[details="Why are my prices constant?"]
+You are on the Innostrom test environment (see Pairing). Real prices only come with your operator's credentials.
+
+[/details]
+
+[details="HTTP 403 / credentials rejected?"]
+A wrong token and a wrong metering point number both return 403, so check both. If the token was renewed, open the device and use Repair with the same metering point number. A different metering point needs a new device.
+
+[/details]
+
+[details="Requirements?"]
+Homey Pro, no special permissions, no cloud access beyond the Innostrom API. The token stays on your Homey and is never logged or part of a backup.
+
+[/details]
+
+[details="Which languages?"]
+English, German, French and Italian, following the language of your Homey or browser.
+
+[/details]
+
+[details="When are tomorrow's prices there?"]
+Normally around 16:00. The app fetches from 16:05 and retries every 15 minutes until 23:45. If they are still missing at 18:30, the alarm turns on, the trigger "No prices for tomorrow yet at 18:30" fires and the fallback price applies.
+
+[/details]
+
+[details="Why does the total differ from my bill?"]
+Fixed fees (base fee, metering fee) are not part of the 15-minute price. Check the VAT setting too (default 8.1 %, in the app settings).
+
+[/details]
+
+[details="Which price do the Flow cards use?"]
+The device setting "Price used for Flows": Total (energy + grid, the one that matters for decisions), Energy only, or Grid only.
+
+[/details]
+
+[details="How is the price level calculated?"]
+As a percentage of the daily average. Defaults: very cheap below 75, cheap below 90, expensive above 110, very expensive above 125. You can change them in the device settings.
+
+[/details]
+
+[details="Daylight saving?"]
+Days have 92 or 100 quarter-hours and the app handles that. On the spring-forward day the 02:00 hour does not exist, so "Get hourly prices" fails that day instead of returning an incomplete list.
+
+[/details]
+
+[details="Negative prices?"]
+Handled like any other price. The cost comparison counts import at a negative price as income and export at a negative price as a cost (shown in a separate note).
+
+[/details]
+
+[details="Hourly prices for my EMS?"]
+Use "Get today's / tomorrow's hourly prices" (JSON list of 24 values). Choose Rp./kWh or CHF/kWh, VAT and decimals in the app settings, section "Hourly prices for an EMS", so you need no script. If you already convert with a script, remove it when you change the setting, otherwise the values are divided twice.
+
+[/details]
+
+[details="Where is the refresh button?"]
+Gone. Use the Flow card "Reload prices now". The app also reloads missing prices when you open its settings.
+
+[/details]
+
+[details="The widget does not update."]
+Widgets poll the app once a minute. A new price shows up at the start of the next quarter-hour. If a widget stays empty, open the app settings once: the app reloads missing prices by itself.
+
+[/details]
+
+[details="The Costs tab or widget shows nothing."]
+The app does not read your meters by itself. It needs a Flow that reports cumulative kWh counters (see "Cost comparison: how the numbers get in") and a reference tariff. The first report only sets the baseline, so costs appear from the second report.
+
+[/details]
+
+[details="Which counter do I pick?"]
+A cumulative kWh value that keeps counting up: total grid import and export, total battery charged and discharged, the total energy of an EV or heat pump. Not the power in W and not a "today" value that resets at midnight.
+
+[/details]
+
+[details="How often should I report the meter readings?"]
+Every 15 minutes is ideal, at least hourly. After a long pause the increase is attributed to the last hour.
+
+[/details]
+
+[details="Is feed-in paid dynamically?"]
+That depends on your grid operator. By default the cost comparison values feed-in like your reference tariff; under "Advanced" in the app settings you can use the API's feed-in price instead.
+
+[/details]
+
+[details="Cost values on the device?"]
+Device settings, group "Displayed values": cost today, cost with your old tariff, savings today and this month, average import price, battery values and the feed-in price. Each is automatic, always or never (feed-in is a checkbox). Same numbers as in the Costs tab.
+
+[/details]
+
+[details="Yesterday's numbers as a message?"]
+Use the trigger "The day has been summarised". It fires shortly after midnight with yesterday's costs, savings, average price, battery benefit and efficiency as tokens. The first night after updating to 0.2.3 stays silent. The app settings have a test button.
+
+[/details]
+
+[details="How do I start over with the cost data?"]
+App settings, Settings tab, "Manage data": delete single days or a consumer, reset the meter baselines (for example after replacing a meter) or delete all cost data. Every delete needs a second click, and price data and the reference tariff are always kept.
+
+[/details]
+
+[details="Does the app control my battery or my EV?"]
+No. It only provides prices, Flow cards and the cost comparison. The battery analysis is a read-only calculation of what an optimal charging plan would have brought, with perfect foresight inside the charge range you set (default 5 to 90 %). Treat it as an upper bound, not a promise.
+
+[/details]
+
+[details="What does the battery efficiency mean?"]
+The share, from 0 to 100 %, of the best possible battery benefit of a day that your real day achieved. Days with almost nothing to gain are ignored. It is an estimate: the meters change coarsely, so a day can even beat the plan. Also available as device values and in the daily trigger.
+
+[/details]
+
+[details="What is the value of grid charging?"]
+What an optimal plan that may also charge from the grid at cheap prices would have gained over a plan using solar surplus only, in CHF. Only an estimate.
+
+[/details]
+
+[details="Which battery settings are used?"]
+App settings, section "Battery": usable capacity (kWh), maximum charge and discharge power (one value in kW), round-trip efficiency (%), and minimum and maximum charge level (default 5 to 90 %).
+
+[/details]
+
+[details="What does the Status card show? When does the app warn me?"]
+It shows the last and next price fetch, the quarter-hours available for today and tomorrow, the last error and when each reported meter reading last arrived. If reported readings stop for longer than the threshold (app settings, "Monitoring", default 1 hour, 0 = off), the card turns amber, the device value "Meter readings missing" switches on and, if enabled, one timeline message is sent per incident. Only meters you have reported at least once are watched.
+
+[/details]
+
+[details="How do I get notified when my meter readings stop?"]
+Trigger "Meter readings stopped arriving" (tokens: minutes since the last reading, affected meters) and "Meter readings are arriving again" for the all-clear. The condition "Meter readings are missing" works in any Flow. The settings page has a test button.
+
+[/details]
+
+[details="Which meters are monitored?"]
+App settings, "Monitoring": tick the meters you report and want watched. Consumers such as an EV or heat pump are off by default.
+
+[/details]
+
+[details="Backup of the cost data? What if I remove the device?"]
+The app backs up every night at 03:30 and when you remove the device, in the app settings, so it survives re-adding the device. If the new device has no cost data, the Costs tab offers to restore it. You can also export the backup as text and import it later or on another Homey, with a preview (merge or replace). The token is never part of a backup.
+
+[/details]
+
+[details="Several metering points?"]
+You can add several devices and use them in Flows. The widgets, the app settings page and the cost comparison show the first device only.
+
+[/details]
+
+[details="Not on the dynamic tariff yet?"]
+You can already try the app with the public test credentials. Put a Logic yes/no variable ("dynamic tariff active") in front of your price Flows, so they only run from your start date.
+
+[/details]
