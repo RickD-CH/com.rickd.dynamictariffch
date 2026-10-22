@@ -219,6 +219,8 @@
     table.stat td:first-child { color: var(--st-muted); width: 34%; white-space: nowrap; }
     table.stat .warnTxt { color: #fb8c00; font-weight: 600; }
     table.stat .alarmTxt { color: var(--st-expensive); font-weight: 600; }
+    .btn-stack { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 10px; }
+    .btn-stack .btn { white-space: normal; text-align: center; }
     .bk-check { display: flex; gap: 8px; align-items: center; margin: 10px 0 6px; font-size: 12px; }
     .manage-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--st-border); }
     .manage-row:first-of-type { border-top: 0; }
@@ -342,7 +344,7 @@
     <details class="card sec">
       <summary><h2 id="h2-flowtest"></h2></summary>
       <p class="legend" id="p-flowtest-hint"></p>
-      <div class="viewsw" style="margin-top:10px"><button class="btn small" id="btn-test-digest"></button><button class="btn small" id="btn-test-reports"></button></div>
+      <div class="btn-stack"><button class="btn" id="btn-test-digest"></button><button class="btn" id="btn-test-reports"></button></div>
       <p class="ok" id="flowtest-msg" hidden></p>
       <p class="err" id="flowtest-err" hidden></p>
     </details>
