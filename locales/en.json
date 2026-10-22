@@ -57,7 +57,7 @@
     "setupRef": "Enter your reference tariff",
     "setupMeters": "Report meter readings from a Flow",
     "setupWait": "Values appear after the second reading",
-    "setupWhere": "App settings → tab \"Reference & meters\" (guide included)",
+    "setupWhere": "App settings → tab \"Settings\" (guide included)",
     "legendDyn": "Dynamic",
     "legendRef": "Reference",
     "curveTitle": "Net cost today"

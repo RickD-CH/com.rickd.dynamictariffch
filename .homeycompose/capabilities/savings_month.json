@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Savings this month",
-    "de": "Ersparnis Monat"
+    "de": "Ersparnis Monat",
+    "fr": "Économie ce mois-ci",
+    "it": "Risparmio del mese"
   },
   "desc": {
     "en": "Reference tariff minus dynamic tariff since the 1st of the month.",
-    "de": "Referenztarif minus dynamischer Tarif seit dem 1. des Monats."
+    "de": "Referenztarif minus dynamischer Tarif seit dem 1. des Monats.",
+    "fr": "Tarif de référence moins tarif dynamique depuis le 1er du mois.",
+    "it": "Tariffa di riferimento meno tariffa dinamica dal 1° del mese."
   },
   "getable": true,
   "setable": false,
   "uiComponent": null,
   "units": {
     "en": "CHF",
-    "de": "CHF"
+    "de": "CHF",
+    "fr": "CHF",
+    "it": "CHF"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

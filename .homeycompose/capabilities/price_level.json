@@ -1,19 +1,66 @@
 {
   "type": "enum",
-  "title": { "en": "Price level", "de": "Preisniveau" },
+  "title": {
+    "en": "Price level",
+    "de": "Preisniveau",
+    "fr": "Niveau de prix",
+    "it": "Livello di prezzo"
+  },
   "desc": {
     "en": "Current price relative to today's average.",
-    "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt."
+    "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt.",
+    "fr": "Prix actuel par rapport à la moyenne du jour.",
+    "it": "Prezzo attuale rispetto alla media di oggi."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
   "values": [
-    { "id": "very_cheap", "title": { "en": "Very cheap", "de": "Sehr günstig" } },
-    { "id": "cheap", "title": { "en": "Cheap", "de": "Günstig" } },
-    { "id": "normal", "title": { "en": "Normal", "de": "Normal" } },
-    { "id": "expensive", "title": { "en": "Expensive", "de": "Teuer" } },
-    { "id": "very_expensive", "title": { "en": "Very expensive", "de": "Sehr teuer" } }
+    {
+      "id": "very_cheap",
+      "title": {
+        "en": "Very cheap",
+        "de": "Sehr günstig",
+        "fr": "Très bon marché",
+        "it": "Molto conveniente"
+      }
+    },
+    {
+      "id": "cheap",
+      "title": {
+        "en": "Cheap",
+        "de": "Günstig",
+        "fr": "Bon marché",
+        "it": "Conveniente"
+      }
+    },
+    {
+      "id": "normal",
+      "title": {
+        "en": "Normal",
+        "de": "Normal",
+        "fr": "Normal",
+        "it": "Normale"
+      }
+    },
+    {
+      "id": "expensive",
+      "title": {
+        "en": "Expensive",
+        "de": "Teuer",
+        "fr": "Cher",
+        "it": "Caro"
+      }
+    },
+    {
+      "id": "very_expensive",
+      "title": {
+        "en": "Very expensive",
+        "de": "Sehr teuer",
+        "fr": "Très cher",
+        "it": "Molto caro"
+      }
+    }
   ],
   "icon": "/assets/capabilities/level.svg"
 }

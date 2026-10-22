@@ -1,13 +1,27 @@
 {
-  "title": { "en": "Get today's hourly prices", "de": "Stundenpreise heute abrufen" },
+  "title": {
+    "en": "Get today's hourly prices",
+    "de": "Stundenpreise heute abrufen",
+    "fr": "Récupérer les prix horaires d'aujourd'hui",
+    "it": "Recupera i prezzi orari di oggi"
+  },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
   ],
   "tokens": [
     {
       "name": "prices",
       "type": "string",
-      "title": { "en": "Hourly prices (JSON)", "de": "Stundenpreise (JSON)" },
+      "title": {
+        "en": "Hourly prices (JSON)",
+        "de": "Stundenpreise (JSON)",
+        "fr": "Prix horaires (JSON)",
+        "it": "Prezzi orari (JSON)"
+      },
       "example": "[19.8,18.2,17.5,...]"
     }
   ]

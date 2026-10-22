@@ -2,7 +2,9 @@
   "id": "innostrom",
   "name": {
     "en": "Innostrom dynamic tariff",
-    "de": "Innostrom dynamischer Tarif"
+    "de": "Innostrom dynamischer Tarif",
+    "fr": "Tarif dynamique Innostrom",
+    "it": "Tariffa dinamica Innostrom"
   },
   "class": "sensor",
   "capabilities": [
@@ -38,15 +40,21 @@
         "logo": "{{driverAssetsPath}}/pair-logo.png",
         "usernameLabel": {
           "en": "Metering point number",
-          "de": "Messpunktnummer"
+          "de": "Messpunktnummer",
+          "fr": "Numéro du point de mesure",
+          "it": "Numero del punto di misura"
         },
         "usernameHint": {
           "en": "CH… number, 33 characters, as provided by your utility. Enter your own credentials.",
-          "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben."
+          "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben.",
+          "fr": "Numéro CH…, 33 caractères, fourni par votre fournisseur. Saisissez vos propres identifiants.",
+          "it": "Numero CH…, 33 caratteri, fornito dal tuo fornitore. Inserisci le tue credenziali."
         },
         "passwordLabel": {
           "en": "API token",
-          "de": "API-Token"
+          "de": "API-Token",
+          "fr": "Jeton API",
+          "it": "Token API"
         }
       }
     },
@@ -73,15 +81,21 @@
         "logo": "{{driverAssetsPath}}/pair-logo.png",
         "usernameLabel": {
           "en": "Metering point number",
-          "de": "Messpunktnummer"
+          "de": "Messpunktnummer",
+          "fr": "Numéro du point de mesure",
+          "it": "Numero del punto di misura"
         },
         "usernameHint": {
           "en": "Must match this device's metering point - use device settings instead to switch to a different metering point.",
-          "de": "Muss mit der Messpunktnummer dieses Geräts übereinstimmen - für einen anderen Messpunkt stattdessen neu koppeln."
+          "de": "Muss mit der Messpunktnummer dieses Geräts übereinstimmen - für einen anderen Messpunkt stattdessen neu koppeln.",
+          "fr": "Doit correspondre au point de mesure de cet appareil – pour un autre point de mesure, couplez un nouvel appareil.",
+          "it": "Deve corrispondere al punto di misura di questo dispositivo – per un altro punto di misura, associa un nuovo dispositivo."
         },
         "passwordLabel": {
           "en": "API token",
-          "de": "API-Token"
+          "de": "API-Token",
+          "fr": "Jeton API",
+          "it": "Token API"
         }
       }
     }
@@ -91,7 +105,9 @@
       "type": "group",
       "label": {
         "en": "Access",
-        "de": "Zugang"
+        "de": "Zugang",
+        "fr": "Accès",
+        "it": "Accesso"
       },
       "children": [
         {
@@ -99,7 +115,9 @@
           "type": "label",
           "label": {
             "en": "Metering point number",
-            "de": "Messpunktnummer"
+            "de": "Messpunktnummer",
+            "fr": "Numéro du point de mesure",
+            "it": "Numero del punto di misura"
           },
           "value": ""
         },
@@ -108,7 +126,9 @@
           "type": "password",
           "label": {
             "en": "API token",
-            "de": "API-Token"
+            "de": "API-Token",
+            "fr": "Jeton API",
+            "it": "Token API"
           },
           "value": ""
         },
@@ -117,7 +137,9 @@
           "type": "dropdown",
           "label": {
             "en": "Environment",
-            "de": "Umgebung"
+            "de": "Umgebung",
+            "fr": "Environnement",
+            "it": "Ambiente"
           },
           "value": "production",
           "values": [
@@ -125,20 +147,26 @@
               "id": "production",
               "label": {
                 "en": "Production",
-                "de": "Produktiv"
+                "de": "Produktiv",
+                "fr": "Production",
+                "it": "Produzione"
               }
             },
             {
               "id": "test",
               "label": {
                 "en": "Test",
-                "de": "Test"
+                "de": "Test",
+                "fr": "Test",
+                "it": "Test"
               }
             }
           ],
           "hint": {
             "en": "Test uses the public Innostrom test environment with constant prices, useful to verify the connection without a contract.",
-            "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen."
+            "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen.",
+            "fr": "Le test utilise l'environnement de test public d'Innostrom avec des prix constants, utile pour vérifier la connexion sans contrat.",
+            "it": "Il test usa l'ambiente di test pubblico di Innostrom con prezzi costanti, utile per verificare la connessione senza contratto."
           }
         }
       ]
@@ -147,7 +175,9 @@
       "type": "group",
       "label": {
         "en": "Price",
-        "de": "Preis"
+        "de": "Preis",
+        "fr": "Prix",
+        "it": "Prezzo"
       },
       "children": [
         {
@@ -155,7 +185,9 @@
           "type": "dropdown",
           "label": {
             "en": "Price used for Flows",
-            "de": "Preis für Flows"
+            "de": "Preis für Flows",
+            "fr": "Prix utilisé pour les Flows",
+            "it": "Prezzo usato per i Flow"
           },
           "value": "integrated",
           "values": [
@@ -163,21 +195,27 @@
               "id": "integrated",
               "label": {
                 "en": "Total (energy + grid)",
-                "de": "Gesamt (Energie + Netz)"
+                "de": "Gesamt (Energie + Netz)",
+                "fr": "Total (énergie + réseau)",
+                "it": "Totale (energia + rete)"
               }
             },
             {
               "id": "electricity",
               "label": {
                 "en": "Energy only",
-                "de": "Nur Energie"
+                "de": "Nur Energie",
+                "fr": "Énergie seulement",
+                "it": "Solo energia"
               }
             },
             {
               "id": "grid",
               "label": {
                 "en": "Grid only (incl. levies)",
-                "de": "Nur Netz (inkl. Abgaben)"
+                "de": "Nur Netz (inkl. Abgaben)",
+                "fr": "Réseau seulement (taxes comprises)",
+                "it": "Solo rete (oneri inclusi)"
               }
             }
           ]
@@ -187,13 +225,17 @@
           "type": "number",
           "label": {
             "en": "Fallback price (CHF/kWh)",
-            "de": "Einheitstarif (CHF/kWh)"
+            "de": "Einheitstarif (CHF/kWh)",
+            "fr": "Prix de remplacement (CHF/kWh)",
+            "it": "Prezzo sostitutivo (CHF/kWh)"
           },
           "value": 0,
           "min": 0,
           "hint": {
             "en": "Used when no price data is available (e.g. missing tomorrow prices). 0 = show nothing instead.",
-            "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen."
+            "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen.",
+            "fr": "Utilisé lorsqu'aucune donnée de prix n'est disponible (p. ex. prix de demain manquants). 0 = ne rien afficher.",
+            "it": "Usato quando non ci sono dati sui prezzi (ad es. prezzi di domani mancanti). 0 = non mostrare nulla."
           }
         }
       ]
@@ -202,7 +244,9 @@
       "type": "group",
       "label": {
         "en": "Price level thresholds",
-        "de": "Schwellen für Preisniveau"
+        "de": "Schwellen für Preisniveau",
+        "fr": "Seuils du niveau de prix",
+        "it": "Soglie del livello di prezzo"
       },
       "children": [
         {
@@ -210,7 +254,9 @@
           "type": "number",
           "label": {
             "en": "Very cheap below (% of daily average)",
-            "de": "Sehr günstig unter (% vom Tagesmittel)"
+            "de": "Sehr günstig unter (% vom Tagesmittel)",
+            "fr": "Très bon marché en dessous de (% de la moyenne du jour)",
+            "it": "Molto conveniente sotto (% della media giornaliera)"
           },
           "value": 75,
           "min": 1,
@@ -221,7 +267,9 @@
           "type": "number",
           "label": {
             "en": "Cheap below (% of daily average)",
-            "de": "Günstig unter (% vom Tagesmittel)"
+            "de": "Günstig unter (% vom Tagesmittel)",
+            "fr": "Bon marché en dessous de (% de la moyenne du jour)",
+            "it": "Conveniente sotto (% della media giornaliera)"
           },
           "value": 90,
           "min": 1,
@@ -232,7 +280,9 @@
           "type": "number",
           "label": {
             "en": "Expensive above (% of daily average)",
-            "de": "Teuer über (% vom Tagesmittel)"
+            "de": "Teuer über (% vom Tagesmittel)",
+            "fr": "Cher au-dessus de (% de la moyenne du jour)",
+            "it": "Caro sopra (% della media giornaliera)"
           },
           "value": 110,
           "min": 100,
@@ -243,7 +293,9 @@
           "type": "number",
           "label": {
             "en": "Very expensive above (% of daily average)",
-            "de": "Sehr teuer über (% vom Tagesmittel)"
+            "de": "Sehr teuer über (% vom Tagesmittel)",
+            "fr": "Très cher au-dessus de (% de la moyenne du jour)",
+            "it": "Molto caro sopra (% della media giornaliera)"
           },
           "value": 125,
           "min": 100,
@@ -255,7 +307,9 @@
       "type": "group",
       "label": {
         "en": "Displayed values",
-        "de": "Angezeigte Werte"
+        "de": "Angezeigte Werte",
+        "fr": "Valeurs affichées",
+        "it": "Valori visualizzati"
       },
       "children": [
         {
@@ -264,34 +318,44 @@
           "value": "auto",
           "label": {
             "en": "Cost values",
-            "de": "Kostenwerte"
+            "de": "Kostenwerte",
+            "fr": "Valeurs de coût",
+            "it": "Valori di costo"
           },
           "values": [
             {
               "id": "auto",
               "label": {
                 "en": "Automatic (only if you report meters)",
-                "de": "Automatisch (nur wenn du Zähler meldest)"
+                "de": "Automatisch (nur wenn du Zähler meldest)",
+                "fr": "Automatique (seulement si vous transmettez des compteurs)",
+                "it": "Automatico (solo se comunichi i contatori)"
               }
             },
             {
               "id": "always",
               "label": {
                 "en": "Always",
-                "de": "Immer"
+                "de": "Immer",
+                "fr": "Toujours",
+                "it": "Sempre"
               }
             },
             {
               "id": "never",
               "label": {
                 "en": "Never",
-                "de": "Nie"
+                "de": "Nie",
+                "fr": "Jamais",
+                "it": "Mai"
               }
             }
           ],
           "hint": {
             "en": "Cost today, cost with the previous tariff, savings today and this month and average import price. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
-            "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+            "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr.",
+            "fr": "Coût aujourd'hui, coût avec l'ancien tarif, économie aujourd'hui et ce mois-ci et prix d'achat moyen. En les désactivant, les valeurs sont retirées de l'appareil, leur historique dans Insights est perdu et les Flows qui les utilisent ne fonctionnent plus.",
+            "it": "Costo oggi, costo con la tariffa precedente, risparmio oggi e del mese e prezzo medio di prelievo. Disattivandoli, i valori vengono rimossi dal dispositivo, la loro cronologia in Insights va persa e i Flow che li usano smettono di funzionare."
           }
         },
         {
@@ -300,34 +364,44 @@
           "value": "auto",
           "label": {
             "en": "Battery analysis values",
-            "de": "Werte der Batterie-Analyse"
+            "de": "Werte der Batterie-Analyse",
+            "fr": "Valeurs de l'analyse de la batterie",
+            "it": "Valori dell'analisi della batteria"
           },
           "values": [
             {
               "id": "auto",
               "label": {
                 "en": "Automatic (only if you report battery meters)",
-                "de": "Automatisch (nur wenn du Batterie-Zähler meldest)"
+                "de": "Automatisch (nur wenn du Batterie-Zähler meldest)",
+                "fr": "Automatique (seulement si vous transmettez des compteurs de batterie)",
+                "it": "Automatico (solo se comunichi i contatori della batteria)"
               }
             },
             {
               "id": "always",
               "label": {
                 "en": "Always",
-                "de": "Immer"
+                "de": "Immer",
+                "fr": "Toujours",
+                "it": "Sempre"
               }
             },
             {
               "id": "never",
               "label": {
                 "en": "Never",
-                "de": "Nie"
+                "de": "Nie",
+                "fr": "Jamais",
+                "it": "Mai"
               }
             }
           ],
           "hint": {
             "en": "Battery efficiency and the value of grid charging over the last 14 days. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
-            "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+            "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr.",
+            "fr": "Efficacité de la batterie et valeur de la charge depuis le réseau sur les 14 derniers jours. En les désactivant, les valeurs sont retirées de l'appareil, leur historique dans Insights est perdu et les Flows qui les utilisent ne fonctionnent plus.",
+            "it": "Efficienza della batteria e valore della carica dalla rete negli ultimi 14 giorni. Disattivandoli, i valori vengono rimossi dal dispositivo, la loro cronologia in Insights va persa e i Flow che li usano smettono di funzionare."
           }
         },
         {
@@ -336,11 +410,15 @@
           "value": true,
           "label": {
             "en": "Feed-in price",
-            "de": "Einspeisevergütung"
+            "de": "Einspeisevergütung",
+            "fr": "Prix de reprise",
+            "it": "Prezzo di immissione"
           },
           "hint": {
             "en": "Shows the feed-in price delivered by the API. Turning it off removes the value and its Insights history.",
-            "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt."
+            "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt.",
+            "fr": "Affiche le prix de reprise de l'injection fourni par l'API. En le désactivant, la valeur et son historique dans Insights sont supprimés.",
+            "it": "Mostra il prezzo di immissione fornito dall'API. Disattivandolo, il valore e la sua cronologia in Insights vengono rimossi."
           }
         }
       ]

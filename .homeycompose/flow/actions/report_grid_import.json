@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Report grid import counter",
-    "de": "Netzbezug-Zählerstand melden"
+    "de": "Netzbezug-Zählerstand melden",
+    "fr": "Transmettre le relevé de soutirage",
+    "it": "Comunica la lettura del prelievo"
   },
   "titleFormatted": {
     "en": "Report grid import counter: [[kwh]] kWh",
-    "de": "Netzbezug-Zählerstand melden: [[kwh]] kWh"
+    "de": "Netzbezug-Zählerstand melden: [[kwh]] kWh",
+    "fr": "Transmettre le relevé de soutirage : [[kwh]] kWh",
+    "it": "Comunica la lettura del prelievo: [[kwh]] kWh"
   },
   "hint": {
     "en": "Cumulative grid import (kWh), e.g. meter_power.imported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
-    "de": "Kumulierter Netzbezug (kWh), z. B. meter_power.imported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+    "de": "Kumulierter Netzbezug (kWh), z. B. meter_power.imported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+    "fr": "Soutirage cumulé au réseau (kWh), par exemple meter_power.imported de votre compteur de réseau. Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+    "it": "Prelievo cumulato dalla rete (kWh), ad esempio meter_power.imported del tuo contatore di rete. Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
   },
   "args": [
     {
@@ -22,7 +28,9 @@
       "name": "kwh",
       "title": {
         "en": "Counter (kWh)",
-        "de": "Zählerstand (kWh)"
+        "de": "Zählerstand (kWh)",
+        "fr": "Relevé (kWh)",
+        "it": "Lettura (kWh)"
       },
       "min": 0,
       "step": 0.001

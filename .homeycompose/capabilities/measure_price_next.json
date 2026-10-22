@@ -1,14 +1,26 @@
 {
   "type": "number",
-  "title": { "en": "Next price", "de": "Nächster Preis" },
+  "title": {
+    "en": "Next price",
+    "de": "Nächster Preis",
+    "fr": "Prix suivant",
+    "it": "Prezzo successivo"
+  },
   "desc": {
     "en": "Total price of the next 15-minute slot.",
-    "de": "Gesamtpreis der nächsten Viertelstunde."
+    "de": "Gesamtpreis der nächsten Viertelstunde.",
+    "fr": "Prix total du prochain créneau de 15 minutes.",
+    "it": "Prezzo totale del prossimo quarto d'ora."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
-  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
+  },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg"
 }

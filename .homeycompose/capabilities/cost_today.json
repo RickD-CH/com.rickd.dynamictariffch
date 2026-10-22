@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Cost today",
-    "de": "Kosten heute"
+    "de": "Kosten heute",
+    "fr": "Coût aujourd'hui",
+    "it": "Costo oggi"
   },
   "desc": {
     "en": "Net cost of today with the dynamic tariff (import minus feed-in), from the meter readings you report.",
-    "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen."
+    "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen.",
+    "fr": "Coût net d'aujourd'hui avec le tarif dynamique (soutirage moins injection), d'après les relevés que vous transmettez.",
+    "it": "Costo netto di oggi con la tariffa dinamica (prelievo meno immissione), in base alle letture che invii."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
   "units": {
     "en": "CHF",
-    "de": "CHF"
+    "de": "CHF",
+    "fr": "CHF",
+    "it": "CHF"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

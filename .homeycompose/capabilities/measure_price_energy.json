@@ -1,14 +1,26 @@
 {
   "type": "number",
-  "title": { "en": "Energy price", "de": "Energiepreis" },
+  "title": {
+    "en": "Energy price",
+    "de": "Energiepreis",
+    "fr": "Prix de l'énergie",
+    "it": "Prezzo dell'energia"
+  },
   "desc": {
     "en": "Energy-only component of the price (follows the EPEX CH day-ahead spot price).",
-    "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH)."
+    "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH).",
+    "fr": "Composante énergie du prix (suit le prix spot day-ahead EPEX CH).",
+    "it": "Componente energia del prezzo (segue il prezzo spot day-ahead EPEX CH)."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
-  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
+  },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",
   "insights": true

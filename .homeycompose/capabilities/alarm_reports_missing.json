@@ -2,11 +2,15 @@
   "type": "boolean",
   "title": {
     "en": "Meter readings missing",
-    "de": "Zählermeldungen fehlen"
+    "de": "Zählermeldungen fehlen",
+    "fr": "Relevés de compteurs manquants",
+    "it": "Letture dei contatori mancanti"
   },
   "desc": {
     "en": "True when meter readings you reported from a Flow stopped arriving (see the monitoring threshold in the app settings). Never true if you do not report meter readings.",
-    "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest."
+    "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest.",
+    "fr": "Vrai lorsque les relevés de compteurs que vous transmettez par un Flow n'arrivent plus (voir le seuil de surveillance dans les réglages de l'app). Jamais vrai si vous ne transmettez aucun relevé.",
+    "it": "Vero quando le letture dei contatori che invii con un Flow non arrivano più (vedi la soglia di monitoraggio nelle impostazioni dell'app). Mai vero se non invii letture."
   },
   "getable": true,
   "setable": false,

@@ -1,7 +1,9 @@
 {
   "title": {
     "en": "Meter readings !{{are|aren't}} missing",
-    "de": "Zählermeldungen !{{fehlen|fehlen nicht}}"
+    "de": "Zählermeldungen !{{fehlen|fehlen nicht}}",
+    "fr": "Les relevés de compteurs !{{manquent|ne manquent pas}}",
+    "it": "Le letture dei contatori !{{mancano|non mancano}}"
   },
   "args": [
     {

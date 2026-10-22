@@ -1,6 +1,15 @@
 {
-  "title": { "en": "Reload prices now", "de": "Preise jetzt neu laden" },
+  "title": {
+    "en": "Reload prices now",
+    "de": "Preise jetzt neu laden",
+    "fr": "Recharger les prix maintenant",
+    "it": "Ricarica i prezzi adesso"
+  },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
   ]
 }

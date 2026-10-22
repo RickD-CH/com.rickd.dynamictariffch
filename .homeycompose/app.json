@@ -9,11 +9,15 @@
   ],
   "name": {
     "en": "Swiss Dynamic Electricity Tariff",
-    "de": "Dynamischer Stromtarif CH"
+    "de": "Dynamischer Stromtarif CH",
+    "fr": "Tarif électrique dynamique CH",
+    "it": "Tariffa elettrica dinamica CH"
   },
   "description": {
     "en": "Run your home when Swiss electricity is cheapest",
-    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist"
+    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist",
+    "fr": "Faites tourner votre maison quand l'électricité suisse est la moins chère",
+    "it": "Fai funzionare la tua casa quando l'elettricità svizzera costa meno"
   },
   "tags": {
     "en": [
@@ -35,6 +39,26 @@
       "Innostrom",
       "Swisspower",
       "Spotpreis"
+    ],
+    "fr": [
+      "tarif électrique dynamique",
+      "prix de l'électricité",
+      "énergie",
+      "Suisse",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "prix spot"
+    ],
+    "it": [
+      "tariffa elettrica dinamica",
+      "prezzo dell'elettricità",
+      "energia",
+      "Svizzera",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "prezzo spot"
     ]
   },
   "category": "energy",

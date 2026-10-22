@@ -1,9 +1,16 @@
 {
   "type": "string",
-  "title": { "en": "Last update", "de": "Letzte Aktualisierung" },
+  "title": {
+    "en": "Last update",
+    "de": "Letzte Aktualisierung",
+    "fr": "Dernière mise à jour",
+    "it": "Ultimo aggiornamento"
+  },
   "desc": {
     "en": "When prices were last fetched successfully.",
-    "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden."
+    "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden.",
+    "fr": "Dernier relevé réussi des prix.",
+    "it": "Ultimo recupero riuscito dei prezzi."
   },
   "getable": true,
   "setable": false,

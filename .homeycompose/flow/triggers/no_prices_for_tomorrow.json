@@ -1,6 +1,15 @@
 {
-  "title": { "en": "No prices for tomorrow yet at 18:30", "de": "Um 18:30 sind noch keine Preise für morgen da" },
+  "title": {
+    "en": "No prices for tomorrow yet at 18:30",
+    "de": "Um 18:30 sind noch keine Preise für morgen da",
+    "fr": "Pas encore de prix pour demain à 18 h 30",
+    "it": "Alle 18:30 ancora nessun prezzo per domani"
+  },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
   ]
 }

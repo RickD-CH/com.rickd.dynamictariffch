@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Meter readings stopped arriving",
-    "de": "Zählermeldungen bleiben aus"
+    "de": "Zählermeldungen bleiben aus",
+    "fr": "Les relevés de compteurs n'arrivent plus",
+    "it": "Le letture dei contatori non arrivano più"
   },
   "hint": {
     "en": "Fires once per incident when a meter reading you report from a Flow has not arrived for longer than the monitoring threshold (App settings, \"Monitoring\").",
-    "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»)."
+    "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»).",
+    "fr": "Se déclenche une fois par incident lorsqu'un relevé transmis par un Flow n'est pas arrivé depuis plus longtemps que le seuil de surveillance (réglages de l'app, « Surveillance »).",
+    "it": "Si attiva una volta per incidente quando una lettura comunicata da un Flow non arriva da più tempo della soglia di monitoraggio (impostazioni dell'app, «Monitoraggio»)."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "number",
       "title": {
         "en": "Minutes since the last reading",
-        "de": "Minuten seit der letzten Meldung"
+        "de": "Minuten seit der letzten Meldung",
+        "fr": "Minutes depuis le dernier relevé",
+        "it": "Minuti dall'ultima lettura"
       },
       "example": 95
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "Affected meters",
-        "de": "Betroffene Zähler"
+        "de": "Betroffene Zähler",
+        "fr": "Compteurs concernés",
+        "it": "Contatori interessati"
       },
       "example": "grid import, grid export"
     }

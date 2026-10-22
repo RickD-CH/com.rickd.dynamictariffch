@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Average import price today",
-    "de": "Ø Bezugspreis heute"
+    "de": "Ø Bezugspreis heute",
+    "fr": "Prix d'achat moyen aujourd'hui",
+    "it": "Prezzo medio di prelievo oggi"
   },
   "desc": {
     "en": "Average price of the grid import reported today, weighted by consumption.",
-    "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet."
+    "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet.",
+    "fr": "Prix moyen de l'électricité soutirée au réseau et transmise aujourd'hui, pondéré par la consommation.",
+    "it": "Prezzo medio dell'energia prelevata dalla rete e comunicata oggi, ponderato in base al consumo."
   },
   "getable": true,
   "setable": false,
   "uiComponent": null,
   "units": {
     "en": "Rp./kWh",
-    "de": "Rp./kWh"
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

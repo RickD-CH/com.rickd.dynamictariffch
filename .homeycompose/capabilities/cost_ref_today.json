@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Cost today (previous tariff)",
-    "de": "Kosten heute (bisheriger Tarif)"
+    "de": "Kosten heute (bisheriger Tarif)",
+    "fr": "Coût aujourd'hui (ancien tarif)",
+    "it": "Costo oggi (tariffa precedente)"
   },
   "desc": {
     "en": "The same consumption priced with your reference tariff.",
-    "de": "Derselbe Verbrauch zum Preis deines Referenztarifs."
+    "de": "Derselbe Verbrauch zum Preis deines Referenztarifs.",
+    "fr": "La même consommation facturée à votre tarif de référence.",
+    "it": "Lo stesso consumo calcolato con la tua tariffa di riferimento."
   },
   "getable": true,
   "setable": false,
   "uiComponent": null,
   "units": {
     "en": "CHF",
-    "de": "CHF"
+    "de": "CHF",
+    "fr": "CHF",
+    "it": "CHF"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

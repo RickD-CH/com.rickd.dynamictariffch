@@ -1,14 +1,26 @@
 {
   "type": "number",
-  "title": { "en": "Highest price today", "de": "Höchster Preis heute" },
+  "title": {
+    "en": "Highest price today",
+    "de": "Höchster Preis heute",
+    "fr": "Prix le plus élevé aujourd'hui",
+    "it": "Prezzo più alto oggi"
+  },
   "desc": {
     "en": "Highest total price of the current calendar day.",
-    "de": "Höchster Gesamtpreis des heutigen Kalendertags."
+    "de": "Höchster Gesamtpreis des heutigen Kalendertags.",
+    "fr": "Prix total le plus élevé du jour civil en cours.",
+    "it": "Prezzo totale più alto del giorno corrente."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
-  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
+  },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg"
 }

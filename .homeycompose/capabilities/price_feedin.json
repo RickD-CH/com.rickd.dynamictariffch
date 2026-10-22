@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Feed-in price",
-    "de": "Einspeisevergütung"
+    "de": "Einspeisevergütung",
+    "fr": "Prix de reprise",
+    "it": "Prezzo di immissione"
   },
   "desc": {
     "en": "Feed-in price delivered by the API for the current slot. Whether and how your utility pays it depends on your tariff.",
-    "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab."
+    "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab.",
+    "fr": "Prix de reprise de l'injection fourni par l'API pour le créneau en cours. Si et comment votre fournisseur le rémunère dépend de votre tarif.",
+    "it": "Prezzo di immissione fornito dall'API per il quarto d'ora corrente. Se e come il tuo fornitore lo remunera dipende dalla tua tariffa."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
   "units": {
     "en": "Rp./kWh",
-    "de": "Rp./kWh"
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

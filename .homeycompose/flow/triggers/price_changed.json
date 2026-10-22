@@ -1,15 +1,56 @@
 {
-  "title": { "en": "The price has changed", "de": "Der Strompreis hat sich geändert" },
+  "title": {
+    "en": "The price has changed",
+    "de": "Der Strompreis hat sich geändert",
+    "fr": "Le prix de l'électricité a changé",
+    "it": "Il prezzo dell'elettricità è cambiato"
+  },
   "hint": {
     "en": "Fires every 15 minutes when the price slot changes.",
-    "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt."
+    "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt.",
+    "fr": "Se déclenche toutes les 15 minutes lorsque le créneau de prix change.",
+    "it": "Si attiva ogni 15 minuti quando cambia la fascia di prezzo."
   },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" }
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    }
   ],
   "tokens": [
-    { "name": "price", "type": "number", "title": { "en": "Price", "de": "Preis" }, "example": 24.5 },
-    { "name": "level", "type": "string", "title": { "en": "Level", "de": "Niveau" }, "example": "cheap" },
-    { "name": "rank", "type": "number", "title": { "en": "Rank today", "de": "Rang heute" }, "example": 12 }
+    {
+      "name": "price",
+      "type": "number",
+      "title": {
+        "en": "Price",
+        "de": "Preis",
+        "fr": "Prix",
+        "it": "Prezzo"
+      },
+      "example": 24.5
+    },
+    {
+      "name": "level",
+      "type": "string",
+      "title": {
+        "en": "Level",
+        "de": "Niveau",
+        "fr": "Niveau",
+        "it": "Livello"
+      },
+      "example": "cheap"
+    },
+    {
+      "name": "rank",
+      "type": "number",
+      "title": {
+        "en": "Rank today",
+        "de": "Rang heute",
+        "fr": "Rang aujourd'hui",
+        "it": "Posizione oggi"
+      },
+      "example": 12
+    }
   ]
 }

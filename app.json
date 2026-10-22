@@ -10,11 +10,15 @@
   ],
   "name": {
     "en": "Swiss Dynamic Electricity Tariff",
-    "de": "Dynamischer Stromtarif CH"
+    "de": "Dynamischer Stromtarif CH",
+    "fr": "Tarif électrique dynamique CH",
+    "it": "Tariffa elettrica dinamica CH"
   },
   "description": {
     "en": "Run your home when Swiss electricity is cheapest",
-    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist"
+    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist",
+    "fr": "Faites tourner votre maison quand l'électricité suisse est la moins chère",
+    "it": "Fai funzionare la tua casa quando l'elettricità svizzera costa meno"
   },
   "tags": {
     "en": [
@@ -36,6 +40,26 @@
       "Innostrom",
       "Swisspower",
       "Spotpreis"
+    ],
+    "fr": [
+      "tarif électrique dynamique",
+      "prix de l'électricité",
+      "énergie",
+      "Suisse",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "prix spot"
+    ],
+    "it": [
+      "tariffa elettrica dinamica",
+      "prezzo dell'elettricità",
+      "energia",
+      "Svizzera",
+      "AEW",
+      "Innostrom",
+      "Swisspower",
+      "prezzo spot"
     ]
   },
   "category": "energy",
@@ -141,11 +165,15 @@
       {
         "title": {
           "en": "The cheapest block begins",
-          "de": "Der günstigste Block beginnt"
+          "de": "Der günstigste Block beginnt",
+          "fr": "Le bloc le moins cher commence",
+          "it": "Il blocco più conveniente inizia"
         },
         "titleFormatted": {
           "en": "The cheapest block of [[hours]] hours between [[from]] and [[to]] begins",
-          "de": "Der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]] beginnt"
+          "de": "Der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]] beginnt",
+          "fr": "Le bloc le moins cher de [[hours]] heures entre [[from]] et [[to]] commence",
+          "it": "Il blocco più conveniente di [[hours]] ore tra le [[from]] e le [[to]] inizia"
         },
         "args": [
           {
@@ -158,7 +186,9 @@
             "name": "hours",
             "title": {
               "en": "Duration (hours)",
-              "de": "Dauer (Stunden)"
+              "de": "Dauer (Stunden)",
+              "fr": "Durée (heures)",
+              "it": "Durata (ore)"
             },
             "min": 1,
             "max": 24,
@@ -169,7 +199,9 @@
             "name": "from",
             "title": {
               "en": "From",
-              "de": "Von"
+              "de": "Von",
+              "fr": "De",
+              "it": "Da"
             }
           },
           {
@@ -177,7 +209,9 @@
             "name": "to",
             "title": {
               "en": "To",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "À",
+              "it": "A"
             }
           }
         ],
@@ -187,7 +221,9 @@
             "type": "number",
             "title": {
               "en": "Average price",
-              "de": "Durchschnittspreis"
+              "de": "Durchschnittspreis",
+              "fr": "Prix moyen",
+              "it": "Prezzo medio"
             },
             "example": 18.5
           },
@@ -196,7 +232,9 @@
             "type": "string",
             "title": {
               "en": "Block ends",
-              "de": "Block endet"
+              "de": "Block endet",
+              "fr": "Fin du bloc",
+              "it": "Fine del blocco"
             },
             "example": "05:30"
           }
@@ -206,11 +244,15 @@
       {
         "title": {
           "en": "The day has been summarised",
-          "de": "Der Tag ist ausgewertet"
+          "de": "Der Tag ist ausgewertet",
+          "fr": "La journée est évaluée",
+          "it": "La giornata è stata valutata"
         },
         "hint": {
           "en": "Fires once a day at about 00:35 for the previous day, if meter readings you reported produced data for it. Use the tokens for a daily message.",
-          "de": "Löst einmal pro Tag gegen 00:35 für den Vortag aus, wenn deine gemeldeten Zählerstände dafür Daten ergeben haben. Mit den Tokens baust du eine tägliche Meldung."
+          "de": "Löst einmal pro Tag gegen 00:35 für den Vortag aus, wenn deine gemeldeten Zählerstände dafür Daten ergeben haben. Mit den Tokens baust du eine tägliche Meldung.",
+          "fr": "Se déclenche une fois par jour vers 00 h 35 pour la veille, si les relevés que vous transmettez ont produit des données. Utilisez les jetons pour un message quotidien.",
+          "it": "Si attiva una volta al giorno verso le 00:35 per il giorno precedente, se le letture che invii hanno prodotto dati. Usa i token per un messaggio giornaliero."
         },
         "args": [
           {
@@ -225,7 +267,9 @@
             "type": "string",
             "title": {
               "en": "Date",
-              "de": "Datum"
+              "de": "Datum",
+              "fr": "Date",
+              "it": "Data"
             },
             "example": "21.10."
           },
@@ -234,7 +278,9 @@
             "type": "number",
             "title": {
               "en": "Grid import (kWh)",
-              "de": "Netzbezug (kWh)"
+              "de": "Netzbezug (kWh)",
+              "fr": "Soutirage au réseau (kWh)",
+              "it": "Prelievo dalla rete (kWh)"
             },
             "example": 14.5
           },
@@ -243,7 +289,9 @@
             "type": "number",
             "title": {
               "en": "Grid export (kWh)",
-              "de": "Einspeisung (kWh)"
+              "de": "Einspeisung (kWh)",
+              "fr": "Injection dans le réseau (kWh)",
+              "it": "Immissione in rete (kWh)"
             },
             "example": 0.4
           },
@@ -252,7 +300,9 @@
             "type": "number",
             "title": {
               "en": "Cost, dynamic tariff (CHF)",
-              "de": "Kosten dynamischer Tarif (CHF)"
+              "de": "Kosten dynamischer Tarif (CHF)",
+              "fr": "Coût, tarif dynamique (CHF)",
+              "it": "Costo, tariffa dinamica (CHF)"
             },
             "example": 5.35
           },
@@ -261,7 +311,9 @@
             "type": "number",
             "title": {
               "en": "Cost, previous tariff (CHF)",
-              "de": "Kosten bisheriger Tarif (CHF)"
+              "de": "Kosten bisheriger Tarif (CHF)",
+              "fr": "Coût, ancien tarif (CHF)",
+              "it": "Costo, tariffa precedente (CHF)"
             },
             "example": 3.78
           },
@@ -270,7 +322,9 @@
             "type": "number",
             "title": {
               "en": "Savings (CHF)",
-              "de": "Ersparnis (CHF)"
+              "de": "Ersparnis (CHF)",
+              "fr": "Économie (CHF)",
+              "it": "Risparmio (CHF)"
             },
             "example": -1.57
           },
@@ -279,7 +333,9 @@
             "type": "number",
             "title": {
               "en": "Average import price (Rp./kWh)",
-              "de": "Ø Bezugspreis (Rp./kWh)"
+              "de": "Ø Bezugspreis (Rp./kWh)",
+              "fr": "Prix d'achat moyen (Rp./kWh)",
+              "it": "Prezzo medio di prelievo (Rp./kWh)"
             },
             "example": 34.2
           },
@@ -288,7 +344,9 @@
             "type": "number",
             "title": {
               "en": "Battery benefit (CHF)",
-              "de": "Batterie-Nutzen (CHF)"
+              "de": "Batterie-Nutzen (CHF)",
+              "fr": "Bénéfice de la batterie (CHF)",
+              "it": "Beneficio della batteria (CHF)"
             },
             "example": 0.8
           },
@@ -297,7 +355,9 @@
             "type": "boolean",
             "title": {
               "en": "Comparison possible",
-              "de": "Vergleich möglich"
+              "de": "Vergleich möglich",
+              "fr": "Comparaison possible",
+              "it": "Confronto possibile"
             },
             "example": true
           },
@@ -306,7 +366,9 @@
             "type": "number",
             "title": {
               "en": "Battery efficiency (%)",
-              "de": "Batterie-Effizienz (%)"
+              "de": "Batterie-Effizienz (%)",
+              "fr": "Efficacité de la batterie (%)",
+              "it": "Efficienza della batteria (%)"
             },
             "example": 69
           },
@@ -315,7 +377,9 @@
             "type": "number",
             "title": {
               "en": "Value of grid charging (CHF)",
-              "de": "Wert der Netzladung (CHF)"
+              "de": "Wert der Netzladung (CHF)",
+              "fr": "Valeur de la charge depuis le réseau (CHF)",
+              "it": "Valore della carica dalla rete (CHF)"
             },
             "example": 1.32
           }
@@ -325,7 +389,9 @@
       {
         "title": {
           "en": "No prices for tomorrow yet at 18:30",
-          "de": "Um 18:30 sind noch keine Preise für morgen da"
+          "de": "Um 18:30 sind noch keine Preise für morgen da",
+          "fr": "Pas encore de prix pour demain à 18 h 30",
+          "it": "Alle 18:30 ancora nessun prezzo per domani"
         },
         "args": [
           {
@@ -339,15 +405,21 @@
       {
         "title": {
           "en": "The price rises above...",
-          "de": "Der Preis steigt über..."
+          "de": "Der Preis steigt über...",
+          "fr": "Le prix dépasse...",
+          "it": "Il prezzo sale oltre..."
         },
         "titleFormatted": {
           "en": "The price rises above [[price]] Rp./kWh",
-          "de": "Der Preis steigt über [[price]] Rp./kWh"
+          "de": "Der Preis steigt über [[price]] Rp./kWh",
+          "fr": "Le prix dépasse [[price]] Rp./kWh",
+          "it": "Il prezzo sale oltre [[price]] Rp./kWh"
         },
         "hint": {
           "en": "Fires only at the moment the price crosses above the threshold, not on every slot while it stays above.",
-          "de": "Löst nur im Moment des Überschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darüber bleibt."
+          "de": "Löst nur im Moment des Überschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darüber bleibt.",
+          "fr": "Se déclenche uniquement au moment où le prix franchit le seuil vers le haut, pas à chaque créneau où il reste au-dessus.",
+          "it": "Si attiva solo nel momento in cui il prezzo supera la soglia, non a ogni quarto d'ora in cui rimane al di sopra."
         },
         "args": [
           {
@@ -360,7 +432,9 @@
             "name": "price",
             "title": {
               "en": "Price (Rp./kWh)",
-              "de": "Preis (Rp./kWh)"
+              "de": "Preis (Rp./kWh)",
+              "fr": "Prix (Rp./kWh)",
+              "it": "Prezzo (Rp./kWh)"
             },
             "step": 0.1
           }
@@ -371,7 +445,9 @@
             "type": "number",
             "title": {
               "en": "Price",
-              "de": "Preis"
+              "de": "Preis",
+              "fr": "Prix",
+              "it": "Prezzo"
             },
             "example": 35.7
           }
@@ -381,15 +457,21 @@
       {
         "title": {
           "en": "The price drops below...",
-          "de": "Der Preis fällt unter..."
+          "de": "Der Preis fällt unter...",
+          "fr": "Le prix passe sous...",
+          "it": "Il prezzo scende sotto..."
         },
         "titleFormatted": {
           "en": "The price drops below [[price]] Rp./kWh",
-          "de": "Der Preis fällt unter [[price]] Rp./kWh"
+          "de": "Der Preis fällt unter [[price]] Rp./kWh",
+          "fr": "Le prix passe sous [[price]] Rp./kWh",
+          "it": "Il prezzo scende sotto [[price]] Rp./kWh"
         },
         "hint": {
           "en": "Fires only at the moment the price crosses below the threshold, not on every slot while it stays below.",
-          "de": "Löst nur im Moment des Unterschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darunter bleibt."
+          "de": "Löst nur im Moment des Unterschreitens aus, nicht bei jeder Viertelstunde, in der der Preis darunter bleibt.",
+          "fr": "Se déclenche uniquement au moment où le prix franchit le seuil vers le bas, pas à chaque créneau où il reste en dessous.",
+          "it": "Si attiva solo nel momento in cui il prezzo scende sotto la soglia, non a ogni quarto d'ora in cui rimane al di sotto."
         },
         "args": [
           {
@@ -402,7 +484,9 @@
             "name": "price",
             "title": {
               "en": "Price (Rp./kWh)",
-              "de": "Preis (Rp./kWh)"
+              "de": "Preis (Rp./kWh)",
+              "fr": "Prix (Rp./kWh)",
+              "it": "Prezzo (Rp./kWh)"
             },
             "step": 0.1
           }
@@ -413,7 +497,9 @@
             "type": "number",
             "title": {
               "en": "Price",
-              "de": "Preis"
+              "de": "Preis",
+              "fr": "Prix",
+              "it": "Prezzo"
             },
             "example": 15.2
           }
@@ -423,11 +509,15 @@
       {
         "title": {
           "en": "The price has changed",
-          "de": "Der Strompreis hat sich geändert"
+          "de": "Der Strompreis hat sich geändert",
+          "fr": "Le prix de l'électricité a changé",
+          "it": "Il prezzo dell'elettricità è cambiato"
         },
         "hint": {
           "en": "Fires every 15 minutes when the price slot changes.",
-          "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt."
+          "de": "Wird jede Viertelstunde ausgelöst, wenn der Preis-Slot wechselt.",
+          "fr": "Se déclenche toutes les 15 minutes lorsque le créneau de prix change.",
+          "it": "Si attiva ogni 15 minuti quando cambia la fascia di prezzo."
         },
         "args": [
           {
@@ -442,7 +532,9 @@
             "type": "number",
             "title": {
               "en": "Price",
-              "de": "Preis"
+              "de": "Preis",
+              "fr": "Prix",
+              "it": "Prezzo"
             },
             "example": 24.5
           },
@@ -451,7 +543,9 @@
             "type": "string",
             "title": {
               "en": "Level",
-              "de": "Niveau"
+              "de": "Niveau",
+              "fr": "Niveau",
+              "it": "Livello"
             },
             "example": "cheap"
           },
@@ -460,7 +554,9 @@
             "type": "number",
             "title": {
               "en": "Rank today",
-              "de": "Rang heute"
+              "de": "Rang heute",
+              "fr": "Rang aujourd'hui",
+              "it": "Posizione oggi"
             },
             "example": 12
           }
@@ -470,11 +566,15 @@
       {
         "title": {
           "en": "Meter readings are arriving again",
-          "de": "Zählermeldungen kommen wieder an"
+          "de": "Zählermeldungen kommen wieder an",
+          "fr": "Les relevés de compteurs arrivent de nouveau",
+          "it": "Le letture dei contatori arrivano di nuovo"
         },
         "hint": {
           "en": "Fires when all reported meters are within the monitoring threshold again after an incident.",
-          "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen."
+          "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen.",
+          "fr": "Se déclenche lorsque, après un incident, tous les compteurs transmis sont de nouveau dans le seuil de surveillance.",
+          "it": "Si attiva quando, dopo un incidente, tutti i contatori comunicati rientrano di nuovo nella soglia di monitoraggio."
         },
         "args": [
           {
@@ -488,11 +588,15 @@
       {
         "title": {
           "en": "Meter readings stopped arriving",
-          "de": "Zählermeldungen bleiben aus"
+          "de": "Zählermeldungen bleiben aus",
+          "fr": "Les relevés de compteurs n'arrivent plus",
+          "it": "Le letture dei contatori non arrivano più"
         },
         "hint": {
           "en": "Fires once per incident when a meter reading you report from a Flow has not arrived for longer than the monitoring threshold (App settings, \"Monitoring\").",
-          "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»)."
+          "de": "Löst einmal pro Vorfall aus, wenn ein per Flow gemeldeter Zählerstand länger als die Überwachungsschwelle nicht angekommen ist (App-Einstellungen, «Überwachung»).",
+          "fr": "Se déclenche une fois par incident lorsqu'un relevé transmis par un Flow n'est pas arrivé depuis plus longtemps que le seuil de surveillance (réglages de l'app, « Surveillance »).",
+          "it": "Si attiva una volta per incidente quando una lettura comunicata da un Flow non arriva da più tempo della soglia di monitoraggio (impostazioni dell'app, «Monitoraggio»)."
         },
         "args": [
           {
@@ -507,7 +611,9 @@
             "type": "number",
             "title": {
               "en": "Minutes since the last reading",
-              "de": "Minuten seit der letzten Meldung"
+              "de": "Minuten seit der letzten Meldung",
+              "fr": "Minutes depuis le dernier relevé",
+              "it": "Minuti dall'ultima lettura"
             },
             "example": 95
           },
@@ -516,7 +622,9 @@
             "type": "string",
             "title": {
               "en": "Affected meters",
-              "de": "Betroffene Zähler"
+              "de": "Betroffene Zähler",
+              "fr": "Compteurs concernés",
+              "it": "Contatori interessati"
             },
             "example": "grid import, grid export"
           }
@@ -526,7 +634,9 @@
       {
         "title": {
           "en": "Tomorrow's prices are available",
-          "de": "Die Preise für morgen sind verfügbar"
+          "de": "Die Preise für morgen sind verfügbar",
+          "fr": "Les prix de demain sont disponibles",
+          "it": "I prezzi di domani sono disponibili"
         },
         "args": [
           {
@@ -541,7 +651,9 @@
             "type": "number",
             "title": {
               "en": "Lowest",
-              "de": "Tiefster"
+              "de": "Tiefster",
+              "fr": "Le plus bas",
+              "it": "Il più basso"
             },
             "example": 12.3
           },
@@ -550,7 +662,9 @@
             "type": "number",
             "title": {
               "en": "Highest",
-              "de": "Höchster"
+              "de": "Höchster",
+              "fr": "Le plus élevé",
+              "it": "Il più alto"
             },
             "example": 38.1
           },
@@ -559,7 +673,9 @@
             "type": "number",
             "title": {
               "en": "Average",
-              "de": "Durchschnitt"
+              "de": "Durchschnitt",
+              "fr": "Moyenne",
+              "it": "Media"
             },
             "example": 22.4
           },
@@ -568,7 +684,9 @@
             "type": "string",
             "title": {
               "en": "Cheapest slot starts",
-              "de": "Günstigste Viertelstunde beginnt"
+              "de": "Günstigste Viertelstunde beginnt",
+              "fr": "Le créneau le moins cher commence",
+              "it": "Il quarto d'ora più conveniente inizia"
             },
             "example": "03:00"
           }
@@ -580,15 +698,21 @@
       {
         "title": {
           "en": "Price !{{is|isn't}} among the cheapest",
-          "de": "Preis !{{gehört|gehört nicht}} zu den günstigsten"
+          "de": "Preis !{{gehört|gehört nicht}} zu den günstigsten",
+          "fr": "Le prix !{{fait partie|ne fait pas partie}} des moins chers",
+          "it": "Il prezzo !{{rientra|non rientra}} tra i più convenienti"
         },
         "titleFormatted": {
           "en": "Price !{{is|isn't}} among the [[hours]] cheapest hours between [[from]] and [[to]]",
-          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] günstigsten Stunden zwischen [[from]] und [[to]]"
+          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] günstigsten Stunden zwischen [[from]] und [[to]]",
+          "fr": "Le prix !{{fait partie|ne fait pas partie}} des [[hours]] heures les moins chères entre [[from]] et [[to]]",
+          "it": "Il prezzo !{{rientra|non rientra}} tra le [[hours]] ore più convenienti tra le [[from]] e le [[to]]"
         },
         "hint": {
           "en": "False (and logged) if not all prices in the window are known yet.",
-          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind.",
+          "fr": "Faux (et consigné dans le journal) si tous les prix de la fenêtre ne sont pas encore connus.",
+          "it": "Falso (e annotato nel registro) se non tutti i prezzi nella finestra sono ancora noti."
         },
         "args": [
           {
@@ -601,7 +725,9 @@
             "name": "hours",
             "title": {
               "en": "Number of hours",
-              "de": "Anzahl Stunden"
+              "de": "Anzahl Stunden",
+              "fr": "Nombre d'heures",
+              "it": "Numero di ore"
             },
             "min": 0.25,
             "max": 24,
@@ -612,7 +738,9 @@
             "name": "from",
             "title": {
               "en": "From",
-              "de": "Von"
+              "de": "Von",
+              "fr": "De",
+              "it": "Da"
             }
           },
           {
@@ -620,7 +748,9 @@
             "name": "to",
             "title": {
               "en": "To",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "À",
+              "it": "A"
             }
           }
         ],
@@ -629,15 +759,21 @@
       {
         "title": {
           "en": "Price !{{is|isn't}} among the most expensive",
-          "de": "Preis !{{gehört|gehört nicht}} zu den teuersten"
+          "de": "Preis !{{gehört|gehört nicht}} zu den teuersten",
+          "fr": "Le prix !{{fait partie|ne fait pas partie}} des plus chers",
+          "it": "Il prezzo !{{rientra|non rientra}} tra i più cari"
         },
         "titleFormatted": {
           "en": "Price !{{is|isn't}} among the [[hours]] most expensive hours between [[from]] and [[to]]",
-          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] teuersten Stunden zwischen [[from]] und [[to]]"
+          "de": "Preis !{{gehört|gehört nicht}} zu den [[hours]] teuersten Stunden zwischen [[from]] und [[to]]",
+          "fr": "Le prix !{{fait partie|ne fait pas partie}} des [[hours]] heures les plus chères entre [[from]] et [[to]]",
+          "it": "Il prezzo !{{rientra|non rientra}} tra le [[hours]] ore più care tra le [[from]] e le [[to]]"
         },
         "hint": {
           "en": "False (and logged) if not all prices in the window are known yet.",
-          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind.",
+          "fr": "Faux (et consigné dans le journal) si tous les prix de la fenêtre ne sont pas encore connus.",
+          "it": "Falso (e annotato nel registro) se non tutti i prezzi nella finestra sono ancora noti."
         },
         "args": [
           {
@@ -650,7 +786,9 @@
             "name": "hours",
             "title": {
               "en": "Number of hours",
-              "de": "Anzahl Stunden"
+              "de": "Anzahl Stunden",
+              "fr": "Nombre d'heures",
+              "it": "Numero di ore"
             },
             "min": 0.25,
             "max": 24,
@@ -661,7 +799,9 @@
             "name": "from",
             "title": {
               "en": "From",
-              "de": "Von"
+              "de": "Von",
+              "fr": "De",
+              "it": "Da"
             }
           },
           {
@@ -669,7 +809,9 @@
             "name": "to",
             "title": {
               "en": "To",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "À",
+              "it": "A"
             }
           }
         ],
@@ -678,15 +820,21 @@
       {
         "title": {
           "en": "Now !{{is|isn't}} in the cheapest block",
-          "de": "Jetzt !{{ist|ist nicht}} im günstigsten Block"
+          "de": "Jetzt !{{ist|ist nicht}} im günstigsten Block",
+          "fr": "Maintenant !{{dans le|hors du}} bloc le moins cher",
+          "it": "Adesso !{{si è|non si è}} nel blocco più conveniente"
         },
         "titleFormatted": {
           "en": "Now !{{is|isn't}} the cheapest block of [[hours]] hours between [[from]] and [[to]]",
-          "de": "Jetzt !{{ist|ist nicht}} der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]]"
+          "de": "Jetzt !{{ist|ist nicht}} der günstigste Block von [[hours]] Stunden zwischen [[from]] und [[to]]",
+          "fr": "Maintenant !{{dans le|hors du}} bloc le moins cher de [[hours]] heures entre [[from]] et [[to]]",
+          "it": "Adesso !{{si è|non si è}} nel blocco più conveniente di [[hours]] ore tra le [[from]] e le [[to]]"
         },
         "hint": {
           "en": "False (and logged) if not all prices in the window are known yet.",
-          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind."
+          "de": "Falsch (und im Log vermerkt), wenn noch nicht alle Preise im Fenster bekannt sind.",
+          "fr": "Faux (et consigné dans le journal) si tous les prix de la fenêtre ne sont pas encore connus.",
+          "it": "Falso (e annotato nel registro) se non tutti i prezzi nella finestra sono ancora noti."
         },
         "args": [
           {
@@ -699,7 +847,9 @@
             "name": "hours",
             "title": {
               "en": "Duration (hours)",
-              "de": "Dauer (Stunden)"
+              "de": "Dauer (Stunden)",
+              "fr": "Durée (heures)",
+              "it": "Durata (ore)"
             },
             "min": 0.25,
             "max": 24,
@@ -710,7 +860,9 @@
             "name": "from",
             "title": {
               "en": "From",
-              "de": "Von"
+              "de": "Von",
+              "fr": "De",
+              "it": "Da"
             }
           },
           {
@@ -718,7 +870,9 @@
             "name": "to",
             "title": {
               "en": "To",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "À",
+              "it": "A"
             }
           }
         ],
@@ -727,11 +881,15 @@
       {
         "title": {
           "en": "Price level !{{is|isn't}}...",
-          "de": "Preisniveau !{{ist|ist nicht}}..."
+          "de": "Preisniveau !{{ist|ist nicht}}...",
+          "fr": "Le niveau de prix !{{est|n'est pas}}...",
+          "it": "Il livello di prezzo !{{è|non è}}..."
         },
         "titleFormatted": {
           "en": "Price level !{{is|isn't}} [[level]]",
-          "de": "Preisniveau !{{ist|ist nicht}} [[level]]"
+          "de": "Preisniveau !{{ist|ist nicht}} [[level]]",
+          "fr": "Le niveau de prix !{{est|n'est pas}} [[level]]",
+          "it": "Il livello di prezzo !{{è|non è}} [[level]]"
         },
         "args": [
           {
@@ -744,42 +902,54 @@
             "name": "level",
             "title": {
               "en": "Level",
-              "de": "Niveau"
+              "de": "Niveau",
+              "fr": "Niveau",
+              "it": "Livello"
             },
             "values": [
               {
                 "id": "very_cheap",
                 "label": {
                   "en": "Very cheap",
-                  "de": "Sehr günstig"
+                  "de": "Sehr günstig",
+                  "fr": "Très bon marché",
+                  "it": "Molto conveniente"
                 }
               },
               {
                 "id": "cheap",
                 "label": {
                   "en": "Cheap",
-                  "de": "Günstig"
+                  "de": "Günstig",
+                  "fr": "Bon marché",
+                  "it": "Conveniente"
                 }
               },
               {
                 "id": "normal",
                 "label": {
                   "en": "Normal",
-                  "de": "Normal"
+                  "de": "Normal",
+                  "fr": "Normal",
+                  "it": "Normale"
                 }
               },
               {
                 "id": "expensive",
                 "label": {
                   "en": "Expensive",
-                  "de": "Teuer"
+                  "de": "Teuer",
+                  "fr": "Cher",
+                  "it": "Caro"
                 }
               },
               {
                 "id": "very_expensive",
                 "label": {
                   "en": "Very expensive",
-                  "de": "Sehr teuer"
+                  "de": "Sehr teuer",
+                  "fr": "Très cher",
+                  "it": "Molto caro"
                 }
               }
             ]
@@ -790,11 +960,15 @@
       {
         "title": {
           "en": "Price !{{is|isn't}} below...",
-          "de": "Preis !{{ist|ist nicht}} unter..."
+          "de": "Preis !{{ist|ist nicht}} unter...",
+          "fr": "Le prix !{{est|n'est pas}} inférieur à...",
+          "it": "Il prezzo !{{è|non è}} inferiore a..."
         },
         "titleFormatted": {
           "en": "Price !{{is|isn't}} below [[price]] Rp./kWh",
-          "de": "Preis !{{ist|ist nicht}} unter [[price]] Rp./kWh"
+          "de": "Preis !{{ist|ist nicht}} unter [[price]] Rp./kWh",
+          "fr": "Le prix !{{est|n'est pas}} inférieur à [[price]] Rp./kWh",
+          "it": "Il prezzo !{{è|non è}} inferiore a [[price]] Rp./kWh"
         },
         "args": [
           {
@@ -807,7 +981,9 @@
             "name": "price",
             "title": {
               "en": "Price (Rp./kWh)",
-              "de": "Preis (Rp./kWh)"
+              "de": "Preis (Rp./kWh)",
+              "fr": "Prix (Rp./kWh)",
+              "it": "Prezzo (Rp./kWh)"
             },
             "step": 0.1
           }
@@ -817,7 +993,9 @@
       {
         "title": {
           "en": "Meter readings !{{are|aren't}} missing",
-          "de": "Zählermeldungen !{{fehlen|fehlen nicht}}"
+          "de": "Zählermeldungen !{{fehlen|fehlen nicht}}",
+          "fr": "Les relevés de compteurs !{{manquent|ne manquent pas}}",
+          "it": "Le letture dei contatori !{{mancano|non mancano}}"
         },
         "args": [
           {
@@ -833,11 +1011,15 @@
       {
         "title": {
           "en": "Find the cheapest block",
-          "de": "Günstigsten Block finden"
+          "de": "Günstigsten Block finden",
+          "fr": "Trouver le bloc le moins cher",
+          "it": "Trova il blocco più conveniente"
         },
         "titleFormatted": {
           "en": "Find the cheapest block of [[hours]] hours between [[from]] and [[to]]",
-          "de": "Finde den günstigsten Block von [[hours]] Stunden zwischen [[from]] und [[to]]"
+          "de": "Finde den günstigsten Block von [[hours]] Stunden zwischen [[from]] und [[to]]",
+          "fr": "Trouver le bloc le moins cher de [[hours]] heures entre [[from]] et [[to]]",
+          "it": "Trova il blocco più conveniente di [[hours]] ore tra le [[from]] e le [[to]]"
         },
         "args": [
           {
@@ -850,7 +1032,9 @@
             "name": "hours",
             "title": {
               "en": "Duration (hours)",
-              "de": "Dauer (Stunden)"
+              "de": "Dauer (Stunden)",
+              "fr": "Durée (heures)",
+              "it": "Durata (ore)"
             },
             "min": 0.25,
             "max": 24,
@@ -861,7 +1045,9 @@
             "name": "from",
             "title": {
               "en": "From",
-              "de": "Von"
+              "de": "Von",
+              "fr": "De",
+              "it": "Da"
             }
           },
           {
@@ -869,7 +1055,9 @@
             "name": "to",
             "title": {
               "en": "To",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "À",
+              "it": "A"
             }
           }
         ],
@@ -879,7 +1067,9 @@
             "type": "string",
             "title": {
               "en": "Block starts",
-              "de": "Block beginnt"
+              "de": "Block beginnt",
+              "fr": "Début du bloc",
+              "it": "Inizio del blocco"
             },
             "example": "02:00"
           },
@@ -888,7 +1078,9 @@
             "type": "string",
             "title": {
               "en": "Block ends",
-              "de": "Block endet"
+              "de": "Block endet",
+              "fr": "Fin du bloc",
+              "it": "Fine del blocco"
             },
             "example": "05:00"
           },
@@ -897,7 +1089,9 @@
             "type": "number",
             "title": {
               "en": "Average price",
-              "de": "Durchschnittspreis"
+              "de": "Durchschnittspreis",
+              "fr": "Prix moyen",
+              "it": "Prezzo medio"
             },
             "example": 17.8
           }
@@ -907,11 +1101,15 @@
       {
         "title": {
           "en": "Find the cheapest block from now",
-          "de": "Günstigsten Block ab jetzt finden"
+          "de": "Günstigsten Block ab jetzt finden",
+          "fr": "Trouver le bloc le moins cher à partir de maintenant",
+          "it": "Trova il blocco più conveniente da adesso"
         },
         "titleFormatted": {
           "en": "Find the cheapest block of [[hours]] hours from now until [[to]]",
-          "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt bis [[to]]"
+          "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt bis [[to]]",
+          "fr": "Trouver le bloc le moins cher de [[hours]] heures à partir de maintenant jusqu'à [[to]]",
+          "it": "Trova il blocco più conveniente di [[hours]] ore da adesso fino alle [[to]]"
         },
         "args": [
           {
@@ -924,7 +1122,9 @@
             "name": "hours",
             "title": {
               "en": "Duration (hours)",
-              "de": "Dauer (Stunden)"
+              "de": "Dauer (Stunden)",
+              "fr": "Durée (heures)",
+              "it": "Durata (ore)"
             },
             "min": 0.25,
             "max": 24,
@@ -935,7 +1135,9 @@
             "name": "to",
             "title": {
               "en": "Until",
-              "de": "Bis"
+              "de": "Bis",
+              "fr": "Jusqu'à",
+              "it": "Fino alle"
             }
           }
         ],
@@ -945,7 +1147,9 @@
             "type": "string",
             "title": {
               "en": "Block starts",
-              "de": "Block beginnt"
+              "de": "Block beginnt",
+              "fr": "Début du bloc",
+              "it": "Inizio del blocco"
             },
             "example": "02:00"
           },
@@ -954,7 +1158,9 @@
             "type": "string",
             "title": {
               "en": "Block ends",
-              "de": "Block endet"
+              "de": "Block endet",
+              "fr": "Fin du bloc",
+              "it": "Fine del blocco"
             },
             "example": "05:00"
           },
@@ -963,7 +1169,9 @@
             "type": "number",
             "title": {
               "en": "Average price",
-              "de": "Durchschnittspreis"
+              "de": "Durchschnittspreis",
+              "fr": "Prix moyen",
+              "it": "Prezzo medio"
             },
             "example": 17.8
           },
@@ -972,7 +1180,9 @@
             "type": "number",
             "title": {
               "en": "Minutes until start",
-              "de": "Minuten bis Start"
+              "de": "Minuten bis Start",
+              "fr": "Minutes avant le début",
+              "it": "Minuti all'inizio"
             },
             "example": 45
           }
@@ -982,11 +1192,15 @@
       {
         "title": {
           "en": "Find the cheapest block within the next hours",
-          "de": "Günstigsten Block innerhalb der nächsten Stunden finden"
+          "de": "Günstigsten Block innerhalb der nächsten Stunden finden",
+          "fr": "Trouver le bloc le moins cher dans les prochaines heures",
+          "it": "Trova il blocco più conveniente nelle prossime ore"
         },
         "titleFormatted": {
           "en": "Find the cheapest block of [[hours]] hours within the next [[horizon]] hours",
-          "de": "Finde den günstigsten Block von [[hours]] Stunden innerhalb der nächsten [[horizon]] Stunden"
+          "de": "Finde den günstigsten Block von [[hours]] Stunden innerhalb der nächsten [[horizon]] Stunden",
+          "fr": "Trouver le bloc le moins cher de [[hours]] heures dans les [[horizon]] prochaines heures",
+          "it": "Trova il blocco più conveniente di [[hours]] ore nelle prossime [[horizon]] ore"
         },
         "args": [
           {
@@ -999,7 +1213,9 @@
             "name": "hours",
             "title": {
               "en": "Duration (hours)",
-              "de": "Dauer (Stunden)"
+              "de": "Dauer (Stunden)",
+              "fr": "Durée (heures)",
+              "it": "Durata (ore)"
             },
             "min": 0.25,
             "max": 24,
@@ -1010,7 +1226,9 @@
             "name": "horizon",
             "title": {
               "en": "Search horizon (hours)",
-              "de": "Suchhorizont (Stunden)"
+              "de": "Suchhorizont (Stunden)",
+              "fr": "Horizon de recherche (heures)",
+              "it": "Orizzonte di ricerca (ore)"
             },
             "min": 0.25,
             "max": 48,
@@ -1023,7 +1241,9 @@
             "type": "string",
             "title": {
               "en": "Block starts",
-              "de": "Block beginnt"
+              "de": "Block beginnt",
+              "fr": "Début du bloc",
+              "it": "Inizio del blocco"
             },
             "example": "02:00"
           },
@@ -1032,7 +1252,9 @@
             "type": "string",
             "title": {
               "en": "Block ends",
-              "de": "Block endet"
+              "de": "Block endet",
+              "fr": "Fin du bloc",
+              "it": "Fine del blocco"
             },
             "example": "05:00"
           },
@@ -1041,7 +1263,9 @@
             "type": "number",
             "title": {
               "en": "Average price",
-              "de": "Durchschnittspreis"
+              "de": "Durchschnittspreis",
+              "fr": "Prix moyen",
+              "it": "Prezzo medio"
             },
             "example": 17.8
           },
@@ -1050,7 +1274,9 @@
             "type": "number",
             "title": {
               "en": "Minutes until start",
-              "de": "Minuten bis Start"
+              "de": "Minuten bis Start",
+              "fr": "Minutes avant le début",
+              "it": "Minuti all'inizio"
             },
             "example": 45
           }
@@ -1060,7 +1286,9 @@
       {
         "title": {
           "en": "Get today's hourly prices",
-          "de": "Stundenpreise heute abrufen"
+          "de": "Stundenpreise heute abrufen",
+          "fr": "Récupérer les prix horaires d'aujourd'hui",
+          "it": "Recupera i prezzi orari di oggi"
         },
         "args": [
           {
@@ -1075,7 +1303,9 @@
             "type": "string",
             "title": {
               "en": "Hourly prices (JSON)",
-              "de": "Stundenpreise (JSON)"
+              "de": "Stundenpreise (JSON)",
+              "fr": "Prix horaires (JSON)",
+              "it": "Prezzi orari (JSON)"
             },
             "example": "[19.8,18.2,17.5,...]"
           }
@@ -1085,7 +1315,9 @@
       {
         "title": {
           "en": "Get tomorrow's hourly prices",
-          "de": "Stundenpreise morgen abrufen"
+          "de": "Stundenpreise morgen abrufen",
+          "fr": "Récupérer les prix horaires de demain",
+          "it": "Recupera i prezzi orari di domani"
         },
         "args": [
           {
@@ -1100,7 +1332,9 @@
             "type": "string",
             "title": {
               "en": "Hourly prices (JSON)",
-              "de": "Stundenpreise (JSON)"
+              "de": "Stundenpreise (JSON)",
+              "fr": "Prix horaires (JSON)",
+              "it": "Prezzi orari (JSON)"
             },
             "example": "[19.8,18.2,17.5,...]"
           }
@@ -1110,7 +1344,9 @@
       {
         "title": {
           "en": "Reload prices now",
-          "de": "Preise jetzt neu laden"
+          "de": "Preise jetzt neu laden",
+          "fr": "Recharger les prix maintenant",
+          "it": "Ricarica i prezzi adesso"
         },
         "args": [
           {
@@ -1124,15 +1360,21 @@
       {
         "title": {
           "en": "Report battery charge counter",
-          "de": "Batterie-Ladung-Zählerstand melden"
+          "de": "Batterie-Ladung-Zählerstand melden",
+          "fr": "Transmettre le relevé de charge de la batterie",
+          "it": "Comunica la lettura della carica della batteria"
         },
         "titleFormatted": {
           "en": "Report battery charge counter: [[kwh]] kWh",
-          "de": "Batterie-Ladung-Zählerstand melden: [[kwh]] kWh"
+          "de": "Batterie-Ladung-Zählerstand melden: [[kwh]] kWh",
+          "fr": "Transmettre le relevé de charge de la batterie : [[kwh]] kWh",
+          "it": "Comunica la lettura della carica della batteria: [[kwh]] kWh"
         },
         "hint": {
           "en": "Cumulative energy charged into the battery (kWh). Report at least hourly, ideally every 15 minutes or on every change.",
-          "de": "Kumulierte in die Batterie geladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+          "de": "Kumulierte in die Batterie geladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+          "fr": "Énergie cumulée chargée dans la batterie (kWh). Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+          "it": "Energia cumulata caricata nella batteria (kWh). Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
         },
         "args": [
           {
@@ -1145,7 +1387,9 @@
             "name": "kwh",
             "title": {
               "en": "Counter (kWh)",
-              "de": "Zählerstand (kWh)"
+              "de": "Zählerstand (kWh)",
+              "fr": "Relevé (kWh)",
+              "it": "Lettura (kWh)"
             },
             "min": 0,
             "step": 0.001
@@ -1156,15 +1400,21 @@
       {
         "title": {
           "en": "Report battery discharge counter",
-          "de": "Batterie-Entladung-Zählerstand melden"
+          "de": "Batterie-Entladung-Zählerstand melden",
+          "fr": "Transmettre le relevé de décharge de la batterie",
+          "it": "Comunica la lettura della scarica della batteria"
         },
         "titleFormatted": {
           "en": "Report battery discharge counter: [[kwh]] kWh",
-          "de": "Batterie-Entladung-Zählerstand melden: [[kwh]] kWh"
+          "de": "Batterie-Entladung-Zählerstand melden: [[kwh]] kWh",
+          "fr": "Transmettre le relevé de décharge de la batterie : [[kwh]] kWh",
+          "it": "Comunica la lettura della scarica della batteria: [[kwh]] kWh"
         },
         "hint": {
           "en": "Cumulative energy discharged from the battery (kWh). Report at least hourly, ideally every 15 minutes or on every change.",
-          "de": "Kumulierte aus der Batterie entladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+          "de": "Kumulierte aus der Batterie entladene Energie (kWh). Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+          "fr": "Énergie cumulée déchargée de la batterie (kWh). Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+          "it": "Energia cumulata scaricata dalla batteria (kWh). Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
         },
         "args": [
           {
@@ -1177,7 +1427,9 @@
             "name": "kwh",
             "title": {
               "en": "Counter (kWh)",
-              "de": "Zählerstand (kWh)"
+              "de": "Zählerstand (kWh)",
+              "fr": "Relevé (kWh)",
+              "it": "Lettura (kWh)"
             },
             "min": 0,
             "step": 0.001
@@ -1188,15 +1440,21 @@
       {
         "title": {
           "en": "Report consumer counter",
-          "de": "Verbraucher-Zählerstand melden"
+          "de": "Verbraucher-Zählerstand melden",
+          "fr": "Transmettre le relevé d'un consommateur",
+          "it": "Comunica la lettura di un consumatore"
         },
         "titleFormatted": {
           "en": "Report counter of [[name]]: [[kwh]] kWh",
-          "de": "Zählerstand von [[name]] melden: [[kwh]] kWh"
+          "de": "Zählerstand von [[name]] melden: [[kwh]] kWh",
+          "fr": "Transmettre le relevé de [[name]] : [[kwh]] kWh",
+          "it": "Comunica la lettura di [[name]]: [[kwh]] kWh"
         },
         "hint": {
           "en": "Cumulative energy (kWh) of a single consumer such as an EV charger or heat pump. The cost tab then shows the average price it ran at, compared with the day average. Up to 6 consumers; report at least hourly.",
-          "de": "Kumulierte Energie (kWh) eines einzelnen Verbrauchers, z. B. E-Auto-Ladestation oder Wärmepumpe. Der Tab «Kosten» zeigt dann den Durchschnittspreis, zu dem er lief, im Vergleich zum Tagesmittel. Bis zu 6 Verbraucher; mindestens stündlich melden."
+          "de": "Kumulierte Energie (kWh) eines einzelnen Verbrauchers, z. B. E-Auto-Ladestation oder Wärmepumpe. Der Tab «Kosten» zeigt dann den Durchschnittspreis, zu dem er lief, im Vergleich zum Tagesmittel. Bis zu 6 Verbraucher; mindestens stündlich melden.",
+          "fr": "Énergie cumulée (kWh) d'un consommateur isolé, par exemple une borne de recharge ou une pompe à chaleur. L'onglet « Coûts » affiche alors le prix moyen auquel il a fonctionné, comparé à la moyenne du jour. Jusqu'à 6 consommateurs ; transmettre au moins toutes les heures.",
+          "it": "Energia cumulata (kWh) di un singolo consumatore, ad esempio una colonnina di ricarica o una pompa di calore. La scheda «Costi» mostra poi il prezzo medio a cui ha funzionato, confrontato con la media del giorno. Fino a 6 consumatori; comunicare almeno ogni ora."
         },
         "args": [
           {
@@ -1209,7 +1467,9 @@
             "name": "name",
             "placeholder": {
               "en": "e.g. EV",
-              "de": "z. B. E-Auto"
+              "de": "z. B. E-Auto",
+              "fr": "p. ex. voiture électrique",
+              "it": "es. auto elettrica"
             }
           },
           {
@@ -1217,7 +1477,9 @@
             "name": "kwh",
             "title": {
               "en": "Counter (kWh)",
-              "de": "Zählerstand (kWh)"
+              "de": "Zählerstand (kWh)",
+              "fr": "Relevé (kWh)",
+              "it": "Lettura (kWh)"
             },
             "min": 0,
             "step": 0.001
@@ -1228,15 +1490,21 @@
       {
         "title": {
           "en": "Report grid export counter",
-          "de": "Einspeisung-Zählerstand melden"
+          "de": "Einspeisung-Zählerstand melden",
+          "fr": "Transmettre le relevé d'injection",
+          "it": "Comunica la lettura dell'immissione"
         },
         "titleFormatted": {
           "en": "Report grid export counter: [[kwh]] kWh",
-          "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh"
+          "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh",
+          "fr": "Transmettre le relevé d'injection : [[kwh]] kWh",
+          "it": "Comunica la lettura dell'immissione: [[kwh]] kWh"
         },
         "hint": {
           "en": "Cumulative grid export (kWh), e.g. meter_power.exported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
-          "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+          "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+          "fr": "Injection cumulée dans le réseau (kWh), par exemple meter_power.exported de votre compteur de réseau. Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+          "it": "Immissione cumulata in rete (kWh), ad esempio meter_power.exported del tuo contatore di rete. Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
         },
         "args": [
           {
@@ -1249,7 +1517,9 @@
             "name": "kwh",
             "title": {
               "en": "Counter (kWh)",
-              "de": "Zählerstand (kWh)"
+              "de": "Zählerstand (kWh)",
+              "fr": "Relevé (kWh)",
+              "it": "Lettura (kWh)"
             },
             "min": 0,
             "step": 0.001
@@ -1260,15 +1530,21 @@
       {
         "title": {
           "en": "Report grid import counter",
-          "de": "Netzbezug-Zählerstand melden"
+          "de": "Netzbezug-Zählerstand melden",
+          "fr": "Transmettre le relevé de soutirage",
+          "it": "Comunica la lettura del prelievo"
         },
         "titleFormatted": {
           "en": "Report grid import counter: [[kwh]] kWh",
-          "de": "Netzbezug-Zählerstand melden: [[kwh]] kWh"
+          "de": "Netzbezug-Zählerstand melden: [[kwh]] kWh",
+          "fr": "Transmettre le relevé de soutirage : [[kwh]] kWh",
+          "it": "Comunica la lettura del prelievo: [[kwh]] kWh"
         },
         "hint": {
           "en": "Cumulative grid import (kWh), e.g. meter_power.imported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
-          "de": "Kumulierter Netzbezug (kWh), z. B. meter_power.imported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+          "de": "Kumulierter Netzbezug (kWh), z. B. meter_power.imported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+          "fr": "Soutirage cumulé au réseau (kWh), par exemple meter_power.imported de votre compteur de réseau. Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+          "it": "Prelievo cumulato dalla rete (kWh), ad esempio meter_power.imported del tuo contatore di rete. Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
         },
         "args": [
           {
@@ -1281,7 +1557,9 @@
             "name": "kwh",
             "title": {
               "en": "Counter (kWh)",
-              "de": "Zählerstand (kWh)"
+              "de": "Zählerstand (kWh)",
+              "fr": "Relevé (kWh)",
+              "it": "Lettura (kWh)"
             },
             "min": 0,
             "step": 0.001
@@ -1296,7 +1574,9 @@
       "id": "innostrom",
       "name": {
         "en": "Innostrom dynamic tariff",
-        "de": "Innostrom dynamischer Tarif"
+        "de": "Innostrom dynamischer Tarif",
+        "fr": "Tarif dynamique Innostrom",
+        "it": "Tariffa dinamica Innostrom"
       },
       "class": "sensor",
       "capabilities": [
@@ -1332,15 +1612,21 @@
             "logo": "/drivers/innostrom/assets/pair-logo.png",
             "usernameLabel": {
               "en": "Metering point number",
-              "de": "Messpunktnummer"
+              "de": "Messpunktnummer",
+              "fr": "Numéro du point de mesure",
+              "it": "Numero del punto di misura"
             },
             "usernameHint": {
               "en": "CH… number, 33 characters, as provided by your utility. Enter your own credentials.",
-              "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben."
+              "de": "CH…-Nummer, 33 Zeichen, von deinem Netzbetreiber. Bitte die eigenen Zugangsdaten eingeben.",
+              "fr": "Numéro CH…, 33 caractères, fourni par votre fournisseur. Saisissez vos propres identifiants.",
+              "it": "Numero CH…, 33 caratteri, fornito dal tuo fornitore. Inserisci le tue credenziali."
             },
             "passwordLabel": {
               "en": "API token",
-              "de": "API-Token"
+              "de": "API-Token",
+              "fr": "Jeton API",
+              "it": "Token API"
             }
           }
         },
@@ -1367,15 +1653,21 @@
             "logo": "/drivers/innostrom/assets/pair-logo.png",
             "usernameLabel": {
               "en": "Metering point number",
-              "de": "Messpunktnummer"
+              "de": "Messpunktnummer",
+              "fr": "Numéro du point de mesure",
+              "it": "Numero del punto di misura"
             },
             "usernameHint": {
               "en": "Must match this device's metering point - use device settings instead to switch to a different metering point.",
-              "de": "Muss mit der Messpunktnummer dieses Geräts übereinstimmen - für einen anderen Messpunkt stattdessen neu koppeln."
+              "de": "Muss mit der Messpunktnummer dieses Geräts übereinstimmen - für einen anderen Messpunkt stattdessen neu koppeln.",
+              "fr": "Doit correspondre au point de mesure de cet appareil – pour un autre point de mesure, couplez un nouvel appareil.",
+              "it": "Deve corrispondere al punto di misura di questo dispositivo – per un altro punto di misura, associa un nuovo dispositivo."
             },
             "passwordLabel": {
               "en": "API token",
-              "de": "API-Token"
+              "de": "API-Token",
+              "fr": "Jeton API",
+              "it": "Token API"
             }
           }
         }
@@ -1385,7 +1677,9 @@
           "type": "group",
           "label": {
             "en": "Access",
-            "de": "Zugang"
+            "de": "Zugang",
+            "fr": "Accès",
+            "it": "Accesso"
           },
           "children": [
             {
@@ -1393,7 +1687,9 @@
               "type": "label",
               "label": {
                 "en": "Metering point number",
-                "de": "Messpunktnummer"
+                "de": "Messpunktnummer",
+                "fr": "Numéro du point de mesure",
+                "it": "Numero del punto di misura"
               },
               "value": ""
             },
@@ -1402,7 +1698,9 @@
               "type": "password",
               "label": {
                 "en": "API token",
-                "de": "API-Token"
+                "de": "API-Token",
+                "fr": "Jeton API",
+                "it": "Token API"
               },
               "value": ""
             },
@@ -1411,7 +1709,9 @@
               "type": "dropdown",
               "label": {
                 "en": "Environment",
-                "de": "Umgebung"
+                "de": "Umgebung",
+                "fr": "Environnement",
+                "it": "Ambiente"
               },
               "value": "production",
               "values": [
@@ -1419,20 +1719,26 @@
                   "id": "production",
                   "label": {
                     "en": "Production",
-                    "de": "Produktiv"
+                    "de": "Produktiv",
+                    "fr": "Production",
+                    "it": "Produzione"
                   }
                 },
                 {
                   "id": "test",
                   "label": {
                     "en": "Test",
-                    "de": "Test"
+                    "de": "Test",
+                    "fr": "Test",
+                    "it": "Test"
                   }
                 }
               ],
               "hint": {
                 "en": "Test uses the public Innostrom test environment with constant prices, useful to verify the connection without a contract.",
-                "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen."
+                "de": "Test verwendet die öffentliche Innostrom-Testumgebung mit konstanten Preisen, nützlich um die Verbindung ohne Vertrag zu prüfen.",
+                "fr": "Le test utilise l'environnement de test public d'Innostrom avec des prix constants, utile pour vérifier la connexion sans contrat.",
+                "it": "Il test usa l'ambiente di test pubblico di Innostrom con prezzi costanti, utile per verificare la connessione senza contratto."
               }
             }
           ]
@@ -1441,7 +1747,9 @@
           "type": "group",
           "label": {
             "en": "Price",
-            "de": "Preis"
+            "de": "Preis",
+            "fr": "Prix",
+            "it": "Prezzo"
           },
           "children": [
             {
@@ -1449,7 +1757,9 @@
               "type": "dropdown",
               "label": {
                 "en": "Price used for Flows",
-                "de": "Preis für Flows"
+                "de": "Preis für Flows",
+                "fr": "Prix utilisé pour les Flows",
+                "it": "Prezzo usato per i Flow"
               },
               "value": "integrated",
               "values": [
@@ -1457,21 +1767,27 @@
                   "id": "integrated",
                   "label": {
                     "en": "Total (energy + grid)",
-                    "de": "Gesamt (Energie + Netz)"
+                    "de": "Gesamt (Energie + Netz)",
+                    "fr": "Total (énergie + réseau)",
+                    "it": "Totale (energia + rete)"
                   }
                 },
                 {
                   "id": "electricity",
                   "label": {
                     "en": "Energy only",
-                    "de": "Nur Energie"
+                    "de": "Nur Energie",
+                    "fr": "Énergie seulement",
+                    "it": "Solo energia"
                   }
                 },
                 {
                   "id": "grid",
                   "label": {
                     "en": "Grid only (incl. levies)",
-                    "de": "Nur Netz (inkl. Abgaben)"
+                    "de": "Nur Netz (inkl. Abgaben)",
+                    "fr": "Réseau seulement (taxes comprises)",
+                    "it": "Solo rete (oneri inclusi)"
                   }
                 }
               ]
@@ -1481,13 +1797,17 @@
               "type": "number",
               "label": {
                 "en": "Fallback price (CHF/kWh)",
-                "de": "Einheitstarif (CHF/kWh)"
+                "de": "Einheitstarif (CHF/kWh)",
+                "fr": "Prix de remplacement (CHF/kWh)",
+                "it": "Prezzo sostitutivo (CHF/kWh)"
               },
               "value": 0,
               "min": 0,
               "hint": {
                 "en": "Used when no price data is available (e.g. missing tomorrow prices). 0 = show nothing instead.",
-                "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen."
+                "de": "Wird verwendet, wenn keine Preisdaten vorliegen (z. B. fehlende Preise für morgen). 0 = stattdessen nichts anzeigen.",
+                "fr": "Utilisé lorsqu'aucune donnée de prix n'est disponible (p. ex. prix de demain manquants). 0 = ne rien afficher.",
+                "it": "Usato quando non ci sono dati sui prezzi (ad es. prezzi di domani mancanti). 0 = non mostrare nulla."
               }
             }
           ]
@@ -1496,7 +1816,9 @@
           "type": "group",
           "label": {
             "en": "Price level thresholds",
-            "de": "Schwellen für Preisniveau"
+            "de": "Schwellen für Preisniveau",
+            "fr": "Seuils du niveau de prix",
+            "it": "Soglie del livello di prezzo"
           },
           "children": [
             {
@@ -1504,7 +1826,9 @@
               "type": "number",
               "label": {
                 "en": "Very cheap below (% of daily average)",
-                "de": "Sehr günstig unter (% vom Tagesmittel)"
+                "de": "Sehr günstig unter (% vom Tagesmittel)",
+                "fr": "Très bon marché en dessous de (% de la moyenne du jour)",
+                "it": "Molto conveniente sotto (% della media giornaliera)"
               },
               "value": 75,
               "min": 1,
@@ -1515,7 +1839,9 @@
               "type": "number",
               "label": {
                 "en": "Cheap below (% of daily average)",
-                "de": "Günstig unter (% vom Tagesmittel)"
+                "de": "Günstig unter (% vom Tagesmittel)",
+                "fr": "Bon marché en dessous de (% de la moyenne du jour)",
+                "it": "Conveniente sotto (% della media giornaliera)"
               },
               "value": 90,
               "min": 1,
@@ -1526,7 +1852,9 @@
               "type": "number",
               "label": {
                 "en": "Expensive above (% of daily average)",
-                "de": "Teuer über (% vom Tagesmittel)"
+                "de": "Teuer über (% vom Tagesmittel)",
+                "fr": "Cher au-dessus de (% de la moyenne du jour)",
+                "it": "Caro sopra (% della media giornaliera)"
               },
               "value": 110,
               "min": 100,
@@ -1537,7 +1865,9 @@
               "type": "number",
               "label": {
                 "en": "Very expensive above (% of daily average)",
-                "de": "Sehr teuer über (% vom Tagesmittel)"
+                "de": "Sehr teuer über (% vom Tagesmittel)",
+                "fr": "Très cher au-dessus de (% de la moyenne du jour)",
+                "it": "Molto caro sopra (% della media giornaliera)"
               },
               "value": 125,
               "min": 100,
@@ -1549,7 +1879,9 @@
           "type": "group",
           "label": {
             "en": "Displayed values",
-            "de": "Angezeigte Werte"
+            "de": "Angezeigte Werte",
+            "fr": "Valeurs affichées",
+            "it": "Valori visualizzati"
           },
           "children": [
             {
@@ -1558,34 +1890,44 @@
               "value": "auto",
               "label": {
                 "en": "Cost values",
-                "de": "Kostenwerte"
+                "de": "Kostenwerte",
+                "fr": "Valeurs de coût",
+                "it": "Valori di costo"
               },
               "values": [
                 {
                   "id": "auto",
                   "label": {
                     "en": "Automatic (only if you report meters)",
-                    "de": "Automatisch (nur wenn du Zähler meldest)"
+                    "de": "Automatisch (nur wenn du Zähler meldest)",
+                    "fr": "Automatique (seulement si vous transmettez des compteurs)",
+                    "it": "Automatico (solo se comunichi i contatori)"
                   }
                 },
                 {
                   "id": "always",
                   "label": {
                     "en": "Always",
-                    "de": "Immer"
+                    "de": "Immer",
+                    "fr": "Toujours",
+                    "it": "Sempre"
                   }
                 },
                 {
                   "id": "never",
                   "label": {
                     "en": "Never",
-                    "de": "Nie"
+                    "de": "Nie",
+                    "fr": "Jamais",
+                    "it": "Mai"
                   }
                 }
               ],
               "hint": {
                 "en": "Cost today, cost with the previous tariff, savings today and this month and average import price. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
-                "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+                "de": "Kosten heute, Kosten mit bisherigem Tarif, Ersparnis heute und Monat und Ø Bezugspreis. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr.",
+                "fr": "Coût aujourd'hui, coût avec l'ancien tarif, économie aujourd'hui et ce mois-ci et prix d'achat moyen. En les désactivant, les valeurs sont retirées de l'appareil, leur historique dans Insights est perdu et les Flows qui les utilisent ne fonctionnent plus.",
+                "it": "Costo oggi, costo con la tariffa precedente, risparmio oggi e del mese e prezzo medio di prelievo. Disattivandoli, i valori vengono rimossi dal dispositivo, la loro cronologia in Insights va persa e i Flow che li usano smettono di funzionare."
               }
             },
             {
@@ -1594,34 +1936,44 @@
               "value": "auto",
               "label": {
                 "en": "Battery analysis values",
-                "de": "Werte der Batterie-Analyse"
+                "de": "Werte der Batterie-Analyse",
+                "fr": "Valeurs de l'analyse de la batterie",
+                "it": "Valori dell'analisi della batteria"
               },
               "values": [
                 {
                   "id": "auto",
                   "label": {
                     "en": "Automatic (only if you report battery meters)",
-                    "de": "Automatisch (nur wenn du Batterie-Zähler meldest)"
+                    "de": "Automatisch (nur wenn du Batterie-Zähler meldest)",
+                    "fr": "Automatique (seulement si vous transmettez des compteurs de batterie)",
+                    "it": "Automatico (solo se comunichi i contatori della batteria)"
                   }
                 },
                 {
                   "id": "always",
                   "label": {
                     "en": "Always",
-                    "de": "Immer"
+                    "de": "Immer",
+                    "fr": "Toujours",
+                    "it": "Sempre"
                   }
                 },
                 {
                   "id": "never",
                   "label": {
                     "en": "Never",
-                    "de": "Nie"
+                    "de": "Nie",
+                    "fr": "Jamais",
+                    "it": "Mai"
                   }
                 }
               ],
               "hint": {
                 "en": "Battery efficiency and the value of grid charging over the last 14 days. Turning them off removes the values from the device, their history in Insights is lost and Flows that use them stop working.",
-                "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr."
+                "de": "Batterie-Effizienz und Wert der Netzladung über die letzten 14 Tage. Beim Ausschalten werden die Werte vom Gerät entfernt, ihr Verlauf in den Insights geht verloren und Flows, die sie benutzen, funktionieren nicht mehr.",
+                "fr": "Efficacité de la batterie et valeur de la charge depuis le réseau sur les 14 derniers jours. En les désactivant, les valeurs sont retirées de l'appareil, leur historique dans Insights est perdu et les Flows qui les utilisent ne fonctionnent plus.",
+                "it": "Efficienza della batteria e valore della carica dalla rete negli ultimi 14 giorni. Disattivandoli, i valori vengono rimossi dal dispositivo, la loro cronologia in Insights va persa e i Flow che li usano smettono di funzionare."
               }
             },
             {
@@ -1630,11 +1982,15 @@
               "value": true,
               "label": {
                 "en": "Feed-in price",
-                "de": "Einspeisevergütung"
+                "de": "Einspeisevergütung",
+                "fr": "Prix de reprise",
+                "it": "Prezzo di immissione"
               },
               "hint": {
                 "en": "Shows the feed-in price delivered by the API. Turning it off removes the value and its Insights history.",
-                "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt."
+                "de": "Zeigt den von der API gelieferten Einspeisepreis. Beim Ausschalten werden der Wert und sein Verlauf in den Insights entfernt.",
+                "fr": "Affiche le prix de reprise de l'injection fourni par l'API. En le désactivant, la valeur et son historique dans Insights sont supprimés.",
+                "it": "Mostra il prezzo di immissione fornito dall'API. Disattivandolo, il valore e la sua cronologia in Insights vengono rimossi."
               }
             }
           ]
@@ -1646,7 +2002,9 @@
     "cost": {
       "name": {
         "en": "Innostrom costs",
-        "de": "Innostrom-Kosten"
+        "de": "Innostrom-Kosten",
+        "fr": "Coûts Innostrom",
+        "it": "Costi Innostrom"
       },
       "height": 260,
       "api": {
@@ -1661,7 +2019,9 @@
     "price": {
       "name": {
         "en": "Innostrom price",
-        "de": "Innostrom-Preis"
+        "de": "Innostrom-Preis",
+        "fr": "Prix Innostrom",
+        "it": "Prezzo Innostrom"
       },
       "height": 210,
       "api": {
@@ -1676,7 +2036,9 @@
     "prices": {
       "name": {
         "en": "Innostrom price list",
-        "de": "Innostrom-Preisliste"
+        "de": "Innostrom-Preisliste",
+        "fr": "Liste de prix Innostrom",
+        "it": "Listino prezzi Innostrom"
       },
       "height": 400,
       "api": {
@@ -1694,11 +2056,15 @@
       "type": "boolean",
       "title": {
         "en": "No prices for tomorrow",
-        "de": "Keine Preise für morgen"
+        "de": "Keine Preise für morgen",
+        "fr": "Pas de prix pour demain",
+        "it": "Nessun prezzo per domani"
       },
       "desc": {
         "en": "True when no prices for tomorrow are available yet (normally published by ~16:00).",
-        "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert)."
+        "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert).",
+        "fr": "Vrai tant que les prix de demain ne sont pas encore disponibles (en général publiés vers 16 h 00).",
+        "it": "Vero finché i prezzi di domani non sono ancora disponibili (di norma pubblicati verso le 16:00)."
       },
       "getable": true,
       "setable": false,
@@ -1709,11 +2075,15 @@
       "type": "boolean",
       "title": {
         "en": "Meter readings missing",
-        "de": "Zählermeldungen fehlen"
+        "de": "Zählermeldungen fehlen",
+        "fr": "Relevés de compteurs manquants",
+        "it": "Letture dei contatori mancanti"
       },
       "desc": {
         "en": "True when meter readings you reported from a Flow stopped arriving (see the monitoring threshold in the app settings). Never true if you do not report meter readings.",
-        "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest."
+        "de": "Wahr, wenn per Flow gemeldete Zählerstände nicht mehr ankommen (Schwelle in den App-Einstellungen). Nie wahr, wenn du keine Zählerstände meldest.",
+        "fr": "Vrai lorsque les relevés de compteurs que vous transmettez par un Flow n'arrivent plus (voir le seuil de surveillance dans les réglages de l'app). Jamais vrai si vous ne transmettez aucun relevé.",
+        "it": "Vero quando le letture dei contatori che invii con un Flow non arrivano più (vedi la soglia di monitoraggio nelle impostazioni dell'app). Mai vero se non invii letture."
       },
       "getable": true,
       "setable": false,
@@ -1724,18 +2094,24 @@
       "type": "number",
       "title": {
         "en": "Average import price today",
-        "de": "Ø Bezugspreis heute"
+        "de": "Ø Bezugspreis heute",
+        "fr": "Prix d'achat moyen aujourd'hui",
+        "it": "Prezzo medio di prelievo oggi"
       },
       "desc": {
         "en": "Average price of the grid import reported today, weighted by consumption.",
-        "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet."
+        "de": "Durchschnittspreis des heute gemeldeten Netzbezugs, nach Verbrauch gewichtet.",
+        "fr": "Prix moyen de l'électricité soutirée au réseau et transmise aujourd'hui, pondéré par la consommation.",
+        "it": "Prezzo medio dell'energia prelevata dalla rete e comunicata oggi, ponderato in base al consumo."
       },
       "getable": true,
       "setable": false,
       "uiComponent": null,
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1745,18 +2121,24 @@
       "type": "number",
       "title": {
         "en": "Battery efficiency",
-        "de": "Batterie-Effizienz"
+        "de": "Batterie-Effizienz",
+        "fr": "Efficacité de la batterie",
+        "it": "Efficienza della batteria"
       },
       "desc": {
         "en": "Share of the best possible battery benefit (optimal charging plan) that your real days achieved, over the last 14 analysed days. Needs reported battery meters.",
-        "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler."
+        "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler.",
+        "fr": "Part du meilleur bénéfice possible de la batterie (plan de charge optimal) que vos journées réelles ont atteinte sur les 14 derniers jours analysés. Nécessite des compteurs de batterie transmis.",
+        "it": "Quota del miglior beneficio possibile della batteria (piano di carica ottimale) raggiunta dalle tue giornate reali negli ultimi 14 giorni analizzati. Richiede contatori della batteria comunicati."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "%",
-        "de": "%"
+        "de": "%",
+        "fr": "%",
+        "it": "%"
       },
       "decimals": 0,
       "min": 0,
@@ -1768,18 +2150,24 @@
       "type": "number",
       "title": {
         "en": "Cost today (previous tariff)",
-        "de": "Kosten heute (bisheriger Tarif)"
+        "de": "Kosten heute (bisheriger Tarif)",
+        "fr": "Coût aujourd'hui (ancien tarif)",
+        "it": "Costo oggi (tariffa precedente)"
       },
       "desc": {
         "en": "The same consumption priced with your reference tariff.",
-        "de": "Derselbe Verbrauch zum Preis deines Referenztarifs."
+        "de": "Derselbe Verbrauch zum Preis deines Referenztarifs.",
+        "fr": "La même consommation facturée à votre tarif de référence.",
+        "it": "Lo stesso consumo calcolato con la tua tariffa di riferimento."
       },
       "getable": true,
       "setable": false,
       "uiComponent": null,
       "units": {
         "en": "CHF",
-        "de": "CHF"
+        "de": "CHF",
+        "fr": "CHF",
+        "it": "CHF"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1789,18 +2177,24 @@
       "type": "number",
       "title": {
         "en": "Cost today",
-        "de": "Kosten heute"
+        "de": "Kosten heute",
+        "fr": "Coût aujourd'hui",
+        "it": "Costo oggi"
       },
       "desc": {
         "en": "Net cost of today with the dynamic tariff (import minus feed-in), from the meter readings you report.",
-        "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen."
+        "de": "Netto-Kosten von heute mit dem dynamischen Tarif (Bezug minus Einspeisung), aus den von dir gemeldeten Zählerständen.",
+        "fr": "Coût net d'aujourd'hui avec le tarif dynamique (soutirage moins injection), d'après les relevés que vous transmettez.",
+        "it": "Costo netto di oggi con la tariffa dinamica (prelievo meno immissione), in base alle letture che invii."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "CHF",
-        "de": "CHF"
+        "de": "CHF",
+        "fr": "CHF",
+        "it": "CHF"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1810,18 +2204,24 @@
       "type": "number",
       "title": {
         "en": "Value of grid charging (14 days)",
-        "de": "Wert der Netzladung (14 Tage)"
+        "de": "Wert der Netzladung (14 Tage)",
+        "fr": "Valeur de la charge depuis le réseau (14 jours)",
+        "it": "Valore della carica dalla rete (14 giorni)"
       },
       "desc": {
         "en": "What charging the battery from the grid at cheap times would additionally have been worth over the last 14 analysed days (an estimate, upper bound).",
-        "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze)."
+        "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze).",
+        "fr": "Ce que la charge de la batterie depuis le réseau aux heures creuses aurait rapporté en plus sur les 14 derniers jours analysés (estimation, limite supérieure).",
+        "it": "Quanto avrebbe reso in più la carica della batteria dalla rete nelle ore convenienti negli ultimi 14 giorni analizzati (stima, limite superiore)."
       },
       "getable": true,
       "setable": false,
       "uiComponent": null,
       "units": {
         "en": "CHF",
-        "de": "CHF"
+        "de": "CHF",
+        "fr": "CHF",
+        "it": "CHF"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1831,11 +2231,15 @@
       "type": "string",
       "title": {
         "en": "Last update",
-        "de": "Letzte Aktualisierung"
+        "de": "Letzte Aktualisierung",
+        "fr": "Dernière mise à jour",
+        "it": "Ultimo aggiornamento"
       },
       "desc": {
         "en": "When prices were last fetched successfully.",
-        "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden."
+        "de": "Wann die Preise zuletzt erfolgreich abgerufen wurden.",
+        "fr": "Dernier relevé réussi des prix.",
+        "it": "Ultimo recupero riuscito dei prezzi."
       },
       "getable": true,
       "setable": false,
@@ -1846,18 +2250,24 @@
       "type": "number",
       "title": {
         "en": "Average price today",
-        "de": "Durchschnittspreis heute"
+        "de": "Durchschnittspreis heute",
+        "fr": "Prix moyen aujourd'hui",
+        "it": "Prezzo medio oggi"
       },
       "desc": {
         "en": "Average total price of the current calendar day.",
-        "de": "Durchschnittlicher Gesamtpreis des heutigen Kalendertags."
+        "de": "Durchschnittlicher Gesamtpreis des heutigen Kalendertags.",
+        "fr": "Prix total moyen du jour civil en cours.",
+        "it": "Prezzo totale medio del giorno corrente."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg"
@@ -1866,18 +2276,24 @@
       "type": "number",
       "title": {
         "en": "Energy price",
-        "de": "Energiepreis"
+        "de": "Energiepreis",
+        "fr": "Prix de l'énergie",
+        "it": "Prezzo dell'energia"
       },
       "desc": {
         "en": "Energy-only component of the price (follows the EPEX CH day-ahead spot price).",
-        "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH)."
+        "de": "Energieanteil des Preises (folgt dem Day-Ahead-Spotpreis EPEX CH).",
+        "fr": "Composante énergie du prix (suit le prix spot day-ahead EPEX CH).",
+        "it": "Componente energia del prezzo (segue il prezzo spot day-ahead EPEX CH)."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1887,18 +2303,24 @@
       "type": "number",
       "title": {
         "en": "Grid price",
-        "de": "Netzpreis"
+        "de": "Netzpreis",
+        "fr": "Prix du réseau",
+        "it": "Prezzo della rete"
       },
       "desc": {
         "en": "Grid component of the price, including levies and duties (dso).",
-        "de": "Netzanteil des Preises inkl. Abgaben (dso)."
+        "de": "Netzanteil des Preises inkl. Abgaben (dso).",
+        "fr": "Composante réseau du prix, taxes et redevances comprises (dso).",
+        "it": "Componente rete del prezzo, compresi oneri e tasse (dso)."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1908,18 +2330,24 @@
       "type": "number",
       "title": {
         "en": "Highest price today",
-        "de": "Höchster Preis heute"
+        "de": "Höchster Preis heute",
+        "fr": "Prix le plus élevé aujourd'hui",
+        "it": "Prezzo più alto oggi"
       },
       "desc": {
         "en": "Highest total price of the current calendar day.",
-        "de": "Höchster Gesamtpreis des heutigen Kalendertags."
+        "de": "Höchster Gesamtpreis des heutigen Kalendertags.",
+        "fr": "Prix total le plus élevé du jour civil en cours.",
+        "it": "Prezzo totale più alto del giorno corrente."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg"
@@ -1928,18 +2356,24 @@
       "type": "number",
       "title": {
         "en": "Lowest price today",
-        "de": "Tiefster Preis heute"
+        "de": "Tiefster Preis heute",
+        "fr": "Prix le plus bas aujourd'hui",
+        "it": "Prezzo più basso oggi"
       },
       "desc": {
         "en": "Lowest total price of the current calendar day.",
-        "de": "Tiefster Gesamtpreis des heutigen Kalendertags."
+        "de": "Tiefster Gesamtpreis des heutigen Kalendertags.",
+        "fr": "Prix total le plus bas du jour civil en cours.",
+        "it": "Prezzo totale più basso del giorno corrente."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg"
@@ -1948,18 +2382,24 @@
       "type": "number",
       "title": {
         "en": "Next price",
-        "de": "Nächster Preis"
+        "de": "Nächster Preis",
+        "fr": "Prix suivant",
+        "it": "Prezzo successivo"
       },
       "desc": {
         "en": "Total price of the next 15-minute slot.",
-        "de": "Gesamtpreis der nächsten Viertelstunde."
+        "de": "Gesamtpreis der nächsten Viertelstunde.",
+        "fr": "Prix total du prochain créneau de 15 minutes.",
+        "it": "Prezzo totale del prossimo quarto d'ora."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg"
@@ -1968,18 +2408,24 @@
       "type": "number",
       "title": {
         "en": "Current price",
-        "de": "Aktueller Preis"
+        "de": "Aktueller Preis",
+        "fr": "Prix actuel",
+        "it": "Prezzo attuale"
       },
       "desc": {
         "en": "Total price (energy + grid + levies) for the current 15-minute slot.",
-        "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde."
+        "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde.",
+        "fr": "Prix total (énergie + réseau + taxes) du créneau de 15 minutes en cours.",
+        "it": "Prezzo totale (energia + rete + oneri) del quarto d'ora corrente."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -1989,18 +2435,24 @@
       "type": "number",
       "title": {
         "en": "Feed-in price",
-        "de": "Einspeisevergütung"
+        "de": "Einspeisevergütung",
+        "fr": "Prix de reprise",
+        "it": "Prezzo di immissione"
       },
       "desc": {
         "en": "Feed-in price delivered by the API for the current slot. Whether and how your utility pays it depends on your tariff.",
-        "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab."
+        "de": "Einspeisepreis laut API für die aktuelle Viertelstunde. Ob und wie dein Netzbetreiber ihn vergütet, hängt von deinem Tarif ab.",
+        "fr": "Prix de reprise de l'injection fourni par l'API pour le créneau en cours. Si et comment votre fournisseur le rémunère dépend de votre tarif.",
+        "it": "Prezzo di immissione fornito dall'API per il quarto d'ora corrente. Se e come il tuo fornitore lo remunera dipende dalla tua tariffa."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "Rp./kWh",
-        "de": "Rp./kWh"
+        "de": "Rp./kWh",
+        "fr": "Rp./kWh",
+        "it": "Rp./kWh"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -2010,11 +2462,15 @@
       "type": "enum",
       "title": {
         "en": "Price level",
-        "de": "Preisniveau"
+        "de": "Preisniveau",
+        "fr": "Niveau de prix",
+        "it": "Livello di prezzo"
       },
       "desc": {
         "en": "Current price relative to today's average.",
-        "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt."
+        "de": "Aktueller Preis im Verhältnis zum heutigen Durchschnitt.",
+        "fr": "Prix actuel par rapport à la moyenne du jour.",
+        "it": "Prezzo attuale rispetto alla media di oggi."
       },
       "getable": true,
       "setable": false,
@@ -2024,35 +2480,45 @@
           "id": "very_cheap",
           "title": {
             "en": "Very cheap",
-            "de": "Sehr günstig"
+            "de": "Sehr günstig",
+            "fr": "Très bon marché",
+            "it": "Molto conveniente"
           }
         },
         {
           "id": "cheap",
           "title": {
             "en": "Cheap",
-            "de": "Günstig"
+            "de": "Günstig",
+            "fr": "Bon marché",
+            "it": "Conveniente"
           }
         },
         {
           "id": "normal",
           "title": {
             "en": "Normal",
-            "de": "Normal"
+            "de": "Normal",
+            "fr": "Normal",
+            "it": "Normale"
           }
         },
         {
           "id": "expensive",
           "title": {
             "en": "Expensive",
-            "de": "Teuer"
+            "de": "Teuer",
+            "fr": "Cher",
+            "it": "Caro"
           }
         },
         {
           "id": "very_expensive",
           "title": {
             "en": "Very expensive",
-            "de": "Sehr teuer"
+            "de": "Sehr teuer",
+            "fr": "Très cher",
+            "it": "Molto caro"
           }
         }
       ],
@@ -2062,18 +2528,24 @@
       "type": "number",
       "title": {
         "en": "Rank today",
-        "de": "Rang heute"
+        "de": "Rang heute",
+        "fr": "Rang aujourd'hui",
+        "it": "Posizione oggi"
       },
       "desc": {
         "en": "Rank of the current 15-minute slot among today's prices. 1 = cheapest slot of the day.",
-        "de": "Rang der aktuellen Viertelstunde unter den heutigen Preisen. 1 = günstigste Viertelstunde des Tages."
+        "de": "Rang der aktuellen Viertelstunde unter den heutigen Preisen. 1 = günstigste Viertelstunde des Tages.",
+        "fr": "Rang du créneau de 15 minutes en cours parmi les prix du jour. 1 = créneau le moins cher de la journée.",
+        "it": "Posizione del quarto d'ora corrente tra i prezzi di oggi. 1 = quarto d'ora più conveniente della giornata."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "",
-        "de": ""
+        "de": "",
+        "fr": " ",
+        "it": " "
       },
       "decimals": 0,
       "min": 1,
@@ -2083,18 +2555,24 @@
       "type": "number",
       "title": {
         "en": "Savings this month",
-        "de": "Ersparnis Monat"
+        "de": "Ersparnis Monat",
+        "fr": "Économie ce mois-ci",
+        "it": "Risparmio del mese"
       },
       "desc": {
         "en": "Reference tariff minus dynamic tariff since the 1st of the month.",
-        "de": "Referenztarif minus dynamischer Tarif seit dem 1. des Monats."
+        "de": "Referenztarif minus dynamischer Tarif seit dem 1. des Monats.",
+        "fr": "Tarif de référence moins tarif dynamique depuis le 1er du mois.",
+        "it": "Tariffa di riferimento meno tariffa dinamica dal 1° del mese."
       },
       "getable": true,
       "setable": false,
       "uiComponent": null,
       "units": {
         "en": "CHF",
-        "de": "CHF"
+        "de": "CHF",
+        "fr": "CHF",
+        "it": "CHF"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
@@ -2104,18 +2582,24 @@
       "type": "number",
       "title": {
         "en": "Savings today",
-        "de": "Ersparnis heute"
+        "de": "Ersparnis heute",
+        "fr": "Économie aujourd'hui",
+        "it": "Risparmio oggi"
       },
       "desc": {
         "en": "Reference tariff minus dynamic tariff for today. Negative = the dynamic tariff is more expensive. Empty without a reference tariff.",
-        "de": "Referenztarif minus dynamischer Tarif für heute. Negativ = der dynamische Tarif ist teurer. Leer ohne Referenztarif."
+        "de": "Referenztarif minus dynamischer Tarif für heute. Negativ = der dynamische Tarif ist teurer. Leer ohne Referenztarif.",
+        "fr": "Tarif de référence moins tarif dynamique pour aujourd'hui. Négatif = le tarif dynamique est plus cher. Vide sans tarif de référence.",
+        "it": "Tariffa di riferimento meno tariffa dinamica per oggi. Negativo = la tariffa dinamica è più cara. Vuoto senza tariffa di riferimento."
       },
       "getable": true,
       "setable": false,
       "uiComponent": "sensor",
       "units": {
         "en": "CHF",
-        "de": "CHF"
+        "de": "CHF",
+        "fr": "CHF",
+        "it": "CHF"
       },
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",

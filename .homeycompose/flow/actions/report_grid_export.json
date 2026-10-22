@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Report grid export counter",
-    "de": "Einspeisung-Zählerstand melden"
+    "de": "Einspeisung-Zählerstand melden",
+    "fr": "Transmettre le relevé d'injection",
+    "it": "Comunica la lettura dell'immissione"
   },
   "titleFormatted": {
     "en": "Report grid export counter: [[kwh]] kWh",
-    "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh"
+    "de": "Einspeisung-Zählerstand melden: [[kwh]] kWh",
+    "fr": "Transmettre le relevé d'injection : [[kwh]] kWh",
+    "it": "Comunica la lettura dell'immissione: [[kwh]] kWh"
   },
   "hint": {
     "en": "Cumulative grid export (kWh), e.g. meter_power.exported of your grid meter. Report at least hourly, ideally every 15 minutes or on every change.",
-    "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung."
+    "de": "Kumulierte Einspeisung (kWh), z. B. meter_power.exported deines Netzzählers. Mindestens stündlich melden, am besten alle 15 Minuten oder bei jeder Änderung.",
+    "fr": "Injection cumulée dans le réseau (kWh), par exemple meter_power.exported de votre compteur de réseau. Transmettre au moins toutes les heures, idéalement toutes les 15 minutes ou à chaque changement.",
+    "it": "Immissione cumulata in rete (kWh), ad esempio meter_power.exported del tuo contatore di rete. Comunicare almeno ogni ora, idealmente ogni 15 minuti o a ogni variazione."
   },
   "args": [
     {
@@ -22,7 +28,9 @@
       "name": "kwh",
       "title": {
         "en": "Counter (kWh)",
-        "de": "Zählerstand (kWh)"
+        "de": "Zählerstand (kWh)",
+        "fr": "Relevé (kWh)",
+        "it": "Lettura (kWh)"
       },
       "min": 0,
       "step": 0.001

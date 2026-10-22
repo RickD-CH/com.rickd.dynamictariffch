@@ -1,9 +1,16 @@
 {
   "type": "boolean",
-  "title": { "en": "No prices for tomorrow", "de": "Keine Preise für morgen" },
+  "title": {
+    "en": "No prices for tomorrow",
+    "de": "Keine Preise für morgen",
+    "fr": "Pas de prix pour demain",
+    "it": "Nessun prezzo per domani"
+  },
   "desc": {
     "en": "True when no prices for tomorrow are available yet (normally published by ~16:00).",
-    "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert)."
+    "de": "Wahr, wenn noch keine Preise für morgen vorliegen (normalerweise bis ca. 16:00 publiziert).",
+    "fr": "Vrai tant que les prix de demain ne sont pas encore disponibles (en général publiés vers 16 h 00).",
+    "it": "Vero finché i prezzi di domani non sono ancora disponibili (di norma pubblicati verso le 16:00)."
   },
   "getable": true,
   "setable": false,

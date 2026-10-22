@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Battery efficiency",
-    "de": "Batterie-Effizienz"
+    "de": "Batterie-Effizienz",
+    "fr": "Efficacité de la batterie",
+    "it": "Efficienza della batteria"
   },
   "desc": {
     "en": "Share of the best possible battery benefit (optimal charging plan) that your real days achieved, over the last 14 analysed days. Needs reported battery meters.",
-    "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler."
+    "de": "Anteil des bestmöglichen Batterie-Nutzens (optimaler Ladeplan), den deine realen Tage in den letzten 14 ausgewerteten Tagen erreicht haben. Braucht gemeldete Batterie-Zähler.",
+    "fr": "Part du meilleur bénéfice possible de la batterie (plan de charge optimal) que vos journées réelles ont atteinte sur les 14 derniers jours analysés. Nécessite des compteurs de batterie transmis.",
+    "it": "Quota del miglior beneficio possibile della batteria (piano di carica ottimale) raggiunta dalle tue giornate reali negli ultimi 14 giorni analizzati. Richiede contatori della batteria comunicati."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
   "units": {
     "en": "%",
-    "de": "%"
+    "de": "%",
+    "fr": "%",
+    "it": "%"
   },
   "decimals": 0,
   "min": 0,

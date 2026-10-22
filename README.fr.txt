@@ -1,0 +1,3 @@
+Intègre dans Homey les prix par quart d'heure d'un tarif d'électricité dynamique suisse, via l'API Innostrom de Swisspower. Fonctionne avec AEW Classic Dynamic (dès janvier 2027) et avec tout autre fournisseur suisse reposant sur la même plateforme Innostrom.
+
+Consultez les prix d'aujourd'hui et de demain d'un coup d'œil dans trois widgets : la courbe des prix avec le bloc le moins cher, une liste de prix par heure et vos coûts cumulés par rapport à votre ancien tarif. Des cartes Flow déplacent les bornes de recharge, chauffe-eau et pompes à chaleur vers les heures les moins chères, et une comparaison des coûts facultative avec analyse de la batterie montre ce que le tarif dynamique vous apporte vraiment.

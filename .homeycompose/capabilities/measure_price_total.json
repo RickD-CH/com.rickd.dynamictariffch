@@ -1,14 +1,26 @@
 {
   "type": "number",
-  "title": { "en": "Current price", "de": "Aktueller Preis" },
+  "title": {
+    "en": "Current price",
+    "de": "Aktueller Preis",
+    "fr": "Prix actuel",
+    "it": "Prezzo attuale"
+  },
   "desc": {
     "en": "Total price (energy + grid + levies) for the current 15-minute slot.",
-    "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde."
+    "de": "Gesamtpreis (Energie + Netz + Abgaben) für die aktuelle Viertelstunde.",
+    "fr": "Prix total (énergie + réseau + taxes) du créneau de 15 minutes en cours.",
+    "it": "Prezzo totale (energia + rete + oneri) del quarto d'ora corrente."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
-  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
+  },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",
   "insights": true

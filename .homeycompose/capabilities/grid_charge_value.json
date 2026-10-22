@@ -2,18 +2,24 @@
   "type": "number",
   "title": {
     "en": "Value of grid charging (14 days)",
-    "de": "Wert der Netzladung (14 Tage)"
+    "de": "Wert der Netzladung (14 Tage)",
+    "fr": "Valeur de la charge depuis le réseau (14 jours)",
+    "it": "Valore della carica dalla rete (14 giorni)"
   },
   "desc": {
     "en": "What charging the battery from the grid at cheap times would additionally have been worth over the last 14 analysed days (an estimate, upper bound).",
-    "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze)."
+    "de": "Was das Laden der Batterie aus dem Netz zu günstigen Zeiten in den letzten 14 ausgewerteten Tagen zusätzlich wert gewesen wäre (Schätzung, Obergrenze).",
+    "fr": "Ce que la charge de la batterie depuis le réseau aux heures creuses aurait rapporté en plus sur les 14 derniers jours analysés (estimation, limite supérieure).",
+    "it": "Quanto avrebbe reso in più la carica della batteria dalla rete nelle ore convenienti negli ultimi 14 giorni analizzati (stima, limite superiore)."
   },
   "getable": true,
   "setable": false,
   "uiComponent": null,
   "units": {
     "en": "CHF",
-    "de": "CHF"
+    "de": "CHF",
+    "fr": "CHF",
+    "it": "CHF"
   },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg",

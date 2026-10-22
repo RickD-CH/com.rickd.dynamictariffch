@@ -1,7 +1,9 @@
 {
   "name": {
     "en": "Innostrom price",
-    "de": "Innostrom-Preis"
+    "de": "Innostrom-Preis",
+    "fr": "Prix Innostrom",
+    "it": "Prezzo Innostrom"
   },
   "height": 210,
   "api": {

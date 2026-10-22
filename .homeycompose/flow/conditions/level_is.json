@@ -1,21 +1,77 @@
 {
-  "title": { "en": "Price level !{{is|isn't}}...", "de": "Preisniveau !{{ist|ist nicht}}..." },
+  "title": {
+    "en": "Price level !{{is|isn't}}...",
+    "de": "Preisniveau !{{ist|ist nicht}}...",
+    "fr": "Le niveau de prix !{{est|n'est pas}}...",
+    "it": "Il livello di prezzo !{{è|non è}}..."
+  },
   "titleFormatted": {
     "en": "Price level !{{is|isn't}} [[level]]",
-    "de": "Preisniveau !{{ist|ist nicht}} [[level]]"
+    "de": "Preisniveau !{{ist|ist nicht}} [[level]]",
+    "fr": "Le niveau de prix !{{est|n'est pas}} [[level]]",
+    "it": "Il livello di prezzo !{{è|non è}} [[level]]"
   },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    },
     {
       "type": "dropdown",
       "name": "level",
-      "title": { "en": "Level", "de": "Niveau" },
+      "title": {
+        "en": "Level",
+        "de": "Niveau",
+        "fr": "Niveau",
+        "it": "Livello"
+      },
       "values": [
-        { "id": "very_cheap", "label": { "en": "Very cheap", "de": "Sehr günstig" } },
-        { "id": "cheap", "label": { "en": "Cheap", "de": "Günstig" } },
-        { "id": "normal", "label": { "en": "Normal", "de": "Normal" } },
-        { "id": "expensive", "label": { "en": "Expensive", "de": "Teuer" } },
-        { "id": "very_expensive", "label": { "en": "Very expensive", "de": "Sehr teuer" } }
+        {
+          "id": "very_cheap",
+          "label": {
+            "en": "Very cheap",
+            "de": "Sehr günstig",
+            "fr": "Très bon marché",
+            "it": "Molto conveniente"
+          }
+        },
+        {
+          "id": "cheap",
+          "label": {
+            "en": "Cheap",
+            "de": "Günstig",
+            "fr": "Bon marché",
+            "it": "Conveniente"
+          }
+        },
+        {
+          "id": "normal",
+          "label": {
+            "en": "Normal",
+            "de": "Normal",
+            "fr": "Normal",
+            "it": "Normale"
+          }
+        },
+        {
+          "id": "expensive",
+          "label": {
+            "en": "Expensive",
+            "de": "Teuer",
+            "fr": "Cher",
+            "it": "Caro"
+          }
+        },
+        {
+          "id": "very_expensive",
+          "label": {
+            "en": "Very expensive",
+            "de": "Sehr teuer",
+            "fr": "Très cher",
+            "it": "Molto caro"
+          }
+        }
       ]
     }
   ]

@@ -1,29 +1,89 @@
 {
-  "title": { "en": "Find the cheapest block from now", "de": "Günstigsten Block ab jetzt finden" },
+  "title": {
+    "en": "Find the cheapest block from now",
+    "de": "Günstigsten Block ab jetzt finden",
+    "fr": "Trouver le bloc le moins cher à partir de maintenant",
+    "it": "Trova il blocco più conveniente da adesso"
+  },
   "titleFormatted": {
     "en": "Find the cheapest block of [[hours]] hours from now until [[to]]",
-    "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt bis [[to]]"
+    "de": "Finde den günstigsten Block von [[hours]] Stunden ab jetzt bis [[to]]",
+    "fr": "Trouver le bloc le moins cher de [[hours]] heures à partir de maintenant jusqu'à [[to]]",
+    "it": "Trova il blocco più conveniente di [[hours]] ore da adesso fino alle [[to]]"
   },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=innostrom" },
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=innostrom"
+    },
     {
       "type": "number",
       "name": "hours",
-      "title": { "en": "Duration (hours)", "de": "Dauer (Stunden)" },
+      "title": {
+        "en": "Duration (hours)",
+        "de": "Dauer (Stunden)",
+        "fr": "Durée (heures)",
+        "it": "Durata (ore)"
+      },
       "min": 0.25,
       "max": 24,
       "step": 0.25
     },
-    { "type": "time", "name": "to", "title": { "en": "Until", "de": "Bis" } }
+    {
+      "type": "time",
+      "name": "to",
+      "title": {
+        "en": "Until",
+        "de": "Bis",
+        "fr": "Jusqu'à",
+        "it": "Fino alle"
+      }
+    }
   ],
   "tokens": [
-    { "name": "start", "type": "string", "title": { "en": "Block starts", "de": "Block beginnt" }, "example": "02:00" },
-    { "name": "end", "type": "string", "title": { "en": "Block ends", "de": "Block endet" }, "example": "05:00" },
-    { "name": "avg", "type": "number", "title": { "en": "Average price", "de": "Durchschnittspreis" }, "example": 17.8 },
+    {
+      "name": "start",
+      "type": "string",
+      "title": {
+        "en": "Block starts",
+        "de": "Block beginnt",
+        "fr": "Début du bloc",
+        "it": "Inizio del blocco"
+      },
+      "example": "02:00"
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "title": {
+        "en": "Block ends",
+        "de": "Block endet",
+        "fr": "Fin du bloc",
+        "it": "Fine del blocco"
+      },
+      "example": "05:00"
+    },
+    {
+      "name": "avg",
+      "type": "number",
+      "title": {
+        "en": "Average price",
+        "de": "Durchschnittspreis",
+        "fr": "Prix moyen",
+        "it": "Prezzo medio"
+      },
+      "example": 17.8
+    },
     {
       "name": "minutesUntilStart",
       "type": "number",
-      "title": { "en": "Minutes until start", "de": "Minuten bis Start" },
+      "title": {
+        "en": "Minutes until start",
+        "de": "Minuten bis Start",
+        "fr": "Minutes avant le début",
+        "it": "Minuti all'inizio"
+      },
       "example": 45
     }
   ]

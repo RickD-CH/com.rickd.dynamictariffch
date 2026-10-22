@@ -1,14 +1,26 @@
 {
   "type": "number",
-  "title": { "en": "Average price today", "de": "Durchschnittspreis heute" },
+  "title": {
+    "en": "Average price today",
+    "de": "Durchschnittspreis heute",
+    "fr": "Prix moyen aujourd'hui",
+    "it": "Prezzo medio oggi"
+  },
   "desc": {
     "en": "Average total price of the current calendar day.",
-    "de": "Durchschnittlicher Gesamtpreis des heutigen Kalendertags."
+    "de": "Durchschnittlicher Gesamtpreis des heutigen Kalendertags.",
+    "fr": "Prix total moyen du jour civil en cours.",
+    "it": "Prezzo totale medio del giorno corrente."
   },
   "getable": true,
   "setable": false,
   "uiComponent": "sensor",
-  "units": { "en": "Rp./kWh", "de": "Rp./kWh" },
+  "units": {
+    "en": "Rp./kWh",
+    "de": "Rp./kWh",
+    "fr": "Rp./kWh",
+    "it": "Rp./kWh"
+  },
   "decimals": 2,
   "icon": "/assets/capabilities/price.svg"
 }

@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Meter readings are arriving again",
-    "de": "Zählermeldungen kommen wieder an"
+    "de": "Zählermeldungen kommen wieder an",
+    "fr": "Les relevés de compteurs arrivent de nouveau",
+    "it": "Le letture dei contatori arrivano di nuovo"
   },
   "hint": {
     "en": "Fires when all reported meters are within the monitoring threshold again after an incident.",
-    "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen."
+    "de": "Löst aus, wenn nach einem Vorfall alle gemeldeten Zähler wieder innerhalb der Überwachungsschwelle liegen.",
+    "fr": "Se déclenche lorsque, après un incident, tous les compteurs transmis sont de nouveau dans le seuil de surveillance.",
+    "it": "Si attiva quando, dopo un incidente, tutti i contatori comunicati rientrano di nuovo nella soglia di monitoraggio."
   },
   "args": [
     {
