@@ -1,0 +1,15 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Solar surplus",
+    "de": "Solarüberschuss",
+    "fr": "Surplus solaire",
+    "it": "Surplus solare"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true
+}

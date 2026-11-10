@@ -1,0 +1,27 @@
+{
+  "title": {
+    "en": "Energy management mode !{{is|isn't}}...",
+    "de": "Modus des Energiemanagements !{{ist|ist nicht}}..."
+  },
+  "titleFormatted": {
+    "en": "Energy management mode !{{is|isn't}} [[mode]]",
+    "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]"
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=ems" },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": { "en": "Mode", "de": "Modus" },
+      "values": [
+        { "id": "disabled", "label": { "en": "Off", "de": "Aus" } },
+        { "id": "idle", "label": { "en": "Idle", "de": "Bereit" } },
+        { "id": "holding", "label": { "en": "Waiting for surplus", "de": "Wartet auf Überschuss" } },
+        { "id": "solar_ev", "label": { "en": "Charging from solar", "de": "Lädt mit Solarstrom" } },
+        { "id": "instant_ev", "label": { "en": "Charging at full power", "de": "Lädt mit voller Leistung" } },
+        { "id": "battery_priority", "label": { "en": "Battery first", "de": "Batterie hat Vorrang" } },
+        { "id": "error", "label": { "en": "Error", "de": "Fehler" } }
+      ]
+    }
+  ]
+}

@@ -481,3 +481,27 @@ test('SetupNav: schaltet zwischen Preis-App und Energiemanagement, setzt Texte',
   // keine Hersteller- oder Personennamen
   assert.doesNotMatch(src, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
 });
+
+test('Ohne EMS-Gerät: nur ein Hinweis zum Hinzufügen, in EMS-Reiter und Setup', async () => {
+  const none = { ...shadow, deviceExists: false };
+  const env = makeEnv({ ...responses, 'GET /ems/shadow': none });
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const main = env.els.get('ems-view-main').innerHTML;
+  const devices = env.els.get('ems-view-devices').innerHTML;
+  for (const html of [main, devices]) {
+    assert.match(html, /noch nicht eingerichtet/);
+    assert.match(html, /Gerät «Energiemanagement» hinzu/);
+  }
+  assert.doesNotMatch(main, /ems-enabled|data-ems-toggle|ems-chargenow/, 'keine Bedienelemente ohne Gerät');
+  assert.doesNotMatch(devices, /ems-d-meter/);
+  assert.doesNotMatch(main + devices, /Andi|Huawei|go-e/i);
+  // Mit Gerät: normale Ansicht
+  const withDev = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, deviceExists: true } });
+  await withDev.ctx.window.EmsUi.init(withDev.api, 'de');
+  assert.match(withDev.els.get('ems-view-main').innerHTML, /ems-enabled/);
+  assert.match(withDev.els.get('ems-view-devices').innerHTML, /ems-d-meter/);
+  // Englisch
+  const en = makeEnv({ ...responses, 'GET /ems/shadow': none });
+  await en.ctx.window.EmsUi.init(en.api, 'en');
+  assert.match(en.els.get('ems-view-main').innerHTML, /not set up yet/);
+});

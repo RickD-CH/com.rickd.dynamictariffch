@@ -13,6 +13,7 @@
       cmpOff: 'Das Energiemanagement ist ausgeschaltet, es kommen keine neuen Vergleichsdaten. Gezeigt werden die bisherigen. Zum Weitervergleichen im Reiter «Betrieb» aktivieren (Testbetrieb, es wird nichts gesteuert).',
       cmpSource: 'Vergleichsquelle', cmpTab: 'Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
+      noDevice: 'Das Energiemanagement ist noch nicht eingerichtet. Füge in Homey unter «Geräte» → «+» → «Dynamischer Stromtarif CH» das Gerät «Energiemanagement» hinzu.',
       devicesSec: 'Geräte für das Energiemanagement', devicesMissing: 'Noch nicht alle Geräte gewählt. Das geht im Setup unter «Geräte für das Energiemanagement».', chosen: 'gewählt', pickFirst: '- zuerst Gerät wählen -', nowSec: 'Jetzt (Vergleich)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
       meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
       control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
@@ -38,6 +39,7 @@
       cmpOff: 'Energy management is switched off, so no new comparison data arrives. The previous data is shown. To keep comparing, enable it in the "Operation" view (test mode, nothing is controlled).',
       cmpSource: 'Comparison source', cmpTab: 'Compare', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
+      noDevice: 'Energy management is not set up yet. In Homey go to Devices → "+" → "Swiss Dynamic Electricity Tariff" and add the "Energy management" device.',
       devicesSec: 'Devices for energy management', devicesMissing: 'Not all devices chosen yet. You can do that in Setup under "Devices for energy management".', chosen: 'chosen', pickFirst: '- choose a device first -', nowSec: 'Now (comparison)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
       meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
       control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
@@ -338,9 +340,20 @@
   }
 
   /** Geräte-Auswahl liegt im Setup-Reiter (eigener Container in index.html). */
+  /** Ohne das Gerät "Energiemanagement" läuft das EMS nicht: nur ein Hinweis, wie man es hinzufügt. */
+  function noDevice() {
+    return !!(state.shadow && state.shadow.deviceExists === false);
+  }
+
   function renderDevices() {
     var host = $('ems-view-devices');
     if (!host || !state.cfg) return;
+    if (noDevice()) {
+      host.innerHTML = '<p class="warn">' + esc(S.noDevice) + '</p>';
+      var h0 = $('h2-emsdev');
+      if (h0) h0.innerHTML = '<span class="st-open"></span>' + esc(S.devicesSec);
+      return;
+    }
     host.innerHTML = devicesHtml();
     var head = $('h2-emsdev');
     if (head) {
@@ -350,9 +363,14 @@
   }
 
   function render() {
+    state.renderedNoDevice = noDevice();
     renderDevices();
     var panel = $('ems-view-main');
     if (!panel || !state.cfg) return;
+    if (noDevice()) {
+      panel.innerHTML = '<div class="card"><p class="warn">' + esc(S.noDevice) + '</p></div>';
+      return;
+    }
     var c = state.cfg;
     var list = state.consumers.length ? state.consumers.map(consumerRow).join('') : '<p class="sub">' + esc(S.noConsumers) + '</p>';
     panel.innerHTML = '<style>'
@@ -394,6 +412,7 @@
 
   function refreshStatusOnly() {
     return load().then(function () {
+      if (noDevice() !== state.renderedNoDevice) render(); // Gerät wurde hinzugefügt oder entfernt
       var el = $('ems-status');
       if (el) el.innerHTML = statusHtml();
       renderCompare();

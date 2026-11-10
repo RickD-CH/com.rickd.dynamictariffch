@@ -91,11 +91,10 @@ class DynamicTariffApp extends Homey.App {
     this.homey.flow.getActionCard('get_prices_today')
       .registerRunListener(async (args) => args.device.actionGetPricesToday());
 
-    // Energiemanagement: Sofortladen der Wallbox. Wirkt auch im Trockenlauf (dort nur berechnet).
-    this.homey.flow.getActionCard('ems_charge_now_on')
-      .registerRunListener(async () => this.ems.setChargeNow(true));
-    this.homey.flow.getActionCard('ems_charge_now_off')
-      .registerRunListener(async () => this.ems.setChargeNow(false));
+    // Energiemanagement (Gerät "Energiemanagement"): Bedingung auf den aktuellen Modus.
+    // Sofortladen und Ein/Aus sind Capabilities des Geräts, ihre Flow-Karten erzeugt Homey selbst.
+    this.homey.flow.getConditionCard('ems_mode_is')
+      .registerRunListener(async (args) => args.device.getCapabilityValue('ems_mode') === args.mode);
 
     this.homey.flow.getActionCard('get_prices_tomorrow')
       .registerRunListener(async (args) => args.device.actionGetPricesTomorrow());

@@ -1,0 +1,19 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Charge now",
+    "de": "Sofort laden",
+    "fr": "Charger maintenant",
+    "it": "Ricarica subito"
+  },
+  "desc": {
+    "en": "Charges the EV charger at full power until you switch it off.",
+    "de": "Lädt die Wallbox mit voller Leistung, bis du es wieder ausschaltest.",
+    "fr": "Charge la borne à pleine puissance jusqu'à ce que vous l'éteigniez.",
+    "it": "Ricarica la wallbox a piena potenza finché non lo spegni."
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "uiQuickAction": false
+}

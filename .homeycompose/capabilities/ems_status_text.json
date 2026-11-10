@@ -1,0 +1,12 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Status",
+    "de": "Status",
+    "fr": "Statut",
+    "it": "Stato"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}

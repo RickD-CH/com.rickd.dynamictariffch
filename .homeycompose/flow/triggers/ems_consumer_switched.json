@@ -1,0 +1,19 @@
+{
+  "title": {
+    "en": "A consumer was switched",
+    "de": "Ein Verbraucher wurde geschaltet"
+  },
+  "hint": {
+    "en": "Fires when the energy management switches a consumer on or off. In test mode (dry run) it fires too, with live = no.",
+    "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Im Testbetrieb (Trockenlauf) auch, dann mit live = nein."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=ems" }
+  ],
+  "tokens": [
+    { "name": "name", "type": "string", "title": { "en": "Name", "de": "Name" }, "example": "Dehumidifier" },
+    { "name": "state", "type": "string", "title": { "en": "State (on/off)", "de": "Zustand (on/off)" }, "example": "on" },
+    { "name": "live", "type": "boolean", "title": { "en": "Live", "de": "Live" }, "example": true },
+    { "name": "reason", "type": "string", "title": { "en": "Reason", "de": "Grund" }, "example": "SoC 99% >= 98%" }
+  ]
+}

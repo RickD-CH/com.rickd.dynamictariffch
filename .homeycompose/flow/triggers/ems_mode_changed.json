@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "The energy management mode changed",
+    "de": "Der Modus des Energiemanagements hat gewechselt"
+  },
+  "hint": {
+    "en": "Fires when the mode changes, for example from waiting for surplus to charging from solar.",
+    "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom»."
+  },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=ems" }
+  ],
+  "tokens": [
+    { "name": "mode", "type": "string", "title": { "en": "Mode", "de": "Modus" }, "example": "solar_ev" },
+    { "name": "status", "type": "string", "title": { "en": "Status", "de": "Status" }, "example": "16A/3ph" }
+  ]
+}
