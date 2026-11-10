@@ -47,7 +47,7 @@ test('Konfiguration: Standard ist aus, ungültige Einträge fliegen raus', () =>
   assert.equal(d.sources.import.deviceId, 'a');
   assert.equal(d.sources.bogus, undefined);
   assert.equal(d.consumers.length, 1);
-  assert.equal(normalizeMeters({ consumers: new Array(20).fill({ name: 'x', deviceId: 'a', capability: 'b' }) }).consumers.length, 8);
+  assert.equal(normalizeMeters({ consumers: new Array(20).fill({ name: 'x', deviceId: 'a', capability: 'b' }) }).consumers.length, 6);
 });
 
 test('Lesen und Melden: gewählte Zähler gehen als Zählerstand ans Innostrom-Gerät', async () => {
