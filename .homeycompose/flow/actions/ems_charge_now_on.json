@@ -1,0 +1,11 @@
+{
+  "id": "ems_charge_now_on",
+  "title": {
+    "en": "Charge EV now at full power (EMS)",
+    "de": "Elektroauto jetzt mit voller Leistung laden (EMS)"
+  },
+  "hint": {
+    "en": "Switches instant charging of the energy management on. It stays on until you switch it off again.",
+    "de": "Schaltet das Sofortladen des Energiemanagements ein. Es bleibt an, bis du es wieder ausschaltest."
+  }
+}

@@ -259,6 +259,7 @@
     <button class="tab active" data-tab="overview" id="t-overview"></button>
     <button class="tab" data-tab="costs" id="t-costs"></button>
     <button class="tab" data-tab="settings" id="t-settings"></button>
+    <button class="tab" data-tab="ems" id="t-ems">EMS</button>
     <button class="tab" data-tab="help" id="t-help"></button>
   </nav>
 
@@ -465,6 +466,8 @@
     </details>
   </div>
 
+  <div class="panel" id="panel-ems"></div>
+
   <div class="panel" id="panel-help">
     <div class="card">
       <h2 id="h2-forum"></h2>
@@ -485,6 +488,7 @@
   </div>
 
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <script type="text/javascript" src="ems.js"></script>
   <script type="text/javascript">
     var LANG = (function () {
       var m = /[?&]lang=(de|fr|it|en)/.exec(location.search);
@@ -1568,6 +1572,7 @@
       }
 
       apiFn = apiCall;
+      if (window.EmsUi) window.EmsUi.init(apiCall, LANG);
 
       // Appearance is stored in the app settings so it survives reopening and follows the user.
       Homey.get('ui_theme', function (err, value) { if (!err) applyTheme(value); });

@@ -1,6 +1,6 @@
 {
   "id": "com.rickd.dynamictariffch",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -63,7 +63,10 @@
   },
   "category": "energy",
   "brandColor": "#0277BD",
-  "permissions": [],
+  "permissions": [
+    "homey:manager:api",
+    "homey:app:com.huawei.fusionsolar"
+  ],
   "source": "https://github.com/RickD-CH/com.rickd.dynamictariffch",
   "bugs": {
     "url": "https://github.com/RickD-CH/com.rickd.dynamictariffch/issues"
@@ -148,6 +151,34 @@
     "testReportsMissing": {
       "method": "post",
       "path": "/test/reports"
+    },
+    "getEmsShadow": {
+      "method": "get",
+      "path": "/ems/shadow"
+    },
+    "postEmsRun": {
+      "method": "post",
+      "path": "/ems/run"
+    },
+    "getEmsConfig": {
+      "method": "get",
+      "path": "/ems/config"
+    },
+    "putEmsConfig": {
+      "method": "put",
+      "path": "/ems/config"
+    },
+    "getEmsDevices": {
+      "method": "get",
+      "path": "/ems/devices"
+    },
+    "getEmsConsumers": {
+      "method": "get",
+      "path": "/ems/consumers"
+    },
+    "putEmsToggle": {
+      "method": "put",
+      "path": "/ems/toggle"
     }
   },
   "support": "https://community.homey.app/t/160031",

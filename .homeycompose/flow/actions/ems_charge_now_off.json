@@ -1,0 +1,11 @@
+{
+  "id": "ems_charge_now_off",
+  "title": {
+    "en": "Stop charging EV at full power (EMS)",
+    "de": "Sofortladen des Elektroautos beenden (EMS)"
+  },
+  "hint": {
+    "en": "Switches instant charging of the energy management off; the charger returns to surplus charging.",
+    "de": "Schaltet das Sofortladen des Energiemanagements aus; die Wallbox lädt wieder nach Überschuss."
+  }
+}

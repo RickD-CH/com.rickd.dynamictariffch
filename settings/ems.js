@@ -1,0 +1,355 @@
+/* Energiemanagement-Reiter der Einstellungen. Wird von index.html nach onHomeyReady gestartet:
+ *   window.EmsUi.init(apiCall, lang)
+ * apiCall(method, path, body) -> Promise. Alle Texte hier, damit index.html klein bleibt. */
+(function () {
+  'use strict';
+
+  var STR = {
+    de: {
+      tab: 'Energiemanagement',
+      intro: 'Steuert die Wallbox (go-e) und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
+      enable: 'Energiemanagement aktivieren',
+      devicesSec: 'Geräte (einmal wählen)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
+      meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
+      control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
+      status: 'Jetzt',
+      planner: 'Planer würde', andi: 'Andis EMS', battery: 'Batterie', grid: 'Netz', gate: 'Prognose-Sperre', open: 'offen', closed: 'zu',
+      wallbox: 'Wallbox (go-e)', live: 'Befehle senden (live)', liveWarn: 'Vorher in Andis EMS die Wallbox ausschalten, sonst steuern zwei Systeme dieselbe Wallbox.',
+      chargeNow: 'Sofortladen (volle Leistung)', maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)',
+      consumers: 'Verbraucher', add: 'Verbraucher hinzufügen', remove: 'Entfernen', device: 'Gerät', pick: '- Gerät wählen -', name: 'Name',
+      mode: 'Einschalten', modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss (wie Andis EMS)',
+      fullSoc: 'Voll ab SoC (%)', socOn: 'Ein ab SoC (%)', hysteresis: 'Aus unter (Prozentpunkte darunter)',
+      minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
+      minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
+      noConsumers: 'Noch kein Verbraucher.', events: 'Letzte Schaltvorgänge', dryRun: 'Trockenlauf', liveTag: 'live',
+      batterySec: 'Batterie-Planer (nur Vergleich mit Andis EMS)', targetSoc: 'Ziel-SoC (%)', reserve: 'Reserve (Stunden)', solarLimit: 'Solar-Schwelle (kWh)',
+      save: 'Speichern', run: 'Jetzt rechnen', saved: 'Gespeichert', error: 'Fehler', off: 'Energiemanagement ist ausgeschaltet.',
+      agree: 'Übereinstimmung mit Andis EMS', day: 'Tag', same: 'gleich',
+    },
+    en: {
+      tab: 'Energy management',
+      intro: 'Controls the EV charger (go-e) and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
+      enable: 'Enable energy management',
+      devicesSec: 'Devices (choose once)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
+      meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
+      control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
+      status: 'Now',
+      planner: 'Planner would', andi: "Andi's EMS", battery: 'Battery', grid: 'Grid', gate: 'Forecast gate', open: 'open', closed: 'closed',
+      wallbox: 'EV charger (go-e)', live: 'Send commands (live)', liveWarn: "First switch the charger off in Andi's EMS, otherwise two systems control the same charger.",
+      chargeNow: 'Charge now (full power)', maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)',
+      consumers: 'Consumers', add: 'Add consumer', remove: 'Remove', device: 'Device', pick: '- choose device -', name: 'Name',
+      mode: 'Switch on', modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: "On surplus (like Andi's EMS)",
+      fullSoc: 'Full from SoC (%)', socOn: 'On from SoC (%)', hysteresis: 'Off below (points under that)',
+      minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
+      minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
+      noConsumers: 'No consumer yet.', events: 'Recent switching', dryRun: 'dry run', liveTag: 'live',
+      batterySec: "Battery planner (comparison with Andi's EMS only)", targetSoc: 'Target SoC (%)', reserve: 'Reserve (hours)', solarLimit: 'Solar threshold (kWh)',
+      save: 'Save', run: 'Calculate now', saved: 'Saved', error: 'Error', off: 'Energy management is switched off.',
+      agree: "Agreement with Andi's EMS", day: 'Day', same: 'same',
+    },
+  };
+
+  var api = null;
+  var S = STR.en;
+  var LANG = 'en';
+  var state = { cfg: null, shadow: null, devices: [], consumers: [], events: [], timer: null, msg: '' };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(v) {
+    return String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function time(ms) {
+    if (!ms) return '-';
+    try {
+      return new Date(ms).toLocaleString(LANG === 'de' ? 'de-CH' : 'en-GB', { timeZone: 'Europe/Zurich', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return String(ms); }
+  }
+  function num(id, fallback) {
+    var el = $(id);
+    var v = el ? Number(el.value) : NaN;
+    return isFinite(v) ? v : fallback;
+  }
+  function chk(id) { var el = $(id); return !!(el && el.checked); }
+  function val(id, fallback) { var el = $(id); return el && el.value !== '' && el.value !== undefined ? el.value : fallback; }
+
+  function modeLabel(m) { return { charge: LANG === 'de' ? 'laden' : 'charge', hold: LANG === 'de' ? 'halten' : 'hold', normal: 'normal' }[m] || m || '-'; }
+
+  // ---------------------------------------------------------------- Formular -> Konfiguration
+
+  function collectConsumers() {
+    return state.consumers.map(function (c, i) {
+      var p = 'ems-c' + i + '-';
+      return {
+        id: val(p + 'id', c.id), name: val(p + 'name', c.name), enabled: true, live: c.live === true,
+        mode: val(p + 'mode', c.mode),
+        fullSoc: num(p + 'fullSoc', c.fullSoc), socOn: num(p + 'socOn', c.socOn), hysteresis: num(p + 'hysteresis', c.hysteresis),
+        minSurplusW: num(p + 'minSurplusW', c.minSurplusW), startSustainS: num(p + 'startSustainS', c.startSustainS),
+        stopGraceS: num(p + 'stopGraceS', c.stopGraceS), minRunMin: num(p + 'minRunMin', c.minRunMin),
+        minOffMin: num(p + 'minOffMin', c.minOffMin), protectSoc: num(p + 'protectSoc', c.protectSoc),
+        useForecastGate: chk(p + 'useGate'),
+      };
+    });
+  }
+
+  function collect() {
+    var cfg = state.cfg;
+    return {
+      enabled: chk('ems-enabled'),
+      devices: {
+        meter: { id: val('ems-d-meter', cfg.devices.meter.id), capability: val('ems-d-meter-cap', cfg.devices.meter.capability) },
+        house: { id: val('ems-d-house', cfg.devices.house.id), capability: val('ems-d-house-cap', cfg.devices.house.capability) },
+        inverter: { id: val('ems-d-inv', cfg.devices.inverter.id), capability: val('ems-d-inv-cap', cfg.devices.inverter.capability) },
+        andiEms: val('ems-d-andi', cfg.devices.andiEms),
+      },
+      charger: { id: val('ems-d-chg', cfg.charger.id), chargeNow: chk('ems-chargenow'), maxAmps: num('ems-maxamps', cfg.charger.maxAmps), stepHoldS: num('ems-stephold', cfg.charger.stepHoldS) },
+      consumers: collectConsumers(),
+      battery: { deviceId: val('ems-d-bat', cfg.battery.deviceId), socCapability: val('ems-d-bat-cap', cfg.battery.socCapability), targetSoc: num('ems-b-target', cfg.battery.targetSoc), reserveHours: num('ems-b-reserve', cfg.battery.reserveHours), solarLimitKwh: num('ems-b-solar', cfg.battery.solarLimitKwh) },
+    };
+  }
+
+  // ---------------------------------------------------------------- Darstellung
+
+  function field(label, id, value, type, extra) {
+    return '<label class="ems-f"><span>' + esc(label) + '</span><input id="' + id + '" type="' + (type || 'number') + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
+  }
+  function check(label, id, on) {
+    return '<label class="ems-c"><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span></label>';
+  }
+
+  function consumerRow(c, i) {
+    var p = 'ems-c' + i + '-';
+    var opts = deviceOptions(c.id, hasCap(/^onoff$/));
+    var modes = [['full', S.modeFull], ['soc', S.modeSoc], ['surplus', S.modeSurplus]].map(function (m) {
+      return '<option value="' + m[0] + '"' + (m[0] === c.mode ? ' selected' : '') + '>' + esc(m[1]) + '</option>';
+    }).join('');
+    var params = '';
+    if (c.mode === 'full') params += field(S.fullSoc, p + 'fullSoc', c.fullSoc) + field(S.hysteresis, p + 'hysteresis', c.hysteresis);
+    if (c.mode === 'soc') params += field(S.socOn, p + 'socOn', c.socOn) + field(S.hysteresis, p + 'hysteresis', c.hysteresis);
+    if (c.mode === 'surplus') {
+      params += field(S.minSurplus, p + 'minSurplusW', c.minSurplusW) + field(S.startSustain, p + 'startSustainS', c.startSustainS)
+        + field(S.stopGrace, p + 'stopGraceS', c.stopGraceS);
+    }
+    return '<div class="ems-box">'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'id">' + opts + '</select></label>'
+      + field(S.name, p + 'name', c.name, 'text') + '</div>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modes + '</select></label></div>'
+      + '<div class="ems-row">' + params + '</div>'
+      + '<div class="ems-row">' + field(S.minRun, p + 'minRunMin', c.minRunMin) + field(S.minOff, p + 'minOffMin', c.minOffMin) + field(S.protect, p + 'protectSoc', c.protectSoc) + '</div>'
+      + '<div class="ems-row">' + check(S.useGate, p + 'useGate', c.useForecastGate)
+      + '<button class="btn" data-ems-remove="' + i + '">' + esc(S.remove) + '</button></div>'
+      + '</div>';
+  }
+
+  function statusHtml() {
+    var sh = state.shadow;
+    if (!sh || !sh.enabled) return '<p class="sub">' + esc(S.off) + '</p>';
+    var cards = [];
+    var ch = sh.charger && sh.charger.current;
+    if (ch) {
+      var g = ch.gate || {};
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.wallbox) + ' ' + esc(ch.live ? S.liveTag : S.dryRun) + '</div><div class="ems-v">' + esc(ch.mine.mode) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.andi) + '</div><div class="ems-v">' + esc(ch.andi ? ch.andi.mode : '-') + '</div><div class="ems-s">' + esc(ch.andi ? ch.andi.reason : '') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.grid) + '</div><div class="ems-v">' + esc(ch.gridW === null || ch.gridW === undefined ? '-' : Math.round(ch.gridW) + ' W') + '</div><div class="ems-s">PV ' + esc(ch.pvW === null ? '-' : Math.round(ch.pvW)) + ' W</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.gate) + '</div><div class="ems-v">' + esc(g.blocked ? S.closed : S.open) + '</div><div class="ems-s">' + esc(g.remainingKwh !== null && g.remainingKwh !== undefined ? g.remainingKwh + ' / ' + g.thresholdKwh + ' kWh' : (g.reason || '')) + '</div></div>');
+    }
+    var cur = sh.current;
+    if (cur) {
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.battery) + '</div><div class="ems-v">' + esc(cur.soc === null ? '-' : Math.round(cur.soc) + ' %') + '</div><div class="ems-s">' + esc(S.planner) + ': ' + esc(modeLabel(cur.mine.mode)) + ' / ' + esc(S.andi) + ': ' + esc(modeLabel(cur.andi && cur.andi.mode)) + '</div></div>');
+    }
+    var warn = ch && ch.warning ? '<p class="warn">' + esc(ch.warning) + '</p>' : '';
+    var errs = cur && cur.errors && cur.errors.length ? '<p class="warn">' + esc(cur.errors.join(' | ')) + '</p>' : '';
+    var consumers = (state.consumersState || []).map(function (c) {
+      return '<tr><td>' + esc(c.name) + '</td><td>' + esc(c.isOn ? 'ein' : 'aus') + '</td><td>' + esc(c.live ? S.liveTag : S.dryRun) + '</td><td>' + esc(c.reason) + '</td></tr>';
+    }).join('');
+    var ev = (state.events || []).slice(0, 12).map(function (e) {
+      return '<tr><td>' + esc(time(e.ts)) + '</td><td>' + esc(e.name) + '</td><td>' + esc(e.cmd === 'on' ? 'ein' : 'aus') + '</td><td>' + esc(e.live ? S.liveTag : S.dryRun) + '</td><td>' + esc(e.reason) + '</td></tr>';
+    }).join('');
+    return '<div class="ems-cards">' + cards.join('') + '</div>' + warn + errs
+      + (consumers ? '<table class="ems-t">' + consumers + '</table>' : '')
+      + (ev ? '<h3>' + esc(S.events) + '</h3><table class="ems-t">' + ev + '</table>' : '');
+  }
+
+  function deviceOptions(current, filter) {
+    return '<option value="">' + esc(S.pick) + '</option>' + state.devices.filter(function (d) {
+      return d.id === current || !filter || filter(d);
+    }).map(function (d) {
+      return '<option value="' + esc(d.id) + '"' + (d.id === current ? ' selected' : '') + '>' + esc(d.name) + '</option>';
+    }).join('');
+  }
+  function hasCap(re) { return function (d) { return (d.caps || []).some(function (c) { return re.test(c); }); }; }
+  function devRow(label, idField, cur, filter, capField, capVal) {
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idField + '">' + deviceOptions(cur, filter) + '</select></label>'
+      + (capField ? field(S.capab, capField, capVal, 'text') : '') + '</div>';
+  }
+  function devicesHtml() {
+    var c = state.cfg;
+    return '<div class="card"><h2>' + esc(S.devicesSec) + '</h2><p class="sub">' + esc(S.devicesHint) + '</p>'
+      + devRow(S.meter, 'ems-d-meter', c.devices.meter.id, hasCap(/^measure_power/), 'ems-d-meter-cap', c.devices.meter.capability)
+      + devRow(S.house, 'ems-d-house', c.devices.house.id, hasCap(/^measure_power/), 'ems-d-house-cap', c.devices.house.capability)
+      + devRow(S.inverter, 'ems-d-inv', c.devices.inverter.id, hasCap(/^measure_power/), 'ems-d-inv-cap', c.devices.inverter.capability)
+      + devRow(S.battery2, 'ems-d-bat', c.battery.deviceId, hasCap(/^measure_battery/), 'ems-d-bat-cap', c.battery.socCapability)
+      + devRow(S.charger2, 'ems-d-chg', c.charger.id, hasCap(/^(evcharger_charging|target_power)/), null, null)
+      + devRow(S.andiEmsDev, 'ems-d-andi', c.devices.andiEms, hasCap(/^ems_mode$/), null, null)
+      + '</div>';
+  }
+
+  function toggleRow(target, label, on) {
+    return '<label class="ems-c ems-tg"><input type="checkbox" data-ems-toggle="' + esc(target) + '"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span> <span class="ems-s">' + esc(on ? S.on : S.offTag) + '</span></label>';
+  }
+
+  function controlHtml() {
+    var c = state.cfg;
+    var rows = [toggleRow('charger', S.wallbox, c.charger.live)].concat((c.consumers || []).map(function (x) {
+      return toggleRow(x.id, x.name, x.live);
+    }));
+    return '<div class="card"><h2>' + esc(S.control) + '</h2><p class="sub">' + esc(S.controlHint) + '</p>' + rows.join('') + '<p class="warn" id="ems-toggle-err" hidden></p></div>';
+  }
+
+  function render() {
+    var panel = $('panel-ems');
+    if (!panel || !state.cfg) return;
+    var c = state.cfg;
+    var list = state.consumers.length ? state.consumers.map(consumerRow).join('') : '<p class="sub">' + esc(S.noConsumers) + '</p>';
+    panel.innerHTML = '<style>'
+      + '.ems-cards{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.ems-card{flex:1 1 140px;border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;background:var(--st-card-bg)}'
+      + '.ems-k{font-size:12px;color:var(--st-muted)}.ems-v{font-size:18px;font-weight:600}.ems-s{font-size:12px;color:var(--st-muted)}'
+      + '.ems-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:6px 0}.ems-f{display:flex;flex-direction:column;font-size:12px;color:var(--st-muted);gap:2px}'
+      + '.ems-f input,.ems-f select{font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 220px}.ems-wide select{width:100%}'
+      + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
+      + '.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top}'
+      + '</style>'
+      + '<div class="card"><p class="sub">' + esc(S.intro) + '</p>' + check(S.enable, 'ems-enabled', c.enabled) + '</div>'
+      + devicesHtml()
+      + controlHtml()
+      + '<div class="card"><h2>' + esc(S.status) + '</h2><div id="ems-status">' + statusHtml() + '</div></div>'
+      + '<div class="card"><h2>' + esc(S.wallbox) + '</h2>'
+      + '<div class="ems-row">' + check(S.chargeNow, 'ems-chargenow', c.charger.chargeNow) + '</div>'
+      + '<p class="sub">' + esc(S.liveWarn) + '</p>'
+      + '<div class="ems-row">' + field(S.maxAmps, 'ems-maxamps', c.charger.maxAmps) + field(S.stepHold, 'ems-stephold', c.charger.stepHoldS) + '</div></div>'
+      + '<div class="card"><h2>' + esc(S.consumers) + '</h2>' + list + '<button class="btn" data-ems-add="1">' + esc(S.add) + '</button></div>'
+      + '<details class="card sec"><summary><h2>' + esc(S.batterySec) + '</h2></summary><div class="ems-row">'
+      + field(S.targetSoc, 'ems-b-target', c.battery.targetSoc) + field(S.reserve, 'ems-b-reserve', c.battery.reserveHours) + field(S.solarLimit, 'ems-b-solar', c.battery.solarLimitKwh)
+      + '</div></details>'
+      + '<p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <button class="btn" data-ems-run="1">' + esc(S.run) + '</button> <span class="sub" id="ems-msg">' + esc(state.msg) + '</span></p>';
+  }
+
+  // ---------------------------------------------------------------- Laden und Speichern
+
+  function load() {
+    return Promise.all([
+      api('GET', '/ems/shadow'),
+      api('GET', '/ems/consumers').catch(function () { return { current: [], events: [] }; }),
+    ]).then(function (r) {
+      state.shadow = r[0];
+      state.cfg = r[0].config;
+      if (!state.loadedConsumers) { state.consumers = (state.cfg.consumers || []).map(function (c) { return Object.assign({}, c); }); state.loadedConsumers = true; }
+      state.consumersState = r[1].current;
+      state.events = r[1].events;
+      return state;
+    });
+  }
+
+  function refreshStatusOnly() {
+    return load().then(function () {
+      var el = $('ems-status');
+      if (el) el.innerHTML = statusHtml();
+    }).catch(function () {});
+  }
+
+  function setMsg(text) {
+    state.msg = text;
+    var el = $('ems-msg');
+    if (el) el.textContent = text;
+  }
+
+  function onClick(ev) {
+    var t = ev.target;
+    if (!t || !t.getAttribute) return;
+    if (t.getAttribute('data-ems-add')) {
+      state.consumers = collectConsumers().concat([{ id: '', name: S.consumers, mode: 'full', fullSoc: 98, socOn: 80, hysteresis: 5, minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false }]);
+      render();
+    } else if (t.getAttribute('data-ems-remove') !== null && t.getAttribute('data-ems-remove') !== undefined) {
+      var idx = Number(t.getAttribute('data-ems-remove'));
+      var cur = collectConsumers();
+      cur.splice(idx, 1);
+      state.consumers = cur;
+      render();
+    } else if (t.getAttribute('data-ems-save')) {
+      var body = collect();
+      body.consumers = body.consumers.filter(function (c) { return c.id; });
+      setMsg('...');
+      api('PUT', '/ems/config', body).then(function (cfg) {
+        state.cfg = cfg;
+        state.consumers = cfg.consumers.map(function (c) { return Object.assign({}, c); });
+        setMsg(S.saved);
+        render();
+        return refreshStatusOnly();
+      }).catch(function (e) { setMsg(S.error + ': ' + (e && e.message || e)); });
+    } else if (t.getAttribute('data-ems-run')) {
+      setMsg('...');
+      api('POST', '/ems/run').then(function (sh) { state.shadow = sh; setMsg(''); return refreshStatusOnly(); })
+        .catch(function (e) { setMsg(S.error + ': ' + (e && e.message || e)); });
+    }
+  }
+
+  function onToggle(t) {
+    var target = t.getAttribute('data-ems-toggle');
+    var on = !!t.checked;
+    var errEl = $('ems-toggle-err');
+    if (errEl) errEl.hidden = true;
+    api('PUT', '/ems/toggle', { target: target, live: on }).then(function (cfg) {
+      state.cfg = cfg;
+      (cfg.consumers || []).forEach(function (n) {
+        state.consumers.forEach(function (c) { if (c.id === n.id) c.live = n.live; });
+      });
+      var card = t.parentNode && t.parentNode.querySelector ? t.parentNode.querySelector('.ems-s') : null;
+      if (card) card.textContent = on ? S.on : S.offTag;
+      return refreshStatusOnly();
+    }).catch(function (e) {
+      t.checked = !on;
+      if (errEl) { errEl.textContent = S.toggleFailed + ': ' + (e && e.message || e); errEl.hidden = false; }
+    });
+  }
+
+  function onChange(ev) {
+    var t = ev.target;
+    if (t && t.getAttribute && t.getAttribute('data-ems-toggle') !== null && t.getAttribute('data-ems-toggle') !== undefined) {
+      onToggle(t);
+      return;
+    }
+    if (t && t.getAttribute && t.getAttribute('data-ems-mode') !== null && t.getAttribute('data-ems-mode') !== undefined) {
+      var cur = collectConsumers();
+      state.consumers = cur;
+      render();
+    }
+  }
+
+  function init(apiCall, lang) {
+    api = apiCall;
+    LANG = lang === 'de' ? 'de' : 'en';
+    S = STR[LANG];
+    var btn = $('t-ems');
+    if (btn) btn.textContent = S.tab;
+    var panel = $('panel-ems');
+    if (panel) {
+      panel.addEventListener('click', onClick);
+      panel.addEventListener('change', onChange);
+    }
+    return Promise.all([load(), api('GET', '/ems/devices').then(function (r) { state.devices = r.devices || []; }).catch(function () { state.devices = []; })])
+      .then(function () { render(); })
+      .catch(function (e) { if (panel) panel.innerHTML = '<p class="warn">' + esc(S.error + ': ' + (e && e.message || e)) + '</p>'; });
+  }
+
+  // Der Statusteil aktualisiert sich nur, solange der Reiter offen ist.
+  function startTimer() {
+    if (state.timer) return;
+    state.timer = setInterval(function () {
+      var panel = $('panel-ems');
+      if (panel && panel.classList && panel.classList.contains('active')) refreshStatusOnly();
+    }, 20000);
+  }
+
+  window.EmsUi = { init: function (a, l) { startTimer(); return init(a, l); }, _collect: collect, _state: state, _render: render };
+})();

@@ -64,11 +64,19 @@ homey app install
 - **Timer** nur über `this.homey.setTimeout` / `clearTimeout`, damit sie beim Entladen aufgeräumt
   werden. Viertelstunden-Tick jeweils neu auf die nächste Grenze planen (kein `setInterval`).
 - **Keine Laufzeit-Abhängigkeiten** (Node ≥ 18 hat `fetch` global). Dev-Dependencies sind ok.
+  Einzige Ausnahme: `homey-api`, nur für das EMS-Modul (`lib/ems/`, Messwerte lesen und Geräte schalten).
 - **Token ist geheim:** Settings-Typ `password`, nie loggen (höchstens die letzten 4 Zeichen).
 - Preise von der API sind **CHF/kWh exkl. MWST**. Die Anzeige in Rp./kWh ist Schweizer Standard.
 - Die Testumgebung liefert **konstante** Preise. Logik deshalb mit `synthetic-aew-day.json` testen.
 - Neue Logik → Tests in `test/` ergänzen. `npm test` muss grün bleiben.
 - Commits klein halten, Nachrichten auf Englisch.
+
+## EMS-Modul (ab 0.3.0, unveröffentlicht)
+
+Energiemanagement für go-e-Wallbox und einzelne Verbraucher in `lib/ems/`, siehe `docs/EMS.md`.
+Standardmässig **aus** und im **Trockenlauf**; Geräte schaltet nur `lib/ems/Actuators.js`, und nur wenn
+`charger.live` bzw. `consumer.live` gesetzt ist. Entscheidungslogik in `lib/ems/planner/*` bleibt rein
+(keine Homey-Aufrufe, keine festen Geräte-IDs). Tests: `test/ems-*.test.js`.
 
 ## Entscheidungen
 

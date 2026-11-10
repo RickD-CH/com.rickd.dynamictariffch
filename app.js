@@ -1,12 +1,19 @@
 'use strict';
 
 const Homey = require('homey');
+const { EmsController } = require('./lib/ems/EmsController');
 
 class DynamicTariffApp extends Homey.App {
 
   async onInit() {
     this.log('Dynamischer Stromtarif CH gestartet');
     this._registerFlowCards();
+    this.ems = new EmsController(this);
+    this.ems.start();
+  }
+
+  async onUninit() {
+    if (this.ems) this.ems.stop();
   }
 
   _registerFlowCards() {
@@ -79,6 +86,12 @@ class DynamicTariffApp extends Homey.App {
 
     this.homey.flow.getActionCard('get_prices_today')
       .registerRunListener(async (args) => args.device.actionGetPricesToday());
+
+    // Energiemanagement: Sofortladen der Wallbox. Wirkt auch im Trockenlauf (dort nur berechnet).
+    this.homey.flow.getActionCard('ems_charge_now_on')
+      .registerRunListener(async () => this.ems.setChargeNow(true));
+    this.homey.flow.getActionCard('ems_charge_now_off')
+      .registerRunListener(async () => this.ems.setChargeNow(false));
 
     this.homey.flow.getActionCard('get_prices_tomorrow')
       .registerRunListener(async (args) => args.device.actionGetPricesTomorrow());

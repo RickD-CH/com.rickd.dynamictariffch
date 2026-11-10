@@ -15,6 +15,37 @@ function firstDevice(homey) {
 
 module.exports = {
 
+  // --- EMS (Energiemanagement) ---
+  async getEmsShadow({ homey }) {
+    return homey.app.ems.getShadow();
+  },
+
+  async postEmsRun({ homey }) {
+    await homey.app.ems.runNow();
+    return homey.app.ems.getShadow();
+  },
+
+  async getEmsConfig({ homey }) {
+    return homey.app.ems.getConfig();
+  },
+
+  async putEmsConfig({ homey, body }) {
+    return homey.app.ems.putConfig(body);
+  },
+
+  async putEmsToggle({ homey, body }) {
+    return homey.app.ems.setLive(body && body.target, body && body.live === true);
+  },
+
+  async getEmsDevices({ homey }) {
+    return { devices: await homey.app.ems.listDevices() };
+  },
+
+  async getEmsConsumers({ homey }) {
+    const r = homey.app.ems.runner;
+    return { current: r ? r.consumerCurrent : [], events: r ? r.consumerEvents.slice(-30).reverse() : [] };
+  },
+
   async getCost({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };
