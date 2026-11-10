@@ -58,8 +58,8 @@ const responses = {
   'GET /ems/devices': { devices: [
     { id: 'dev1', name: 'DryFy Luftentfeuchter', caps: ['onoff', 'measure_humidity'] },
     { id: 'dev2', name: 'Shelly Estrich', caps: ['onoff', 'measure_power'] },
-    { id: 'em1', name: 'Energiezähler', caps: ['measure_power', 'measure_power.load'] },
-    { id: 'gce', name: 'go-echarger', caps: ['target_power', 'evcharger_charging_state'] },
+    { id: 'em1', name: 'Energiezähler', caps: ['measure_power', 'measure_power.load', 'meter_power'], capTitles: { measure_power: 'Leistung', 'measure_power.load': 'Hausverbrauch', meter_power: 'Zählerstand' } },
+    { id: 'gce', name: 'Wallbox Garage', caps: ['target_power', 'evcharger_charging_state'] },
     { id: 'lun', name: 'Batterie', caps: ['measure_battery'] },
   ] },
 };
@@ -78,14 +78,14 @@ test('EmsUi rendert Status, Wallbox, Verbraucher und Batterie ohne Fehler', asyn
   await env.ctx.window.EmsUi.init(env.api, 'de');
   const html = env.els.get('panel-ems').innerHTML;
   assert.match(html, /Energiemanagement aktivieren/);
-  assert.match(html, /Wallbox \(go-e\)/);
+  assert.match(html, /<h2>Wallbox<\/h2>/);
   assert.match(html, /Luftentfeuchter/);
   assert.match(html, /DryFy Luftentfeuchter/); // Geräteliste im Auswahlfeld
   assert.match(html, /Ab Batterie-SoC/);
   assert.match(html, /Mindestlaufzeit/);
   assert.match(html, /Trockenlauf/);
   assert.doesNotMatch(html, /undefined|null/);
-  assert.equal(env.els.get('t-ems').textContent, 'Energiemanagement');
+  assert.equal(env.els.get('t-ems').textContent, 'EMS');
 });
 
 test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte mit Ein/Aus', async () => {
@@ -94,7 +94,7 @@ test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte m
   const html = env.els.get('panel-ems').innerHTML;
   assert.ok(html.includes('Geräte (einmal wählen)'));
   assert.match(html, /id="ems-d-meter"[\s\S]*Energiezähler/);
-  assert.match(html, /id="ems-d-chg"[\s\S]*go-echarger/);
+  assert.match(html, /id="ems-d-chg"[\s\S]*Wallbox Garage/);
   assert.match(html, /id="ems-d-bat"[\s\S]*Batterie/);
   // Verbraucher-Auswahl: der Energiezähler hat kein onoff und darf nicht erscheinen
   const consumerSelect = html.match(/id="ems-c0-id">([\s\S]*?)<\/select>/)[1];
@@ -113,7 +113,7 @@ test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen
   assert.match(indexHtml, /id="panel-emscmp"/);
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-emscmp').innerHTML;
+  const html = env.els.get('ems-cmp-data').innerHTML;
   assert.match(html, /Andis EMS/);
   assert.match(html, /Gesamt gleich: <b>92 %<\/b>/);
   assert.match(html, /Gesamt gleich: <b>100 %<\/b>/);
@@ -121,7 +121,7 @@ test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen
   assert.match(html, /Kapazität reserviert/);
   assert.match(html, /kein Überschuss/);
   assert.doesNotMatch(html, /undefined|null/);
-  assert.equal(env.els.get('t-emscmp').textContent, 'EMS-Vergleich');
+  assert.equal(env.els.get('t-emscmp').textContent, 'Vergleich');
 });
 
 test('EmsUi: Modus "Überschuss" zeigt andere Felder als "voll"', async () => {
@@ -219,4 +219,48 @@ test('EmsUi: Typ "Luftentfeuchter" zeigt den Feuchte-Notlauf mit Sensor-Auswahl 
   const plain = makeEnv(responses);
   await plain.ctx.window.EmsUi.init(plain.api, 'de');
   assert.doesNotMatch(plain.els.get('panel-ems').innerHTML, /Notlauf bei hoher Luftfeuchtigkeit/);
+});
+
+test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', async () => {
+  const env = makeEnv(responses);
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const banned = /Andi|Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom/i;
+  const ems = env.els.get('panel-ems').innerHTML;
+  assert.doesNotMatch(ems, banned, 'EMS-Reiter (de)');
+  const en = makeEnv(responses);
+  await en.ctx.window.EmsUi.init(en.api, 'en');
+  assert.doesNotMatch(en.els.get('panel-ems').innerHTML, banned, 'EMS-Reiter (en)');
+  // Im Vergleich dürfen sie vorkommen
+  assert.match(env.els.get('ems-cmp-data').innerHTML, /Andis EMS/);
+  // Die Vergleichsquelle liegt im Vergleichs-Reiter, nicht mehr in der Geräte-Karte
+  assert.match(env.els.get('panel-emscmp').innerHTML, /id="ems-d-andi"/);
+  assert.doesNotMatch(ems, /ems-d-andi/);
+  assert.match(env.els.get('panel-emscmp').innerHTML, /ems-b-target/);
+  assert.doesNotMatch(ems, /ems-b-target/);
+});
+
+test('EmsUi: Capability als Dropdown mit Titeln, nur passende Werte', async () => {
+  const withMeter = normalizeConfig({ enabled: true, devices: { meter: { id: 'em1', capability: 'measure_power' } } });
+  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: withMeter } });
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const html = env.els.get('panel-ems').innerHTML;
+  const sel = html.match(/id="ems-d-meter-cap">([\s\S]*?)<\/select>/)[1];
+  assert.match(sel, /Leistung \(measure_power\)/);
+  assert.match(sel, /Hausverbrauch \(measure_power\.load\)/);
+  assert.doesNotMatch(sel, /meter_power/);
+  assert.match(sel, /value="measure_power" selected/);
+  assert.doesNotMatch(html, /id="ems-d-meter-cap" type="text"/);
+});
+
+test('EmsUi: Gerätewechsel wählt die passende Capability vor und behält andere Eingaben', async () => {
+  const env = makeEnv(responses);
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  env.el('ems-d-house').value = 'em1';
+  env.el('ems-maxamps').value = '10';
+  env.handlers['panel-ems:change']({ target: { getAttribute: (n) => (n === 'data-ems-dev' ? 'ems-d-house' : null) } });
+  const cfg2 = env.ctx.window.EmsUi._state.cfg;
+  assert.equal(cfg2.devices.house.id, 'em1');
+  assert.equal(cfg2.devices.house.capability, 'measure_power.load');
+  assert.equal(cfg2.charger.maxAmps, 10, 'Eingabe bleibt beim Neuzeichnen erhalten');
+  assert.match(env.els.get('panel-ems').innerHTML, /value="measure_power\.load" selected/);
 });

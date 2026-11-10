@@ -117,11 +117,12 @@ test('Wallbox live: fehlender Netzzähler sendet nichts', async () => {
   assert.equal(runner.chargerCurrent.mine.mode, 'error');
 });
 
-test('Wallbox live: Warnung, wenn Andis EMS die Wallbox auch steuert', async () => {
+test('Wallbox live: Warnung, wenn ein anderes Energiemanagement die Wallbox auch steuert', async () => {
   const { runner, state } = setup({ cfg: { charger: { live: true } } });
   state.i.andi = { mode: 'solar_ev', reason: '' };
   await runner.tickCharger(at(12));
-  assert.match(runner.chargerCurrent.warning, /Andis EMS/);
+  assert.match(runner.chargerCurrent.warning, /anderes Energiemanagement/);
+  assert.doesNotMatch(runner.chargerCurrent.warning, /Andi|Huawei/i);
 });
 
 test('Eigenes Sofortladen: live zählt nur der eigene Schalter', async () => {

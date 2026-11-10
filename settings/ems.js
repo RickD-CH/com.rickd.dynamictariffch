@@ -6,21 +6,21 @@
 
   var STR = {
     de: {
-      tab: 'Energiemanagement',
-      intro: 'Steuert die Wallbox (go-e) und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
+      tab: 'EMS',
+      intro: 'Steuert die Wallbox und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
       enable: 'Energiemanagement aktivieren',
       type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)', humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
-      cmpTab: 'EMS-Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
+      cmpSource: 'Vergleichsquelle', cmpTab: 'Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
-      devicesSec: 'Geräte (einmal wählen)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
+      devicesSec: 'Geräte (einmal wählen)', chosen: 'gewählt', pickFirst: '- zuerst Gerät wählen -', nowSec: 'Jetzt (Vergleich)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
       meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
       control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       status: 'Jetzt',
       planner: 'Planer würde', andi: 'Andis EMS', battery: 'Batterie', grid: 'Netz', gate: 'Prognose-Sperre', open: 'offen', closed: 'zu',
-      wallbox: 'Wallbox (go-e)', live: 'Befehle senden (live)', liveWarn: 'Vorher in Andis EMS die Wallbox ausschalten, sonst steuern zwei Systeme dieselbe Wallbox.',
+      wallbox: 'Wallbox', live: 'Befehle senden (live)', liveWarn: 'Steuert schon ein anderes Energiemanagement diese Wallbox, dort zuerst ausschalten. Sonst steuern zwei Systeme dieselbe Wallbox.',
       chargeNow: 'Sofortladen (volle Leistung)', maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)',
       consumers: 'Verbraucher', add: 'Verbraucher hinzufügen', remove: 'Entfernen', device: 'Gerät', pick: '- Gerät wählen -', name: 'Name',
-      mode: 'Einschalten', modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss (wie Andis EMS)',
+      mode: 'Einschalten', modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss',
       fullSoc: 'Voll ab SoC (%)', socOn: 'Ein ab SoC (%)', hysteresis: 'Aus unter (Prozentpunkte darunter)',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
@@ -30,21 +30,21 @@
       agree: 'Übereinstimmung mit Andis EMS', day: 'Tag', same: 'gleich',
     },
     en: {
-      tab: 'Energy management',
-      intro: 'Controls the EV charger (go-e) and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
+      tab: 'EMS',
+      intro: 'Controls the EV charger and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
       enable: 'Enable energy management',
       type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)', humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
-      cmpTab: 'EMS comparison', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
+      cmpSource: 'Comparison source', cmpTab: 'Compare', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
-      devicesSec: 'Devices (choose once)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
+      devicesSec: 'Devices (choose once)', chosen: 'chosen', pickFirst: '- choose a device first -', nowSec: 'Now (comparison)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
       meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
       control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
       status: 'Now',
       planner: 'Planner would', andi: "Andi's EMS", battery: 'Battery', grid: 'Grid', gate: 'Forecast gate', open: 'open', closed: 'closed',
-      wallbox: 'EV charger (go-e)', live: 'Send commands (live)', liveWarn: "First switch the charger off in Andi's EMS, otherwise two systems control the same charger.",
+      wallbox: 'EV charger', live: 'Send commands (live)', liveWarn: 'If another energy management already controls this charger, switch it off there first. Otherwise two systems control the same charger.',
       chargeNow: 'Charge now (full power)', maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)',
       consumers: 'Consumers', add: 'Add consumer', remove: 'Remove', device: 'Device', pick: '- choose device -', name: 'Name',
-      mode: 'Switch on', modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: "On surplus (like Andi's EMS)",
+      mode: 'Switch on', modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus',
       fullSoc: 'Full from SoC (%)', socOn: 'On from SoC (%)', hysteresis: 'Off below (points under that)',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
@@ -178,13 +178,12 @@
     if (ch) {
       var g = ch.gate || {};
       cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.wallbox) + ' ' + esc(ch.live ? S.liveTag : S.dryRun) + '</div><div class="ems-v">' + esc(ch.mine.mode) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.andi) + '</div><div class="ems-v">' + esc(ch.andi ? ch.andi.mode : '-') + '</div><div class="ems-s">' + esc(ch.andi ? ch.andi.reason : '') + '</div></div>');
       cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.grid) + '</div><div class="ems-v">' + esc(ch.gridW === null || ch.gridW === undefined ? '-' : Math.round(ch.gridW) + ' W') + '</div><div class="ems-s">PV ' + esc(ch.pvW === null ? '-' : Math.round(ch.pvW)) + ' W</div></div>');
       cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.gate) + '</div><div class="ems-v">' + esc(g.blocked ? S.closed : S.open) + '</div><div class="ems-s">' + esc(g.remainingKwh !== null && g.remainingKwh !== undefined ? g.remainingKwh + ' / ' + g.thresholdKwh + ' kWh' : (g.reason || '')) + '</div></div>');
     }
     var cur = sh.current;
     if (cur) {
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.battery) + '</div><div class="ems-v">' + esc(cur.soc === null ? '-' : Math.round(cur.soc) + ' %') + '</div><div class="ems-s">' + esc(S.planner) + ': ' + esc(modeLabel(cur.mine.mode)) + ' / ' + esc(S.andi) + ': ' + esc(modeLabel(cur.andi && cur.andi.mode)) + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.battery) + '</div><div class="ems-v">' + esc(cur.soc === null ? '-' : Math.round(cur.soc) + ' %') + '</div><div class="ems-s">' + esc(modeLabel(cur.mine.mode)) + '</div></div>');
     }
     var warn = ch && ch.warning ? '<p class="warn">' + esc(ch.warning) + '</p>' : '';
     var errs = cur && cur.errors && cur.errors.length ? '<p class="warn">' + esc(cur.errors.join(' | ')) + '</p>' : '';
@@ -207,20 +206,45 @@
     }).join('');
   }
   function hasCap(re) { return function (d) { return (d.caps || []).some(function (c) { return re.test(c); }); }; }
-  function devRow(label, idField, cur, filter, capField, capVal) {
-    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idField + '">' + deviceOptions(cur, filter) + '</select></label>'
-      + (capField ? field(S.capab, capField, capVal, 'text') : '') + '</div>';
+  function findDevice(id) {
+    for (var k = 0; k < state.devices.length; k++) if (state.devices[k].id === id) return state.devices[k];
+    return null;
+  }
+  /** Auswahl der Capability aus dem gewählten Gerät; nur passende, der aktuelle Wert bleibt immer wählbar. */
+  function capOptions(devId, re, current) {
+    var d = findDevice(devId);
+    if (!d) return '<option value="">' + esc(S.pickFirst) + '</option>' + (current ? '<option value="' + esc(current) + '" selected>' + esc(current) + '</option>' : '');
+    var caps = (d.caps || []).filter(function (c) { return re.test(c) || c === current; });
+    if (current && caps.indexOf(current) < 0) caps.push(current);
+    return caps.map(function (c) {
+      var t = d.capTitles && d.capTitles[c];
+      return '<option value="' + esc(c) + '"' + (c === current ? ' selected' : '') + '>' + esc(t ? t + ' (' + c + ')' : c) + '</option>';
+    }).join('');
+  }
+  /** Beste Capability für ein neu gewähltes Gerät: bevorzugte, sonst bisherige, sonst die erste passende. */
+  function pickCap(devId, re, current, prefer) {
+    var d = findDevice(devId);
+    if (!d) return current;
+    var caps = (d.caps || []).filter(function (c) { return re.test(c); });
+    if (prefer && caps.indexOf(prefer) >= 0) return prefer;
+    if (caps.indexOf(current) >= 0) return current;
+    return caps[0] || current;
+  }
+  var CAP_RE = { meter: /^measure_power/, house: /^measure_power/, inv: /^measure_power/, bat: /^measure_battery/ };
+  function devRow(label, idField, cur, filter, capField, capVal, capRe) {
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idField + '"' + (capField ? ' data-ems-dev="' + idField + '"' : '') + '>' + deviceOptions(cur, filter) + '</select></label>'
+      + (capField ? '<label class="ems-f ems-wide"><span>' + esc(S.capab) + '</span><select id="' + capField + '">' + capOptions(cur, capRe, capVal) + '</select></label>' : '') + '</div>';
   }
   function devicesHtml() {
     var c = state.cfg;
-    return '<div class="card"><h2>' + esc(S.devicesSec) + '</h2><p class="sub">' + esc(S.devicesHint) + '</p>'
-      + devRow(S.meter, 'ems-d-meter', c.devices.meter.id, hasCap(/^measure_power/), 'ems-d-meter-cap', c.devices.meter.capability)
-      + devRow(S.house, 'ems-d-house', c.devices.house.id, hasCap(/^measure_power/), 'ems-d-house-cap', c.devices.house.capability)
-      + devRow(S.inverter, 'ems-d-inv', c.devices.inverter.id, hasCap(/^measure_power/), 'ems-d-inv-cap', c.devices.inverter.capability)
-      + devRow(S.battery2, 'ems-d-bat', c.battery.deviceId, hasCap(/^measure_battery/), 'ems-d-bat-cap', c.battery.socCapability)
+    var chosen = [c.devices.meter.id, c.devices.house.id, c.devices.inverter.id, c.battery.deviceId, c.charger.id].filter(Boolean).length;
+    return '<details class="card sec"' + (chosen < 5 ? ' open' : '') + '><summary><h2>' + esc(S.devicesSec) + '</h2><div class="ems-s">' + chosen + '/5 ' + esc(S.chosen) + '</div></summary><p class="sub">' + esc(S.devicesHint) + '</p>'
+      + devRow(S.meter, 'ems-d-meter', c.devices.meter.id, hasCap(/^measure_power/), 'ems-d-meter-cap', c.devices.meter.capability, CAP_RE.meter)
+      + devRow(S.house, 'ems-d-house', c.devices.house.id, hasCap(/^measure_power/), 'ems-d-house-cap', c.devices.house.capability, CAP_RE.house)
+      + devRow(S.inverter, 'ems-d-inv', c.devices.inverter.id, hasCap(/^measure_power/), 'ems-d-inv-cap', c.devices.inverter.capability, CAP_RE.inv)
+      + devRow(S.battery2, 'ems-d-bat', c.battery.deviceId, hasCap(/^measure_battery/), 'ems-d-bat-cap', c.battery.socCapability, CAP_RE.bat)
       + devRow(S.charger2, 'ems-d-chg', c.charger.id, hasCap(/^(evcharger_charging|target_power)/), null, null)
-      + devRow(S.andiEmsDev, 'ems-d-andi', c.devices.andiEms, hasCap(/^ems_mode$/), null, null)
-      + '</div>';
+      + '</details>';
   }
 
   function toggleRow(target, label, on) {
@@ -256,13 +280,50 @@
       + '</div>';
   }
 
+  /** "Jetzt": Entscheid dieses EMS neben dem von Andis EMS (Batterie und Wallbox). */
+  function compareNowHtml() {
+    var sh = state.shadow;
+    var cards = [];
+    var ch = sh.charger && sh.charger.current;
+    var cur = sh.current;
+    if (ch) {
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(ch.mine.mode) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(ch.andi ? ch.andi.mode : '-') + '</div><div class="ems-s">' + esc(ch.andi ? ch.andi.reason : '') + '</div></div>');
+    }
+    if (cur) {
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(modeLabel(cur.mine.mode)) + '</div><div class="ems-s">' + esc(cur.soc === null ? '' : Math.round(cur.soc) + ' %') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(modeLabel(cur.andi && cur.andi.mode)) + '</div><div class="ems-s">' + esc(cur.andi ? cur.andi.reason : '') + '</div></div>');
+    }
+    return cards.length ? '<div class="card"><h2>' + esc(S.nowSec) + '</h2><div class="ems-cards">' + cards.join('') + '</div></div>' : '';
+  }
+
+  /** Einstellungen, die nur der Vergleich braucht: Vergleichsquelle und Batterie-Planer. Wird einmal gezeichnet. */
+  function compareSettingsHtml() {
+    var c = state.cfg;
+    return '<div class="card"><h2>' + esc(S.cmpSource) + '</h2>'
+      + devRow(S.andiEmsDev, 'ems-d-andi', c.devices.andiEms, hasCap(/^ems_mode$/), null, null)
+      + '</div>'
+      + '<details class="card sec"><summary><h2>' + esc(S.batterySec) + '</h2></summary><div class="ems-row">'
+      + field(S.targetSoc, 'ems-b-target', c.battery.targetSoc) + field(S.reserve, 'ems-b-reserve', c.battery.reserveHours) + field(S.solarLimit, 'ems-b-solar', c.battery.solarLimitKwh)
+      + '</div></details>'
+      + '<p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-cmp">' + esc(state.msg) + '</span></p>';
+  }
+
   function renderCompare() {
     var panel = $('panel-emscmp');
     if (!panel) return;
+    if (!state.cmpBuilt && state.cfg) {
+      panel.innerHTML = '<div id="ems-cmp-data"></div><div id="ems-cmp-settings">' + compareSettingsHtml() + '</div>';
+      state.cmpBuilt = true;
+    }
+    var host = $('ems-cmp-data');
+    if (!host) return;
     var sh = state.shadow;
-    if (!sh || !sh.enabled) { panel.innerHTML = '<div class="card"><p class="sub">' + esc(S.off) + '</p></div>'; return; }
-    panel.innerHTML = '<style>.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td,.ems-t th{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top;text-align:left}</style>'
+    if (!sh || !sh.enabled) { host.innerHTML = '<div class="card"><p class="sub">' + esc(S.off) + '</p></div>'; return; }
+    host.innerHTML = '<style>.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td,.ems-t th{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top;text-align:left}</style>'
       + '<div class="card"><p class="sub">' + esc(S.cmpIntro) + '</p></div>'
+      + compareNowHtml()
+      + '<style>.ems-cards{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.ems-card{flex:1 1 140px;border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;background:var(--st-card-bg)}.ems-k{font-size:12px;color:var(--st-muted)}.ems-v{font-size:18px;font-weight:600}.ems-s{font-size:12px;color:var(--st-muted)}</style>'
       + cmpSection(S.cmpBattery, { overallAgreePct: sh.overallAgreePct, days: sh.days, events: sh.events })
       + cmpSection(S.cmpCharger, sh.charger ? { overallAgreePct: sh.charger.overallAgreePct, days: sh.charger.days, events: sh.charger.events } : null);
   }
@@ -289,9 +350,6 @@
       + '<p class="sub">' + esc(S.liveWarn) + '</p>'
       + '<div class="ems-row">' + field(S.maxAmps, 'ems-maxamps', c.charger.maxAmps) + field(S.stepHold, 'ems-stephold', c.charger.stepHoldS) + '</div></div>'
       + '<div class="card"><h2>' + esc(S.consumers) + '</h2>' + list + '<button class="btn" data-ems-add="1">' + esc(S.add) + '</button></div>'
-      + '<details class="card sec"><summary><h2>' + esc(S.batterySec) + '</h2></summary><div class="ems-row">'
-      + field(S.targetSoc, 'ems-b-target', c.battery.targetSoc) + field(S.reserve, 'ems-b-reserve', c.battery.reserveHours) + field(S.solarLimit, 'ems-b-solar', c.battery.solarLimitKwh)
-      + '</div></details>'
       + '<p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <button class="btn" data-ems-run="1">' + esc(S.run) + '</button> <span class="sub" id="ems-msg">' + esc(state.msg) + '</span></p>';
   }
 
@@ -303,7 +361,8 @@
       api('GET', '/ems/consumers').catch(function () { return { current: [], events: [] }; }),
     ]).then(function (r) {
       state.shadow = r[0];
-      state.cfg = r[0].config;
+      if (!state.cfg) state.cfg = r[0].config;
+      state.serverCfg = r[0].config;
       if (!state.loadedConsumers) { state.consumers = (state.cfg.consumers || []).map(function (c) { return Object.assign({}, c); }); state.loadedConsumers = true; }
       state.consumersState = r[1].current;
       state.events = r[1].events;
@@ -323,6 +382,8 @@
     state.msg = text;
     var el = $('ems-msg');
     if (el) el.textContent = text;
+    var el2 = $('ems-msg-cmp');
+    if (el2) el2.textContent = text;
   }
 
   function onClick(ev) {
@@ -355,13 +416,39 @@
     }
   }
 
+  function syncFormToState() {
+    var f = collect();
+    state.cfg.enabled = f.enabled;
+    state.cfg.devices = f.devices;
+    state.cfg.charger = Object.assign({}, state.cfg.charger, f.charger);
+    state.cfg.battery = Object.assign({}, state.cfg.battery, f.battery);
+    state.consumers = f.consumers;
+  }
+
+  function onDeviceChange(t) {
+    var id = t.getAttribute('data-ems-dev');
+    var map = { 'ems-d-meter': ['meter', 'meter'], 'ems-d-house': ['house', 'house'], 'ems-d-inv': ['inv', 'inverter'], 'ems-d-bat': ['bat', 'battery'] };
+    syncFormToState();
+    var m = map[id];
+    if (m) {
+      var re = CAP_RE[m[0]];
+      if (m[1] === 'battery') state.cfg.battery.socCapability = pickCap(state.cfg.battery.deviceId, re, state.cfg.battery.socCapability, 'measure_battery');
+      else {
+        var dv = state.cfg.devices[m[1]];
+        dv.capability = pickCap(dv.id, re, dv.capability, m[1] === 'house' ? 'measure_power.load' : 'measure_power');
+      }
+    }
+    render();
+  }
+
   function onToggle(t) {
     var target = t.getAttribute('data-ems-toggle');
     var on = !!t.checked;
     var errEl = $('ems-toggle-err');
     if (errEl) errEl.hidden = true;
     api('PUT', '/ems/toggle', { target: target, live: on }).then(function (cfg) {
-      state.cfg = cfg;
+      state.cfg.charger.live = cfg.charger.live;
+      (state.cfg.consumers || []).forEach(function (x) { (cfg.consumers || []).forEach(function (n) { if (n.id === x.id) x.live = n.live; }); });
       (cfg.consumers || []).forEach(function (n) {
         state.consumers.forEach(function (c) { if (c.id === n.id) c.live = n.live; });
       });
@@ -378,6 +465,10 @@
     var t = ev.target;
     if (t && t.getAttribute && t.getAttribute('data-ems-toggle') !== null && t.getAttribute('data-ems-toggle') !== undefined) {
       onToggle(t);
+      return;
+    }
+    if (t && t.getAttribute && t.getAttribute('data-ems-dev') !== null && t.getAttribute('data-ems-dev') !== undefined) {
+      onDeviceChange(t);
       return;
     }
     if (t && t.getAttribute && t.getAttribute('data-ems-mode') !== null && t.getAttribute('data-ems-mode') !== undefined) {
