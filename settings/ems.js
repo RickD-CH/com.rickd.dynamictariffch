@@ -31,6 +31,7 @@
       flowsNone: 'Es wurden keine startbaren Flows gefunden.', assumedW: 'Leistung des Verbrauchers (W, für die Überschussrechnung)',
       pvReached: 'erreicht', pvReachedSoFar: 'bisher erreicht', pvForecastLeg: 'Prognose',
       planTable: 'AB JETZT: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Es sind noch keine Preisdaten für die kommenden Stunden da.',
+      planShortCharge: 'Laden', planShortHold: 'Halten', planShortSolar: 'Solar', planShortFull: 'voll', planTableHint: '= geplant, sonst läuft es schon so.',
       planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant', planLegWallbox: 'Wallbox lädt', planLegConsumer: 'Verbraucher ein', planLegJob: 'Auftrag / Vorschau',
       calcTitle: 'BERECHNUNG', calcRow: 'Rechenintervall', calcAuto: 'Automatisch', calcEvery: 'Alle', calcSecs: 's', calcOptAuto: 'Automatisch (15 s mit Auto, 30 s mit Verbrauchern, sonst 5 min)', calcOpt15: 'Alle 15 Sekunden', calcOpt30: 'Alle 30 Sekunden', calcOpt60: 'Jede Minute', calcOpt300: 'Alle 5 Minuten',
       calcLabel: 'Wallbox und Verbraucher rechnen', calcTick: 'Batterie-Plan alle (Minuten)', calcDevices: 'gelesene Geräte', calcCalls: 'Abfragen pro Stunde',
@@ -107,6 +108,7 @@
       flowsNone: 'No startable flows were found.', assumedW: 'Power of the consumer (W, for the surplus calculation)',
       pvReached: 'reached', pvReachedSoFar: 'reached so far', pvForecastLeg: 'Forecast',
       planTable: 'FROM NOW: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'There is no price data for the coming hours yet.',
+      planShortCharge: 'charge', planShortHold: 'hold', planShortSolar: 'solar', planShortFull: 'full', planTableHint: '= planned, otherwise it is already running like this.',
       planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned', planLegWallbox: 'EV charging', planLegConsumer: 'Consumer on', planLegJob: 'Job / preview',
       calcTitle: 'CALCULATION', calcRow: 'Calculation interval', calcAuto: 'Automatic', calcEvery: 'Every', calcSecs: 's', calcOptAuto: 'Automatic (15 s with a car, 30 s with consumers, else 5 min)', calcOpt15: 'Every 15 seconds', calcOpt30: 'Every 30 seconds', calcOpt60: 'Every minute', calcOpt300: 'Every 5 minutes',
       calcLabel: 'EV charger and consumers calculate', calcTick: 'Battery plan every (minutes)', calcDevices: 'devices read', calcCalls: 'requests per hour',
@@ -588,7 +590,8 @@
       + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:var(--st-muted);opacity:.45}.pl-trk{fill:var(--st-seg-bg)}'
       + '.pl-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:0}.pl-dot.pl-c{background:var(--st-cheap)}.pl-dot.pl-n{background:var(--st-normal)}.pl-dot.pl-e{background:var(--st-expensive)}'
       + '.pl-pva{stroke:#e08a1e;stroke-width:2}'
-      + '.pl-tab td{white-space:normal}.pl-chip{white-space:normal;display:inline-block;background:var(--st-chip-bg);border-radius:999px;padding:1px 8px;margin:1px 4px 1px 0;font-size:11px}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
+      + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
+      + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -763,16 +766,24 @@
     return items ? '<div class="pl-leg">' + items + '</div>' : '';
   }
 
-  /** Was in dieser Zelle der Zeile "aktiv" ist (Text) oder null. */
+  /**
+   * Was in dieser Zelle der Zeile "aktiv" ist: { text, planned } oder null. Die Texte sind bewusst kurz, damit ein
+   * Tabelleneintrag auf dem Handy in jeder Sprache auf eine Zeile passt; "geplant" zeigt der gestrichelte Rahmen.
+   */
   function planActive(row, cell) {
     var st = cell.state;
-    var tag = cell.planned ? ' (' + S.planTag + ')' : '';
+    var text = null;
     if (!st) return null;
-    if (row.kind === 'battery') return st === 'charge' ? S.batLbl + ': ' + S.planBatCharge + tag : (st === 'hold' ? S.batLbl + ': ' + S.planBatHold + tag : null);
-    if (row.kind === 'charger') return st === 'solar_ev' ? S.wallbox + ': ' + S.planChSolar : (st === 'instant_ev' ? S.wallbox + ': ' + S.planChFull : null);
-    if (row.kind === 'consumer') return st === 'on' ? row.name + ': ' + S.planOn : null;
-    if (row.kind === 'job') return st === 'on' ? (row.name || S.wallbox) + ': ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord) + tag : null;
-    return null;
+    if (row.kind === 'battery') text = st === 'charge' ? S.batLbl + ': ' + S.planShortCharge : (st === 'hold' ? S.batLbl + ': ' + S.planShortHold : null);
+    else if (row.kind === 'charger') text = st === 'solar_ev' ? S.wallbox + ': ' + S.planShortSolar : (st === 'instant_ev' ? S.wallbox + ': ' + S.planShortFull : null);
+    else if (row.kind === 'consumer') text = st === 'on' ? row.name + ': ' + S.planOn : null;
+    else if (row.kind === 'job') text = st === 'on' ? (row.name || S.wallbox) + ': ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord) : null;
+    return text ? { text: text, planned: !!cell.planned } : null;
+  }
+
+  /** Kurzer Wochentag ("Mi", "Wed") für Zeilen, die nicht heute sind. */
+  function weekdayShort(ms) {
+    try { return new Date(ms).toLocaleDateString(LANG === 'de' ? 'de-CH' : 'en-GB', { timeZone: 'Europe/Zurich', weekday: 'short' }).replace(/\.$/, ''); } catch (e) { return ''; }
   }
 
   /**
@@ -788,7 +799,7 @@
         if (slot.t < p.nowQ || slot.price === null) { cur = null; return; }
         var parts = [];
         day.rows.forEach(function (row) { var a = planActive(row, row.cells[i]); if (a) parts.push(a); });
-        var key = day.key + '|' + slot.level + '|' + parts.join('|');
+        var key = day.key + '|' + slot.level + '|' + parts.map(function (x) { return x.text + (x.planned ? '~' : ''); }).join('|');
         if (cur && cur.key === key) { cur.to = slot.t + 900000; cur.prices.push(slot.price); }
         else { cur = { key: key, day: day.key, level: slot.level, parts: parts, from: slot.t, to: slot.t + 900000, prices: [slot.price] }; runs.push(cur); }
       });
@@ -799,11 +810,14 @@
       var avg = Math.round(r.prices.reduce(function (a, b) { return a + b; }, 0) / r.prices.length * 10) / 10;
       var cls = p.nowMs >= r.from && p.nowMs < r.to ? 'pl-cur' : '';
       var lv = r.level === 'cheap' ? 'pl-c' : (r.level === 'expensive' ? 'pl-e' : 'pl-n');
-      var what = r.parts.length ? r.parts.map(function (x) { return '<span class="pl-chip">' + esc(x) + '</span>'; }).join('') : '<span class="ems-muted">-</span>';
-      return '<tr class="' + cls + '"><td>' + (r.day === 'tomorrow' ? '<span class="ems-s">' + esc(S.planTomorrow) + '</span> ' : '') + '<span style="white-space:nowrap">' + hm(r.from) + ' - ' + hm(r.to) + '</span></td><td>' + what
-        + '</td><td style="text-align:right;white-space:nowrap">' + avg + ' <i class="pl-dot ' + lv + '"></i></td></tr>';
+      var full = r.parts.map(function (x) { return x.text + (x.planned ? ' (' + S.planTag + ')' : ''); }).join(', ');
+      var what = r.parts.length ? r.parts.map(function (x) { return '<span class="pl-chip' + (x.planned ? ' pl-chip-plan' : '') + '">' + esc(x.text) + '</span>'; }).join(' ') : '<span class="ems-muted">-</span>';
+      // Eine Zeile je Eintrag: Zeit ohne Umbruch (morgen mit kurzem Wochentag), der Inhalt wird bei Platzmangel gekürzt.
+      return '<tr class="' + cls + '"><td class="pl-time">' + (r.day === 'tomorrow' ? '<span class="ems-s">' + esc(weekdayShort(r.from)) + '</span> ' : '') + hm(r.from) + '-' + hm(r.to) + '</td><td class="pl-what" title="' + esc(full) + '">' + what
+        + '</td><td class="pl-avg">' + avg + ' <i class="pl-dot ' + lv + '"></i></td></tr>';
     }).join('');
-    return head + '<div style="overflow-x:auto"><table class="ems-t pl-tab"><thead><tr><th>' + esc(S.planColTime) + '</th><th>' + esc(S.planColWhat) + '</th><th style="text-align:right">' + esc(S.planColPrice) + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    return head + '<table class="ems-t pl-tab"><thead><tr><th>' + esc(S.planColTime) + '</th><th>' + esc(S.planColWhat) + '</th><th style="text-align:right">' + esc(S.planColPrice) + '</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<p class="ems-why"><span class="pl-chip pl-chip-plan">' + esc(S.planTag) + '</span> ' + esc(S.planTableHint) + '</p>';
   }
 
   function planHtml() {

@@ -271,13 +271,18 @@ test('Anzeige: Legende unter jeder Grafik, Tabelle ab jetzt über beide Tage mit
   // Tabelle
   const table = html.slice(at('class="ems-t pl-tab"'));
   assert.match(html, /AB JETZT: WANN PASSIERT WAS/);
-  assert.ok(table.includes('Morgen</span>'), 'morgen ist dabei');
-  assert.ok(table.includes('Batterie: Netzladen (geplant)'));
-  assert.match(table, /13:00 - 13:30/);
+  assert.ok(table.includes('<span class="ems-s">Mi</span> '), 'morgen ist dabei, mit kurzem Wochentag (10.11.2026 ist ein Dienstag)');
+  assert.ok(table.includes('<span class="pl-chip pl-chip-plan">Batterie: Laden</span>'), 'kurzer Text, geplant = gestrichelter Rahmen');
+  assert.ok(table.includes('title="Batterie: Laden (geplant)"'), 'voller Text als Tooltip');
+  assert.ok(table.includes('13:00-13:30'));
   assert.match(table, /class="pl-cur"/, 'aktuelle Zeile');
   assert.match(table, /pl-dot pl-c/, 'Preisniveau als Punkt');
   assert.doesNotMatch(table.slice(0, table.indexOf('</table>')), /undefined|NaN/);
-  assert.doesNotMatch(table, /10:00 - 10:30/, 'Vergangenes steht nicht in der Tabelle');
+  assert.ok(!table.includes('10:00-10:30'), 'Vergangenes steht nicht in der Tabelle');
+  // Eine Zeile je Eintrag: kein Umbruch in den Zellen, zu langer Inhalt wird gekürzt
+  assert.ok(html.includes('.pl-tab td{white-space:nowrap}'));
+  assert.ok(html.includes('.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}'));
+  assert.ok(!table.includes('(Entladung gesperrt)'), 'keine langen Texte in der Tabelle');
 });
 
 test('Anzeige: Solar-Grafik zeigt mit einer Linie, was die Anlage bisher geliefert hat, plus Kennzahl', async () => {
