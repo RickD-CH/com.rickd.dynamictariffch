@@ -133,7 +133,7 @@
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
       + '</style>'
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
-      + '<label class="mt-c"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '> <span>' + esc(S.enable) + '</span></label>'
+      + '<label class="mt-c"><span class="swt"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '><i></i></span> <span>' + esc(S.enable) + '</span></label>'
       + rows
       + (state.managed
         ? '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.managedHint) + '</p>'

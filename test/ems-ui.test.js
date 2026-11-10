@@ -302,7 +302,7 @@ test('Betrieb: Statuskopf mit Farbe, grossem Schalter, Modus, Werten', async () 
   const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
   const html = main(env);
   assert.match(html, /Läuft im Testbetrieb \(es wird nichts geschaltet\)/);
-  assert.match(html, /class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1" checked/);
+  assert.match(html, /<span class="swt"><input class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1" checked><i><\/i><\/span>/);
   assert.match(html, /ems-chip">Bereit/);
   assert.match(html, /PV 514 W/);
   assert.match(html, /Netz 18 W/);
