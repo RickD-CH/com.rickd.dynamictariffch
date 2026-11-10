@@ -155,7 +155,7 @@ test('Navigation: Hilfe ist ein Abschnitt im Setup, kein eigener Reiter', () => 
   const help = indexHtml.indexOf('id="h2-helpsec"');
   const ems = indexHtml.indexOf('id="panel-ems"');
   assert.ok(settings > 0 && help > settings && help < ems, 'Hilfe liegt im Setup-Panel');
-  for (const id of ['hint-forum', 'btn-forum', 'h2-features', 'ul-features']) {
+  for (const id of ['hint-forum', 'btn-forum']) {
     assert.match(indexHtml, new RegExp('id="' + id + '"'), id + ' bleibt erhalten');
   }
   assert.match(indexHtml, /tabs: \{ overview: 'Übersicht', costs: 'Kosten', settings: 'Setup'/);
@@ -244,15 +244,15 @@ test('Setup: drei Ansichten Allgemein / Preis-App / EMS, Allgemein links, Hilfe 
   for (const id of ['h2-setup', 'h2-general', 'h2-ref', 'h2-meters', 'h2-hourly', 'h2-battery', 'h2-monitor', 'h2-flowtest']) assert.ok(inRange(id, price, ems), id + ' in Preis-App');
   assert.ok(inRange('ems-view-devices', ems, general), 'Datenquellen in EMS');
   // Allgemein: Darstellung, Daten verwalten, Hilfe & Forum, ganz unten "Was die App kann"
-  const order = ['h2-appearance', 'h2-manage', 'h2-helpsec', 'id="features-card"'].map((s) => at(s.startsWith('id=') ? s : 'id="' + s + '"'));
+  const order = ['h2-appearance', 'h2-manage', 'h2-helpsec'].map((s) => at(s.startsWith('id=') ? s : 'id="' + s + '"'));
   assert.ok(order.every((v, i, arr) => v > general && v < emsPanel && (i === 0 || v > arr[i - 1])), 'Reihenfolge in Allgemein ' + order.join(','));
   // keine doppelten Überschriften
   const count = (id) => (indexHtml.match(new RegExp('id="' + id + '"', 'g')) || []).length;
   assert.equal(count('h2-helpsec'), 1);
-  assert.equal(count('h2-features'), 1);
+  assert.equal(count('h2-features'), 0, 'Funktionsliste entfernt');
   assert.equal(count('btn-forum'), 1);
   assert.equal(count('h2-forum'), 0, 'kein zweiter Forum-Titel');
-  assert.match(indexHtml, /<div class="card" id="features-card">/);
+  assert.doesNotMatch(indexHtml, /features-card/);
   // EMS-Ansicht ist kein einklappbarer Rahmen mehr
   assert.doesNotMatch(indexHtml, /<details[^>]*id="ems-devices-sec"/);
   assert.match(indexHtml, /<div id="ems-devices-sec">/);
