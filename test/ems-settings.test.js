@@ -74,43 +74,6 @@ test('index.html bindet ems.js ein, hat Reiter und Panel und startet EmsUi', () 
   assert.ok(indexHtml.indexOf('/homey.js') < indexHtml.indexOf('ems.js'));
 });
 
-test('EmsUi rendert Status, Wallbox, Verbraucher und Batterie ohne Fehler', async () => {
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-main').innerHTML;
-  assert.match(html, /Energiemanagement aktivieren/);
-  assert.match(html, /<h2>Wallbox<\/h2>/);
-  assert.match(html, /Luftentfeuchter/);
-  assert.match(html, /DryFy Luftentfeuchter/); // Geräteliste im Auswahlfeld
-  assert.match(html, /Ab Batterie-SoC/);
-  assert.match(html, /Mindestlaufzeit/);
-  assert.match(html, /Trockenlauf/);
-  assert.doesNotMatch(html, /undefined|null/);
-  assert.equal(env.els.get('t-ems').textContent, 'EMS');
-  assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
-});
-
-test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte mit Ein/Aus', async () => {
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-devices').innerHTML;
-  assert.ok(env.els.get('h2-emsdev').innerHTML.includes('Geräte für das Energiemanagement'));
-  assert.match(html, /id="ems-d-meter"[\s\S]*Energiezähler/);
-  assert.match(html, /id="ems-d-chg"[\s\S]*Wallbox Garage/);
-  assert.match(html, /id="ems-d-bat"[\s\S]*Batterie/);
-  // Verbraucher-Auswahl: der Energiezähler hat kein onoff und darf nicht erscheinen
-  const main = env.els.get('ems-view-main').innerHTML;
-  const consumerSelect = main.match(/id="ems-c0-id">([\s\S]*?)<\/select>/)[1];
-  assert.doesNotMatch(consumerSelect, /Energiezähler/);
-  assert.match(consumerSelect, /DryFy Luftentfeuchter/);
-  // Speichern sendet die Geräte (hier mit den bisherigen Werten, da die Attrappe keine Eingaben hat)
-  const put = makeEnv({ ...responses, 'PUT /ems/config': cfg });
-  await put.ctx.window.EmsUi.init(put.api, 'de');
-  const collected = put.ctx.window.EmsUi._collect();
-  assert.equal(collected.devices.meter.capability, 'measure_power');
-  assert.equal(collected.battery.socCapability, 'measure_battery');
-});
-
 test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen und Wechseln', async () => {
   assert.match(indexHtml, /data-ems-sub="cmp"/);
   assert.match(indexHtml, /id="ems-view-cmp"/);
@@ -128,101 +91,10 @@ test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen
   assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
 });
 
-test('EmsUi: Modus "Überschuss" zeigt andere Felder als "voll"', async () => {
-  const surplusCfg = normalizeConfig({ enabled: true, consumers: [{ id: 'dev1', name: 'X', mode: 'surplus' }] });
-  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: surplusCfg } });
-  await env.ctx.window.EmsUi.init(env.api, 'en');
-  const html = env.els.get('ems-view-main').innerHTML;
-  assert.match(html, /Minimum surplus/);
-  assert.match(html, /Grace before switching off/);
-  assert.doesNotMatch(html, /Full from SoC/);
-});
-
-test('EmsUi: Speichern schickt die Konfiguration, Hinzufügen/Entfernen ändert die Liste', async () => {
-  const env = makeEnv({ ...responses, 'PUT /ems/config': cfg });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const click = env.handlers['ems-view-main:click'];
-  const attr = (name) => ({ getAttribute: (n) => (n === name ? '1' : null) });
-  click({ target: attr('data-ems-add') });
-  assert.equal(env.ctx.window.EmsUi._state.consumers.length, 2);
-  click({ target: { getAttribute: (n) => (n === 'data-ems-remove' ? '1' : null) } });
-  assert.equal(env.ctx.window.EmsUi._state.consumers.length, 1);
-  click({ target: attr('data-ems-save') });
-  await new Promise((r) => setTimeout(r, 20));
-  const put = env.calls.find((c) => c[0] === 'PUT');
-  assert.ok(put, 'PUT /ems/config wurde gesendet');
-  assert.equal(put[2].consumers[0].id, 'dev1');
-  assert.equal(put[2].charger.live, undefined, 'live kommt nur über den Schalter');
-  assert.equal(put[2].consumers[0].live, false);
-  assert.equal(put[2].enabled, false); // Attrappe: Häkchen nicht gesetzt
-});
-
 test('EmsUi: Fehler vom Server wird angezeigt', async () => {
   const env = makeEnv({ ...responses, 'GET /ems/shadow': new Error('kaputt') });
   await env.ctx.window.EmsUi.init(env.api, 'de');
   assert.match(env.els.get('ems-view-main').innerHTML, /Fehler: kaputt/);
-});
-
-test('EmsUi: Steuerungs-Schalter pro Bereich, sofort gespeichert, Fehler setzt zurück', async () => {
-  const withLive = normalizeConfig({ enabled: true, consumers: [{ id: 'dev1', name: 'Luftentfeuchter', live: true }] });
-  const r2 = { ...responses, 'PUT /ems/toggle': withLive };
-  const env = makeEnv(r2);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-main').innerHTML;
-  assert.match(html, /data-ems-toggle="charger"/);
-  assert.match(html, /data-ems-toggle="dev1"/);
-  assert.doesNotMatch(html, /id="ems-live"/);
-  const change = env.handlers['ems-view-main:change'];
-  const mk = (target, checked) => ({ checked, parentNode: null, getAttribute: (n) => (n === 'data-ems-toggle' ? target : null) });
-  r2['GET /ems/shadow'] = { ...shadow, config: withLive }; // der Server liefert nach dem Schalten den neuen Stand
-  change({ target: mk('dev1', true) });
-  await new Promise((r) => setTimeout(r, 20));
-  const put = env.calls.find((c) => c[1] === '/ems/toggle');
-  assert.equal(JSON.stringify(put[2]), JSON.stringify({ target: 'dev1', live: true }));
-  assert.equal(env.ctx.window.EmsUi._state.cfg.consumers[0].live, true);
-
-  const bad = makeEnv({ ...responses, 'PUT /ems/toggle': new Error('nein') });
-  await bad.ctx.window.EmsUi.init(bad.api, 'de');
-  const box = mk('charger', true);
-  bad.handlers['ems-view-main:change']({ target: box });
-  await new Promise((r) => setTimeout(r, 20));
-  assert.equal(box.checked, false, 'Schalter springt bei Fehler zurück');
-  assert.match(bad.els.get('ems-toggle-err').textContent, /nein/);
-});
-
-test('EmsUi: Typ "Luftentfeuchter" zeigt den Feuchte-Notlauf mit Sensor-Auswahl und eigenen Werten', async () => {
-  const dehum = normalizeConfig({
-    enabled: true,
-    consumers: [{ id: 'dev1', name: 'Entfeuchter', type: 'dehumidifier', humidity: { enabled: true, sensorId: 'hs1', onAbove: 70, offBelow: 64, runMin: 45 } }],
-  });
-  const env = makeEnv({
-    ...responses,
-    'GET /ems/shadow': { ...shadow, config: dehum },
-    'GET /ems/devices': { devices: [
-      { id: 'dev1', name: 'DryFy', caps: ['onoff'] },
-      { id: 'hs1', name: 'Feuchtesensor Estrich', caps: ['measure_humidity'] },
-      { id: 'em1', name: 'Energiezähler', caps: ['measure_power'] },
-    ] },
-  });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-cmp') ? env.els.get('ems-view-main').innerHTML : '';
-  assert.match(html, /Feuchte-Notlauf/);
-  assert.match(html, /Notlauf ein ab/);
-  assert.match(html, /value="70"/);
-  assert.match(html, /value="64"/);
-  assert.match(html, /value="45"/);
-  assert.match(html, /Feuchtesensor Estrich/);
-  const sensorSelect = html.match(/ems-c0-humSensor">([\s\S]*?)<\/select>/)[1];
-  assert.doesNotMatch(sensorSelect, /Energiezähler/);
-  // Speichern: Werte werden gesammelt
-  const collected = env.ctx.window.EmsUi._collect().consumers[0];
-  assert.equal(collected.type, 'dehumidifier');
-  assert.equal(collected.humidity.onAbove, 70);
-  assert.equal(collected.humidity.runMin, 45);
-  // ein allgemeiner Verbraucher zeigt den Block nicht
-  const plain = makeEnv(responses);
-  await plain.ctx.window.EmsUi.init(plain.api, 'de');
-  assert.doesNotMatch(plain.els.get('ems-view-main').innerHTML, /Notlauf bei hoher Luftfeuchtigkeit/);
 });
 
 test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', async () => {
@@ -241,32 +113,6 @@ test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', a
   assert.doesNotMatch(ems, /ems-d-andi/);
   assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
   assert.doesNotMatch(ems, /ems-b-target/);
-});
-
-test('EmsUi: Capability als Dropdown mit Titeln, nur passende Werte', async () => {
-  const withMeter = normalizeConfig({ enabled: true, devices: { meter: { id: 'em1', capability: 'measure_power' } } });
-  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: withMeter } });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-devices').innerHTML;
-  const sel = html.match(/id="ems-d-meter-cap">([\s\S]*?)<\/select>/)[1];
-  assert.match(sel, /Leistung \(measure_power\)/);
-  assert.match(sel, /Hausverbrauch \(measure_power\.load\)/);
-  assert.doesNotMatch(sel, /meter_power/);
-  assert.match(sel, /value="measure_power" selected/);
-  assert.doesNotMatch(html, /id="ems-d-meter-cap" type="text"/);
-});
-
-test('EmsUi: Gerätewechsel wählt die passende Capability vor und behält andere Eingaben', async () => {
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  env.el('ems-d-house').value = 'em1';
-  env.el('ems-maxamps').value = '10';
-  env.handlers['ems-view-devices:change']({ target: { getAttribute: (n) => (n === 'data-ems-dev' ? 'ems-d-house' : null) } });
-  const cfg2 = env.ctx.window.EmsUi._state.cfg;
-  assert.equal(cfg2.devices.house.id, 'em1');
-  assert.equal(cfg2.devices.house.capability, 'measure_power.load');
-  assert.equal(cfg2.charger.maxAmps, 10, 'Eingabe bleibt beim Neuzeichnen erhalten');
-  assert.match(env.els.get('ems-view-devices').innerHTML, /value="measure_power\.load" selected/);
 });
 
 test('Umschalter Betrieb / Vergleich im EMS-Reiter schaltet die Ansichten um', async () => {
@@ -361,54 +207,6 @@ test('Vergleich: bei ausgeschaltetem EMS bleiben die bisherigen Daten sichtbar, 
   assert.doesNotMatch(on.els.get('ems-cmp-data').innerHTML, /ist ausgeschaltet/);
 });
 
-test('Geräte liegen im Setup, nicht mehr im EMS-Reiter', async () => {
-  const settings = indexHtml.indexOf('id="panel-settings"');
-  const dev = indexHtml.indexOf('id="ems-view-devices"');
-  const ems = indexHtml.indexOf('id="panel-ems"');
-  assert.ok(settings > 0 && dev > settings && dev < ems, 'ems-view-devices liegt im Setup-Panel');
-  assert.match(indexHtml, /id="h2-emsdev"/);
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const main = env.els.get('ems-view-main').innerHTML;
-  const devices = env.els.get('ems-view-devices').innerHTML;
-  assert.doesNotMatch(main, /id="ems-d-meter"/);
-  assert.match(devices, /id="ems-d-meter"/);
-  assert.match(devices, /data-ems-save="1"/, 'Speichern direkt im Setup');
-  // fehlen Geräte, weist der EMS-Reiter auf das Setup hin; Kopf zeigt grauen Ring
-  assert.match(main, /im Setup unter/);
-  assert.match(env.els.get('h2-emsdev').innerHTML, /st-open/);
-  assert.match(env.els.get('h2-emsdev').innerHTML, /0\/5/);
-  // Handler auch im Geräte-Container
-  assert.ok(env.handlers['ems-view-devices:click'] && env.handlers['ems-view-devices:change']);
-});
-
-test('Geräte vollständig gewählt: grüner Haken im Kopf, kein Hinweis im EMS-Reiter', async () => {
-  const full = normalizeConfig({
-    enabled: true,
-    devices: { meter: { id: 'em1' }, house: { id: 'em1' }, inverter: { id: 'em1' } },
-    battery: { deviceId: 'lun' }, charger: { id: 'gce' },
-  });
-  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: full } });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  assert.match(env.els.get('h2-emsdev').innerHTML, /st-check/);
-  assert.match(env.els.get('h2-emsdev').innerHTML, /5\/5/);
-  assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /im Setup unter/);
-});
-
-test('Schalter statt Häkchen: grün, in EMS, Zähler und Überwachung', async () => {
-  assert.match(indexHtml, /input\.sw, \.bk-check input\[type="checkbox"\]/);
-  assert.match(indexHtml, /input\.sw:checked[^{]*\{ background: var\(--st-switch-on\)/);
-  assert.equal((indexHtml.match(/--st-switch-on: #34a853;/g) || []).length, 2);
-  assert.equal((indexHtml.match(/--st-switch-on: #3ec063;/g) || []).length, 3);
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const main = env.els.get('ems-view-main').innerHTML;
-  assert.match(main, /<input class="sw" id="ems-enabled" type="checkbox"/);
-  assert.match(main, /<input class="sw" type="checkbox" data-ems-toggle="charger"/);
-  assert.match(main, /<input class="sw" id="ems-chargenow"/);
-  assert.match(metersJsSrc, /<input class="sw" id="mt-enabled"/);
-});
-
 test('Einrichtung: grüner Kreis mit Haken statt Text-Haken', () => {
   assert.match(indexHtml, /\.st-check \{ background: var\(--st-switch-on\)/);
   assert.match(indexHtml, /innerHTML = allDone \? '<span class="st-check">✓<\/span>'/);
@@ -482,44 +280,3 @@ test('SetupNav: schaltet zwischen Preis-App und Energiemanagement, setzt Texte',
   assert.doesNotMatch(src, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
 });
 
-test('Ohne EMS-Gerät: nur ein Hinweis zum Hinzufügen, in EMS-Reiter und Setup', async () => {
-  const none = { ...shadow, deviceExists: false };
-  const env = makeEnv({ ...responses, 'GET /ems/shadow': none });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const main = env.els.get('ems-view-main').innerHTML;
-  const devices = env.els.get('ems-view-devices').innerHTML;
-  for (const html of [main, devices]) {
-    assert.match(html, /noch nicht eingerichtet/);
-    assert.match(html, /Gerät «Energiemanagement» hinzu/);
-  }
-  assert.doesNotMatch(main, /ems-enabled|data-ems-toggle|ems-chargenow/, 'keine Bedienelemente ohne Gerät');
-  assert.doesNotMatch(devices, /ems-d-meter/);
-  assert.doesNotMatch(main + devices, /Andi|Huawei|go-e/i);
-  // Mit Gerät: normale Ansicht
-  const withDev = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, deviceExists: true } });
-  await withDev.ctx.window.EmsUi.init(withDev.api, 'de');
-  assert.match(withDev.els.get('ems-view-main').innerHTML, /ems-enabled/);
-  assert.match(withDev.els.get('ems-view-devices').innerHTML, /ems-d-meter/);
-  // Englisch
-  const en = makeEnv({ ...responses, 'GET /ems/shadow': none });
-  await en.ctx.window.EmsUi.init(en.api, 'en');
-  assert.match(en.els.get('ems-view-main').innerHTML, /not set up yet/);
-});
-
-test('PV-Prognose-Karte: Faktor, Hinweis auf die Flow-Aktion und Alter der Einlieferung', async () => {
-  const withPv = { ...shadow, pv: { source: 'external', factor: 0.75, externalAt: Date.now() - 30 * 60000, stale: false, slots: 48 } };
-  const cfg75 = normalizeConfig({ enabled: true, pv: { factor: 0.75 } });
-  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...withPv, config: cfg75 } });
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('ems-view-main').innerHTML;
-  assert.match(html, /PV-Prognose/);
-  assert.match(html, /PV-Prognose setzen/);
-  assert.match(html, /id="ems-pv-factor" type="number" value="0\.75"/);
-  assert.match(html, /zuletzt eingeliefert vor 30 min \(48 Einträge\)/);
-  assert.equal(env.ctx.window.EmsUi._collect().pv.factor, 0.75);
-  assert.doesNotMatch(html, /Andi|Huawei|Solcast/i);
-  // noch nichts eingeliefert
-  const none = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, pv: { source: null, factor: 1, externalAt: null, stale: true, slots: 0 } } });
-  await none.ctx.window.EmsUi.init(none.api, 'de');
-  assert.match(none.els.get('ems-view-main').innerHTML, /Noch keine Prognose eingeliefert/);
-});

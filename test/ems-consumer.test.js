@@ -195,3 +195,20 @@ test('Notlauf: Schutz-SoC gilt nicht für den Notlauf', () => {
   const r = run(hcfg({ protectSoc: 60 }), st, he(66, { soc: 10 }), t0);
   assert.deepEqual(r.commands, [{ type: 'on' }]);
 });
+
+test('Ohne Batterie (hasBattery=false): Überschuss-Modus ohne Hartstopp, Batterie-Modi nicht möglich', () => {
+  const surplus = { mode: 'surplus', minSurplusW: 300, startSustainS: 0, minOffMin: 0 };
+  const st = makeConsumerState();
+  const r = run(surplus, st, env({ soc: null, hasBattery: false, gridW: -800, pvW: 3000 }), t0);
+  assert.deepEqual(r.commands, [{ type: 'on' }]);
+  // mit Batterie, aber unbekanntem SoC: weiter Hartstopp (Schutz)
+  const st2 = makeConsumerState();
+  const r2 = run(surplus, st2, env({ soc: null, hasBattery: true, gridW: -800, pvW: 3000 }), t0);
+  assert.deepEqual(r2.commands, []);
+  for (const mode of ['full', 'soc']) {
+    const s = makeConsumerState();
+    const x = run({ mode, minOffMin: 0 }, s, env({ soc: null, hasBattery: false }), t0);
+    assert.equal(x.wantOn, false);
+    assert.match(x.reason, /Keine Hausbatterie/);
+  }
+});

@@ -222,3 +222,49 @@ test('Grenze für Verbraucher: Oberfläche und Kostenrechnung stimmen überein (
   assert.ok(m, 'Konstante in meters.js');
   assert.equal(Number(m[1]), MAX_CONSUMERS);
 });
+
+test('Speichern führt zusammen: nicht mitgeschickte Teile bleiben erhalten', async () => {
+  const { reader } = makeApp({ stored: {
+    enabled: true,
+    sources: { import: { deviceId: 'em', capability: 'meter_power' } },
+    consumers: [{ name: 'Sauna', deviceId: 's', capability: 'meter_power' }],
+  } });
+  // Nur Verbraucher ändern (so macht es das Energiemanagement)
+  reader.putConfig({ consumers: [{ name: 'Tumbler', deviceId: 't', capability: 'meter_power' }] });
+  let c = reader.getConfig();
+  assert.equal(c.enabled, true);
+  assert.equal(c.sources.import.deviceId, 'em', 'Zähler bleiben');
+  assert.deepEqual(c.consumers.map((x) => x.name), ['Tumbler']);
+  // Nur Zähler ändern (so macht es die Preis-App-Seite, ohne "consumers")
+  reader.putConfig({ enabled: true, sources: { export: { deviceId: 'em', capability: 'meter_power.exported' } } });
+  c = reader.getConfig();
+  assert.equal(c.sources.export.deviceId, 'em');
+  assert.equal(c.sources.import.deviceId, 'em');
+  assert.deepEqual(c.consumers.map((x) => x.name), ['Tumbler'], 'Verbraucher bleiben');
+  // Verbraucher gezielt leeren
+  reader.putConfig({ consumers: [] });
+  assert.equal(reader.getConfig().consumers.length, 0);
+  await new Promise((r) => setTimeout(r, 5));
+});
+
+test('Status meldet, ob das Energiemanagement die Verbraucher verwaltet', () => {
+  const { reader } = makeApp();
+  assert.equal(reader.getStatus().consumersManagedByEms, false);
+  reader.app.ems = { hasDevice: () => true };
+  assert.equal(reader.getStatus().consumersManagedByEms, true);
+  reader.app.ems = { hasDevice: () => false };
+  assert.equal(reader.getStatus().consumersManagedByEms, false);
+});
+
+test('Zähler-Oberfläche: mit Energiemanagement keine eigene Verbraucher-Liste, Speichern ohne "consumers"', async () => {
+  const cfg = normalizeMeters({ enabled: true, consumers: [{ name: 'Sauna', deviceId: 's', capability: 'meter_power' }] });
+  const env = makeUi({ ...baseResponses, 'GET /meters': { config: cfg, status: {}, consumersManagedByEms: true }, 'PUT /meters': { config: cfg, status: {} } });
+  await env.ctx.window.MetersUi.init(env.api, 'de');
+  const html = env.els.get('meters-auto').innerHTML;
+  assert.match(html, /im Setup unter «Energiemanagement»/);
+  assert.doesNotMatch(html, /data-mt-add/);
+  env.handlers['meters-auto:click']({ target: { getAttribute: (n) => (n === 'data-mt-save' ? '1' : null) } });
+  await new Promise((r) => setTimeout(r, 20));
+  const put = env.calls.find((c) => c[0] === 'PUT');
+  assert.equal('consumers' in put[2], false);
+});

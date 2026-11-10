@@ -1,0 +1,413 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const { normalizeConfig } = require('../lib/ems/Config');
+const { normalizeMeters } = require('../lib/MeterReader');
+
+const emsJs = fs.readFileSync(path.join(__dirname, '../settings/ems.js'), 'utf8');
+
+// ---------------------------------------------------------------- Attrappe der Seite
+function makeEnv(responses) {
+  const els = new Map();
+  const handlers = {};
+  const el = (id) => {
+    if (!els.has(id)) {
+      els.set(id, {
+        id, innerHTML: '', textContent: '', value: '', checked: false, hidden: false,
+        classList: { contains: () => true, toggle: () => {} },
+        addEventListener: (t, f) => { handlers[`${id}:${t}`] = f; },
+      });
+    }
+    return els.get(id);
+  };
+  const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  vm.createContext(ctx);
+  vm.runInContext(emsJs, ctx);
+  const calls = [];
+  const api = (method, p, body) => {
+    calls.push([method, p, body]);
+    const r = responses[`${method} ${p}`];
+    if (typeof r === 'function') return Promise.resolve(r(body));
+    return r instanceof Error ? Promise.reject(r) : Promise.resolve(r);
+  };
+  return { ctx, els, el, handlers, api, calls };
+}
+const wait = (ms = 20) => new Promise((r) => setTimeout(r, ms));
+const target = (attrs, parent) => ({ getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: parent || null, checked: attrs.checked });
+
+// ---------------------------------------------------------------- Beispieldaten
+const devices = [
+  { id: 'em', name: 'Energiezähler', cls: 'other', caps: ['measure_power', 'measure_power.load', 'meter_power', 'meter_power.exported'], capTitles: { measure_power: 'Leistung', 'measure_power.load': 'Hausverbrauch', meter_power: 'Importierte Energie', 'meter_power.exported': 'Exportierte Energie' } },
+  { id: 'inv', name: 'Wechselrichter', cls: 'solarpanel', caps: ['measure_power', 'meter_power'] },
+  { id: 'bat', name: 'Speicher', cls: 'battery', caps: ['measure_battery', 'measure_power', 'meter_power.charged'], capTitles: { measure_battery: 'Ladezustand' } },
+  { id: 'wb', name: 'Wallbox Garage', cls: 'evcharger', caps: ['evcharger_charging_state', 'target_power', 'meter_power'] },
+  { id: 'dry', name: 'Entfeuchter', cls: 'socket', caps: ['onoff', 'measure_power', 'meter_power'] },
+  { id: 'hs', name: 'Feuchtesensor', cls: 'sensor', caps: ['measure_humidity'] },
+  { id: 'lamp', name: 'Lampe', cls: 'light', caps: ['onoff'] },
+];
+
+function scenario({ cfg = {}, meters = {}, shadow = {}, status = {} } = {}) {
+  const config = normalizeConfig({ enabled: true, ...cfg });
+  const mcfg = normalizeMeters(meters);
+  const sh = {
+    enabled: config.enabled, deviceExists: true, shadow: true, config,
+    pv: { source: null, factor: 1, externalAt: null, stale: true, slots: 0 },
+    current: { soc: 97, mine: { mode: 'hold' }, andi: { mode: 'hold' }, errors: [] },
+    charger: { current: { live: false, mine: { mode: 'idle', reason: 'kein Überschuss' }, gridW: 18, pvW: 514, batterySoc: 97, connected: false, warning: null } },
+    ...shadow,
+  };
+  return {
+    'GET /ems/shadow': sh,
+    'GET /ems/consumers': { current: [], events: [] },
+    'GET /ems/devices': { devices },
+    'GET /meters': { config: mcfg, status, consumersManagedByEms: true },
+    'PUT /ems/config': (b) => ({ ...config, ...b }),
+    'PUT /meters': (b) => ({ config: { ...mcfg, ...b }, status: {}, consumersManagedByEms: true }),
+    'PUT /ems/toggle': (b) => config,
+  };
+}
+
+const fullCfg = {
+  devices: { meter: { id: 'em', capability: 'measure_power' }, house: { id: 'em', capability: 'measure_power.load' }, inverter: { id: 'inv', capability: 'measure_power' } },
+  battery: { deviceId: 'bat' },
+  charger: { id: 'wb', costName: 'E-Auto' },
+  consumers: [{ id: 'dry', name: 'Entfeuchter', mode: 'soc', socOn: 85, type: 'dehumidifier' }],
+};
+const fullMeters = {
+  enabled: true,
+  consumers: [
+    { name: 'E-Auto', deviceId: 'wb', capability: 'meter_power' },
+    { name: 'Entfeuchter', deviceId: 'dry', capability: 'meter_power' },
+    { name: 'Sauna', deviceId: 'inv', capability: 'meter_power' },
+  ],
+};
+
+async function start(sc, lang = 'de') {
+  const env = makeEnv(sc);
+  await env.ctx.window.EmsUi.init(env.api, lang);
+  return env;
+}
+const setup = (env) => env.els.get('ems-view-devices').innerHTML;
+const main = (env) => env.els.get('ems-view-main').innerHTML;
+const click = (env, view, attrs, parent) => env.handlers[`${view}:click`]({ target: target(attrs, parent) });
+const change = (env, view, attrs) => env.handlers[`${view}:change`]({ target: target(attrs) });
+
+// ---------------------------------------------------------------- Setup: Datenquellen
+
+test('Setup: Datenquellen nach Wichtigkeit sortiert, mit Pflicht/Empfohlen/Optional/Automatisch', async () => {
+  const env = await start(scenario());
+  const html = setup(env);
+  const order = ['Netzzähler', 'Solar-Wechselrichter', 'Hausverbrauch', 'Hausbatterie', 'Solarprognose', 'Strompreis'].map((n) => html.indexOf(n));
+  assert.ok(order.every((v, i, a) => v > 0 && (i === 0 || v > a[i - 1])), 'Reihenfolge: ' + order.join(','));
+  const tags = [...html.matchAll(/ems-tag ems-tag-(\w+)">([^<]+)/g)].map((m) => m[2]);
+  assert.deepEqual(tags, ['Pflicht', 'Empfohlen', 'Empfohlen', 'Optional', 'Optional', 'Automatisch']);
+  assert.match(html, /DATENQUELLEN/);
+  assert.match(html, /VERBRAUCHER/);
+});
+
+test('Setup: zugeklappt keine Dropdown-Wand, Kopf meldet fehlende Pflicht-Quelle', async () => {
+  const env = await start(scenario());
+  const html = setup(env);
+  assert.equal((html.match(/<select/g) || []).length, 0, 'keine Auswahlfelder, solange nichts aufgeklappt ist');
+  assert.match(html, /Es fehlt noch: Netzzähler/);
+  assert.match(html, /nicht gewählt/);
+  assert.match(env.els.get('h2-emsdev').innerHTML, /st-open/);
+  assert.match(html, /Automatisch vorschlagen/);
+  assert.match(html, /EMS-Einstellungen speichern/);
+});
+
+test('Setup: aufklappen per Klick auf ein Kind der Zeile, Geräte nach Fähigkeit gefiltert, Werte mit Titeln', async () => {
+  const env = await start(scenario());
+  const header = target({ 'data-ems-open': 'src-grid' });
+  click(env, 'ems-view-devices', {}, header); // Klick auf ein Kind: Eltern tragen das Attribut
+  const html = setup(env);
+  assert.match(html, /id="src-grid-dev"/);
+  const devSel = html.match(/id="src-grid-dev"[^>]*>([\s\S]*?)<\/select>/)[1];
+  assert.match(devSel, /Energiezähler/);
+  assert.doesNotMatch(devSel, /Lampe/, 'Gerät ohne Leistungswert fehlt');
+  assert.match(html, /Der Netzzähler ist die Grundlage/);
+  // zweiter Klick klappt wieder zu
+  click(env, 'ems-view-devices', {}, header);
+  assert.doesNotMatch(setup(env), /id="src-grid-dev"/);
+});
+
+test('Setup: Gerätewahl setzt den passenden Wert vor (Hausverbrauch bevorzugt "load")', async () => {
+  const env = await start(scenario());
+  click(env, 'ems-view-devices', { 'data-ems-open': 'src-house' });
+  env.el('src-house-dev').value = 'em';
+  change(env, 'ems-view-devices', { 'data-ems-src': 'house' });
+  const html = setup(env);
+  assert.match(html, /value="measure_power\.load" selected/);
+  assert.match(html, /Hausverbrauch \(measure_power\.load\)/);
+  assert.equal(env.ctx.window.EmsUi._collect().ems.devices.house.capability, 'measure_power.load');
+});
+
+test('Setup: Netzzähler gewählt ist "Bereit", ohne Batterie mit Hinweis, dass es trotzdem läuft', async () => {
+  const env = await start(scenario({ cfg: { devices: { meter: { id: 'em' } } } }));
+  const html = setup(env);
+  assert.match(html, /Bereit: alle Pflicht-Quellen sind gewählt/);
+  assert.match(html, /Ohne Hausbatterie läuft das Energiemanagement trotzdem/);
+  assert.match(env.els.get('h2-emsdev').innerHTML, /st-check/);
+  const withBat = await start(scenario({ cfg: { devices: { meter: { id: 'em' } }, battery: { deviceId: 'bat' } } }));
+  assert.doesNotMatch(setup(withBat), /Ohne Hausbatterie läuft/);
+});
+
+test('Setup: Strompreis kommt automatisch, Solarprognose zeigt das Einliefern', async () => {
+  const env = await start(scenario({ shadow: { pv: { source: 'external', factor: 0.75, externalAt: Date.now() - 30 * 60000, stale: false, slots: 48 } }, cfg: { pv: { factor: 0.75 } } }));
+  let html = setup(env);
+  assert.match(html, /aus dieser App/);
+  assert.match(html, /zuletzt vor 30 min \(48 Einträge\)/);
+  click(env, 'ems-view-devices', { 'data-ems-open': 'src-fc' });
+  html = setup(env);
+  assert.match(html, /id="ems-pv-factor" type="number" value="0\.75"/);
+  assert.match(html, /PV-Prognose setzen/);
+  const none = await start(scenario());
+  assert.match(setup(none), /nicht eingeliefert/);
+});
+
+// ---------------------------------------------------------------- Setup: Verbraucher
+
+test('Setup: eine Liste aus Wallbox, geschalteten Verbrauchern und reinen Kosten-Zählern', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const html = setup(env);
+  assert.match(html, /Wallbox \(E-Auto\)/);
+  assert.match(html, /Entfeuchter/);
+  assert.match(html, /Sauna/);
+  assert.match(html, /nur Kostenzähler/);
+  assert.match(html, /Ab Batterie-SoC - Testbetrieb/);
+  assert.match(html, /Verbraucher hinzufügen/);
+  const rows = env.ctx.window.EmsUi._state.rows;
+  assert.equal(JSON.stringify(rows.map((r) => r.name)), JSON.stringify(['E-Auto', 'Entfeuchter', 'Sauna']));
+  assert.equal(rows[0].meterDeviceId, 'wb');
+  assert.equal(rows[1].meterDeviceId, 'dry');
+  assert.equal(rows[2].control, false);
+});
+
+test('Setup: Speichern teilt in EMS-Konfiguration und Kosten-Zähler', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const b = env.ctx.window.EmsUi._collect();
+  assert.equal(b.ems.charger.id, 'wb');
+  assert.equal(b.ems.charger.costName, 'E-Auto');
+  assert.equal(JSON.stringify(b.ems.consumers.map((c) => [c.id, c.name, c.mode])), JSON.stringify([['dry', 'Entfeuchter', 'soc']]));
+  assert.equal(b.ems.consumers[0].type, 'dehumidifier');
+  assert.equal(JSON.stringify(b.meters.consumers.map((c) => [c.name, c.deviceId, c.capability])), JSON.stringify([['E-Auto', 'wb', 'meter_power'], ['Entfeuchter', 'dry', 'meter_power'], ['Sauna', 'inv', 'meter_power']]));
+  assert.equal(b.ems.devices.meter.id, 'em');
+  assert.equal(b.ems.battery.deviceId, 'bat');
+});
+
+test('Setup: Verbraucher aufklappen, Modus und Erweitert, Feuchte-Notlauf nur beim Luftentfeuchter', async () => {
+  const env = await start(scenario({ cfg: { ...fullCfg, consumers: [{ ...fullCfg.consumers[0], humidity: { enabled: true, sensorId: 'hs', onAbove: 70, offBelow: 64, runMin: 45 } }] }, meters: fullMeters }));
+  click(env, 'ems-view-devices', { 'data-ems-open': 'row1' });
+  const html = setup(env);
+  assert.match(html, /id="row1-mode"/);
+  assert.match(html, /Ab Batterie-SoC/);
+  assert.match(html, /id="row1-socOn" type="number" value="85"/);
+  assert.match(html, /<summary[^>]*>Erweitert<\/summary>/);
+  assert.match(html, /Feuchte-Notlauf/);
+  assert.match(html, /id="row1-humOn" type="number" value="70"/);
+  assert.match(html, /id="row1-humRun" type="number" value="45"/);
+  const humSel = html.match(/id="row1-humSensor">([\s\S]*?)<\/select>/)[1];
+  assert.match(humSel, /Feuchtesensor/);
+  assert.doesNotMatch(humSel, /Lampe/);
+  const b = env.ctx.window.EmsUi._collect().ems.consumers[0];
+  assert.equal(b.humidity.onAbove, 70);
+  assert.equal(b.humidity.sensorId, 'hs');
+  // Steuer-Gerät nur mit Ein/Aus
+  const ctl = html.match(/id="row1-dev"[^>]*>([\s\S]*?)<\/select>/)[1];
+  assert.match(ctl, /Lampe/);
+  assert.doesNotMatch(ctl, /Energiezähler/);
+});
+
+test('Setup: ohne Hausbatterie nur "Bei Überschuss", mit Batterie auch voll und SoC', async () => {
+  const noBat = await start(scenario({ cfg: { ...fullCfg, battery: { deviceId: '' }, consumers: [{ id: 'dry', name: 'E', mode: 'surplus' }] }, meters: {} }));
+  click(noBat, 'ems-view-devices', { 'data-ems-open': 'row1' });
+  let modeSel = setup(noBat).match(/id="row1-mode"[^>]*>([\s\S]*?)<\/select>/)[1];
+  assert.match(modeSel, /Bei Überschuss/);
+  assert.doesNotMatch(modeSel, /Bei voller Batterie|Ab Batterie-SoC/);
+  assert.match(setup(noBat), /Ohne Hausbatterie ist nur «Bei Überschuss» möglich/);
+  const withBat = await start(scenario({ cfg: { ...fullCfg, consumers: [{ id: 'dry', name: 'E', mode: 'surplus' }] }, meters: {} }));
+  click(withBat, 'ems-view-devices', { 'data-ems-open': 'row1' });
+  modeSel = setup(withBat).match(/id="row1-mode"[^>]*>([\s\S]*?)<\/select>/)[1];
+  assert.match(modeSel, /Bei voller Batterie/);
+  assert.match(modeSel, /Ab Batterie-SoC/);
+});
+
+test('Setup: Hinzufügen und Entfernen, neuer Verbraucher ist aufgeklappt', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const before = env.ctx.window.EmsUi._state.rows.length;
+  click(env, 'ems-view-devices', { 'data-ems-add': '1' });
+  const rows = env.ctx.window.EmsUi._state.rows;
+  assert.equal(rows.length, before + 1);
+  assert.match(setup(env), new RegExp(`id="row${before}-name"`));
+  click(env, 'ems-view-devices', { 'data-ems-remove': String(before) });
+  assert.equal(env.ctx.window.EmsUi._state.rows.length, before);
+});
+
+test('Setup: "Automatisch vorschlagen" füllt leere Quellen und die Wallbox', async () => {
+  const env = await start(scenario());
+  click(env, 'ems-view-devices', { 'data-ems-suggest': '1' });
+  const html = setup(env);
+  assert.match(html, /Vorschläge eingetragen: 5/);
+  const c = env.ctx.window.EmsUi._collect().ems;
+  assert.equal(c.devices.meter.id, 'em');
+  assert.equal(c.devices.house.capability, 'measure_power.load');
+  assert.equal(c.devices.inverter.id, 'inv');
+  assert.equal(c.battery.deviceId, 'bat');
+  assert.equal(c.battery.socCapability, 'measure_battery');
+  assert.equal(c.charger.id, 'wb');
+  const rows = env.ctx.window.EmsUi._state.rows;
+  assert.equal(rows[0].meterDeviceId, 'wb', 'Wallbox-Zähler wird mit vorgeschlagen');
+  // schon Gewähltes bleibt unberührt
+  const keep = await start(scenario({ cfg: { devices: { meter: { id: 'inv', capability: 'measure_power' } } } }));
+  click(keep, 'ems-view-devices', { 'data-ems-suggest': '1' });
+  assert.equal(keep.ctx.window.EmsUi._collect().ems.devices.meter.id, 'inv');
+});
+
+test('Setup: Speichern schickt EMS-Konfiguration und Zähler, meldet "Gespeichert"', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  click(env, 'ems-view-devices', { 'data-ems-save': '1' });
+  await wait(30);
+  const putEms = env.calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');
+  const putMeters = env.calls.find((c) => c[0] === 'PUT' && c[1] === '/meters');
+  assert.ok(putEms && putMeters);
+  assert.equal(putEms[2].charger.id, 'wb');
+  assert.equal(putEms[2].consumers.length, 1);
+  assert.equal(putMeters[2].consumers.length, 3);
+  assert.equal(putMeters[2].enabled, true);
+  assert.equal(env.els.get('ems-msg').textContent, 'Gespeichert');
+  const bad = await start({ ...scenario({ cfg: fullCfg }), 'PUT /ems/config': new Error('kaputt') });
+  click(bad, 'ems-view-devices', { 'data-ems-save': '1' });
+  await wait(30);
+  assert.match(bad.els.get('ems-msg').textContent, /Fehler: kaputt/);
+});
+
+test('Setup: ungespeicherte Eingaben überleben das Aufklappen anderer Zeilen', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  click(env, 'ems-view-devices', { 'data-ems-open': 'row1' });
+  env.el('row1-name').value = 'Trockner Estrich';
+  env.el('row1-minRunMin').value = '45';
+  click(env, 'ems-view-devices', { 'data-ems-open': 'src-bat' });
+  const r = env.ctx.window.EmsUi._state.rows[1];
+  assert.equal(r.name, 'Trockner Estrich');
+  assert.equal(r.minRunMin, 45);
+});
+
+// ---------------------------------------------------------------- Betrieb (EMS-Reiter)
+
+test('Betrieb: Statuskopf mit Farbe, grossem Schalter, Modus, Werten', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const html = main(env);
+  assert.match(html, /Läuft im Testbetrieb \(es wird nichts geschaltet\)/);
+  assert.match(html, /class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1" checked/);
+  assert.match(html, /ems-chip">Bereit/);
+  assert.match(html, /PV 514 W/);
+  assert.match(html, /Netz 18 W/);
+  assert.match(html, /Batterie 97 %/);
+  assert.doesNotMatch(html, /Jetzt rechnen|<h2>Steuerung<\/h2>/);
+  const off = await start(scenario({ cfg: { ...fullCfg, enabled: false } }));
+  assert.match(main(off), /Ausgeschaltet/);
+  assert.doesNotMatch(main(off), /data-ems-enable="1" checked/);
+});
+
+test('Betrieb: Zeilen mit Schalter für Wallbox und geschaltete Verbraucher, reine Kostenzähler fehlen', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const html = main(env);
+  assert.match(html, /data-ems-toggle="charger"/);
+  assert.match(html, /data-ems-toggle="dry"/);
+  assert.doesNotMatch(html, /Sauna/);
+  assert.match(html, /data-ems-chargenow="1"/);
+  assert.match(html, /Sofort laden/);
+  assert.match(html, /Schalter ein: die App schaltet das Gerät wirklich/);
+});
+
+test('Betrieb: live schaltet den Kopf auf "steuert", Warnung färbt gelb', async () => {
+  const live = await start(scenario({ cfg: { ...fullCfg, charger: { ...fullCfg.charger, live: true } } }));
+  assert.match(main(live), /Läuft und steuert: Wallbox/);
+  const warn = await start(scenario({ cfg: fullCfg, shadow: { charger: { current: { live: true, mine: { mode: 'idle', reason: 'x' }, gridW: 0, pvW: 0, warning: 'Ein anderes Energiemanagement steuert diese Wallbox ebenfalls - dort ausschalten' } } } }));
+  assert.match(main(warn), /Läuft mit Warnung/);
+  assert.match(main(warn), /anderes Energiemanagement/);
+});
+
+test('Betrieb: Schalter rufen die API, Fehler setzt den Schalter zurück', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  const box = { ...target({ 'data-ems-toggle': 'dry' }), checked: true };
+  env.handlers['ems-view-main:change']({ target: box });
+  await wait();
+  const put = env.calls.find((c) => c[1] === '/ems/toggle');
+  assert.equal(JSON.stringify(put[2]), JSON.stringify({ target: 'dry', live: true }));
+  const en = { ...target({ 'data-ems-enable': '1' }), checked: false };
+  env.handlers['ems-view-main:change']({ target: en });
+  await wait();
+  assert.ok(env.calls.find((c) => c[1] === '/ems/config' && c[2] && c[2].enabled === false));
+  const cn = { ...target({ 'data-ems-chargenow': '1' }), checked: true };
+  env.handlers['ems-view-main:change']({ target: cn });
+  await wait();
+  assert.ok(env.calls.find((c) => c[1] === '/ems/config' && c[2] && c[2].charger && c[2].charger.chargeNow === true));
+  const bad = await start({ ...scenario({ cfg: fullCfg }), 'PUT /ems/toggle': new Error('nein') });
+  const b2 = { ...target({ 'data-ems-toggle': 'charger' }), checked: true };
+  bad.handlers['ems-view-main:change']({ target: b2 });
+  await wait();
+  assert.equal(b2.checked, false);
+  assert.match(bad.els.get('ems-toggle-err').textContent, /nein/);
+});
+
+test('Ohne EMS-Gerät: nur ein Hinweis in Betrieb und Setup', async () => {
+  const sc = scenario({ shadow: { deviceExists: false } });
+  const env = await start(sc);
+  for (const html of [main(env), setup(env)]) {
+    assert.match(html, /noch nicht eingerichtet/);
+    assert.match(html, /Gerät «Energiemanagement» hinzu/);
+  }
+  assert.doesNotMatch(main(env) + setup(env), /ems-enabled|data-ems-toggle|DATENQUELLEN/);
+  const en = await start(sc, 'en');
+  assert.match(main(en), /not set up yet/);
+});
+
+// ---------------------------------------------------------------- Allgemein
+
+test('Neutral: keine Hersteller- oder Personennamen in Betrieb und Setup (de und en)', async () => {
+  const banned = /Andi|Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom|Solcast/i;
+  for (const lang of ['de', 'en']) {
+    const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }), lang);
+    for (const id of ['grid', 'pv', 'house', 'bat', 'fc', 'price']) click(env, 'ems-view-devices', { 'data-ems-open': 'src-' + id });
+    for (let i = 0; i < 3; i += 1) click(env, 'ems-view-devices', { 'data-ems-open': 'row' + i });
+    assert.doesNotMatch(main(env) + setup(env), banned, lang);
+  }
+});
+
+test('Vergleich: zeigt weiter die Daten, Quelle und Batterie-Planer liegen dort', async () => {
+  const env = await start(scenario({ cfg: fullCfg, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, andi: { hold: 33 } }], events: [] } }));
+  const data = env.els.get('ems-cmp-data').innerHTML;
+  assert.match(data, /Gesamt gleich: <b>92 %<\/b>/);
+  assert.match(data, /Andis EMS/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-andi"/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
+  assert.doesNotMatch(setup(env) + main(env), /ems-d-andi|ems-b-target/);
+});
+
+test('Umschalter Betrieb / Vergleich', async () => {
+  const env = await start(scenario());
+  const sub = env.handlers['ems-sub:click'];
+  sub({ target: target({ 'data-ems-sub': 'cmp' }) });
+  assert.equal(env.els.get('ems-view-main').hidden, true);
+  assert.equal(env.els.get('ems-view-cmp').hidden, false);
+  sub({ target: target({ 'data-ems-sub': 'main' }) });
+  assert.equal(env.els.get('ems-view-main').hidden, false);
+  assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
+  assert.equal(env.els.get('ems-sub-cmp').textContent, 'Vergleich');
+  assert.equal(env.els.get('t-ems').textContent, 'EMS');
+});
+
+test('Gerätewechsel wird beim Auffrischen nicht überschrieben', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  click(env, 'ems-view-devices', { 'data-ems-open': 'src-pv' });
+  env.el('src-pv-dev').value = 'bat';
+  change(env, 'ems-view-devices', { 'data-ems-src': 'pv' });
+  assert.equal(env.ctx.window.EmsUi._state.cfg.devices.inverter.id, 'bat');
+  await env.ctx.window.EmsUi._render();
+  assert.equal(env.ctx.window.EmsUi._state.cfg.devices.inverter.id, 'bat');
+});

@@ -15,6 +15,7 @@
       name: 'Name', add: 'Verbraucher hinzufügen', remove: 'Entfernen', save: 'Speichern und jetzt lesen', saved: 'Gespeichert',
       error: 'Fehler', last: 'zuletzt', ago: 'vor', min: 'min', sec: 's', kwh: 'kWh', never: 'noch nicht gelesen',
       flowNote: 'Alternativ kannst du die Werte weiter per Flow melden (siehe unten). Beides zusammen ist unproblematisch.',
+      managedHint: 'Deine Verbraucher mit ihren Zählern verwaltest du im Setup unter «Energiemanagement».',
     },
     en: {
       title: 'Read automatically (recommended)',
@@ -26,6 +27,7 @@
       name: 'Name', add: 'Add consumer', remove: 'Remove', save: 'Save and read now', saved: 'Saved',
       error: 'Error', last: 'last', ago: 'ago', min: 'min', sec: 's', kwh: 'kWh', never: 'not read yet',
       flowNote: 'Alternatively you can keep reporting the values with a Flow (see below). Both together is fine.',
+      managedHint: 'You manage your consumers and their meters in Setup under "Energy management".',
     },
   };
 
@@ -122,7 +124,7 @@
     if (!host || !state.cfg) return;
     var c = state.cfg;
     var rows = KINDS.map(function (k) { return row(S[k], 'mt-' + k, c.sources[k].deviceId, c.sources[k].capability, k); }).join('');
-    var cons = (state.consumers || []).map(consumerRow).join('');
+    var cons = state.managed ? '' : (state.consumers || []).map(consumerRow).join('');
     host.innerHTML = '<style>'
       + '.mt-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0;padding-bottom:8px;border-bottom:1px solid var(--st-border)}'
       + '.mt-l{flex:0 0 130px;font-size:13px}.mt-l input{width:120px;font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
@@ -133,8 +135,9 @@
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
       + '<label class="mt-c"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '> <span>' + esc(S.enable) + '</span></label>'
       + rows
-      + '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.consumerHint) + '</p>' + cons
-      + '<p><button class="btn" data-mt-add="1">' + esc(S.add) + '</button></p>'
+      + (state.managed
+        ? '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.managedHint) + '</p>'
+        : '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.consumerHint) + '</p>' + cons + '<p><button class="btn" data-mt-add="1">' + esc(S.add) + '</button></p>')
       + '<p><button class="btn" data-mt-save="1">' + esc(S.save) + '</button> <span class="sub" id="mt-msg">' + esc(state.msg || '') + '</span></p>'
       + '<p class="sub">' + esc(S.flowNote) + '</p>';
   }
@@ -152,7 +155,9 @@
       var p = 'mt-c' + i;
       return { name: val(p + '-name', c.name), deviceId: val(p + '-dev', c.deviceId), capability: val(p + '-cap', c.capability) };
     });
-    return { enabled: !!(enabledEl && enabledEl.checked), sources: sources, consumers: consumers };
+    var out = { enabled: !!(enabledEl && enabledEl.checked), sources: sources };
+    if (!state.managed) out.consumers = consumers; // sonst verwaltet das Energiemanagement sie
+    return out;
   }
 
   function syncToState() {
@@ -199,7 +204,7 @@
       render();
     } else if (t.getAttribute('data-mt-save')) {
       var body = collect();
-      body.consumers = body.consumers.filter(function (c) { return c.name && c.deviceId && c.capability; });
+      if (body.consumers) body.consumers = body.consumers.filter(function (c) { return c.name && c.deviceId && c.capability; });
       setMsg('...');
       api('PUT', '/meters', body).then(function (r) {
         state.cfg = r.config; state.consumers = r.config.consumers.slice(); state.status = r.status || {};
@@ -240,7 +245,7 @@
       api('GET', '/meters'),
       api('GET', '/meters/devices').then(function (r) { return r.devices || []; }).catch(function () { return []; }),
     ]).then(function (r) {
-      state.cfg = r[0].config; state.status = r[0].status || {}; state.devices = r[1];
+      state.cfg = r[0].config; state.status = r[0].status || {}; state.devices = r[1]; state.managed = r[0].consumersManagedByEms === true;
       state.consumers = (state.cfg.consumers || []).map(function (c) { return Object.assign({}, c); });
       render();
     }).catch(function (e) {

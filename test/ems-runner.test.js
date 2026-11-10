@@ -189,7 +189,7 @@ test('Schalter Trockenlauf -> live setzt den simulierten Zustand zurück (keine 
   assert.equal(calls.consumer[0].live, false);
   // auf live schalten: Gerät ist in Wirklichkeit aus -> es darf ohne 30 min Pause echt starten
   live = true;
-  runner.getConfig = () => normalizeConfig({ enabled: true, consumers: [consumer()] });
+  runner.getConfig = () => normalizeConfig({ enabled: true, battery: { deviceId: 'bat1' }, consumers: [consumer()] });
   state.consumers.set('dev1', { actualOn: false, powerW: 0, available: true });
   await runner.tickCharger(at(12) + 40_000);
   assert.equal(calls.consumer.length, 2);
@@ -272,4 +272,33 @@ test('Notlauf im Runner: liest den Feuchte-Sensor und schaltet den Entfeuchter',
   state.consumers.set('dev1', { actualOn: true, powerW: 600, available: true, values: {} });
   await runner.tickCharger(at(12) + 90_000);
   assert.equal(calls.consumer.length, 1);
+});
+
+test('Ohne Hausbatterie: Wallbox lädt nach Überschuss, kein Hartstopp, Batterie-Lauf übersprungen', async () => {
+  const { runner, calls, state } = setup({
+    cfg: { charger: { live: true }, battery: { deviceId: '' } },
+    inputs: { batterySoc: null, batteryW: null, batteryCapacityKwh: null, gridW: -5000, pvW: 6500, houseW: 1500 },
+  });
+  const t = at(12);
+  await runner.tickCharger(t);
+  await runner.tickCharger(t + 20_000);
+  await runner.tickCharger(t + 55_000);
+  assert.ok(calls.charger.length >= 2, 'ohne Batterie wird trotzdem geladen: ' + JSON.stringify(runner.chargerCurrent.mine));
+  assert.notEqual(runner.chargerCurrent.mine.mode, 'battery_priority');
+  assert.equal(await runner.tick(t), null, 'kein Batterie-Plan ohne Batterie');
+  assert.equal(runner.current, null);
+  assert.equal(state.i.batterySoc, null);
+});
+
+test('Ohne Hausbatterie: Verbraucher nach Überschuss läuft, Modus nach Batterie wird erklärt', async () => {
+  const surplus = { id: 'dev1', name: 'A', mode: 'surplus', live: true, minSurplusW: 300, startSustainS: 0, minOffMin: 0 };
+  const bySoc = { id: 'dev2', name: 'B', mode: 'full', live: true, minOffMin: 0 };
+  const { runner, calls, state } = setup({
+    cfg: { battery: { deviceId: '' }, consumers: [surplus, bySoc] },
+    inputs: { batterySoc: null, batteryW: null, gridW: -1500, pvW: 3000, houseW: 1500, chargerConnected: false },
+  });
+  await runner.tickCharger(at(12));
+  assert.deepEqual(calls.consumer.map((c) => [c.id, c.on]), [['dev1', true]], 'nur der Überschuss-Verbraucher startet');
+  const b = runner.consumerCurrent.find((c) => c.id === 'dev2');
+  assert.match(b.reason, /Keine Hausbatterie/);
 });
