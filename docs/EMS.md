@@ -121,3 +121,11 @@ Die Flows werden aus allen **startbaren** Flows (Start-Trigger «Dieser Flow wir
 - `assumedW`: Leistung, mit der die Überschussrechnung rechnet, solange der Verbraucher läuft (sonst fiele er nach dem Einschalten wegen des
   gesunkenen Exports wieder aus).
 - Aufträge, Modi, Mindestlaufzeit, Plan-Sicht und Testbetrieb (`live` je Verbraucher) gelten gleich. Im Testbetrieb startet kein Flow.
+
+## E-Auto (optional) und Aufträge mit Ziel-Ladestand
+
+Setup → Datenquellen → «E-Auto» (empfohlen, nicht Pflicht): Gerät des Autos mit Ladestand (`car.deviceId`, `car.socCapability`, Standard `measure_battery`)
+und Batteriegrösse (`car.capacityKwh`). Der Ladestand steht in der Betriebsansicht («E-Auto 54 %») und im Plan-Formular. Mit Auto kann ein Auftrag
+als «Ziel-Ladestand bis Uhrzeit» eingegeben werden: Energie = (Ziel - Ladestand) / 100 x Batteriegrösse, gespeichert als kWh (mit `targetSoc`, `startSoc`).
+Ohne Auto bleibt die Eingabe in kWh. Der Ladestand wird beim Speichern einmal gelesen; ein laufender Auftrag zählt Viertelstunden, er rechnet nicht
+laufend mit dem Ladestand nach (Ausbau möglich).

@@ -101,10 +101,10 @@ const change = (env, view, attrs) => env.handlers[`${view}:change`]({ target: ta
 test('Setup: Datenquellen nach Wichtigkeit sortiert, mit Pflicht/Empfohlen/Optional/Automatisch', async () => {
   const env = await start(scenario());
   const html = setup(env);
-  const order = ['Netzzähler', 'Solar-Wechselrichter', 'Hausverbrauch', 'Hausbatterie', 'Solarprognose', 'Strompreis'].map((n) => html.indexOf(n));
+  const order = ['Netzzähler', 'Solar-Wechselrichter', 'Hausverbrauch', 'E-Auto', 'Hausbatterie', 'Solarprognose', 'Strompreis'].map((n) => html.indexOf(n));
   assert.ok(order.every((v, i, a) => v > 0 && (i === 0 || v > a[i - 1])), 'Reihenfolge: ' + order.join(','));
   const tags = [...html.matchAll(/ems-tag ems-tag-(\w+)">([^<]+)/g)].map((m) => m[2]);
-  assert.deepEqual(tags, ['Pflicht', 'Empfohlen', 'Empfohlen', 'Optional', 'Optional', 'Automatisch']);
+  assert.deepEqual(tags, ['Pflicht', 'Empfohlen', 'Empfohlen', 'Empfohlen', 'Optional', 'Optional', 'Automatisch']);
   assert.match(html, /DATENQUELLEN/);
   assert.match(html, /VERBRAUCHER/);
 });
