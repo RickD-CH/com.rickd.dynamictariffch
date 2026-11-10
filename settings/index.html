@@ -179,8 +179,6 @@
     .st-check { background: var(--st-switch-on); color: #fff; font-weight: 700; }
     .setup-card.ok { background: var(--st-lv-cheap-bg); color: var(--st-lv-cheap-fg); }
     .setup-card.ok h2 { color: var(--st-lv-cheap-fg); }
-    .setup-card.warn { background: #fdf0d8; color: #7a4b00; }
-    .setup-card.warn h2 { color: #7a4b00; }
     .st-open { border: 1.5px solid var(--st-muted); line-height: 15px; }
     summary h2 { display: inline; }
     .help-sec .card { border: 0; padding: 0; background: transparent; margin-bottom: 14px; }
@@ -960,7 +958,9 @@
       $('btn-ref-add').textContent = T.refAdd;
       $('btn-ref-save').textContent = T.save;
       $('h2-setup').textContent = T.setupHeading;
-      $('p-setup-intro').textContent = T.setupIntro;
+      $('p-setup-intro').textContent = (LANG === 'de'
+        ? 'Freiwillig: die Preise und alle Preis-Karten funktionieren ohne diese Schritte. '
+        : (LANG === 'en' ? 'Optional: prices and all price cards work without these steps. ' : '')) + T.setupIntro;
       $('h2-meters').textContent = T.metersHeading;
       $('h3-reports').textContent = T.reportsHeading;
       $('p-meters-intro').textContent = T.metersIntro;
@@ -1434,10 +1434,14 @@
       if (!card) return;
       if (!data || !data.paired || !data.today) { card.hidden = true; return; }
       var s = data.today;
-      card.hidden = false;
-      $('h2-today').textContent = N.today;
       var cfg = !!s.configured;
       var hasData = (s.importKwh || 0) > 0 || (s.exportKwh || 0) > 0;
+      // Wer nur Preise bezieht (kein Referenztarif, nie ein Zählerstand), sieht diese Karte nicht.
+      var tot = data.total || {};
+      var usesCosts = cfg || hasData || (tot.importKwh || 0) > 0 || (tot.exportKwh || 0) > 0;
+      if (!usesCosts) { card.hidden = true; return; }
+      card.hidden = false;
+      $('h2-today').textContent = N.today;
       var sav = typeof s.savings === 'number' ? s.savings : null;
       var cls = sav === null || Math.abs(sav) < 0.5 ? '' : (sav > 0 ? 'good' : 'bad');
       $('today-root').innerHTML = hasData
@@ -1604,7 +1608,8 @@
       var dataDone = Boolean(data.total && (data.total.importKwh > 0 || data.total.exportKwh > 0));
       var done = [refDone, reportedAny, dataDone];
       var allDone = done.every(Boolean);
-      $('setup-card').className = 'card sec setup-card ' + (allDone ? 'ok' : 'warn');
+      // Die Kostenauswertung ist freiwillig: grün, wenn eingerichtet, sonst neutral (keine Warnfarbe für reine Preis-Nutzer).
+      $('setup-card').className = 'card sec setup-card' + (allDone ? ' ok' : '');
       $('h2-setup').innerHTML = allDone ? '<span class="st-check">✓</span>' + escapeHtml(T.setupDone.replace(/^✓\s*/, '')) : escapeHtml(T.setupHeading);
       if (allDone && !setupAutoClosed) {
         setupAutoClosed = true;

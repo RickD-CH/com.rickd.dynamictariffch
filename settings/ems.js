@@ -31,6 +31,7 @@
       flowsNone: 'Es wurden keine startbaren Flows gefunden.', assumedW: 'Leistung des Verbrauchers (W, für die Überschussrechnung)',
       pvReached: 'erreicht', pvReachedSoFar: 'bisher erreicht', pvForecastLeg: 'Prognose',
       planTable: 'AB JETZT: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Es sind noch keine Preisdaten für die kommenden Stunden da.',
+      planTablePrices: 'AB JETZT: PREISE', planColLevel: 'Preisniveau',
       planShortCharge: 'Laden', planShortHold: 'Halten', planShortSolar: 'Solar', planShortFull: 'voll', planTableHint: '= geplant, sonst läuft es schon so.',
       planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant', planLegWallbox: 'Wallbox lädt', planLegConsumer: 'Verbraucher ein', planLegJob: 'Auftrag / Vorschau',
       calcTitle: 'BERECHNUNG', calcRow: 'Rechenintervall', calcAuto: 'Automatisch', calcEvery: 'Alle', calcSecs: 's', calcOptAuto: 'Automatisch (15 s mit Auto, 30 s mit Verbrauchern, sonst 5 min)', calcOpt15: 'Alle 15 Sekunden', calcOpt30: 'Alle 30 Sekunden', calcOpt60: 'Jede Minute', calcOpt300: 'Alle 5 Minuten',
@@ -108,6 +109,7 @@
       flowsNone: 'No startable flows were found.', assumedW: 'Power of the consumer (W, for the surplus calculation)',
       pvReached: 'reached', pvReachedSoFar: 'reached so far', pvForecastLeg: 'Forecast',
       planTable: 'FROM NOW: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'There is no price data for the coming hours yet.',
+      planTablePrices: 'FROM NOW: PRICES', planColLevel: 'Price level',
       planShortCharge: 'charge', planShortHold: 'hold', planShortSolar: 'solar', planShortFull: 'full', planTableHint: '= planned, otherwise it is already running like this.',
       planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned', planLegWallbox: 'EV charging', planLegConsumer: 'Consumer on', planLegJob: 'Job / preview',
       calcTitle: 'CALCULATION', calcRow: 'Calculation interval', calcAuto: 'Automatic', calcEvery: 'Every', calcSecs: 's', calcOptAuto: 'Automatic (15 s with a car, 30 s with consumers, else 5 min)', calcOpt15: 'Every 15 seconds', calcOpt30: 'Every 30 seconds', calcOpt60: 'Every minute', calcOpt300: 'Every 5 minutes',
@@ -804,8 +806,20 @@
         else { cur = { key: key, day: day.key, level: slot.level, parts: parts, from: slot.t, to: slot.t + 900000, prices: [slot.price] }; runs.push(cur); }
       });
     });
-    var head = '<p class="lbl">' + esc(S.planTable) + '</p>';
+    // Ohne Energiemanagement (nur Preise) gibt es keine Zeilen: dann zeigt die mittlere Spalte das Preisniveau.
+    var priceOnly = !p.days.some(function (d) { return d.rows.length > 0; });
+    var head = '<p class="lbl">' + esc(priceOnly ? S.planTablePrices : S.planTable) + '</p>';
     if (!runs.length) return head + '<p class="sub">' + esc(S.planNothing) + '</p>';
+    if (priceOnly) {
+      var levelWord = { cheap: S.planCheap, normal: S.planNormal, expensive: S.planExp };
+      var prows = runs.map(function (r) {
+        var avg2 = Math.round(r.prices.reduce(function (a, b) { return a + b; }, 0) / r.prices.length * 10) / 10;
+        var lv2 = r.level === 'cheap' ? 'pl-c' : (r.level === 'expensive' ? 'pl-e' : 'pl-n');
+        return '<tr class="' + (p.nowMs >= r.from && p.nowMs < r.to ? 'pl-cur' : '') + '"><td class="pl-time">' + (r.day === 'tomorrow' ? '<span class="ems-s">' + esc(weekdayShort(r.from)) + '</span> ' : '') + hm(r.from) + '-' + hm(r.to)
+          + '</td><td class="pl-what">' + esc(levelWord[r.level] || r.level) + '</td><td class="pl-avg">' + avg2 + ' <i class="pl-dot ' + lv2 + '"></i></td></tr>';
+      }).join('');
+      return head + '<table class="ems-t pl-tab"><thead><tr><th>' + esc(S.planColTime) + '</th><th>' + esc(S.planColLevel) + '</th><th style="text-align:right">' + esc(S.planColPrice) + '</th></tr></thead><tbody>' + prows + '</tbody></table>';
+    }
     var rows = runs.map(function (r) {
       var avg = Math.round(r.prices.reduce(function (a, b) { return a + b; }, 0) / r.prices.length * 10) / 10;
       var cls = p.nowMs >= r.from && p.nowMs < r.to ? 'pl-cur' : '';
@@ -859,7 +873,7 @@
         + (day.stats.pvKwh !== null || day.stats.pvActualKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + (day.stats.pvKwh !== null ? day.stats.pvKwh : '-') + ' kWh</div>' + (day.stats.pvActualKwh !== null ? '<div class="ems-s">' + esc(S.pvReachedSoFar) + ' ' + day.stats.pvActualKwh + ' kWh</div>' : '') + '</div>' : '')
         + '</div>';
     }
-    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(p) : '') + '<p class="ems-why">' + esc(S.planNote) + '</p></div>' + previewFormHtml();
+    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(p) : '') + (day.rows.length ? '<p class="ems-why">' + esc(S.planNote) + '</p>' : '') + '</div>' + previewFormHtml();
   }
 
   // ---------------------------------------------------------------- Vorschau: Auftrag planen
@@ -1024,8 +1038,8 @@
     var panel = $('ems-view-main');
     if (!panel || !state.cfg) return;
     state.renderedNoDevice = noDevice();
-    if (noDevice()) panel.innerHTML = '<div class="card"><p class="sub" style="margin:0">' + esc(S.noDevice) + '</p></div>';
-    else panel.innerHTML = mainHtml();
+    // Ohne Energiemanagement-Gerät bleibt «Heute» frei davon; die Einladung steht unter «Einrichten» → EMS.
+    panel.innerHTML = noDevice() ? '' : mainHtml();
   }
 
   // ---------------------------------------------------------------- Vergleich (nur Testphase)

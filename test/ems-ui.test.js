@@ -355,16 +355,15 @@ test('Betrieb: Schalter rufen die API, Fehler setzt den Schalter zurück', async
   assert.match(bad.els.get('ems-toggle-err').textContent, /nein/);
 });
 
-test('Ohne EMS-Gerät: nur ein Hinweis in Betrieb und Setup', async () => {
+test('Ohne EMS-Gerät: «Heute» bleibt leer, die Einladung steht nur im Setup', async () => {
   const sc = scenario({ shadow: { deviceExists: false } });
   const env = await start(sc);
-  for (const html of [main(env), setup(env)]) {
-    assert.match(html, /noch nicht eingerichtet/);
-    assert.match(html, /Gerät «Energiemanagement» hinzu/);
-  }
+  assert.equal(main(env), '', 'kein Hinweis auf «Heute» für reine Preis-Nutzer');
+  assert.match(setup(env), /noch nicht eingerichtet/);
+  assert.match(setup(env), /Gerät «Energiemanagement» hinzu/);
   assert.doesNotMatch(main(env) + setup(env), /ems-enabled|data-ems-toggle|DATENQUELLEN/);
   const en = await start(sc, 'en');
-  assert.match(main(en), /not set up yet/);
+  assert.match(setup(en), /not set up yet/);
 });
 
 // ---------------------------------------------------------------- Allgemein
