@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "PV power",
+    "de": "PV-Leistung",
+    "fr": "Puissance PV",
+    "it": "Potenza FV"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/ems_pv.svg"
+}

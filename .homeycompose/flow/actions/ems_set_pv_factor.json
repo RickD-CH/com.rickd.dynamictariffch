@@ -1,0 +1,36 @@
+{
+  "title": {
+    "en": "Set the solar forecast factor",
+    "de": "Korrekturfaktor der PV-Prognose setzen"
+  },
+  "titleFormatted": {
+    "en": "Set the solar forecast factor to [[factor]]",
+    "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]"
+  },
+  "hint": {
+    "en": "Multiplies every value of the fed solar forecast, for example 0.75 if the forecast is usually 25 % too high. Also usable from a Flow that learns the factor.",
+    "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "number",
+      "name": "factor",
+      "title": {
+        "en": "Factor",
+        "de": "Faktor"
+      },
+      "min": 0.1,
+      "max": 3,
+      "step": 0.01,
+      "placeholder": {
+        "en": "0.75",
+        "de": "0.75"
+      }
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "type": "enum",
   "title": {
-    "en": "Energy management mode",
-    "de": "Modus des Energiemanagements",
-    "fr": "Mode de la gestion de l'énergie",
-    "it": "Modalità della gestione dell'energia"
+    "en": "EMS mode",
+    "de": "EMS-Modus",
+    "fr": "Mode EMS",
+    "it": "Modalità EMS"
   },
   "getable": true,
   "setable": false,

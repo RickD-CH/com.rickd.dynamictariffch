@@ -14,6 +14,7 @@
       cmpSource: 'Vergleichsquelle', cmpTab: 'Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
       noDevice: 'Das Energiemanagement ist noch nicht eingerichtet. Füge in Homey unter «Geräte» → «+» → «Dynamischer Stromtarif CH» das Gerät «Energiemanagement» hinzu.',
+      pvTitle: 'PV-Prognose', pvFactor: 'Korrekturfaktor', pvHint: 'Deine eigene PV-Prognose lieferst du per Flow-Aktion «PV-Prognose setzen» ein. Der Faktor wird auf jeden Wert angewendet (zum Beispiel 0.75, wenn sie meist 25 % zu hoch liegt).', pvNone: 'Noch keine Prognose eingeliefert.', pvSlots: 'Einträge', pvAgo: 'zuletzt eingeliefert vor', pvStale: 'veraltet', pvMin: 'min', pvH: 'h',
       devicesSec: 'Geräte für das Energiemanagement', devicesMissing: 'Noch nicht alle Geräte gewählt. Das geht im Setup unter «Geräte für das Energiemanagement».', chosen: 'gewählt', pickFirst: '- zuerst Gerät wählen -', nowSec: 'Jetzt (Vergleich)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
       meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
       control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
@@ -40,6 +41,7 @@
       cmpSource: 'Comparison source', cmpTab: 'Compare', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
       noDevice: 'Energy management is not set up yet. In Homey go to Devices → "+" → "Swiss Dynamic Electricity Tariff" and add the "Energy management" device.',
+      pvTitle: 'Solar forecast', pvFactor: 'Correction factor', pvHint: 'You feed your own solar forecast with the Flow action "Set the solar forecast". The factor is applied to every value (for example 0.75 if it is usually 25 % too high).', pvNone: 'No forecast fed yet.', pvSlots: 'entries', pvAgo: 'last fed', pvStale: 'outdated', pvMin: 'min', pvH: 'h',
       devicesSec: 'Devices for energy management', devicesMissing: 'Not all devices chosen yet. You can do that in Setup under "Devices for energy management".', chosen: 'chosen', pickFirst: '- choose a device first -', nowSec: 'Now (comparison)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
       meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
       control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
@@ -123,6 +125,7 @@
         andiEms: val('ems-d-andi', cfg.devices.andiEms),
       },
       charger: { id: val('ems-d-chg', cfg.charger.id), chargeNow: chk('ems-chargenow'), maxAmps: num('ems-maxamps', cfg.charger.maxAmps), stepHoldS: num('ems-stephold', cfg.charger.stepHoldS) },
+      pv: { factor: num('ems-pv-factor', cfg.pv ? cfg.pv.factor : 1) },
       consumers: collectConsumers(),
       battery: { deviceId: val('ems-d-bat', cfg.battery.deviceId), socCapability: val('ems-d-bat-cap', cfg.battery.socCapability), targetSoc: num('ems-b-target', cfg.battery.targetSoc), reserveHours: num('ems-b-reserve', cfg.battery.reserveHours), solarLimitKwh: num('ems-b-solar', cfg.battery.solarLimitKwh) },
     };
@@ -260,6 +263,20 @@
     return '<label class="ems-c ems-tg"><input class="sw" type="checkbox" data-ems-toggle="' + esc(target) + '"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span> <span class="ems-s">' + esc(on ? S.on : S.offTag) + '</span></label>';
   }
 
+  function pvHtml() {
+    var sh = state.shadow || {};
+    var pv = sh.pv || {};
+    var info = S.pvNone;
+    if (pv.externalAt) {
+      var min = Math.max(0, Math.round((Date.now() - pv.externalAt) / 60000));
+      info = S.pvAgo + ' ' + (min < 120 ? min + ' ' + S.pvMin : Math.round(min / 60) + ' ' + S.pvH) + ' (' + pv.slots + ' ' + S.pvSlots + ')' + (pv.stale ? ' - ' + S.pvStale : '');
+    }
+    var factor = state.cfg.pv ? state.cfg.pv.factor : 1;
+    return '<div class="card"><h2>' + esc(S.pvTitle) + '</h2><p class="sub">' + esc(S.pvHint) + '</p>'
+      + '<div class="ems-row">' + field(S.pvFactor, 'ems-pv-factor', factor, 'number', ' step="0.01" min="0.1" max="3"') + '</div>'
+      + '<p class="sub" id="ems-pv-info">' + esc(info) + '</p></div>';
+  }
+
   function controlHtml() {
     var c = state.cfg;
     var rows = [toggleRow('charger', S.wallbox, c.charger.live)].concat((c.consumers || []).map(function (x) {
@@ -384,6 +401,7 @@
       + '<div class="card"><p class="sub">' + esc(S.intro) + '</p>' + check(S.enable, 'ems-enabled', c.enabled) + '</div>'
       + (chosenCount() < 5 ? '<div class="card"><p class="warn">' + esc(S.devicesMissing) + '</p></div>' : '')
       + controlHtml()
+      + pvHtml()
       + '<div class="card"><h2>' + esc(S.status) + '</h2><div id="ems-status">' + statusHtml() + '</div></div>'
       + '<div class="card"><h2>' + esc(S.wallbox) + '</h2>'
       + '<div class="ems-row">' + check(S.chargeNow, 'ems-chargenow', c.charger.chargeNow) + '</div>'

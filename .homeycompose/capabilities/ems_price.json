@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Electricity price",
+    "de": "Strompreis",
+    "fr": "Prix de l'électricité",
+    "it": "Prezzo dell'elettricità"
+  },
+  "units": "Rp./kWh",
+  "decimals": 1,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/price.svg"
+}

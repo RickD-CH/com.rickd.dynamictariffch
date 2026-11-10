@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "Set the solar forecast",
+    "de": "PV-Prognose setzen"
+  },
+  "titleFormatted": {
+    "en": "Set the solar forecast to [[data]]",
+    "de": "PV-Prognose setzen auf [[data]]"
+  },
+  "hint": {
+    "en": "Feeds your own solar forecast into the energy management. A JSON list, for example [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Each entry needs a start (ISO time or ms) and kwh (energy in the slot) or kw (average power). The slot length is end minus start, or \"hours\", otherwise 1 hour. Feed it at least every 12 hours, otherwise it counts as outdated.",
+    "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "text",
+      "name": "data",
+      "title": {
+        "en": "Forecast (JSON)",
+        "de": "Prognose (JSON)"
+      },
+      "placeholder": {
+        "en": "[{\"start\":\"...\",\"kwh\":0.4}]",
+        "de": "[{\"start\":\"...\",\"kwh\":0.4}]"
+      }
+    }
+  ]
+}

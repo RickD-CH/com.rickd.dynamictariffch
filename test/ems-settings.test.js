@@ -505,3 +505,21 @@ test('Ohne EMS-Gerät: nur ein Hinweis zum Hinzufügen, in EMS-Reiter und Setup'
   await en.ctx.window.EmsUi.init(en.api, 'en');
   assert.match(en.els.get('ems-view-main').innerHTML, /not set up yet/);
 });
+
+test('PV-Prognose-Karte: Faktor, Hinweis auf die Flow-Aktion und Alter der Einlieferung', async () => {
+  const withPv = { ...shadow, pv: { source: 'external', factor: 0.75, externalAt: Date.now() - 30 * 60000, stale: false, slots: 48 } };
+  const cfg75 = normalizeConfig({ enabled: true, pv: { factor: 0.75 } });
+  const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...withPv, config: cfg75 } });
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const html = env.els.get('ems-view-main').innerHTML;
+  assert.match(html, /PV-Prognose/);
+  assert.match(html, /PV-Prognose setzen/);
+  assert.match(html, /id="ems-pv-factor" type="number" value="0\.75"/);
+  assert.match(html, /zuletzt eingeliefert vor 30 min \(48 Einträge\)/);
+  assert.equal(env.ctx.window.EmsUi._collect().pv.factor, 0.75);
+  assert.doesNotMatch(html, /Andi|Huawei|Solcast/i);
+  // noch nichts eingeliefert
+  const none = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, pv: { source: null, factor: 1, externalAt: null, stale: true, slots: 0 } } });
+  await none.ctx.window.EmsUi.init(none.api, 'de');
+  assert.match(none.els.get('ems-view-main').innerHTML, /Noch keine Prognose eingeliefert/);
+});

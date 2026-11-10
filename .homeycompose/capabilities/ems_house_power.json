@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "House consumption",
+    "de": "Hausverbrauch",
+    "fr": "Consommation maison",
+    "it": "Consumo casa"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/ems_house.svg"
+}

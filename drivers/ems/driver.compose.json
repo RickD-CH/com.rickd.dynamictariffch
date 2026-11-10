@@ -9,10 +9,19 @@
   "class": "other",
   "capabilities": [
     "onoff",
+    "ems_charge_now",
     "ems_mode",
     "ems_status_text",
     "ems_surplus",
-    "ems_charge_now"
+    "ems_released",
+    "ems_pv_power",
+    "ems_house_power",
+    "ems_grid_power",
+    "ems_battery_power",
+    "ems_price",
+    "ems_pv_today",
+    "ems_pv_tomorrow",
+    "ems_pv_now"
   ],
   "capabilitiesOptions": {
     "onoff": {

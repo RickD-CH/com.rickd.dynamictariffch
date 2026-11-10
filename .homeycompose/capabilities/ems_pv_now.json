@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Solar forecast (now)",
+    "de": "Solarprognose (jetzt)",
+    "fr": "Prévision solaire (maintenant)",
+    "it": "Previsione solare (ora)"
+  },
+  "units": "kW",
+  "decimals": 2,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/ems_forecast.svg"
+}

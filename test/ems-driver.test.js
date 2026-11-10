@@ -15,6 +15,7 @@ class FakeDevice {
     this.errors = [];
   }
   hasCapability(c) { return c in this._caps; }
+  async addCapability(c) { this._caps[c] = null; this.added = (this.added || []).concat(c); }
   getCapabilityValue(c) { return this._caps[c] === undefined ? null : this._caps[c]; }
   async setCapabilityValue(c, v) { this._caps[c] = v; }
   registerCapabilityListener(c, f) { this.listeners[c] = f; }
@@ -30,6 +31,7 @@ Module._load = function patched(request, ...rest) {
   return origLoad.call(this, request, ...rest);
 };
 const EmsDevice = require('../drivers/ems/device');
+const { CAPABILITIES } = EmsDevice;
 const EmsDriver = require('../drivers/ems/driver');
 Module._load = origLoad;
 
@@ -56,8 +58,24 @@ test('DeviceState: ausgeschaltet, vor dem ersten Lauf, bekannter und unbekannter
   assert.equal(buildDeviceState({ enabled: false, charger: null, chargeNow: false }).mode, 'disabled');
   const first = buildDeviceState({ enabled: true, charger: null, chargeNow: false });
   assert.equal(first.mode, 'idle');
-  const s = buildDeviceState({ enabled: true, charger: { mine: { mode: 'solar_ev', reason: '16A/3ph' }, gridW: -3250.4 }, chargeNow: true });
-  assert.deepEqual(s, { enabled: true, mode: 'solar_ev', text: '16A/3ph', surplusW: 3250, chargeNow: true });
+  const s = buildDeviceState({
+    enabled: true,
+    charger: { mine: { mode: 'solar_ev', reason: '16A/3ph' }, gridW: -3250.4, pvW: 6400.6, houseW: 1200.2, batteryW: -45.5, releasedW: 3300 },
+    chargeNow: true, priceRp: 31.456, forecast: { todayKwh: 12.345, tomorrowKwh: 20.04, nowKw: 3.456 },
+  });
+  assert.deepEqual(s, {
+    enabled: true, mode: 'solar_ev', text: '16A/3ph', surplusW: 3250, pvW: 6401, houseW: 1200, gridW: -3250, batteryW: -45, releasedW: 3300,
+    chargeNow: true, priceRp: 31.5, pvTodayKwh: 12.3, pvTomorrowKwh: 20, pvNowKw: 3.46,
+  });
+  // Fehlende Werte bleiben null (werden am Gerät nicht überschrieben)
+  const partial = buildDeviceState({ enabled: true, charger: { mine: { mode: 'idle', reason: '' }, gridW: 10 }, chargeNow: false });
+  assert.equal(partial.pvW, null);
+  assert.equal(partial.pvTodayKwh, null);
+  assert.equal(partial.priceRp, null);
+  // Ausgeschaltet: keine Messwerte, aber Preis und Prognose bleiben
+  const off = buildDeviceState({ enabled: false, charger: null, chargeNow: false, priceRp: 30, forecast: { todayKwh: 1, tomorrowKwh: 2, nowKw: 0.5 } });
+  assert.equal(off.pvW, null);
+  assert.equal(off.priceRp, 30);
   assert.equal(buildDeviceState({ enabled: true, charger: { mine: { mode: 'quatsch', reason: 'x' }, gridW: 100 }, chargeNow: false }).mode, 'idle');
   assert.equal(buildDeviceState({ enabled: true, charger: { mine: { mode: 'error', reason: 'x' }, gridW: null }, chargeNow: false }).surplusW, 0);
   assert.equal(buildDeviceState({ enabled: true, charger: { mine: { mode: 'holding', reason: '' }, gridW: 400 }, chargeNow: false }).surplusW, 0, 'Netzbezug ist kein Überschuss');
@@ -74,9 +92,13 @@ test('Treiber-Konfiguration: eigene Capabilities und Flow-Karten für den Treibe
   const root = path.join(__dirname, '..');
   const drv = JSON.parse(fs.readFileSync(path.join(root, 'drivers/ems/driver.compose.json'), 'utf8'));
   assert.equal(drv.id, 'ems');
-  assert.deepEqual(drv.capabilities, ['onoff', 'ems_mode', 'ems_status_text', 'ems_surplus', 'ems_charge_now']);
-  for (const c of ['ems_mode', 'ems_status_text', 'ems_surplus', 'ems_charge_now']) {
-    assert.ok(fs.existsSync(path.join(root, '.homeycompose/capabilities', c + '.json')), c);
+  assert.deepEqual(drv.capabilities, CAPABILITIES, 'Treiber und Gerät kennen dieselben Capabilities in derselben Reihenfolge');
+  for (const c of CAPABILITIES.filter((x) => x !== 'onoff')) {
+    const file = path.join(root, '.homeycompose/capabilities', c + '.json');
+    assert.ok(fs.existsSync(file), c);
+    const cap = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.ok(cap.icon && fs.existsSync(path.join(root, cap.icon)), c + ' hat ein vorhandenes Icon');
+    assert.ok(cap.title.en && cap.title.de, c + ' hat Titel');
   }
   for (const f of ['triggers/ems_mode_changed', 'triggers/ems_consumer_switched', 'conditions/ems_mode_is']) {
     const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow', f + '.json'), 'utf8'));
@@ -121,6 +143,13 @@ const emsStub = () => {
   };
 };
 
+test('Gerät: ergänzt beim Start fehlende Capabilities (Update eines gekoppelten Geräts)', async () => {
+  const { dev } = makeDevice(emsStub());
+  await dev.onInit();
+  for (const c of CAPABILITIES) assert.ok(dev.hasCapability(c), c);
+  assert.deepEqual(dev.added.sort(), CAPABILITIES.filter((c) => !(c in CAPS)).sort());
+});
+
 test('Gerät: meldet sich beim EMS an und leitet Schalter weiter', async () => {
   const ems = emsStub();
   const { dev } = makeDevice(ems);
@@ -136,11 +165,25 @@ test('Gerät: meldet sich beim EMS an und leitet Schalter weiter', async () => {
 test('Gerät: publish setzt Capabilities, Modus-Auslöser nur bei echtem Wechsel', async () => {
   const { dev, homey } = makeDevice(emsStub());
   await dev.onInit();
-  const st = (mode, text = 't') => ({ enabled: true, mode, text, surplusW: 120, chargeNow: false });
+  const st = (mode, text = 't') => ({
+    enabled: true, mode, text, surplusW: 120, chargeNow: false, pvW: 700, houseW: 800, gridW: 8, batteryW: -46,
+    releasedW: 0, priceRp: 34.3, pvTodayKwh: 0.2, pvTomorrowKwh: 4.9, pvNowKw: 0.32,
+  });
   await dev.publish(st('idle'));
   assert.equal(dev.getCapabilityValue('ems_mode'), 'idle');
   assert.equal(dev.getCapabilityValue('ems_surplus'), 120);
   assert.equal(dev.getCapabilityValue('onoff'), true);
+  assert.equal(dev.getCapabilityValue('ems_pv_power'), 700);
+  assert.equal(dev.getCapabilityValue('ems_house_power'), 800);
+  assert.equal(dev.getCapabilityValue('ems_grid_power'), 8);
+  assert.equal(dev.getCapabilityValue('ems_battery_power'), -46);
+  assert.equal(dev.getCapabilityValue('ems_price'), 34.3);
+  assert.equal(dev.getCapabilityValue('ems_pv_tomorrow'), 4.9);
+  assert.equal(dev.getCapabilityValue('ems_pv_now'), 0.32);
+  // Fehlende Werte überschreiben nichts
+  await dev.publish({ enabled: true, mode: 'idle', text: 't', surplusW: 0, chargeNow: false, pvW: null, houseW: null, gridW: null, batteryW: null, releasedW: null, priceRp: null, pvTodayKwh: null, pvTomorrowKwh: null, pvNowKw: null });
+  assert.equal(dev.getCapabilityValue('ems_pv_power'), 700);
+  assert.equal(dev.getCapabilityValue('ems_pv_tomorrow'), 4.9);
   assert.deepEqual(homey.fired, [], 'erster Zustand löst keinen Wechsel aus');
   await dev.publish(st('idle', 'anderer Text'));
   assert.deepEqual(homey.fired, [], 'gleicher Modus löst nichts aus');
@@ -272,4 +315,41 @@ test('Controller: ein beim Start schon vorhandenes Gerät wird gefunden', () => 
   c.start();
   assert.equal(c.hasDevice(), true);
   c.stop();
+});
+
+test('Controller: PV-Prognose einliefern und Faktor setzen, Kachel bekommt die Prognose', () => {
+  const { app } = makeApp();
+  const c = new EmsController(app);
+  c.start();
+  const dev = fakeEmsDevice();
+  c.attachDevice(dev);
+  const hour = 3600 * 1000;
+  const start = Math.floor(Date.now() / hour) * hour + hour; // nächste volle Stunde
+  const res = c.setPvForecast([{ start: new Date(start).toISOString(), kwh: 2 }, { start: new Date(start + hour).toISOString(), kwh: 1 }]);
+  assert.equal(res.count, 2);
+  assert.ok(dev.published.length >= 2);
+  assert.equal(c.getShadow().pv.source, 'external');
+  assert.equal(c.getShadow().pv.slots, 2);
+  assert.throws(() => c.setPvForecast('kaputt'), /gültige JSON-Liste/);
+  assert.equal(c.setPvFactor(0.8), 0.8);
+  assert.equal(c.getConfig().pv.factor, 0.8);
+  assert.throws(() => c.setPvFactor(0), /grösser als 0/);
+  assert.throws(() => c.setPvFactor('x'), /grösser als 0/);
+  c.stop();
+});
+
+test('PV-Flow-Aktionen: an den EMS-Treiber gebunden, mit Hinweis und Beispiel', () => {
+  const root = path.join(__dirname, '..');
+  const f = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow/actions/ems_set_pv_forecast.json'), 'utf8'));
+  assert.equal(f.args[0].filter, 'driver_id=ems');
+  assert.equal(f.args[1].type, 'text');
+  assert.match(f.hint.de, /"start"/);
+  assert.match(f.hint.en, /12 hours/);
+  const k = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow/actions/ems_set_pv_factor.json'), 'utf8'));
+  assert.equal(k.args[0].filter, 'driver_id=ems');
+  assert.equal(k.args[1].type, 'number');
+  assert.ok(k.args[1].min > 0 && k.args[1].max >= 2);
+  const appJs = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  assert.match(appJs, /getActionCard\('ems_set_pv_forecast'\)/);
+  assert.match(appJs, /getActionCard\('ems_set_pv_factor'\)/);
 });

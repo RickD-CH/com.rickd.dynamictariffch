@@ -93,6 +93,11 @@ class DynamicTariffApp extends Homey.App {
 
     // Energiemanagement (Gerät "Energiemanagement"): Bedingung auf den aktuellen Modus.
     // Sofortladen und Ein/Aus sind Capabilities des Geräts, ihre Flow-Karten erzeugt Homey selbst.
+    this.homey.flow.getActionCard('ems_set_pv_forecast')
+      .registerRunListener(async (args) => { this.ems.setPvForecast(args.data); return true; });
+    this.homey.flow.getActionCard('ems_set_pv_factor')
+      .registerRunListener(async (args) => { this.ems.setPvFactor(args.factor); return true; });
+
     this.homey.flow.getConditionCard('ems_mode_is')
       .registerRunListener(async (args) => args.device.getCapabilityValue('ems_mode') === args.mode);
 
