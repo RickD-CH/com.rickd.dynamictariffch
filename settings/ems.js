@@ -23,7 +23,8 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
-      planTable: 'ABLAUF: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Für diesen Tag ist nichts geplant oder aufgezeichnet.',
+      pvReached: 'erreicht', pvReachedSoFar: 'bisher erreicht', pvForecastLeg: 'Prognose',
+      planTable: 'AB JETZT: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Es sind noch keine Preisdaten für die kommenden Stunden da.',
       planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant', planLegWallbox: 'Wallbox lädt', planLegConsumer: 'Verbraucher ein', planLegJob: 'Auftrag / Vorschau',
       calcTitle: 'BERECHNUNG', calcRow: 'Rechenintervall', calcAuto: 'Automatisch', calcEvery: 'Alle', calcSecs: 's', calcOptAuto: 'Automatisch (15 s mit Auto, 30 s mit Verbrauchern, sonst 5 min)', calcOpt15: 'Alle 15 Sekunden', calcOpt30: 'Alle 30 Sekunden', calcOpt60: 'Jede Minute', calcOpt300: 'Alle 5 Minuten',
       calcLabel: 'Wallbox und Verbraucher rechnen', calcTick: 'Batterie-Plan alle (Minuten)', calcDevices: 'gelesene Geräte', calcCalls: 'Abfragen pro Stunde',
@@ -89,7 +90,8 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
-      planTable: 'SCHEDULE: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'Nothing is planned or recorded for this day.',
+      pvReached: 'reached', pvReachedSoFar: 'reached so far', pvForecastLeg: 'Forecast',
+      planTable: 'FROM NOW: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'There is no price data for the coming hours yet.',
       planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned', planLegWallbox: 'EV charging', planLegConsumer: 'Consumer on', planLegJob: 'Job / preview',
       calcTitle: 'CALCULATION', calcRow: 'Calculation interval', calcAuto: 'Automatic', calcEvery: 'Every', calcSecs: 's', calcOptAuto: 'Automatic (15 s with a car, 30 s with consumers, else 5 min)', calcOpt15: 'Every 15 seconds', calcOpt30: 'Every 30 seconds', calcOpt60: 'Every minute', calcOpt300: 'Every 5 minutes',
       calcLabel: 'EV charger and consumers calculate', calcTick: 'Battery plan every (minutes)', calcDevices: 'devices read', calcCalls: 'requests per hour',
@@ -520,9 +522,11 @@
       + '.pl-now{position:absolute;top:0;bottom:16px;width:2px;margin-left:-1px;background:var(--st-text);opacity:.5;pointer-events:none;z-index:1}'
       + '.pl-axis{position:relative;height:14px;margin-top:2px;font-size:10px;color:var(--st-muted)}.pl-axis span{position:absolute;transform:translateX(-50%)}'
       + '.pl-c{fill:var(--st-cheap)}.pl-n{fill:var(--st-normal)}.pl-e{fill:var(--st-expensive)}.pl-past{opacity:.45}'
-      + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:#e08a1e;opacity:.85}.pl-trk{fill:var(--st-seg-bg)}'
-      + '.pl-chip{display:inline-block;background:var(--st-chip-bg);border-radius:999px;padding:1px 8px;margin:1px 4px 1px 0;font-size:11px}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.pl-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--st-muted);margin-top:8px}.pl-leg span{display:flex;align-items:center;gap:4px}'
+      + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:var(--st-muted);opacity:.45}.pl-trk{fill:var(--st-seg-bg)}'
+      + '.pl-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:0}.pl-dot.pl-c{background:var(--st-cheap)}.pl-dot.pl-n{background:var(--st-normal)}.pl-dot.pl-e{background:var(--st-expensive)}'
+      + '.pl-pva{stroke:#e08a1e;stroke-width:2}'
+      + '.pl-tab td{white-space:normal}.pl-chip{white-space:normal;display:inline-block;background:var(--st-chip-bg);border-radius:999px;padding:1px 8px;margin:1px 4px 1px 0;font-size:11px}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
+      + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
   }
@@ -664,27 +668,35 @@
     var n = day.slots.length;
     var W = n * PLAN_STEP;
     var H = 34;
-    var max = Math.max.apply(null, day.slots.map(function (s) { return s.pvKw || 0; }).concat([0.1]));
+    var max = Math.max.apply(null, day.slots.map(function (s) { return Math.max(s.pvKw || 0, s.pvActualKw || 0); }).concat([0.1]));
     var parts = ['<rect class="pl-trk" x="0" y="0" width="' + W + '" height="' + H + '" rx="3"/>'];
     day.slots.forEach(function (s, i) {
       if (!s.pvKw) return;
       var h = Math.max(1, (s.pvKw / max) * (H - 2));
       parts.push('<rect class="pl-pv" x="' + (i * PLAN_STEP) + '" y="' + (H - h).toFixed(1) + '" width="' + PLAN_STEP + '" height="' + h.toFixed(1) + '"><title>' + esc(hm(s.t) + ': ' + s.pvKw + ' kW') + '</title></rect>');
     });
+    // Was die Anlage wirklich geliefert hat: Linie über die Prognose (nur vergangene Viertelstunden mit Messung)
+    var pts = [];
+    day.slots.forEach(function (s, i) {
+      if (s.pvActualKw === null || s.pvActualKw === undefined) return;
+      pts.push({ x: i * PLAN_STEP + PLAN_STEP / 2, y: H - 1 - (s.pvActualKw / max) * (H - 3), t: s.t, kw: s.pvActualKw });
+    });
+    if (pts.length > 1) parts.push('<polyline class="pl-pva" fill="none" vector-effect="non-scaling-stroke" points="' + pts.map(function (q) { return q.x + ',' + q.y.toFixed(1); }).join(' ') + '"/>');
+    pts.forEach(function (q) { parts.push('<circle cx="' + q.x + '" cy="' + q.y.toFixed(1) + '" r="3" fill="transparent"><title>' + esc(hm(q.t) + ': ' + q.kw + ' kW ' + S.pvReached) + '</title></circle>'); });
     return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
   }
 
-  /** Legende gleich unter den Grafiken: nur, was in diesem Tag vorkommt. */
-  function legendHtml(day) {
-    var kinds = {};
-    day.rows.forEach(function (row) { kinds[row.kind] = true; });
-    var sq = function (bg, text) { return '<span><i style="background:' + bg + '"></i>' + esc(text) + '</span>'; };
-    var html = '<div class="pl-leg"><span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>';
-    if (kinds.battery) html += sq(PLAN_COLORS.charge, S.planBatCharge) + sq(PLAN_COLORS.hold, S.planBatHold);
-    if (kinds.charger) html += sq(PLAN_COLORS.instant_ev, S.planLegWallbox);
-    if (kinds.consumer) html += sq(COLORS.dehumidifier, S.planLegConsumer);
-    if (kinds.job) html += sq('#0277bd', S.planLegJob);
-    return html + '</div>';
+  /** Legende gleich unter der jeweiligen Grafik. */
+  function legendFor(kind) {
+    var sq = function (bg, text, extra) { return '<span><i style="background:' + bg + ';' + (extra || '') + '"></i>' + esc(text) + '</span>'; };
+    var items = '';
+    if (kind === 'price') items = '<span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>' + sq('rgba(2,119,189,.25)', S.planBlock);
+    else if (kind === 'pv') items = sq('var(--st-muted)', S.pvForecastLeg, 'opacity:.5') + '<span><i style="background:#e08a1e;height:3px;margin-top:3px"></i>' + esc(S.pvReached) + '</span>';
+    else if (kind === 'battery') items = sq(PLAN_COLORS.charge, S.planBatCharge) + sq(PLAN_COLORS.hold, S.planBatHold) + sq(PLAN_COLORS.normal, S.planBatNormal) + sq('transparent', S.planTag, 'border:1px dashed var(--st-muted)');
+    else if (kind === 'charger') items = sq(PLAN_COLORS.solar_ev, S.planChSolar) + sq(PLAN_COLORS.instant_ev, S.planChFull);
+    else if (kind === 'consumer') items = sq(COLORS.dehumidifier, S.planOn);
+    else if (kind === 'job') items = sq('#0277bd', S.planOn) + sq('transparent', S.planTag, 'border:1px dashed #0277bd');
+    return items ? '<div class="pl-leg">' + items + '</div>' : '';
   }
 
   /** Was in dieser Zelle der Zeile "aktiv" ist (Text) oder null. */
@@ -699,27 +711,33 @@
     return null;
   }
 
-  /** Tabelle: Uhrzeit von-bis, was passiert, Durchschnittspreis. Gleiche Zustände werden zu einem Zeitraum zusammengefasst. */
-  function planTableHtml(day, p) {
+  /**
+   * Tabelle ab jetzt, über beide Tage, solange Preisdaten da sind: Zeitraum, was passiert, Durchschnittspreis (Punkt = Preisniveau).
+   * Neue Zeile bei jedem Wechsel von Preisniveau oder Zustand.
+   */
+  function planTableHtml(p) {
     var runs = [];
     var cur = null;
-    day.slots.forEach(function (slot, i) {
-      var parts = [];
-      day.rows.forEach(function (row) { var a = planActive(row, row.cells[i]); if (a) parts.push(a); });
-      var key = parts.join('|');
-      if (!key) { cur = null; return; }
-      if (cur && cur.key === key) { cur.i1 = i; } else { cur = { key: key, parts: parts, i0: i, i1: i }; runs.push(cur); }
+    p.days.forEach(function (day) {
+      cur = null;
+      day.slots.forEach(function (slot, i) {
+        if (slot.t < p.nowQ || slot.price === null) { cur = null; return; }
+        var parts = [];
+        day.rows.forEach(function (row) { var a = planActive(row, row.cells[i]); if (a) parts.push(a); });
+        var key = day.key + '|' + slot.level + '|' + parts.join('|');
+        if (cur && cur.key === key) { cur.to = slot.t + 900000; cur.prices.push(slot.price); }
+        else { cur = { key: key, day: day.key, level: slot.level, parts: parts, from: slot.t, to: slot.t + 900000, prices: [slot.price] }; runs.push(cur); }
+      });
     });
     var head = '<p class="lbl">' + esc(S.planTable) + '</p>';
     if (!runs.length) return head + '<p class="sub">' + esc(S.planNothing) + '</p>';
     var rows = runs.map(function (r) {
-      var from = day.slots[r.i0].t;
-      var to = day.slots[r.i1].t + 900000;
-      var prices = day.slots.slice(r.i0, r.i1 + 1).map(function (x) { return x.price; }).filter(function (v) { return v !== null; });
-      var avg = prices.length ? Math.round(prices.reduce(function (a, b) { return a + b; }, 0) / prices.length * 10) / 10 : '-';
-      var cls = p.nowMs >= from && p.nowMs < to ? 'pl-cur' : (to <= p.nowMs ? 'pl-pastrow' : '');
-      return '<tr class="' + cls + '"><td style="white-space:nowrap">' + hm(from) + ' - ' + hm(to) + '</td><td>'
-        + r.parts.map(function (x) { return '<span class="pl-chip">' + esc(x) + '</span>'; }).join('') + '</td><td style="text-align:right">' + avg + '</td></tr>';
+      var avg = Math.round(r.prices.reduce(function (a, b) { return a + b; }, 0) / r.prices.length * 10) / 10;
+      var cls = p.nowMs >= r.from && p.nowMs < r.to ? 'pl-cur' : '';
+      var lv = r.level === 'cheap' ? 'pl-c' : (r.level === 'expensive' ? 'pl-e' : 'pl-n');
+      var what = r.parts.length ? r.parts.map(function (x) { return '<span class="pl-chip">' + esc(x) + '</span>'; }).join('') : '<span class="ems-muted">-</span>';
+      return '<tr class="' + cls + '"><td>' + (r.day === 'tomorrow' ? '<span class="ems-s">' + esc(S.planTomorrow) + '</span> ' : '') + '<span style="white-space:nowrap">' + hm(r.from) + ' - ' + hm(r.to) + '</span></td><td>' + what
+        + '</td><td style="text-align:right;white-space:nowrap">' + avg + ' <i class="pl-dot ' + lv + '"></i></td></tr>';
     }).join('');
     return head + '<div style="overflow-x:auto"><table class="ems-t pl-tab"><thead><tr><th>' + esc(S.planColTime) + '</th><th>' + esc(S.planColWhat) + '</th><th style="text-align:right">' + esc(S.planColPrice) + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
@@ -741,18 +759,17 @@
       body = '<p class="sub">' + esc(S.planNoPrices) + '</p>';
     } else {
       body += '<div class="pl-w">' + nowLine;
-      body += '<div class="pl-lbl">' + esc(S.planPrice) + '</div>' + planPriceSvg(day, p.nowMs);
-      if (day.slots.some(function (s) { return s.pvKw !== null; })) body += '<div class="pl-lbl">' + esc(S.planPv) + '</div>' + planPvSvg(day);
+      body += '<div class="pl-lbl">' + esc(S.planPrice) + '</div>' + planPriceSvg(day, p.nowMs) + legendFor('price');
+      if (day.slots.some(function (s) { return s.pvKw !== null || (s.pvActualKw !== null && s.pvActualKw !== undefined); })) body += '<div class="pl-lbl">' + esc(S.planPv) + '</div>' + planPvSvg(day) + legendFor('pv');
       day.rows.forEach(function (row) {
         var label;
         if (row.kind === 'battery') label = S.planBat;
         else if (row.kind === 'charger') label = S.planWallbox + (test.charger ? ' - ' + S.planTest : '');
         else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord);
         else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
-        body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day);
+        body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day) + legendFor(row.kind);
       });
       body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
-      body += legendHtml(day);
       body += '</div>';
     }
     var cards = '';
@@ -761,10 +778,10 @@
       cards = '<div class="ems-cards">'
         + (b ? '<div class="ems-card"><div class="ems-k">' + esc(S.planBlock) + '</div><div class="ems-v">' + hm(b.from) + ' - ' + hm(b.to) + '</div><div class="ems-s">&#216; ' + b.avg + ' Rp./kWh</div></div>' : '')
         + '<div class="ems-card"><div class="ems-k">' + esc(S.planPriceRange) + '</div><div class="ems-v">' + day.stats.min + ' - ' + day.stats.max + '</div><div class="ems-s">&#216; ' + day.stats.avg + ' Rp./kWh</div></div>'
-        + (day.stats.pvKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + day.stats.pvKwh + ' kWh</div></div>' : '')
+        + (day.stats.pvKwh !== null || day.stats.pvActualKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + (day.stats.pvKwh !== null ? day.stats.pvKwh : '-') + ' kWh</div>' + (day.stats.pvActualKwh !== null ? '<div class="ems-s">' + esc(S.pvReachedSoFar) + ' ' + day.stats.pvActualKwh + ' kWh</div>' : '') + '</div>' : '')
         + '</div>';
     }
-    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(day, p) : '') + '<p class="ems-why">' + esc(S.planNote) + '</p></div>' + previewFormHtml();
+    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(p) : '') + '<p class="ems-why">' + esc(S.planNote) + '</p></div>' + previewFormHtml();
   }
 
   // ---------------------------------------------------------------- Vorschau: Auftrag planen

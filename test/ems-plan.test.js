@@ -247,34 +247,69 @@ test('Anzeige: ohne Plan-Daten oder ohne Preise kein Absturz, englische Texte', 
   assert.match(en.els.get('ems-view-main').innerHTML, /Cheapest block \(2 h\)/);
 });
 
-test('Anzeige: Legende direkt unter den Grafiken (vor den Kennzahlen), Ablauf-Tabelle mit Zeitraum, Inhalt und Preis', async () => {
+test('Anzeige: Legende unter jeder Grafik, Tabelle ab jetzt über beide Tage mit Preisniveau und Zuständen', async () => {
   const p = {
     ...plan({
       hasBattery: true, chargerEnabled: true, consumers: [{ id: 'dry', name: 'Entfeuchter' }], reserveHours: 6,
-      batteryPlan: { mode: 'hold', chargeSlots: [{ start: day0 + 13 * 3600000, end: day0 + 13.25 * 3600000, price: 5 }, { start: day0 + 13.25 * 3600000, end: day0 + 13.5 * 3600000, price: 5 }], reserveSlots: [] },
-      log: [{ t: day0 + 10 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 } }, { t: day0 + 10.25 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 } }],
+      pvSlots: [{ end: day0 + 12 * 3600000, kw: 3, h: 1 }],
+      batteryPlan: { mode: 'hold', chargeSlots: [{ start: day0 + 13 * 3600000, end: day0 + 13.25 * 3600000, price: 5 }, { start: day0 + 13.25 * 3600000, end: day0 + 13.5 * 3600000, price: 5 }, { start: day1 + 2 * 3600000, end: day1 + 2.25 * 3600000, price: 5 }], reserveSlots: [] },
+      log: [{ t: day0 + 10 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 }, p: 2500, pn: 3 }, { t: day0 + 10.25 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 }, p: 2600, pn: 3 }],
     }),
     active: true, dryRun: {},
   };
   const env = await startUi(p);
   const html = env.els.get('ems-view-main').innerHTML;
-  const at = (s) => html.indexOf(s);
-  assert.ok(at('class="pl-leg"') > at('class="pl-axis"'), 'Legende nach der Zeitachse');
-  assert.ok(at('class="pl-leg"') < at('class="ems-cards"'), 'Legende vor den Kennzahlen');
-  assert.match(html, /Wallbox lädt/);
-  assert.match(html, /Verbraucher ein/);
-  assert.match(html, /ABLAUF: WANN PASSIERT WAS/);
+  const at = (s, from = 0) => html.indexOf(s, from);
+  // je Grafik eine eigene Legende, direkt nach ihrer Grafik
+  assert.equal((html.match(/class="pl-leg"/g) || []).length, 5, 'Preis, Solar, Batterie, Wallbox, Entfeuchter');
+  const priceSvg = at('<svg class="pl-svg" viewBox="0 0 960 80"');
+  assert.ok(at('class="pl-leg"', priceSvg) > priceSvg && at('class="pl-leg"', priceSvg) < at('Solar-Prognose'), 'Preis-Legende vor dem Solar-Titel');
+  const batLabel = at('Batterie (Plan)');
+  assert.ok(at('Netzladen', batLabel) > batLabel && at('Netzladen', batLabel) < at('Wallbox (Verlauf)'), 'Batterie-Legende zwischen Batterie- und Wallbox-Grafik');
+  assert.ok(at('Prognose</span><span>') > 0 || at('>Prognose<') > 0 || html.includes('Prognose'), 'Solar-Legende');
+  assert.doesNotMatch(html.slice(0, at('class="ems-cards"')).split('class="pl-axis"')[1] || '', /class="pl-leg"/, 'keine gesammelte Legende mehr nach der Zeitachse');
+  // Tabelle
   const table = html.slice(at('class="ems-t pl-tab"'));
-  assert.match(table, /10:00 - 10:30/, 'zwei Viertelstunden mit gleichem Zustand = ein Zeitraum');
-  assert.match(table, /Wallbox: lädt \(Solar\)/);
-  assert.match(table, /Entfeuchter: ein/);
+  assert.match(html, /AB JETZT: WANN PASSIERT WAS/);
+  assert.ok(table.includes('Morgen</span>'), 'morgen ist dabei');
+  assert.ok(table.includes('Batterie: Netzladen (geplant)'));
   assert.match(table, /13:00 - 13:30/);
-  assert.match(table, /Batterie: Netzladen \(geplant\)/);
-  assert.match(table, /class="pl-cur"|class="pl-pastrow"/, 'aktueller und vergangene Zeilen markiert');
+  assert.match(table, /class="pl-cur"/, 'aktuelle Zeile');
+  assert.match(table, /pl-dot pl-c/, 'Preisniveau als Punkt');
   assert.doesNotMatch(table.slice(0, table.indexOf('</table>')), /undefined|NaN/);
+  assert.doesNotMatch(table, /10:00 - 10:30/, 'Vergangenes steht nicht in der Tabelle');
 });
 
-test('Anzeige: Tabelle ohne Ereignisse sagt es', async () => {
-  const env = await startUi({ ...plan(), dryRun: {} });
-  assert.match(env.els.get('ems-view-main').innerHTML, /Für diesen Tag ist nichts geplant oder aufgezeichnet/);
+test('Anzeige: Solar-Grafik zeigt mit einer Linie, was die Anlage bisher geliefert hat, plus Kennzahl', async () => {
+  const log = [];
+  for (let q = 0; q < 8; q++) log.push({ t: day0 + 9 * 3600000 + q * Q, p: 1000 + q * 500, pn: 5 });
+  const p = { ...plan({ pvSlots: [{ end: day0 + 12 * 3600000, kw: 3, h: 3 }], log }), dryRun: {} };
+  const day = p.days[0];
+  assert.equal(day.slots[9 * 4].pvActualKw, 1);
+  assert.equal(day.slots[9 * 4 + 7].pvActualKw, 4.5);
+  assert.equal(day.slots[11 * 4].pvActualKw, null);
+  assert.equal(day.stats.pvActualKwh, 5.5);
+  const env = await startUi(p);
+  const html = env.els.get('ems-view-main').innerHTML;
+  assert.match(html, /<polyline class="pl-pva"/);
+  assert.ok(html.includes('bisher erreicht 5.5 kWh'));
+  assert.match(html, /kW erreicht/);
+  // ohne Messung keine Linie
+  const none = await startUi({ ...plan({ pvSlots: [{ end: day0 + 12 * 3600000, kw: 3, h: 3 }] }), dryRun: {} });
+  assert.doesNotMatch(none.els.get('ems-view-main').innerHTML, /<polyline/);
+});
+
+test('PlanLog: PV-Leistung wird je Viertelstunde gemittelt', () => {
+  const log = new PlanLog(memStore());
+  const t = NOW - (NOW % Q);
+  log.record({ nowMs: t + 1000, pvW: 1000 });
+  log.record({ nowMs: t + 31000, pvW: 3000 });
+  log.record({ nowMs: t + 61000, pvW: null });
+  assert.equal(log.entries[0].p, 2000);
+  assert.equal(log.entries[0].pn, 2);
+});
+
+test('Anzeige: Tabelle ohne Preisdaten sagt es', async () => {
+  const env = await startUi({ ...buildPlan({ nowMs: NOW, tz: TZ, priceSlots: [], log: [], consumers: [] }), dryRun: {} });
+  assert.match(env.els.get('ems-view-main').innerHTML, /Für diesen Tag sind noch keine Preise da/);
 });
