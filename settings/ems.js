@@ -52,7 +52,10 @@
       whyBat: 'Optional. Mit Batterie gibt es Schutz-Stufen, die Prognose-Sperre und Modi nach Batteriestand. Ohne läuft alles nach Überschuss.',
       whyPrice: 'Voraussetzung: das Preis-Gerät «Dynamischer Stromtarif CH» ist eingerichtet. Die 15-Minuten-Preise kommen automatisch von dort, hier ist nichts zu wählen.',
       priceMissing: 'Preis-Gerät fehlt - zuerst in Homey hinzufügen', noPriceDevice: 'Das Energiemanagement braucht das Preis-Gerät «Dynamischer Stromtarif CH». Füge es in Homey unter «Geräte» → «+» hinzu.',
-      whyFc: 'Optional. Du lieferst deine PV-Prognose per Flow-Aktion «PV-Prognose setzen» ein. Sie steuert die Prognose-Sperre.',
+      whyFc: 'Optional. Sie steuert die Prognose-Sperre und die Plan-Sicht. Homey liefert Tageswerte (heute, morgen), die App verteilt sie als Tageskurve. Genauer ist eine eigene Prognose in Stunden, die du per Flow-Aktion «PV-Prognose setzen» einlieferst.',
+      fcSource: 'Quelle', fcSrcAuto: 'Automatisch (eingeliefert, sonst Homey)', fcSrcHomey: 'Homey (Energie-Prognose)', fcSrcDevice: 'Tageswerte eines Geräts', fcSrcExternal: 'Nur per Flow-Aktion einliefern',
+      fcToday: 'Wert für heute (kWh)', fcTomorrow: 'Wert für morgen (kWh)', fcFrom: 'Quelle', fcNames: { homey: 'Homey', device: 'Gerät', external: 'Flow-Aktion', fallback: 'Vergleichsquelle' }, fcDays: 'heute', fcDay2: 'morgen',
+      fcCurveHint: 'Aus einem Tageswert entsteht eine Kurve zwischen Sonnenaufgang und -untergang. Das ist eine Näherung ohne Wolkenverlauf.',
       autoPrice: 'aus dieser App', fcNone: 'nicht eingeliefert', fcAge: 'zuletzt vor', fcStale: 'veraltet', fcSlots: 'Einträge', min: 'min', h: 'h',
       factor: 'Korrekturfaktor', factorHint: 'Wird auf jeden Wert der Prognose angewendet, zum Beispiel 0.75, wenn sie meist 25 % zu hoch liegt.',
       wallbox: 'Wallbox', chargeNow: 'Sofort laden (volle Leistung)', addConsumer: 'Verbraucher hinzufügen', remove: 'Entfernen',
@@ -119,7 +122,10 @@
       whyBat: 'Optional. With a battery there are protection levels, the forecast gate and modes by battery level. Without it everything runs by surplus.',
       whyPrice: 'Prerequisite: the "Swiss Dynamic Electricity Tariff" price device is set up. The 15-minute prices come from it automatically, nothing to choose here.',
       priceMissing: 'Price device missing - add it in Homey first', noPriceDevice: 'Energy management needs the "Swiss Dynamic Electricity Tariff" price device. Add it in Homey under Devices → "+".',
-      whyFc: 'Optional. You feed your solar forecast with the Flow action "Set the solar forecast". It drives the forecast gate.',
+      whyFc: 'Optional. It drives the forecast gate and the plan view. Homey provides daily values (today, tomorrow) which the app spreads into a daily curve. More precise is your own hourly forecast fed with the Flow action "Set the solar forecast".',
+      fcSource: 'Source', fcSrcAuto: 'Automatic (fed in, otherwise Homey)', fcSrcHomey: 'Homey (energy forecast)', fcSrcDevice: 'Daily values of a device', fcSrcExternal: 'Only fed in by Flow action',
+      fcToday: 'Value for today (kWh)', fcTomorrow: 'Value for tomorrow (kWh)', fcFrom: 'Source', fcNames: { homey: 'Homey', device: 'device', external: 'Flow action', fallback: 'comparison source' }, fcDays: 'today', fcDay2: 'tomorrow',
+      fcCurveHint: 'A daily value becomes a curve between sunrise and sunset. This is an approximation without cloud cover.',
       autoPrice: 'from this app', fcNone: 'not fed', fcAge: 'last', fcStale: 'outdated', fcSlots: 'entries', min: 'min', h: 'h',
       factor: 'Correction factor', factorHint: 'Applied to every forecast value, for example 0.75 if it is usually 25 % too high.',
       wallbox: 'EV charger', chargeNow: 'Charge now (full power)', addConsumer: 'Add consumer', remove: 'Remove',
@@ -271,10 +277,14 @@
   }
   function forecastInfo() {
     var pv = (state.shadow && state.shadow.pv) || {};
-    if (!pv.externalAt) return { text: S.fcNone, cls: 'warn' };
-    var min = Math.max(0, Math.round((Date.now() - pv.externalAt) / 60000));
+    var at = pv.source === 'external' ? pv.externalAt : pv.fetchedAt;
+    if (!pv.source || !at) return { text: S.fcNone, cls: 'warn' };
+    var min = Math.max(0, Math.round((Date.now() - at) / 60000));
     var ago = min < 120 ? min + ' ' + S.min : Math.round(min / 60) + ' ' + S.h;
-    return { text: S.fcAge + ' ' + ago + ' (' + pv.slots + ' ' + S.fcSlots + ')' + (pv.stale ? ' - ' + S.fcStale : ''), cls: pv.stale ? 'warn' : 'ok' };
+    var name = (S.fcNames && S.fcNames[pv.source]) || pv.source;
+    var daily = pv.source !== 'external' && pv.daily ? ', ' + S.fcDays + ' ' + (pv.daily.todayKwh === null ? '-' : Math.round(pv.daily.todayKwh * 10) / 10) + ' / ' + S.fcDay2 + ' ' + (pv.daily.tomorrowKwh === null ? '-' : Math.round(pv.daily.tomorrowKwh * 10) / 10) + ' kWh' : '';
+    var slots = pv.source === 'external' ? ' (' + pv.slots + ' ' + S.fcSlots + ')' : daily;
+    return { text: S.fcFrom + ' ' + name + ', ' + S.fcAge + ' ' + ago + slots + (pv.stale ? ' - ' + S.fcStale : ''), cls: pv.stale ? 'warn' : 'ok' };
   }
   function srcSummary(s) {
     if (s.key === 'price') return priceMissing() ? { text: S.priceMissing, cls: 'bad' } : { text: S.autoPrice, cls: 'ok' };
@@ -300,9 +310,20 @@
     if (s.key === 'price') return why;
     if (s.key === 'fc') {
       var info = forecastInfo();
-      var factor = state.cfg.pv ? state.cfg.pv.factor : 1;
-      return why + '<div class="ems-row">' + field(S.factor, 'ems-pv-factor', factor, 'number', ' step="0.01" min="0.1" max="3"') + '</div><p class="ems-why">' + esc(S.factorHint) + '</p>'
-        + '<p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
+      var pvc = state.cfg.pv || {};
+      var factor = pvc.factor === undefined ? 1 : pvc.factor;
+      var srcMode = pvc.source || 'auto';
+      var dev = pvc.device || { id: '', today: '', tomorrow: '' };
+      var so = function (v, label) { return '<option value="' + v + '"' + (srcMode === v ? ' selected' : '') + '>' + esc(label) + '</option>'; };
+      var sourceRow = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.fcSource) + '</span><select data-ems-pv="source">'
+        + so('auto', S.fcSrcAuto) + so('homey', S.fcSrcHomey) + so('device', S.fcSrcDevice) + so('external', S.fcSrcExternal) + '</select></label></div>';
+      var deviceRow = srcMode === 'device'
+        ? '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select data-ems-pv="device">' + deviceOptions(dev.id, null, S.pick) + '</select></label>'
+          + '<label class="ems-f ems-wide"><span>' + esc(S.fcToday) + '</span><select data-ems-pv="today">' + capOptions(dev.id, /./, dev.today) + '</select></label>'
+          + '<label class="ems-f ems-wide"><span>' + esc(S.fcTomorrow) + '</span><select data-ems-pv="tomorrow">' + capOptions(dev.id, /./, dev.tomorrow) + '</select></label></div>'
+        : '';
+      return why + sourceRow + deviceRow + '<div class="ems-row">' + field(S.factor, 'ems-pv-factor', factor, 'number', ' step="0.01" min="0.1" max="3"') + '</div><p class="ems-why">' + esc(S.factorHint) + '</p>'
+        + '<p class="ems-why">' + esc(S.fcCurveHint) + '</p><p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
     }
     var d = srcDevice(s.key);
     return why + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
@@ -995,7 +1016,7 @@
       var cap = val('src-' + s.key + '-cap', d.cap);
       setSrc(s.key, id, id === d.id ? cap : d.cap);
     });
-    if (state.open['src-fc']) state.cfg.pv = { factor: num('ems-pv-factor', state.cfg.pv ? state.cfg.pv.factor : 1) };
+    if (state.open['src-fc']) state.cfg.pv = Object.assign({}, state.cfg.pv, { factor: num('ems-pv-factor', state.cfg.pv ? state.cfg.pv.factor : 1) });
     state.rows.forEach(function (r, i) {
       var p = 'row' + i + '-';
       if (!state.open['row' + i]) return;
@@ -1045,7 +1066,7 @@
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, andiEms: c.devices.andiEms },
       battery: { deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS },
-      pv: { factor: c.pv ? c.pv.factor : 1 },
+      pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
       refreshS: Number(c.refreshS) || 0,
       tickMinutes: Number(c.tickMinutes) || 5,
       consumers: consumers,
@@ -1208,6 +1229,24 @@
     var t = ev.target;
     if (!t || !t.getAttribute) return;
     var g = function (n) { var v = t.getAttribute(n); return v === null || v === undefined ? null : v; };
+    var pvk = g('data-ems-pv');
+    if (pvk !== null) {
+      sync();
+      var pc = state.cfg.pv = Object.assign({ factor: 1, source: 'auto', device: { id: '', today: '', tomorrow: '' } }, state.cfg.pv);
+      pc.device = Object.assign({ id: '', today: '', tomorrow: '' }, pc.device);
+      if (pvk === 'source') pc.source = t.value;
+      else if (pvk === 'device') {
+        pc.device.id = t.value;
+        var dd = findDevice(t.value);
+        var caps = dd ? (dd.caps || []) : [];
+        var titles = (dd && dd.capTitles) || {};
+        var pick = function (re) { return caps.filter(function (c) { return re.test(c) || re.test(titles[c] || ''); })[0] || ''; };
+        pc.device.today = pick(/today|heute/i);
+        pc.device.tomorrow = pick(/tomorrow|morgen/i);
+      } else pc.device[pvk] = t.value;
+      renderSetup();
+      return;
+    }
     var calc = g('data-ems-calc');
     if (calc !== null) {
       sync();
