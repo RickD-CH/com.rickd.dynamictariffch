@@ -43,6 +43,10 @@ module.exports = {
     return homey.app.ems.getPlan();
   },
 
+  async postEmsPlanPreview({ homey, body }) {
+    return homey.app.ems.previewPlan(body);
+  },
+
   async postEmsRun({ homey }) {
     await homey.app.ems.runNow();
     return homey.app.ems.getShadow();

@@ -160,6 +160,10 @@
       "method": "get",
       "path": "/ems/plan"
     },
+    "postEmsPlanPreview": {
+      "method": "post",
+      "path": "/ems/plan/preview"
+    },
     "postEmsRun": {
       "method": "post",
       "path": "/ems/run"
