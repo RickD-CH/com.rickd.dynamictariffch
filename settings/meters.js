@@ -120,27 +120,28 @@
     var seen = (state.seen && state.seen[key]) || {};
     var chosen = !!(devId && cap);
     var dev = findDevice(devId);
-    var how; var cls = 'ok';
+    var how; var cls = 'mt-ok';
     var autoRecent = !!seen.auto;
     var flowRecent = !!seen.flow;
     if (chosen && c.enabled && flowRecent) how = S.feedBoth;
     else if (chosen && c.enabled) how = S.feedAuto;
     else if (flowRecent) how = S.feedFlow;
-    else if (chosen) { how = S.feedAutoOff; cls = 'warn'; }
-    else { how = S.feedNone; cls = 'warn'; }
+    else if (chosen) { how = S.feedAutoOff; cls = 'mt-warn'; }
+    else { how = S.feedNone; cls = 'mt-warn'; }
     var detail = chosen ? (dev ? dev.name : devId) + ' - ' + capLabel(dev, cap) : '';
     var last = [];
     if (seen.auto) last.push(S.feedAutoAgo + ' ' + ago(seen.auto));
     if (seen.flow) last.push(S.feedFlowAgo + ' ' + ago(seen.flow));
-    return '<tr><td>' + esc(label) + '</td><td class="' + cls + '">' + esc(how) + (detail ? '<div class="sub">' + esc(detail) + '</div>' : '') + '</td><td>' + esc(last.length ? last.join(', ') : S.feedNoReport) + '</td></tr>';
+    return '<div class="mt-feed"><div class="mt-feed-n"><b>' + esc(label) + '</b></div><div class="mt-feed-h ' + cls + '">' + esc(how) + '</div>'
+      + (detail ? '<div class="sub mt-feed-d">' + esc(detail) + '</div>' : '')
+      + '<div class="sub mt-feed-l">' + esc(last.length ? last.join(' - ') : S.feedNoReport) + '</div></div>';
   }
 
   function feedTable() {
     var c = state.cfg;
     var rows = KINDS.map(function (k) { return feedRow(S[k], k, c.sources[k].deviceId, c.sources[k].capability); });
     (c.consumers || []).forEach(function (x) { if (x.name) rows.push(feedRow(x.name, 'consumer:' + x.name, x.deviceId, x.capability)); });
-    return '<h3>' + esc(S.feedTitle) + '</h3><p class="sub">' + esc(S.feedHint) + '</p>'
-      + '<table class="ems-t"><thead><tr><th>' + esc(S.feedSource) + '</th><th>' + esc(S.feedHow) + '</th><th>' + esc(S.feedLast) + '</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
+    return '<h3>' + esc(S.feedTitle) + '</h3><p class="sub">' + esc(S.feedHint) + '</p><div class="mt-feeds">' + rows.join('') + '</div>';
   }
 
   function row(label, idPrefix, devId, cap, statusKey, nameField) {
@@ -168,6 +169,8 @@
       + '.mt-f{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--st-muted);flex:1 1 180px}'
       + '.mt-f select{font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);width:100%}'
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
+      + '.mt-feed{padding:8px 0;border-bottom:1px solid var(--st-border);font-size:13px}.mt-feed-h{font-weight:600}.mt-feed-h.mt-ok{color:var(--st-cheap)}.mt-feed-h.mt-warn{color:#b9770e}'
+      + '.mt-feed-d,.mt-feed-l{font-size:12px;overflow-wrap:anywhere;word-break:break-word;margin-top:1px}'
       + '</style>'
       + feedTable()
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
