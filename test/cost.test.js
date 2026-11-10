@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { CostTracker, normalizeRef, isLowTariff } = require('../lib/CostTracker');
+const { CostTracker, normalizeRef, isLowTariff, MAX_CONSUMERS } = require('../lib/CostTracker');
 
 const TZ = 'Europe/Zurich';
 // 2027-01-14 (Thu) 10:00 local = 09:00Z
@@ -173,7 +173,7 @@ test('Verbraucher: Durchschnittspreis, Vorteil zum Tagesmittel und Ersparnis geg
   assert.equal(c.advantage, 15);
   assert.equal(c.savingsVsRef, 40);
   assert.equal(t.reportConsumer('', 1, at(3, 30), priceAt, REF).status, 'invalid');
-  for (let i = 0; i < 6; i += 1) t.reportConsumer(`V${i}`, 1, at(3, 30), priceAt, REF);
+  for (let i = 0; i < MAX_CONSUMERS - 1; i += 1) t.reportConsumer(`V${i}`, 1, at(3, 30), priceAt, REF); // E-Auto ist schon der erste
   assert.equal(t.reportConsumer('zu viel', 1, at(3, 30), priceAt, REF).status, 'limit');
 });
 

@@ -11,7 +11,7 @@
       enable: 'Zählerstände automatisch lesen',
       import: 'Netzbezug', export: 'Einspeisung', battery_charge: 'Batterie-Ladung', battery_discharge: 'Batterie-Entladung',
       device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- nicht verwendet -', pickFirst: '- zuerst Gerät wählen -',
-      consumers: 'Verbraucher (optional)', consumerHint: 'Zum Beispiel Auto oder Wärmepumpe: zeigt, zu welchem Preis sie liefen. Höchstens 6.',
+      consumers: 'Verbraucher (optional)', consumerHint: 'Zum Beispiel Auto oder Wärmepumpe: zeigt, zu welchem Preis sie liefen. Höchstens 12.',
       name: 'Name', add: 'Verbraucher hinzufügen', remove: 'Entfernen', save: 'Speichern und jetzt lesen', saved: 'Gespeichert',
       error: 'Fehler', last: 'zuletzt', ago: 'vor', min: 'min', sec: 's', kwh: 'kWh', never: 'noch nicht gelesen',
       flowNote: 'Alternativ kannst du die Werte weiter per Flow melden (siehe unten). Beides zusammen ist unproblematisch.',
@@ -22,7 +22,7 @@
       enable: 'Read meter readings automatically',
       import: 'Grid import', export: 'Grid export', battery_charge: 'Battery charge', battery_discharge: 'Battery discharge',
       device: 'Device', value: 'Value', pick: '- choose device -', none: '- not used -', pickFirst: '- choose a device first -',
-      consumers: 'Consumers (optional)', consumerHint: 'For example car or heat pump: shows at what price they ran. At most 6.',
+      consumers: 'Consumers (optional)', consumerHint: 'For example car or heat pump: shows at what price they ran. At most 12.',
       name: 'Name', add: 'Add consumer', remove: 'Remove', save: 'Save and read now', saved: 'Saved',
       error: 'Error', last: 'last', ago: 'ago', min: 'min', sec: 's', kwh: 'kWh', never: 'not read yet',
       flowNote: 'Alternatively you can keep reporting the values with a Flow (see below). Both together is fine.',
@@ -38,7 +38,7 @@
   };
   var KINDS = ['import', 'export', 'battery_charge', 'battery_discharge'];
   var CAP_RE = /^meter_power/;
-  var MAX_CONSUMERS = 6; // gleiche Grenze wie die Kostenrechnung
+  var MAX_CONSUMERS = 12; // gleiche Grenze wie die Kostenrechnung (lib/CostTracker.js)
 
   var api = null, S = STR.en, LANG = 'en';
   var state = { cfg: null, status: {}, devices: [] };

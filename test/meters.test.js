@@ -47,7 +47,7 @@ test('Konfiguration: Standard ist aus, ungültige Einträge fliegen raus', () =>
   assert.equal(d.sources.import.deviceId, 'a');
   assert.equal(d.sources.bogus, undefined);
   assert.equal(d.consumers.length, 1);
-  assert.equal(normalizeMeters({ consumers: new Array(20).fill({ name: 'x', deviceId: 'a', capability: 'b' }) }).consumers.length, 6);
+  assert.equal(normalizeMeters({ consumers: new Array(20).fill({ name: 'x', deviceId: 'a', capability: 'b' }) }).consumers.length, 12);
 });
 
 test('Lesen und Melden: gewählte Zähler gehen als Zählerstand ans Innostrom-Gerät', async () => {
@@ -213,4 +213,12 @@ test('MetersUi: neutral, keine Hersteller- oder Personennamen', async () => {
   const en = makeUi(baseResponses);
   await en.ctx.window.MetersUi.init(en.api, 'en');
   assert.doesNotMatch(en.els.get('meters-auto').innerHTML, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
+});
+
+test('Grenze für Verbraucher: Oberfläche und Kostenrechnung stimmen überein (12)', () => {
+  const { MAX_CONSUMERS } = require('../lib/CostTracker');
+  assert.equal(MAX_CONSUMERS, 12);
+  const m = /var MAX_CONSUMERS = (\d+);/.exec(metersJs);
+  assert.ok(m, 'Konstante in meters.js');
+  assert.equal(Number(m[1]), MAX_CONSUMERS);
 });

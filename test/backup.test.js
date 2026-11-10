@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const zlib = require('node:zlib');
 
-const { CostTracker } = require('../lib/CostTracker');
+const { CostTracker, MAX_CONSUMERS } = require('../lib/CostTracker');
 const {
   pack, unpack, summarize, mergeCost, withoutBaselines, BackupError,
 } = require('../lib/CostBackup');
@@ -89,7 +89,7 @@ test('Prototype-Schlüssel und zu viele Verbraucher werden abgelehnt', () => {
   assert.throws(() => unpack(enc(p1)), BackupError);
   const p2 = JSON.parse(JSON.stringify(ok));
   p2.cost.consumers = {};
-  for (let i = 0; i < 7; i += 1) p2.cost.consumers[`V${i}`] = { counter: {}, days: {} };
+  for (let i = 0; i < MAX_CONSUMERS + 1; i += 1) p2.cost.consumers[`V${i}`] = { counter: {}, days: {} };
   assert.throws(() => unpack(enc(p2)), BackupError);
 });
 

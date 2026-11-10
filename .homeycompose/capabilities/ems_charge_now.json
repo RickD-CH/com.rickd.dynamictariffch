@@ -15,5 +15,6 @@
   "getable": true,
   "setable": true,
   "uiComponent": "toggle",
-  "uiQuickAction": false
+  "uiQuickAction": false,
+  "icon": "/assets/capabilities/ems_charge_now.svg"
 }
