@@ -268,3 +268,60 @@ test('Zähler-Oberfläche: mit Energiemanagement keine eigene Verbraucher-Liste,
   const put = env.calls.find((c) => c[0] === 'PUT');
   assert.equal('consumers' in put[2], false);
 });
+
+// ---------------------------------------------------------------- Weg der Speisung (Flow oder Auswahl)
+
+test('Automatisches Lesen meldet als "auto", Status bringt die Meldewege mit', async () => {
+  const calls = [];
+  const device = {
+    actionReportCounter: async (k, v, via) => { calls.push([k, via]); },
+    actionReportConsumer: async (n, v, via) => { calls.push([`consumer:${n}`, via]); },
+    getReportSeen: () => ({ import: { auto: 5, flow: 3 } }),
+  };
+  const { reader } = makeApp({
+    device,
+    stored: { enabled: true, sources: { import: { deviceId: 'em', capability: 'meter_power' } }, consumers: [{ name: 'Auto', deviceId: 'c', capability: 'meter_power' }] },
+    readings: { 'em:meter_power': 10, 'c:meter_power': 5 },
+  });
+  await reader.readOnce(1000);
+  assert.deepEqual(calls, [['import', 'auto'], ['consumer:Auto', 'auto']]);
+  assert.deepEqual(reader.getStatus().seen, { import: { auto: 5, flow: 3 } });
+  const noDev = makeApp({ device: null });
+  assert.deepEqual(noDev.reader.getStatus().seen, {});
+});
+
+test('MetersUi: Übersicht zeigt je Zähler, ob er über die Auswahl, einen Flow oder beides gespeist wird', async () => {
+  const cfg = normalizeMeters({
+    enabled: true,
+    sources: { import: { deviceId: 'em', capability: 'meter_power' }, export: { deviceId: 'em', capability: 'meter_power.exported' }, battery_charge: { deviceId: 'bat', capability: 'meter_power.charged' } },
+    consumers: [{ name: 'Auto', deviceId: 'em', capability: 'meter_power' }],
+  });
+  const now = Date.now();
+  const env = makeUi({
+    ...baseResponses,
+    'GET /meters': {
+      config: cfg, status: {},
+      seen: { import: { auto: now - 60000 }, export: { auto: now - 60000, flow: now - 300000 }, battery_discharge: { flow: now - 120000 } },
+    },
+  });
+  await env.ctx.window.MetersUi.init(env.api, 'de');
+  const html = env.els.get('meters-auto').innerHTML;
+  assert.match(html, /Wie wird jeder Zähler gespeist\?/);
+  const table = html.slice(html.indexOf('<table'), html.indexOf('</table>'));
+  const rowOf = (name) => table.split('<tr>').find((r) => r.includes('<td>' + name + '</td>')) || '';
+  assert.match(rowOf('Netzbezug'), /Auswahl<div class="sub">Energiezähler/, 'nur Auswahl');
+  assert.match(rowOf('Netzbezug'), /Auswahl zuletzt vor 60 s/);
+  assert.match(rowOf('Einspeisung'), /Auswahl und Flow/);
+  assert.match(rowOf('Einspeisung'), /Flow zuletzt vor 5 min/);
+  assert.match(rowOf('Batterie-Entladung'), /Flow</, 'nur Flow, keine Auswahl');
+  assert.match(rowOf('Batterie-Ladung'), /Auswahl</);
+  assert.match(rowOf('Batterie-Ladung'), /noch keine Meldung/);
+  assert.match(rowOf('Auto'), /Auswahl/);
+  assert.doesNotMatch(table, /undefined|NaN/);
+  // nichts gewählt, nichts gemeldet
+  const off = makeUi({ ...baseResponses, 'GET /meters': { config: normalizeMeters({ enabled: false, sources: { import: { deviceId: 'em', capability: 'meter_power' } } }), status: {}, seen: {} } });
+  await off.ctx.window.MetersUi.init(off.api, 'de');
+  const offHtml = off.els.get('meters-auto').innerHTML;
+  assert.match(offHtml, /Auswahl vorbereitet, automatisches Lesen ist aus/);
+  assert.match(offHtml, /nicht gespeist/);
+});

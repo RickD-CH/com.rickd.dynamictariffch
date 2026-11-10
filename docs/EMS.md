@@ -129,3 +129,11 @@ und Batteriegrösse (`car.capacityKwh`). Der Ladestand steht in der Betriebsansi
 als «Ziel-Ladestand bis Uhrzeit» eingegeben werden: Energie = (Ziel - Ladestand) / 100 x Batteriegrösse, gespeichert als kWh (mit `targetSoc`, `startSoc`).
 Ohne Auto bleibt die Eingabe in kWh. Der Ladestand wird beim Speichern einmal gelesen; ein laufender Auftrag zählt Viertelstunden, er rechnet nicht
 laufend mit dem Ladestand nach (Ausbau möglich).
+
+## Zählerstände: Weg der Speisung
+
+Die Zählerstände (Netzbezug, Einspeisung, Batterie laden/entladen, Verbraucher) kommen auf zwei Wegen ins Innostrom-Gerät: **Auswahl** (`MeterReader`
+liest das gewählte Gerät alle 15 Minuten selbst, meldet mit `via: 'auto'`) oder **Flow-Karten** «Zählerstand melden» (`via: 'flow'`, wie bisher). Beides
+gleichzeitig ist erlaubt, der jüngste Wert zählt. Das Gerät merkt sich je Zähler, wann zuletzt über welchen Weg gemeldet wurde (`reportSeen`, im Store,
+mit dem Kostenspeicher geschrieben). Die Einstellungen (Preis-App → Zählerstände) zeigen die Übersicht «Wie wird jeder Zähler gespeist?»: Auswahl, Flow,
+beides oder nicht gespeist, mit Gerät, Wert und letzter Meldung je Weg. Automatisches Lesen ist standardmässig aus.

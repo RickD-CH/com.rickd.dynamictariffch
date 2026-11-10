@@ -16,6 +16,10 @@
       error: 'Fehler', last: 'zuletzt', ago: 'vor', min: 'min', sec: 's', kwh: 'kWh', never: 'noch nicht gelesen',
       flowNote: 'Alternativ kannst du die Werte weiter per Flow melden (siehe unten). Beides zusammen ist unproblematisch.',
       managedHint: 'Deine Verbraucher mit ihren Zählern verwaltest du im Setup unter «Energiemanagement».',
+      feedTitle: 'Wie wird jeder Zähler gespeist?', feedSource: 'Zähler', feedHow: 'Gespeist über', feedLast: 'Letzte Meldung',
+      feedAuto: 'Auswahl', feedFlow: 'Flow', feedBoth: 'Auswahl und Flow', feedNone: 'nicht gespeist', feedAutoOff: 'Auswahl vorbereitet, automatisches Lesen ist aus',
+      feedFlowAgo: 'Flow zuletzt', feedAutoAgo: 'Auswahl zuletzt', feedNoReport: 'noch keine Meldung',
+      feedHint: 'Pro Zähler siehst du, ob die Werte aus der Auswahl (die App liest das Gerät selbst) oder aus einem Flow kommen. Meldet beides, gilt der jüngste Wert.',
     },
     en: {
       title: 'Read automatically (recommended)',
@@ -28,6 +32,10 @@
       error: 'Error', last: 'last', ago: 'ago', min: 'min', sec: 's', kwh: 'kWh', never: 'not read yet',
       flowNote: 'Alternatively you can keep reporting the values with a Flow (see below). Both together is fine.',
       managedHint: 'You manage your consumers and their meters in Setup under "Energy management".',
+      feedTitle: 'How is each meter fed?', feedSource: 'Meter', feedHow: 'Fed by', feedLast: 'Last report',
+      feedAuto: 'Selection', feedFlow: 'Flow', feedBoth: 'Selection and Flow', feedNone: 'not fed', feedAutoOff: 'Selection prepared, automatic reading is off',
+      feedFlowAgo: 'Flow last', feedAutoAgo: 'Selection last', feedNoReport: 'no report yet',
+      feedHint: 'For each meter you see whether the values come from the selection (the app reads the device itself) or from a Flow. If both report, the latest value counts.',
     },
   };
 
@@ -43,7 +51,7 @@
   var MAX_CONSUMERS = 12; // gleiche Grenze wie die Kostenrechnung (lib/CostTracker.js)
 
   var api = null, S = STR.en, LANG = 'en';
-  var state = { cfg: null, status: {}, devices: [] };
+  var state = { cfg: null, status: {}, seen: {}, devices: [] };
 
   function $(id) { return document.getElementById(id); }
   function esc(v) {
@@ -106,6 +114,35 @@
     return '<span class="sub">' + esc(S.last + ' ' + Number(st.kwh).toFixed(2) + ' ' + S.kwh + ', ' + ago(st.at)) + '</span>';
   }
 
+  /** Eine Zeile der Übersicht: Zähler, Weg der Speisung, letzte Meldung. */
+  function feedRow(label, key, devId, cap) {
+    var c = state.cfg;
+    var seen = (state.seen && state.seen[key]) || {};
+    var chosen = !!(devId && cap);
+    var dev = findDevice(devId);
+    var how; var cls = 'ok';
+    var autoRecent = !!seen.auto;
+    var flowRecent = !!seen.flow;
+    if (chosen && c.enabled && flowRecent) how = S.feedBoth;
+    else if (chosen && c.enabled) how = S.feedAuto;
+    else if (flowRecent) how = S.feedFlow;
+    else if (chosen) { how = S.feedAutoOff; cls = 'warn'; }
+    else { how = S.feedNone; cls = 'warn'; }
+    var detail = chosen ? (dev ? dev.name : devId) + ' - ' + capLabel(dev, cap) : '';
+    var last = [];
+    if (seen.auto) last.push(S.feedAutoAgo + ' ' + ago(seen.auto));
+    if (seen.flow) last.push(S.feedFlowAgo + ' ' + ago(seen.flow));
+    return '<tr><td>' + esc(label) + '</td><td class="' + cls + '">' + esc(how) + (detail ? '<div class="sub">' + esc(detail) + '</div>' : '') + '</td><td>' + esc(last.length ? last.join(', ') : S.feedNoReport) + '</td></tr>';
+  }
+
+  function feedTable() {
+    var c = state.cfg;
+    var rows = KINDS.map(function (k) { return feedRow(S[k], k, c.sources[k].deviceId, c.sources[k].capability); });
+    (c.consumers || []).forEach(function (x) { if (x.name) rows.push(feedRow(x.name, 'consumer:' + x.name, x.deviceId, x.capability)); });
+    return '<h3>' + esc(S.feedTitle) + '</h3><p class="sub">' + esc(S.feedHint) + '</p>'
+      + '<table class="ems-t"><thead><tr><th>' + esc(S.feedSource) + '</th><th>' + esc(S.feedHow) + '</th><th>' + esc(S.feedLast) + '</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>';
+  }
+
   function row(label, idPrefix, devId, cap, statusKey, nameField) {
     return '<div class="mt-row"><div class="mt-l">' + (nameField || '<b>' + esc(label) + '</b>') + '</div>'
       + '<label class="mt-f"><span>' + esc(S.device) + '</span><select id="' + idPrefix + '-dev" data-mt-dev="' + idPrefix + '">' + deviceOptions(devId) + '</select></label>'
@@ -132,6 +169,7 @@
       + '.mt-f select{font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);width:100%}'
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
       + '</style>'
+      + feedTable()
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
       + '<label class="mt-c"><span class="swt"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '><i></i></span> <span>' + esc(S.enable) + '</span></label>'
       + rows
@@ -207,7 +245,7 @@
       if (body.consumers) body.consumers = body.consumers.filter(function (c) { return c.name && c.deviceId && c.capability; });
       setMsg('...');
       api('PUT', '/meters', body).then(function (r) {
-        state.cfg = r.config; state.consumers = r.config.consumers.slice(); state.status = r.status || {};
+        state.cfg = r.config; state.consumers = r.config.consumers.slice(); state.status = r.status || {}; state.seen = r.seen || {};
         setMsg(S.saved);
         render();
         // Der erste Lesevorgang läuft im Hintergrund; Status kurz danach holen.
@@ -223,7 +261,7 @@
 
   function refreshStatus() {
     return api('GET', '/meters').then(function (r) {
-      state.status = r.status || {};
+      state.status = r.status || {}; state.seen = r.seen || {};
       var host = $('meters-auto');
       if (host && state.cfg) {
         syncToState(); // ungespeicherte Eingaben behalten
@@ -245,7 +283,7 @@
       api('GET', '/meters'),
       api('GET', '/meters/devices').then(function (r) { return r.devices || []; }).catch(function () { return []; }),
     ]).then(function (r) {
-      state.cfg = r[0].config; state.status = r[0].status || {}; state.devices = r[1]; state.managed = r[0].consumersManagedByEms === true;
+      state.cfg = r[0].config; state.status = r[0].status || {}; state.seen = r[0].seen || {}; state.devices = r[1]; state.managed = r[0].consumersManagedByEms === true;
       state.consumers = (state.cfg.consumers || []).map(function (c) { return Object.assign({}, c); });
       render();
     }).catch(function (e) {

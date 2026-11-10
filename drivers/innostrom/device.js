@@ -71,6 +71,7 @@ class InnostromDevice extends Homey.Device {
     this._costTimer = null;
     this._backupTimer = null;
     this._restoring = false;
+    this._reportSeen = this.getStoreValue('reportSeen') || {}; // { [Zähler]: { flow: ms, auto: ms } }
     this._status = this.getStoreValue('status') || {};
 
     this._onAppSetting = (key) => {
@@ -881,17 +882,29 @@ class InnostromDevice extends Homey.Device {
     return ref && ref.price > 0 ? ref.feedIn : 0;
   }
 
-  actionReportCounter(kind, kwh) {
+  /** Merkt sich, über welchen Weg ein Zähler zuletzt gemeldet wurde: 'flow' (Flow-Karte) oder 'auto' (Auswahl in den Einstellungen). */
+  _noteReport(key, via) {
+    const e = this._reportSeen[key] || (this._reportSeen[key] = {});
+    e[via === 'auto' ? 'auto' : 'flow'] = Date.now();
+  }
+
+  getReportSeen() {
+    return JSON.parse(JSON.stringify(this._reportSeen));
+  }
+
+  actionReportCounter(kind, kwh, via = 'flow') {
     const result = this.costTracker.report(kind, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
     if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
+    this._noteReport(kind, via);
     this._markCostDirty();
     return true;
   }
 
-  actionReportConsumer(name, kwh) {
+  actionReportConsumer(name, kwh, via = 'flow') {
     const result = this.costTracker.reportConsumer(name, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
     if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
     if (result.status === 'limit') throw new Error(this.homey.__('device.errorConsumerLimit'));
+    this._noteReport(`consumer:${name}`, via);
     this._markCostDirty();
     return true;
   }
@@ -911,6 +924,7 @@ class InnostromDevice extends Homey.Device {
       this._costTimer = null;
     }
     await this.setStoreValue('cost', this.costTracker.toJSON());
+    await this.setStoreValue('reportSeen', this._reportSeen);
   }
 
   /** Selective clean-up from the settings page. */
