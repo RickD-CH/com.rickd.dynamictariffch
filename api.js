@@ -80,6 +80,10 @@ module.exports = {
     return { devices: await homey.app.ems.listDevices() };
   },
 
+  async getEmsFlows({ homey }) {
+    return { flows: await homey.app.ems.listFlows() };
+  },
+
   async getEmsConsumers({ homey }) {
     const r = homey.app.ems.runner;
     return { current: r ? r.consumerCurrent : [], events: r ? r.consumerEvents.slice(-30).reverse() : [] };

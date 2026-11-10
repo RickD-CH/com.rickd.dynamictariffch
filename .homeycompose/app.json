@@ -192,6 +192,10 @@
       "method": "get",
       "path": "/ems/devices"
     },
+    "getEmsFlows": {
+      "method": "get",
+      "path": "/ems/flows"
+    },
     "getEmsConsumers": {
       "method": "get",
       "path": "/ems/consumers"

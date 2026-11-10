@@ -23,6 +23,9 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      ctrlKind: 'Schalten über', ctrlViaDevice: 'Gerät (ein/aus)', ctrlViaFlow: 'Homey-Flows (ein und aus)', flowOnLbl: 'Flow zum Einschalten', flowOffLbl: 'Flow zum Ausschalten', flowNone: '- Flow wählen -', flowAdv: '(erweitert)',
+      flowHint: 'Der Flow braucht den Start-Trigger «Dieser Flow wird gestartet». Bei Flow-Steuerung kennt die App den Zustand des Verbrauchers nicht, sie rechnet mit dem, was sie selbst geschaltet hat.',
+      flowsNone: 'Es wurden keine startbaren Flows gefunden.', assumedW: 'Leistung des Verbrauchers (W, für die Überschussrechnung)',
       pvReached: 'erreicht', pvReachedSoFar: 'bisher erreicht', pvForecastLeg: 'Prognose',
       planTable: 'AB JETZT: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Es sind noch keine Preisdaten für die kommenden Stunden da.',
       planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant', planLegWallbox: 'Wallbox lädt', planLegConsumer: 'Verbraucher ein', planLegJob: 'Auftrag / Vorschau',
@@ -93,6 +96,9 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      ctrlKind: 'Switch via', ctrlViaDevice: 'Device (on/off)', ctrlViaFlow: 'Homey flows (on and off)', flowOnLbl: 'Flow to switch on', flowOffLbl: 'Flow to switch off', flowNone: '- choose flow -', flowAdv: '(advanced)',
+      flowHint: 'The flow needs the start trigger "This Flow is started". With flow control the app does not know the consumer\'s state, it works with what it switched itself.',
+      flowsNone: 'No startable flows were found.', assumedW: 'Power of the consumer (W, for the surplus calculation)',
       pvReached: 'reached', pvReachedSoFar: 'reached so far', pvForecastLeg: 'Forecast',
       planTable: 'FROM NOW: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'There is no price data for the coming hours yet.',
       planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned', planLegWallbox: 'EV charging', planLegConsumer: 'Consumer on', planLegJob: 'Job / preview',
@@ -174,7 +180,7 @@
   var S = STR.en;
   var LANG = 'en';
   var state = {
-    cfg: null, shadow: null, meters: null, plan: null, planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
+    cfg: null, shadow: null, meters: null, plan: null, flows: [], planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
     msg: '', built: false, renderedNoDevice: null, timer: null, cmpBuilt: false,
   };
 
@@ -338,6 +344,7 @@
       minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false,
       humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
       meterDeviceId: '', meterCap: '',
+      controlKind: 'device', flowOn: { id: '', advanced: false, name: '' }, flowOff: { id: '', advanced: false, name: '' }, assumedW: 0,
     };
   }
 
@@ -360,6 +367,8 @@
       var m = findMeter(x.name);
       var r = Object.assign(newConsumerRow(), x, { kind: 'consumer', control: true, deviceId: x.id, meterDeviceId: m ? m.deviceId : '', meterCap: m ? m.capability : '' });
       r.humidity = Object.assign({}, newConsumerRow().humidity, x.humidity || {});
+      r.flowOn = Object.assign({ id: '', advanced: false, name: '' }, x.flowOn || {});
+      r.flowOff = Object.assign({ id: '', advanced: false, name: '' }, x.flowOff || {});
       rows.push(r);
     });
     meters.forEach(function (m) {
@@ -374,11 +383,26 @@
   function rowSub(r) {
     if (r.kind === 'charger') return r.deviceId ? (r.live ? S.modeLiveTag : S.modeTest) : S.notChosen;
     if (!r.control || !r.deviceId) return S.noCtrl;
+    if (r.controlKind === 'flow' && !(r.flowOn && r.flowOn.id)) return S.notChosen;
     var m = { full: S.modeFull, soc: S.modeSoc, surplus: S.modeSurplus }[r.mode] || r.mode;
     return m + ' - ' + (r.live ? S.modeLiveTag : S.modeTest);
   }
   function rowIcon(r) { return r.kind === 'charger' ? 'charger' : (r.type === 'dehumidifier' ? 'drop' : 'plug'); }
   function rowColor(r) { return r.kind === 'charger' ? COLORS.charger : (r.type === 'dehumidifier' ? COLORS.dehumidifier : COLORS.generic); }
+
+  function flowOptions(current) {
+    var cur = current || { id: '' };
+    var opts = '<option value="">' + esc(S.flowNone) + '</option>';
+    if (cur.id && !state.flows.some(function (f) { return f.id === cur.id; })) opts += '<option value="' + esc(cur.id) + '" selected>' + esc(cur.name || cur.id) + '</option>';
+    return opts + state.flows.map(function (f) {
+      return '<option value="' + esc(f.id) + '"' + (f.id === cur.id ? ' selected' : '') + '>' + esc(f.name + (f.advanced ? ' ' + S.flowAdv : '')) + '</option>';
+    }).join('');
+  }
+  function pickFlow(id, fallback) {
+    var f = state.flows.filter(function (x) { return x.id === id; })[0];
+    if (f) return { id: f.id, advanced: f.advanced === true, name: f.name };
+    return fallback && fallback.id === id ? fallback : { id: '', advanced: false, name: '' };
+  }
 
   function rowBody(r, i) {
     var p = 'row' + i + '-';
@@ -404,9 +428,17 @@
     if (r.mode === 'full') params += field(S.fullSoc, p + 'fullSoc', r.fullSoc) + field(S.hysteresis, p + 'hysteresis', r.hysteresis);
     if (r.mode === 'soc') params += field(S.socOn, p + 'socOn', r.socOn) + field(S.hysteresis, p + 'hysteresis', r.hysteresis);
     if (r.mode === 'surplus') params += field(S.minSurplus, p + 'minSurplusW', r.minSurplusW) + field(S.startSustain, p + 'startSustainS', r.startSustainS) + field(S.stopGrace, p + 'stopGraceS', r.stopGraceS);
-    var ctrl = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.ctrlDevice) + '</span><select id="' + p + 'dev" data-ems-mode="' + i + '">' + deviceOptions(r.deviceId, hasCap(/^onoff$/), S.none) + '</select></label></div>';
+    var viaFlow = r.controlKind === 'flow';
+    var kindRow = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.ctrlKind) + '</span><select id="' + p + 'kind" data-ems-mode="' + i + '">'
+      + '<option value="device"' + (viaFlow ? '' : ' selected') + '>' + esc(S.ctrlViaDevice) + '</option><option value="flow"' + (viaFlow ? ' selected' : '') + '>' + esc(S.ctrlViaFlow) + '</option></select></label></div>';
+    var ctrl = kindRow + (viaFlow
+      ? '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.flowOnLbl) + '</span><select id="' + p + 'flowOn" data-ems-mode="' + i + '">' + flowOptions(r.flowOn) + '</select></label>'
+        + '<label class="ems-f ems-wide"><span>' + esc(S.flowOffLbl) + '</span><select id="' + p + 'flowOff" data-ems-mode="' + i + '">' + flowOptions(r.flowOff) + '</select></label></div>'
+        + (state.flows.length ? '' : '<p class="warn">' + esc(S.flowsNone) + '</p>') + '<p class="ems-why">' + esc(S.flowHint) + '</p>'
+        + '<div class="ems-row">' + field(S.assumedW, p + 'assumedW', r.assumedW) + '</div>'
+      : '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.ctrlDevice) + '</span><select id="' + p + 'dev" data-ems-mode="' + i + '">' + deviceOptions(r.deviceId, hasCap(/^onoff$/), S.none) + '</select></label></div>');
     var ctrlBody = '';
-    if (r.deviceId) {
+    if (viaFlow ? !!(r.flowOn && r.flowOn.id) : !!r.deviceId) {
       var h = r.humidity;
       var hum = r.type === 'dehumidifier'
         ? '<div class="ems-box"><b>' + esc(S.humTitle) + '</b><div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
@@ -462,7 +494,7 @@
     add(c.devices.meter.id); add(c.devices.house.id); add(c.devices.inverter.id); add(c.battery.deviceId);
     state.rows.forEach(function (r) {
       if (r.kind === 'charger') add(r.deviceId);
-      else if (r.control !== false && r.deviceId) { add(r.deviceId); if (r.humidity && r.humidity.enabled) add(r.humidity.sensorId); }
+      else if (r.control !== false && r.deviceId) { if (r.controlKind !== 'flow') add(r.deviceId); if (r.humidity && r.humidity.enabled) add(r.humidity.sensorId); }
     });
     return Object.keys(ids).length;
   }
@@ -1021,7 +1053,7 @@
       var p = 'row' + i + '-';
       if (!state.open['row' + i]) return;
       r.name = val(p + 'name', r.name);
-      r.deviceId = val(p + 'dev', r.deviceId);
+      if ($(p + 'dev')) r.deviceId = val(p + 'dev', r.deviceId);
       r.meterDeviceId = val(p + 'mdev', r.meterDeviceId);
       r.meterCap = val(p + 'mcap', r.meterCap);
       if (r.kind === 'charger') {
@@ -1029,6 +1061,15 @@
         return;
       }
       r.type = val(p + 'type', r.type);
+      r.controlKind = val(p + 'kind', r.controlKind || 'device');
+      if (r.controlKind === 'flow') {
+        r.flowOn = pickFlow(val(p + 'flowOn', r.flowOn.id), r.flowOn);
+        r.flowOff = pickFlow(val(p + 'flowOff', r.flowOff.id), r.flowOff);
+        r.assumedW = num(p + 'assumedW', r.assumedW);
+        if (!r.deviceId || r.deviceId.indexOf('flow:') !== 0) r.deviceId = 'flow:' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+      } else if (r.deviceId && r.deviceId.indexOf('flow:') === 0) {
+        r.deviceId = '';
+      }
       r.mode = val(p + 'mode', r.mode);
       ['fullSoc', 'socOn', 'hysteresis', 'minSurplusW', 'startSustainS', 'stopGraceS', 'minRunMin', 'minOffMin', 'protectSoc'].forEach(function (k) { r[k] = num(p + k, r[k]); });
       if ($(p + 'useGate')) r.useForecastGate = chk(p + 'useGate');
@@ -1055,8 +1096,11 @@
     sync();
     var c = state.cfg;
     var charger = state.rows[0];
-    var consumers = state.rows.filter(function (r) { return r.kind === 'consumer' && r.control !== false && r.deviceId; }).map(function (r) {
+    var consumers = state.rows.filter(function (r) {
+      return r.kind === 'consumer' && r.control !== false && r.deviceId && (r.controlKind !== 'flow' || (r.flowOn && r.flowOn.id) || (r.flowOff && r.flowOff.id));
+    }).map(function (r) {
       return {
+        controlKind: r.controlKind === 'flow' ? 'flow' : 'device', flowOn: r.flowOn, flowOff: r.flowOff, assumedW: r.assumedW || 0,
         id: r.deviceId, name: r.name || 'Verbraucher', enabled: true, live: r.live === true, type: r.type, mode: r.mode,
         fullSoc: r.fullSoc, socOn: r.socOn, hysteresis: r.hysteresis, minSurplusW: r.minSurplusW, startSustainS: r.startSustainS, stopGraceS: r.stopGraceS,
         minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, humidity: r.humidity,
@@ -1334,6 +1378,7 @@
     return Promise.all([
       load(),
       api('GET', '/ems/devices').then(function (r) { state.devices = r.devices || []; }).catch(function () { state.devices = []; }),
+      api('GET', '/ems/flows').then(function (r) { state.flows = (r && r.flows) || []; }).catch(function () { state.flows = []; }),
     ]).then(function () { render(); renderCompare(); startTimer(); })
       .catch(function (e) {
         var m = $('ems-view-main');
