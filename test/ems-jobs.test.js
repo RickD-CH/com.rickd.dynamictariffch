@@ -178,29 +178,29 @@ test('Anzeige: Formular unter dem Plan, Änderung löst die Vorschau aus, Ergebn
       'POST /ems/plan/preview': (b) => ctrl.previewPlan(b),
     }, calls);
     await env.ctx.window.EmsUi.init(env.api, 'de');
-    const before = env.els.get('ems-view-main').innerHTML;
+    const before = env.els.get('ems-view-plan').innerHTML;
     assert.match(before, /id="ems-preview-form"/);
     assert.match(before, /VORSCHAU: AUFTRAG PLANEN/);
     assert.match(before, /Energie \(kWh\)/, 'Wallbox: Energie');
     assert.doesNotMatch(before, /Vorschau<\/button>[\s\S]*Läuft von/);
-    const fire = (attr, value, extra = {}) => env.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, ...extra, parentNode: null } });
+    const fire = (attr, value, extra = {}) => env.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, ...extra, parentNode: null } });
     fire('amount', '20');
     await wait();
     const post = calls.find((c) => c[1] === '/ems/plan/preview');
     assert.ok(post, 'Vorschau angefragt');
     assert.equal(JSON.stringify(post[2].jobs[0]), JSON.stringify({ id: 'charger', kind: 'charger', time: '07:00', targetSoc: null, amount: 20, powerKw: null, maxPrice: null, contiguous: true }));
-    const after = env.els.get('ems-view-main').innerHTML;
+    const after = env.els.get('ems-view-plan').innerHTML;
     assert.match(after, /Läuft von|in \d+ Viertelstunden/);
     assert.match(after, /Kosten ca\. 2\.00 CHF/);
     assert.match(after, /Wallbox - Vorschau/, 'Auftragszeile im Plan');
     assert.doesNotMatch(after, /undefined|NaN/);
     // Zurücksetzen
-    env.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === 'data-ems-preview' ? 'clear' : null), parentNode: null } });
-    assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /Wallbox - Vorschau/);
+    env.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === 'data-ems-preview' ? 'clear' : null), parentNode: null } });
+    assert.doesNotMatch(env.els.get('ems-view-plan').innerHTML, /Wallbox - Vorschau/);
     // Verbraucher wählen: Laufzeit statt Energie
     fire('target', 'dry');
-    assert.match(env.els.get('ems-view-main').innerHTML, /Laufzeit \(h\)/);
-    assert.match(env.els.get('ems-view-main').innerHTML, /am Stück laufen/);
+    assert.match(env.els.get('ems-view-plan').innerHTML, /Laufzeit \(h\)/);
+    assert.match(env.els.get('ems-view-plan').innerHTML, /am Stück laufen/);
   } finally { restore(); }
 });
 
@@ -216,15 +216,15 @@ test('Anzeige: Menge fehlt oder reicht nicht - klare Meldung, kein Absturz', asy
       'POST /ems/plan/preview': (b) => ctrl.previewPlan(b),
     }, calls);
     await env.ctx.window.EmsUi.init(env.api, 'de');
-    const fire = (attr, value) => env.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
+    const fire = (attr, value) => env.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
     fire('time', '07:00');
     await wait();
-    assert.match(env.els.get('ems-view-main').innerHTML, /Menge eingeben/);
+    assert.match(env.els.get('ems-view-plan').innerHTML, /Menge eingeben/);
     fire('amount', '20');
     await wait();
     fire('maxPrice', '5');
     await wait();
-    const html = env.els.get('ems-view-main').innerHTML;
+    const html = env.els.get('ems-view-plan').innerHTML;
     assert.match(html, /nicht genug Viertelstunden/);
     assert.match(html, /möglich 0 von 8/);
   } finally { restore(); }
@@ -249,10 +249,10 @@ test('Anzeige: Übernehmen speichert den Auftrag, die Liste zeigt Stand und Entf
       'DELETE /ems/jobs/charger': () => { jobs = []; return { jobs }; },
     }, calls);
     await env.ctx.window.EmsUi.init(env.api, 'de');
-    const change = (attr, value) => env.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
-    const click = (attr, value) => env.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === attr ? value : null), parentNode: null } });
-    assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /AKTIVE AUFTRÄGE/);
-    assert.match(env.els.get('ems-view-main').innerHTML, />Übernehmen</);
+    const change = (attr, value) => env.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
+    const click = (attr, value) => env.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === attr ? value : null), parentNode: null } });
+    assert.doesNotMatch(env.els.get('ems-view-plan').innerHTML, /AKTIVE AUFTRÄGE/);
+    assert.match(env.els.get('ems-view-plan').innerHTML, />Übernehmen</);
     change('amount', '20');
     await wait();
     click('data-ems-preview', 'save');
@@ -260,7 +260,7 @@ test('Anzeige: Übernehmen speichert den Auftrag, die Liste zeigt Stand und Entf
     const post = calls.find((c) => c[0] === 'POST' && c[1] === '/ems/jobs');
     assert.ok(post, 'Auftrag gespeichert');
     assert.equal(post[2].amount, 20);
-    const html = env.els.get('ems-view-main').innerHTML;
+    const html = env.els.get('ems-view-plan').innerHTML;
     assert.match(html, /AKTIVE AUFTRÄGE/);
     assert.match(html, /Wallbox - 20 kWh bis/);
     assert.match(html, /geplant 00:00 - 02:00/);
@@ -270,6 +270,6 @@ test('Anzeige: Übernehmen speichert den Auftrag, die Liste zeigt Stand und Entf
     click('data-ems-jobdel', 'charger');
     await wait(30);
     assert.ok(calls.some((c) => c[0] === 'DELETE' && c[1] === '/ems/jobs/charger'));
-    assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /AKTIVE AUFTRÄGE/);
+    assert.doesNotMatch(env.els.get('ems-view-plan').innerHTML, /AKTIVE AUFTRÄGE/);
   } finally { restore(); }
 });

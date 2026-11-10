@@ -389,19 +389,6 @@ test('Vergleich: zeigt weiter die Daten, Quelle und Batterie-Planer liegen dort'
   assert.doesNotMatch(setup(env) + main(env), /ems-d-andi|ems-b-target/);
 });
 
-test('Umschalter Betrieb / Vergleich', async () => {
-  const env = await start(scenario());
-  const sub = env.handlers['ems-sub:click'];
-  sub({ target: target({ 'data-ems-sub': 'cmp' }) });
-  assert.equal(env.els.get('ems-view-main').hidden, true);
-  assert.equal(env.els.get('ems-view-cmp').hidden, false);
-  sub({ target: target({ 'data-ems-sub': 'main' }) });
-  assert.equal(env.els.get('ems-view-main').hidden, false);
-  assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
-  assert.equal(env.els.get('ems-sub-cmp').textContent, 'Vergleich');
-  assert.equal(env.els.get('t-ems').textContent, 'EMS');
-});
-
 test('Gerätewechsel wird beim Auffrischen nicht überschrieben', async () => {
   const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
   click(env, 'ems-view-devices', { 'data-ems-open': 'src-pv' });

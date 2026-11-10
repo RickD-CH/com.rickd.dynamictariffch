@@ -217,7 +217,7 @@ test('Anzeige: Plan unter dem Betrieb mit Preis, Solar, Zeilen, Tabs Heute/Morge
     active: true, dryRun: { charger: true, consumers: ['dry'] },
   };
   const env = await startUi(p);
-  const html = env.els.get('ems-view-main').innerHTML;
+  const html = env.els.get('ems-view-plan').innerHTML;
   assert.match(html, /PLAN/);
   assert.match(html, /id="ems-plan"/);
   assert.match(html, />Heute</);
@@ -232,19 +232,19 @@ test('Anzeige: Plan unter dem Betrieb mit Preis, Solar, Zeilen, Tabs Heute/Morge
   assert.match(html, /stroke-dasharray/, 'geplante Batterie-Abschnitte gestrichelt');
   assert.doesNotMatch(html, /undefined|NaN/);
   // Morgen: keine "jetzt"-Linie
-  env.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === 'data-ems-planday' ? 'tomorrow' : null), parentNode: null } });
-  const tomorrow = env.els.get('ems-view-main').innerHTML;
+  env.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === 'data-ems-planday' ? 'tomorrow' : null), parentNode: null } });
+  const tomorrow = env.els.get('ems-view-plan').innerHTML;
   assert.doesNotMatch(tomorrow, /class="pl-now"/);
   assert.match(tomorrow, /subtab active" data-ems-planday="tomorrow"/);
 });
 
 test('Anzeige: ohne Plan-Daten oder ohne Preise kein Absturz, englische Texte', async () => {
   const none = await startUi(undefined);
-  assert.doesNotMatch(none.els.get('ems-view-main').innerHTML, /ems-plan/);
+  assert.doesNotMatch(none.els.get('ems-view-plan').innerHTML, /ems-plan/);
   const noPrices = await startUi({ ...buildPlan({ nowMs: NOW, tz: TZ, priceSlots: [], log: [], consumers: [] }), dryRun: {} });
-  assert.match(noPrices.els.get('ems-view-main').innerHTML, /Für diesen Tag sind noch keine Preise da/);
+  assert.match(noPrices.els.get('ems-view-plan').innerHTML, /Für diesen Tag sind noch keine Preise da/);
   const en = await startUi({ ...plan(), dryRun: {} }, 'en');
-  assert.match(en.els.get('ems-view-main').innerHTML, /Cheapest block \(2 h\)/);
+  assert.match(en.els.get('ems-view-plan').innerHTML, /Cheapest block \(2 h\)/);
 });
 
 test('Anzeige: Legende unter jeder Grafik, Tabelle ab jetzt über beide Tage mit Preisniveau und Zuständen', async () => {
@@ -258,7 +258,7 @@ test('Anzeige: Legende unter jeder Grafik, Tabelle ab jetzt über beide Tage mit
     active: true, dryRun: {},
   };
   const env = await startUi(p);
-  const html = env.els.get('ems-view-main').innerHTML;
+  const html = env.els.get('ems-view-plan').innerHTML;
   const at = (s, from = 0) => html.indexOf(s, from);
   // je Grafik eine eigene Legende, direkt nach ihrer Grafik
   assert.equal((html.match(/class="pl-leg"/g) || []).length, 5, 'Preis, Solar, Batterie, Wallbox, Entfeuchter');
@@ -290,13 +290,13 @@ test('Anzeige: Solar-Grafik zeigt mit einer Linie, was die Anlage bisher geliefe
   assert.equal(day.slots[11 * 4].pvActualKw, null);
   assert.equal(day.stats.pvActualKwh, 5.5);
   const env = await startUi(p);
-  const html = env.els.get('ems-view-main').innerHTML;
+  const html = env.els.get('ems-view-plan').innerHTML;
   assert.match(html, /<polyline class="pl-pva"/);
   assert.ok(html.includes('bisher erreicht 5.5 kWh'));
   assert.match(html, /kW erreicht/);
   // ohne Messung keine Linie
   const none = await startUi({ ...plan({ pvSlots: [{ end: day0 + 12 * 3600000, kw: 3, h: 3 }] }), dryRun: {} });
-  assert.doesNotMatch(none.els.get('ems-view-main').innerHTML, /<polyline/);
+  assert.doesNotMatch(none.els.get('ems-view-plan').innerHTML, /<polyline/);
 });
 
 test('PlanLog: PV-Leistung wird je Viertelstunde gemittelt', () => {
@@ -311,5 +311,5 @@ test('PlanLog: PV-Leistung wird je Viertelstunde gemittelt', () => {
 
 test('Anzeige: Tabelle ohne Preisdaten sagt es', async () => {
   const env = await startUi({ ...buildPlan({ nowMs: NOW, tz: TZ, priceSlots: [], log: [], consumers: [] }), dryRun: {} });
-  assert.match(env.els.get('ems-view-main').innerHTML, /Für diesen Tag sind noch keine Preise da/);
+  assert.match(env.els.get('ems-view-plan').innerHTML, /Für diesen Tag sind noch keine Preise da/);
 });

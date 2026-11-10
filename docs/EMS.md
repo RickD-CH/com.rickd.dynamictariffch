@@ -140,3 +140,12 @@ beides oder nicht gespeist, mit Gerät, Wert und letzter Meldung je Weg. Automat
 
 Lese-Takt der Zählerstände (`meters.intervalMin`): 5, 10, 15 (Standard), 30 oder 60 Minuten, kurz nach der Grenze. Die App liest einmal ~20 s nach dem Start,
 einmal beim Speichern und über den Knopf «Jetzt lesen und aktualisieren» (`POST /meters/run`). Kürzer = aktuellere Kostenwerte, mehr Abfragen an Homey.
+
+## Aufbau der Einstellungsseite (Reiter)
+
+| Reiter | Inhalt | Zweck |
+|---|---|---|
+| **Heute** | Aktuelle Werte (Preis jetzt), «Heute in Zahlen» (Ist = dynamischer Tarif, Soll = Referenztarif, Ersparnis), Betrieb des EMS (Status, Schalter je Gerät), Status | Alltag: Ist und Soll |
+| **Ausblick** | Plan (Preis, Solar, Batterie, Wallbox, Verbraucher, Aufträge), Tabelle «Ab jetzt», aktive Aufträge, Auftrag planen | Look ahead |
+| **Kosten** | Verlauf der Kosten und Ersparnis, Verbraucher, Batterie-Potenzial | Rückblick |
+| **Einrichten** | Allgemein (Darstellung, Daten, Hilfe), Preis-App (Referenztarif, Zählerstände, ...), EMS (Datenquellen, Verbraucher, Berechnung), Vergleich (nur Testphase) | einmalig |

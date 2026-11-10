@@ -130,9 +130,10 @@ async function startUi({ withCar = true, carSoc = 54, preview = null } = {}) {
   };
   await ctx.window.EmsUi.init((m, p, b) => { calls.push([m, p, b]); const r = res[`${m} ${p}`]; return Promise.resolve(typeof r === 'function' ? r(b) : r); }, 'de');
   const main = () => els.get('ems-view-main').innerHTML;
+  const plan = () => els.get('ems-view-plan').innerHTML;
   const setup = () => els.get('ems-view-devices').innerHTML;
-  const draft = (attr, value) => handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
-  return { ctx, main, setup, draft, calls, restore, handlers };
+  const draft = (attr, value) => handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
+  return { ctx, main, plan, setup, draft, calls, restore, handlers };
 }
 
 test('Anzeige: E-Auto als empfohlene Quelle mit Batteriegrösse, Ladestand im Betrieb, Ziel-Ladestand im Formular', async () => {
@@ -140,13 +141,13 @@ test('Anzeige: E-Auto als empfohlene Quelle mit Batteriegrösse, Ladestand im Be
   try {
     assert.match(ui.setup(), /E-Auto/);
     assert.match(ui.main(), /E-Auto 54 %/, 'Ladestand in der Betriebsansicht');
-    assert.match(ui.main(), /E-Auto jetzt: 54 %/);
-    assert.match(ui.main(), /Ziel-Ladestand/);
+    assert.match(ui.plan(), /E-Auto jetzt: 54 %/);
+    assert.match(ui.plan(), /Ziel-Ladestand/);
     ui.draft('targetSoc', '80');
     await new Promise((r) => setTimeout(r, 25));
     const post = ui.calls.find((c) => c[1] === '/ems/plan/preview');
     assert.equal(post[2].jobs[0].targetSoc, 80);
-    const html = ui.main();
+    const html = ui.plan();
     assert.match(html, /von 54 % auf 80 % = 15\.6 kWh/);
     assert.match(html, /Vorschau im Tagesverlauf/, 'Verlauf direkt im Formular');
     assert.doesNotMatch(html, /undefined|NaN/);
@@ -160,11 +161,11 @@ test('Anzeige: E-Auto als empfohlene Quelle mit Batteriegrösse, Ladestand im Be
 test('Anzeige: ohne E-Auto kein Ziel-Ladestand, aber Energie in kWh geht, und Vorschau zeigt den Verlauf', async () => {
   const ui = await startUi({ withCar: false, carSoc: null });
   try {
-    assert.doesNotMatch(ui.main(), /Ziel-Ladestand/);
-    assert.doesNotMatch(ui.main(), /E-Auto jetzt/);
+    assert.doesNotMatch(ui.plan(), /Ziel-Ladestand/);
+    assert.doesNotMatch(ui.plan(), /E-Auto jetzt/);
     ui.draft('amount', '20');
     await new Promise((r) => setTimeout(r, 25));
-    assert.match(ui.main(), /Vorschau im Tagesverlauf/);
-    assert.match(ui.main(), /Läuft von|in \d+ Viertelstunden/);
+    assert.match(ui.plan(), /Vorschau im Tagesverlauf/);
+    assert.match(ui.plan(), /Läuft von|in \d+ Viertelstunden/);
   } finally { ui.restore(); }
 });

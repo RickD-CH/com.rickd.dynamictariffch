@@ -10,7 +10,7 @@
 
   var STR = {
     de: {
-      tab: 'EMS', subMain: 'Betrieb', cmpTab: 'Vergleich',
+      tab: 'Ausblick', subMain: 'Betrieb', cmpTab: 'Vergleich',
       noDevice: 'Das Energiemanagement ist noch nicht eingerichtet. Füge in Homey unter «Geräte» → «+» → «Dynamischer Stromtarif CH» das Gerät «Energiemanagement» hinzu.',
       devicesSec: 'Energiemanagement einrichten', sources: 'DATENQUELLEN', consumers: 'VERBRAUCHER',
       stOff: 'Ausgeschaltet', stTest: 'Läuft im Testbetrieb (es wird nichts geschaltet)', stLive: 'Läuft und steuert',
@@ -86,7 +86,7 @@
       targetSoc: 'Ziel-SoC (%)', reserve: 'Reserve (Stunden)', solarLimit: 'Solar-Schwelle (kWh)',
     },
     en: {
-      tab: 'EMS', subMain: 'Operation', cmpTab: 'Compare',
+      tab: 'Outlook', subMain: 'Operation', cmpTab: 'Compare',
       noDevice: 'Energy management is not set up yet. In Homey go to Devices → "+" → "Swiss Dynamic Electricity Tariff" and add the "Energy management" device.',
       devicesSec: 'Set up energy management', sources: 'DATA SOURCES', consumers: 'CONSUMERS',
       stOff: 'Switched off', stTest: 'Running in test mode (nothing is switched)', stLive: 'Running and controlling',
@@ -645,7 +645,7 @@
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
     var list = (items || wb) ? '<div class="ems-list">' + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
-    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + planHtml();
+    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>';
   }
 
   // ---------------------------------------------------------------- Plan-Sicht (unten im Betrieb)
@@ -998,12 +998,20 @@
     }).catch(function () { state.preview = null; renderMain(); });
   }
 
+  /** Ausblick: Plan, Tabelle, Aufträge. Auch ohne Energiemanagement-Gerät (dann nur die Preise und die Prognose). */
+  function renderPlan() {
+    var host = $('ems-view-plan');
+    if (!host || !state.cfg) return;
+    host.innerHTML = styleHtml() + planHtml();
+  }
+
   function renderMain() {
+    renderPlan();
     var panel = $('ems-view-main');
     if (!panel || !state.cfg) return;
     state.renderedNoDevice = noDevice();
-    if (noDevice()) { panel.innerHTML = '<div class="card"><p class="warn">' + esc(S.noDevice) + '</p></div>'; return; }
-    panel.innerHTML = mainHtml();
+    if (noDevice()) panel.innerHTML = '<div class="card"><p class="sub" style="margin:0">' + esc(S.noDevice) + '</p></div>';
+    else panel.innerHTML = mainHtml();
   }
 
   // ---------------------------------------------------------------- Vergleich (nur Testphase)
@@ -1410,7 +1418,7 @@
     var sm = $('ems-sub-main'); if (sm) sm.textContent = S.subMain;
     var sc = $('ems-sub-cmp'); if (sc) sc.textContent = S.cmpTab;
     var sub = $('ems-sub'); if (sub) sub.addEventListener('click', onSubClick);
-    ['ems-view-main', 'ems-view-devices', 'ems-view-cmp'].forEach(function (id) {
+    ['ems-view-main', 'ems-view-plan', 'ems-view-devices', 'ems-view-cmp'].forEach(function (id) {
       var host = $(id);
       if (host) { host.addEventListener('click', onClick); host.addEventListener('change', onChange); }
     });

@@ -75,7 +75,7 @@ test('index.html bindet ems.js ein, hat Reiter und Panel und startet EmsUi', () 
 });
 
 test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen und Wechseln', async () => {
-  assert.match(indexHtml, /data-ems-sub="cmp"/);
+  assert.match(indexHtml, /data-setup-sub="cmp"/);
   assert.match(indexHtml, /id="ems-view-cmp"/);
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
@@ -115,29 +115,9 @@ test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', a
   assert.doesNotMatch(ems, /ems-b-target/);
 });
 
-test('Umschalter Betrieb / Vergleich im EMS-Reiter schaltet die Ansichten um', async () => {
-  const env = makeEnv(responses);
-  await env.ctx.window.EmsUi.init(env.api, 'de');
-  const click = env.handlers['ems-sub:click'];
-  assert.ok(click, 'Umschalter hat einen Handler');
-  const mk = (which) => ({ target: { getAttribute: (n) => (n === 'data-ems-sub' ? which : null) } });
-  const toggles = [];
-  env.el('ems-sub-main').classList = { toggle: (c, on) => toggles.push(['main', on]) };
-  env.el('ems-sub-cmp').classList = { toggle: (c, on) => toggles.push(['cmp', on]) };
-  click(mk('cmp'));
-  assert.equal(env.els.get('ems-view-main').hidden, true);
-  assert.equal(env.els.get('ems-view-cmp').hidden, false);
-  click(mk('main'));
-  assert.equal(env.els.get('ems-view-main').hidden, false);
-  assert.equal(env.els.get('ems-view-cmp').hidden, true);
-  assert.deepEqual(JSON.stringify(toggles), JSON.stringify([['main', false], ['cmp', true], ['main', true], ['cmp', false]]));
-});
-
-// ---------------------------------------------------------------- Navigation und Kopf
-
 test('Navigation: vier Reiter in fester Reihenfolge, Segmented Control ohne Scrollbalken', () => {
   const order = [...indexHtml.matchAll(/class="tab[^"]*" data-tab="(\w+)"/g)].map((m) => m[1]);
-  assert.deepEqual(order, ['overview', 'costs', 'ems', 'settings']);
+  assert.deepEqual(order, ['overview', 'ems', 'costs', 'settings']);
   const css = indexHtml.match(/\.tabs \{[\s\S]*?\}/)[0];
   assert.match(css, /display: grid/);
   assert.match(css, /repeat\(4, minmax\(0, 1fr\)\)/);
@@ -158,8 +138,8 @@ test('Navigation: Hilfe ist ein Abschnitt im Setup, kein eigener Reiter', () => 
   for (const id of ['hint-forum', 'btn-forum']) {
     assert.match(indexHtml, new RegExp('id="' + id + '"'), id + ' bleibt erhalten');
   }
-  assert.match(indexHtml, /tabs: \{ overview: 'Übersicht', costs: 'Kosten', settings: 'Setup'/);
-  assert.match(indexHtml, /tabs: \{ overview: 'Overview', costs: 'Costs', settings: 'Setup'/);
+  assert.match(indexHtml, /tabs: \{ overview: 'Heute', costs: 'Kosten', settings: 'Einrichten'/);
+  assert.match(indexHtml, /tabs: \{ overview: 'Today', costs: 'Costs', settings: 'Set up'/);
 });
 
 test('Kopf: Untertitel steht im Setup, nicht mehr über den Reitern', () => {
@@ -219,46 +199,63 @@ test('Setup: kein Block "Empfohlene Einstellungen" mehr', () => {
 });
 
 
-test('Setup: drei Ansichten Allgemein / Preis-App / EMS, Allgemein links, Hilfe und Funktionsliste nur einmal', () => {
+test('Setup: vier Ansichten Allgemein / Preis-App / EMS / Vergleich, Hilfe und Funktionsliste nur einmal', () => {
   const at = (s) => indexHtml.indexOf(s);
   const bar = at('id="setup-sub"');
   const general = at('id="setup-view-general"');
   const price = at('id="setup-view-price"');
   const ems = at('id="setup-view-ems"');
+  const cmp = at('id="setup-view-cmp"');
   const emsPanel = at('id="panel-ems"');
   assert.ok(at('id="panel-settings"') > 0 && bar > at('id="panel-settings"'));
-  assert.ok(bar < price && price < ems && ems < general && general < emsPanel, 'Ansichten: Preis-App, EMS, Allgemein im Dokument');
-  // Knöpfe: Allgemein steht links von Preis-App, dann EMS
+  assert.ok(bar < price && price < cmp && cmp < ems && ems < general && general < emsPanel, 'Ansichten im Dokument');
   const g = at('data-setup-sub="general"');
   const p = at('data-setup-sub="price"');
   const e = at('data-setup-sub="ems"');
-  assert.ok(g > bar && g < p && p < e, 'Reihenfolge der Knöpfe');
-  assert.match(indexHtml, /class="subtabs three" id="setup-sub"/);
-  assert.match(indexHtml, /\.subtabs\.three \{ grid-template-columns: repeat\(3/);
+  const c = at('data-setup-sub="cmp"');
+  assert.ok(g > bar && g < p && p < e && e < c, 'Reihenfolge der Knöpfe');
+  assert.match(indexHtml, /class="subtabs four" id="setup-sub"/);
+  assert.match(indexHtml, /\.subtabs\.four \{ grid-template-columns: repeat\(4/);
   assert.match(indexHtml, /id="setup-sub-ems">EMS<\/button>/, 'Knopf heisst EMS');
-  // Standard: Preis-App sichtbar, Allgemein und EMS versteckt
   assert.match(indexHtml, /id="setup-view-general" hidden/);
   assert.match(indexHtml, /id="setup-view-ems" hidden/);
+  assert.match(indexHtml, /id="setup-view-cmp" hidden/);
   assert.doesNotMatch(indexHtml, /id="setup-view-price" hidden/);
   const inRange = (id, from, to) => { const x = at('id="' + id + '"'); return x > from && x < to; };
-  for (const id of ['h2-setup', 'h2-general', 'h2-ref', 'h2-meters', 'h2-hourly', 'h2-battery', 'h2-monitor', 'h2-flowtest']) assert.ok(inRange(id, price, ems), id + ' in Preis-App');
+  for (const id of ['h2-setup', 'h2-general', 'h2-ref', 'h2-meters', 'h2-hourly', 'h2-battery', 'h2-monitor', 'h2-flowtest']) assert.ok(inRange(id, price, cmp), id + ' in Preis-App');
   assert.ok(inRange('ems-view-devices', ems, general), 'Datenquellen in EMS');
-  // Allgemein: Darstellung, Daten verwalten, Hilfe & Forum, ganz unten "Was die App kann"
-  const order = ['h2-appearance', 'h2-manage', 'h2-helpsec'].map((s) => at(s.startsWith('id=') ? s : 'id="' + s + '"'));
+  assert.ok(inRange('ems-view-cmp', cmp, ems), 'Vergleich in Einrichten');
+  const order = ['h2-appearance', 'h2-manage', 'h2-helpsec'].map((s) => at('id="' + s + '"'));
   assert.ok(order.every((v, i, arr) => v > general && v < emsPanel && (i === 0 || v > arr[i - 1])), 'Reihenfolge in Allgemein ' + order.join(','));
-  // keine doppelten Überschriften
   const count = (id) => (indexHtml.match(new RegExp('id="' + id + '"', 'g')) || []).length;
   assert.equal(count('h2-helpsec'), 1);
-  assert.equal(count('h2-features'), 0, 'Funktionsliste entfernt');
   assert.equal(count('btn-forum'), 1);
-  assert.equal(count('h2-forum'), 0, 'kein zweiter Forum-Titel');
+  assert.equal(count('h2-features'), 0, 'Funktionsliste entfernt');
   assert.doesNotMatch(indexHtml, /features-card/);
-  // EMS-Ansicht ist kein einklappbarer Rahmen mehr
   assert.doesNotMatch(indexHtml, /<details[^>]*id="ems-devices-sec"/);
   assert.match(indexHtml, /<div id="ems-devices-sec">/);
 });
 
-test('SetupNav: Allgemein, Preis-App und EMS schalten um, Texte in vier Sprachen', () => {
+test('Reiter: Heute | Ausblick | Kosten | Einrichten - Zahlen und Betrieb unter Heute, Plan unter Ausblick', () => {
+  const at = (s) => indexHtml.indexOf(s);
+  assert.match(indexHtml, /id="t-ems">Ausblick<\/button>/);
+  const tabOrder = ['id="t-overview"', 'id="t-ems"', 'id="t-costs"', 'id="t-settings"'].map(at);
+  assert.ok(tabOrder.every((v, i, arr) => v > 0 && (i === 0 || v > arr[i - 1])), 'Reihenfolge der Reiter: Heute, Ausblick, Kosten, Einrichten ' + tabOrder.join(','));
+  const overview = at('id="panel-overview"');
+  const costs = at('id="panel-costs"');
+  const settings = at('id="panel-settings"');
+  const outlook = at('id="panel-ems"');
+  assert.ok(overview < costs && costs < settings && settings < outlook, 'Panels');
+  const inRange = (id, from, to) => { const x = at('id="' + id + '"'); return x > from && x < to; };
+  assert.ok(inRange('live-card', overview, costs), 'aktuelle Werte unter Heute');
+  assert.ok(inRange('today-card', overview, costs), 'Zahlen unter Heute');
+  assert.ok(inRange('ems-view-main', overview, costs), 'Betrieb und Schalter unter Heute');
+  assert.ok(at('id="live-card"') < at('id="today-card"') && at('id="today-card"') < at('id="ems-view-main"'), 'Reihenfolge: jetzt, Zahlen, Betrieb');
+  assert.ok(inRange('ems-view-plan', outlook, indexHtml.length), 'Plan unter Ausblick');
+  assert.doesNotMatch(indexHtml, /id="ems-sub"/, 'kein Betrieb/Vergleich-Umschalter mehr');
+});
+
+test('SetupNav: Allgemein, Preis-App, EMS und Vergleich schalten um, Texte in vier Sprachen', () => {
   const src = fs.readFileSync(path.join(__dirname, '../settings/setupnav.js'), 'utf8');
   const els = new Map();
   const handlers = {};
@@ -273,24 +270,30 @@ test('SetupNav: Allgemein, Preis-App und EMS schalten um, Texte in vier Sprachen
   assert.equal(el('setup-sub-general').textContent, 'Allgemein');
   assert.equal(el('setup-sub-price').textContent, 'Preis-App');
   assert.equal(el('setup-sub-ems').textContent, 'EMS');
-  assert.match(el('p-setup-ems').textContent, /Reiter «EMS»/);
+  assert.equal(el('setup-sub-cmp').textContent, 'Vergleich');
+  assert.ok(el('p-setup-ems').textContent.includes('unter «Heute», den Plan unter «Ausblick»'));
   const click = handlers['setup-sub:click'];
   const mk = (w) => ({ target: { getAttribute: (n) => (n === 'data-setup-sub' ? w : null) } });
   click(mk('general'));
   assert.equal(el('setup-view-general').hidden, false);
   assert.equal(el('setup-view-price').hidden, true);
   assert.equal(el('setup-view-ems').hidden, true);
+  assert.equal(el('setup-view-cmp').hidden, true);
   assert.equal(el('setup-sub-general').active, true);
+  click(mk('cmp'));
+  assert.equal(el('setup-view-cmp').hidden, false);
+  assert.equal(el('setup-view-general').hidden, true);
   click(mk('ems'));
   assert.equal(el('setup-view-ems').hidden, false);
-  assert.equal(el('setup-view-general').hidden, true);
+  assert.equal(el('setup-view-cmp').hidden, true);
   click(mk('price'));
   assert.equal(el('setup-view-price').hidden, false);
   click({ target: { getAttribute: () => null } });
   assert.equal(el('setup-view-price').hidden, false, 'fremdes Ziel ändert nichts');
-  for (const [lang, labels] of [['en', ['General', 'Price app', 'EMS']], ['fr', ['Général', 'App tarifs', 'EMS']], ['it', ['Generale', 'App prezzi', 'EMS']]]) {
+  for (const [lang, labels] of [['en', ['General', 'Price app', 'EMS', 'Compare']], ['fr', ['Général', 'App tarifs', 'EMS', 'Comparaison']], ['it', ['Generale', 'App prezzi', 'EMS', 'Confronto']]]) {
     ctx.window.SetupNav.init(lang);
-    assert.deepEqual(JSON.stringify([el('setup-sub-general').textContent, el('setup-sub-price').textContent, el('setup-sub-ems').textContent]), JSON.stringify(labels));
+    assert.equal(JSON.stringify([el('setup-sub-general').textContent, el('setup-sub-price').textContent, el('setup-sub-ems').textContent, el('setup-sub-cmp').textContent]), JSON.stringify(labels));
   }
   assert.doesNotMatch(src, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
 });
+

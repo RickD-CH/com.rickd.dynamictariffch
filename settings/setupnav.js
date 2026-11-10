@@ -1,16 +1,16 @@
-/* Umschalter im Setup-Reiter: "Allgemein" | "Preis-App" | "EMS".
+/* Umschalter im Reiter "Einrichten": "Allgemein" | "Preis-App" | "EMS" | "Vergleich" (nur Testphase).
  * Wird von index.html gestartet: window.SetupNav.init(lang). Die Ansichten stehen in index.html
- * (#setup-view-general, #setup-view-price, #setup-view-ems), die Knöpfe in #setup-sub. */
+ * (#setup-view-general, #setup-view-price, #setup-view-ems, #setup-view-cmp), die Knöpfe in #setup-sub. */
 (function () {
   'use strict';
 
   var TEXT = {
-    de: { general: 'Allgemein', price: 'Preis-App', ems: 'EMS', hint: 'Hier wählst du die Datenquellen und Verbraucher für das Energiemanagement. Betrieb und Schalter findest du im Reiter «EMS».' },
-    en: { general: 'General', price: 'Price app', ems: 'EMS', hint: 'Choose the data sources and consumers for energy management here. Operation and switches are in the "EMS" tab.' },
-    fr: { general: 'Général', price: 'App tarifs', ems: 'EMS', hint: "Choisissez ici les sources de données et les consommateurs pour la gestion de l'énergie. Le fonctionnement et les commutateurs se trouvent dans l'onglet « EMS »." },
-    it: { general: 'Generale', price: 'App prezzi', ems: 'EMS', hint: "Scegli qui le fonti di dati e i consumatori per la gestione dell'energia. Funzionamento e interruttori si trovano nella scheda «EMS»." },
+    de: { general: 'Allgemein', price: 'Preis-App', ems: 'EMS', cmp: 'Vergleich', hint: 'Hier richtest du das Energiemanagement ein: Datenquellen, Verbraucher, Berechnung. Betrieb und Schalter findest du unter «Heute», den Plan unter «Ausblick».' },
+    en: { general: 'General', price: 'Price app', ems: 'EMS', cmp: 'Compare', hint: 'Set up energy management here: data sources, consumers, calculation. Operation and switches are under "Today", the plan under "Outlook".' },
+    fr: { general: 'Général', price: 'App tarifs', ems: 'EMS', cmp: 'Comparaison', hint: "Configurez ici la gestion de l'énergie : sources de données, consommateurs, calcul. Le fonctionnement et les commutateurs se trouvent sous « Aujourd'hui », le plan sous « Aperçu »." },
+    it: { general: 'Generale', price: 'App prezzi', ems: 'EMS', cmp: 'Confronto', hint: "Configura qui la gestione dell'energia: fonti di dati, consumatori, calcolo. Funzionamento e interruttori si trovano sotto «Oggi», il piano sotto «Previsione»." },
   };
-  var VIEWS = ['general', 'price', 'ems'];
+  var VIEWS = ['general', 'price', 'ems', 'cmp'];
 
   function $(id) { return document.getElementById(id); }
 
