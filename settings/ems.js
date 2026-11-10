@@ -23,6 +23,7 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
       carCap: 'Batteriegrösse des Autos (kWh)', carSocLbl: 'E-Auto', carNow: 'E-Auto jetzt', pvTargetSoc: 'Ziel-Ladestand (%, statt Energie)', pvNeedCarSoc: 'Der Ladestand des E-Autos ist unbekannt (Setup → E-Auto)', pvNeedCarCap: 'Batteriegrösse des E-Autos fehlt (Setup → E-Auto)',
       pvReachedAlready: 'Das Auto hat den Ziel-Ladestand schon erreicht', pvSocFrom: 'von', pvSocTo: 'auf', pvDayStrip: 'Vorschau im Tagesverlauf',
@@ -101,6 +102,7 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
       carCap: 'Car battery size (kWh)', carSocLbl: 'EV', carNow: 'EV now', pvTargetSoc: 'Target charge (%, instead of energy)', pvNeedCarSoc: 'The EV charge level is unknown (Setup → EV)', pvNeedCarCap: 'Car battery size is missing (Setup → EV)',
       pvReachedAlready: 'The car has already reached the target charge', pvSocFrom: 'from', pvSocTo: 'to', pvDayStrip: 'Preview over the day',
@@ -660,6 +662,7 @@
     instant_ev: '#5b52c8', solar_ev: '#9a93e8', holding: '#d4d1f3', battery_priority: '#d4d1f3', error: '#d32f2f',
   };
   var PLAN_STEP = 10;
+  var MAX_CTRL = 8; // gleiche Grenze wie lib/ems/Config.js (MAX_CONSUMERS)
 
   function hm(ms) {
     try { return new Date(ms).toLocaleTimeString(LANG === 'de' ? 'de-CH' : 'en-GB', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' }); } catch (e) { return String(ms); }
@@ -1273,6 +1276,7 @@
 
   function save() {
     var b = collect();
+    if (b.ems.consumers.length > MAX_CTRL) { setMsg(S.maxConsumers); return Promise.resolve(); }
     var metersCfg = state.meters && state.meters.config ? state.meters.config : null;
     var anyMeter = b.meters.consumers.length > 0;
     setMsg('...');
@@ -1461,5 +1465,5 @@
       });
   }
 
-  window.EmsUi = { init: init, _collect: collect, _state: state, _render: render, _sync: sync };
+  window.EmsUi = { init: init, _collect: collect, _state: state, _render: render, _sync: sync, _save: save };
 })();

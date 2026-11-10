@@ -8,7 +8,7 @@ standardmässig **aus**: ohne Häkchen unter Einstellungen → "Energiemanagemen
 | Bereich | Verhalten | Steuerung |
 |---|---|---|
 | **Wallbox (go-e)** | Solar-Überschuss laden in Ampere-Stufen (6-16 A), Phasenumschaltung, Haltezeiten, Schutz vor Netzbezug, Batterie-Schutz (Rampe 50-80 %), "Akku voll"-Regel, Prognose-Sperre, Sofortladen, Hauptsicherungsgrenze | live (`charger.live`) oder Trockenlauf |
-| **Verbraucher** (z. B. Luftentfeuchter, bis 5) | Einschalten bei voller Batterie, ab gewähltem SoC oder bei Überschuss (wie Andis EMS); Mindestlaufzeit, Mindest-Pause, Schutz-SoC, Prognose-Sperre | live (je Verbraucher `live`) oder Trockenlauf |
+| **Verbraucher** (z. B. Luftentfeuchter, bis 8) | Einschalten bei voller Batterie, ab gewähltem SoC oder bei Überschuss (wie Andis EMS); Mindestlaufzeit, Mindest-Pause, Schutz-SoC, Prognose-Sperre | live (je Verbraucher `live`) oder Trockenlauf |
 | **Batterie** | Planer für Laden/Halten/Normal auf 15-Minuten-Slots, nur zum Vergleich mit Andis EMS | nur Schattenmodus (Andis EMS steuert die Batterie weiter) |
 
 Trockenlauf = es wird gerechnet und protokolliert, **kein Gerät wird geschaltet**.
@@ -149,3 +149,12 @@ einmal beim Speichern und über den Knopf «Jetzt lesen und aktualisieren» (`PO
 | **Ausblick** | Plan (Preis, Solar, Batterie, Wallbox, Verbraucher, Aufträge), Tabelle «Ab jetzt», aktive Aufträge, Auftrag planen | Look ahead |
 | **Kosten** | Verlauf der Kosten und Ersparnis, Verbraucher, Batterie-Potenzial | Rückblick |
 | **Einrichten** | Allgemein (Darstellung, Daten, Hilfe), Preis-App (Referenztarif, Zählerstände, ...), EMS (Datenquellen, Verbraucher, Berechnung), Vergleich (nur Testphase) | einmalig |
+
+## Robustheit (10.11.2026)
+
+- **Protokolle:** `ShadowLog` speichert sofort bei einem Wechsel, sonst höchstens alle 5 Minuten (vorher bei jedem Lauf, bis 240-mal pro Stunde).
+- **Fehlerfall der Wallbox im Live-Betrieb** (`planner/charger.failSafe`): Netzzähler oder Wallbox nicht lesbar → nach 60 s auf Mindeststrom, nach 5 min
+  Stopp. Nur für Laden, das das EMS selbst gestartet hat. Bei ausdrücklich verlangtem Laden (Sofort laden, Auftrag) bleibt es beim Mindeststrom.
+- **Verbraucher:** höchstens 8 gesteuerte Verbraucher (`MAX_CONSUMERS`); die Oberfläche lehnt mehr beim Speichern mit einer Meldung ab.
+- **Nur Preise:** `homey-api` wird erst beim ersten Lesen oder Schalten geladen; ohne EMS-Gerät und ohne Zähler-Auswahl gibt es keine Timer und keinen Zugriff
+  auf andere Geräte (`test/price-only.test.js`).
