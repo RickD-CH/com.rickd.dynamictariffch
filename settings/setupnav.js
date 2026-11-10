@@ -1,42 +1,41 @@
-/* Umschalter im Setup-Reiter: "Preis-App" | "Energiemanagement".
+/* Umschalter im Setup-Reiter: "Allgemein" | "Preis-App" | "EMS".
  * Wird von index.html gestartet: window.SetupNav.init(lang). Die Ansichten stehen in index.html
- * (#setup-view-price, #setup-view-ems), die Buttons in #setup-sub. */
+ * (#setup-view-general, #setup-view-price, #setup-view-ems), die Knöpfe in #setup-sub. */
 (function () {
   'use strict';
 
   var TEXT = {
-    de: ['Preis-App', 'Energiemanagement', 'Hier wählst du die Geräte für das Energiemanagement. Betrieb und Steuerung findest du im Reiter «EMS».'],
-    en: ['Price app', 'Energy management', 'Choose the devices for energy management here. Operation and control are in the "EMS" tab.'],
-    fr: ['App tarifs', "Gestion de l'énergie", "Choisissez ici les appareils pour la gestion de l'énergie. Le fonctionnement et la commande se trouvent dans l'onglet « EMS »."],
-    it: ['App prezzi', "Gestione dell'energia", 'Scegli qui i dispositivi per la gestione dell\'energia. Funzionamento e controllo si trovano nella scheda «EMS».'],
+    de: { general: 'Allgemein', price: 'Preis-App', ems: 'EMS', hint: 'Hier wählst du die Datenquellen und Verbraucher für das Energiemanagement. Betrieb und Schalter findest du im Reiter «EMS».' },
+    en: { general: 'General', price: 'Price app', ems: 'EMS', hint: 'Choose the data sources and consumers for energy management here. Operation and switches are in the "EMS" tab.' },
+    fr: { general: 'Général', price: 'App tarifs', ems: 'EMS', hint: "Choisissez ici les sources de données et les consommateurs pour la gestion de l'énergie. Le fonctionnement et les commutateurs se trouvent dans l'onglet « EMS »." },
+    it: { general: 'Generale', price: 'App prezzi', ems: 'EMS', hint: "Scegli qui le fonti di dati e i consumatori per la gestione dell'energia. Funzionamento e interruttori si trovano nella scheda «EMS»." },
   };
+  var VIEWS = ['general', 'price', 'ems'];
 
   function $(id) { return document.getElementById(id); }
 
   function show(which) {
-    var price = $('setup-view-price');
-    var ems = $('setup-view-ems');
-    if (price) price.hidden = which !== 'price';
-    if (ems) ems.hidden = which !== 'ems';
-    [['setup-sub-price', which === 'price'], ['setup-sub-ems', which === 'ems']].forEach(function (p) {
-      var b = $(p[0]);
-      if (b && b.classList && b.classList.toggle) b.classList.toggle('active', p[1]);
+    VIEWS.forEach(function (v) {
+      var view = $('setup-view-' + v);
+      if (view) view.hidden = v !== which;
+      var b = $('setup-sub-' + v);
+      if (b && b.classList && b.classList.toggle) b.classList.toggle('active', v === which);
     });
   }
 
   function init(lang) {
     var t = TEXT[lang] || TEXT.en;
-    var bp = $('setup-sub-price');
-    var be = $('setup-sub-ems');
+    VIEWS.forEach(function (v) {
+      var b = $('setup-sub-' + v);
+      if (b) b.textContent = t[v];
+    });
     var hint = $('p-setup-ems');
-    if (bp) bp.textContent = t[0];
-    if (be) be.textContent = t[1];
-    if (hint) hint.textContent = t[2];
+    if (hint) hint.textContent = t.hint;
     var bar = $('setup-sub');
     if (bar) {
       bar.addEventListener('click', function (ev) {
         var which = ev.target && ev.target.getAttribute ? ev.target.getAttribute('data-setup-sub') : null;
-        if (which === 'price' || which === 'ems') show(which);
+        if (VIEWS.indexOf(which) >= 0) show(which);
       });
     }
   }

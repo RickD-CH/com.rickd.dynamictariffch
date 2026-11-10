@@ -161,6 +161,7 @@
     /* Zweiter, kleinerer Umschalter innerhalb des EMS-Reiters (Betrieb / Vergleich) */
     .subtabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; margin: 0 0 12px; padding: 3px; background: var(--st-seg-bg); border-radius: 8px; max-width: 320px; }
     .subtab { background: transparent; border: 0; border-radius: 6px; color: var(--st-seg-text); font-size: 12px; font-weight: 500; padding: 5px 6px; cursor: pointer; font-family: inherit; }
+    .subtabs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: none; }
     .subtab.active { background: var(--st-seg-active-bg); color: var(--st-seg-active-text); font-weight: 600; box-shadow: var(--st-seg-shadow); }
     /* Schalter statt Häkchen: grün, wenn ein */
     input.sw, .bk-check input[type="checkbox"] {
@@ -387,7 +388,7 @@
   </div>
 
   <div class="panel" id="panel-settings">
-    <div class="subtabs" id="setup-sub"><button class="subtab active" data-setup-sub="price" id="setup-sub-price">Preis-App</button><button class="subtab" data-setup-sub="ems" id="setup-sub-ems">Energiemanagement</button></div>
+    <div class="subtabs three" id="setup-sub"><button class="subtab" data-setup-sub="general" id="setup-sub-general">Allgemein</button><button class="subtab active" data-setup-sub="price" id="setup-sub-price">Preis-App</button><button class="subtab" data-setup-sub="ems" id="setup-sub-ems">EMS</button></div>
 
     <div id="setup-view-price">
       <p class="sub" id="p-sub"></p>
@@ -506,14 +507,14 @@
 
     <div id="setup-view-ems" hidden>
       <p class="sub" id="p-setup-ems"></p>
-      <details class="card sec" id="ems-devices-sec">
-        <summary><h2 id="h2-emsdev"></h2></summary>
+      <div id="ems-devices-sec">
+        <h2 id="h2-emsdev" hidden></h2>
         <div id="ems-view-devices"></div>
-      </details>
+      </div>
 
     </div>
 
-    <div id="setup-common">
+    <div id="setup-view-general" hidden>
       <details class="card sec">
         <summary><h2 id="h2-appearance"></h2></summary>
         <div class="viewsw" id="theme-sw"></div>
@@ -574,17 +575,14 @@
 
       <details class="card sec help-sec">
         <summary><h2 id="h2-helpsec"></h2></summary>
-        <div class="card">
-          <h2 id="h2-forum"></h2>
-          <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
-          <button class="btn" id="btn-forum"></button>
-        </div>
-
-        <div class="card">
-          <h2 id="h2-features"></h2>
-          <ul id="ul-features"></ul>
-        </div>
+        <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
+        <button class="btn" id="btn-forum"></button>
       </details>
+
+      <div class="card" id="features-card">
+        <h2 id="h2-features"></h2>
+        <ul id="ul-features"></ul>
+      </div>
 
     </div>
   </div>
@@ -1019,7 +1017,6 @@
       $('btn-baselines').textContent = T.baselineButton;
       $('p-reset-hint').textContent = T.resetHint;
       $('btn-reset').textContent = T.resetButton;
-      $('h2-forum').textContent = T.forumTitle;
       $('hint-forum').textContent = T.forumHint;
       $('btn-forum').textContent = T.forumButton;
     }

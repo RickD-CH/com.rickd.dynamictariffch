@@ -411,3 +411,15 @@ test('Gerätewechsel wird beim Auffrischen nicht überschrieben', async () => {
   await env.ctx.window.EmsUi._render();
   assert.equal(env.ctx.window.EmsUi._state.cfg.devices.inverter.id, 'bat');
 });
+
+test('Setup: Kopf ist grün getönt, wenn alles eingerichtet ist, sonst gelb; Quellen sind gleich sichtbar', async () => {
+  const ok = await start(scenario({ cfg: { devices: { meter: { id: 'em' } } } }));
+  assert.match(setup(ok), /class="ems-head ems-head-ok"/);
+  assert.match(setup(ok), /Netzzähler/);
+  const miss = await start(scenario());
+  assert.match(setup(miss), /class="ems-head ems-head-warn"/);
+  assert.match(setup(miss), /Es fehlt noch: Netzzähler/);
+  // Quellen stehen ohne weiteres Aufklappen da (kein einklappbarer Rahmen im Setup)
+  assert.match(setup(ok), /DATENQUELLEN/);
+  assert.match(setup(ok), /Hausbatterie/);
+});
