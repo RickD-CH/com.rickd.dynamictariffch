@@ -93,9 +93,10 @@ test('Zeitplan: nur wenn eingeschaltet, auf die nächste Viertelstunde (kein set
   assert.equal(off.timers.length, 0);
   const on = makeApp({ stored: { enabled: true, sources: { import: { deviceId: 'a', capability: 'meter_power' } } } });
   on.reader.start();
-  assert.equal(on.timers.length, 1);
+  assert.equal(on.timers.length, 2, 'Takt-Timer und ein erster Lesevorgang kurz nach dem Start');
   const delay = on.timers[0][1];
   assert.ok(delay > 0 && delay <= 15 * 60 * 1000 + 20_000);
+  assert.equal(on.timers[1][1], 20000);
   on.reader.stop();
 });
 
@@ -325,4 +326,49 @@ test('MetersUi: Übersicht zeigt je Zähler, ob er über die Auswahl, einen Flow
   const offHtml = off.els.get('meters-auto').innerHTML;
   assert.match(offHtml, /Auswahl vorbereitet, automatisches Lesen ist aus/);
   assert.match(offHtml, /nicht gespeist/);
+});
+
+// ---------------------------------------------------------------- Lese-Takt und Aktualisieren-Knopf
+
+test('Lese-Takt: erlaubte Werte, Standard 15, Speichern behält ihn, Zeitplan folgt dem Takt', () => {
+  assert.equal(normalizeMeters(null).intervalMin, 15);
+  for (const v of [5, 10, 15, 30, 60]) assert.equal(normalizeMeters({ intervalMin: v }).intervalMin, v);
+  for (const v of [1, 7, 120, 'abc', null]) assert.equal(normalizeMeters({ intervalMin: v }).intervalMin, 15);
+  const a = makeApp({ stored: { enabled: true, intervalMin: 60, sources: { import: { deviceId: 'a', capability: 'meter_power' } } } });
+  a.reader.start();
+  assert.ok(a.timers[0][1] > 0 && a.timers[0][1] <= 60 * 60 * 1000 + 20000, 'bis zur nächsten vollen Stunde');
+  a.reader.stop();
+  const b = makeApp({ stored: { enabled: true, sources: { import: { deviceId: 'a', capability: 'meter_power' } } } });
+  b.reader.putConfig({ intervalMin: 5 });
+  assert.equal(b.reader.getConfig().intervalMin, 5);
+  b.reader.putConfig({ enabled: true });
+  assert.equal(b.reader.getConfig().intervalMin, 5, 'nicht mitgeschickt = bleibt');
+  b.reader.putConfig({ intervalMin: 999 });
+  assert.equal(b.reader.getConfig().intervalMin, 15, 'ungültig = Standard');
+});
+
+test('MetersUi: Takt wählbar und gespeichert, Knopf liest sofort und füllt die Übersicht', async () => {
+  const cfg = normalizeMeters({ enabled: true, sources: { import: { deviceId: 'em', capability: 'meter_power' } } });
+  const now = Date.now();
+  const env = makeUi({
+    ...baseResponses,
+    'GET /meters': { config: cfg, status: {}, seen: {} },
+    'POST /meters/run': { config: cfg, status: { import: { at: now, kwh: 5 } }, seen: { import: { auto: now } } },
+  });
+  await env.ctx.window.MetersUi.init(env.api, 'de');
+  let html = env.els.get('meters-auto').innerHTML;
+  assert.match(html, /id="mt-interval"/);
+  assert.match(html, /<option value="15" selected>alle 15 Minuten/);
+  assert.match(html, /Jetzt lesen und aktualisieren/);
+  assert.match(html, /noch keine Meldung/);
+  const click = (attr) => env.handlers['meters-auto:click']({ target: { getAttribute: (n) => (n === attr ? '1' : null) } });
+  click('data-mt-run');
+  await new Promise((r) => setTimeout(r, 15));
+  assert.ok(env.calls.some((c) => c[0] === 'POST' && c[1] === '/meters/run'));
+  html = env.els.get('meters-auto').innerHTML;
+  assert.match(html, /Auswahl zuletzt vor/);
+  assert.match(html, /Gelesen/);
+  // Takt ändern: wird beim Speichern mitgeschickt
+  env.els.get('mt-interval').value = '30';
+  assert.equal(env.ctx.window.MetersUi._collect().intervalMin, 30);
 });

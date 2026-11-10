@@ -137,3 +137,6 @@ liest das gewählte Gerät alle 15 Minuten selbst, meldet mit `via: 'auto'`) ode
 gleichzeitig ist erlaubt, der jüngste Wert zählt. Das Gerät merkt sich je Zähler, wann zuletzt über welchen Weg gemeldet wurde (`reportSeen`, im Store,
 mit dem Kostenspeicher geschrieben). Die Einstellungen (Preis-App → Zählerstände) zeigen die Übersicht «Wie wird jeder Zähler gespeist?»: Auswahl, Flow,
 beides oder nicht gespeist, mit Gerät, Wert und letzter Meldung je Weg. Automatisches Lesen ist standardmässig aus.
+
+Lese-Takt der Zählerstände (`meters.intervalMin`): 5, 10, 15 (Standard), 30 oder 60 Minuten, kurz nach der Grenze. Die App liest einmal ~20 s nach dem Start,
+einmal beim Speichern und über den Knopf «Jetzt lesen und aktualisieren» (`POST /meters/run`). Kürzer = aktuellere Kostenwerte, mehr Abfragen an Homey.

@@ -18,6 +18,8 @@
       managedHint: 'Deine Verbraucher mit ihren Zählern verwaltest du im Setup unter «Energiemanagement».',
       feedTitle: 'Wie wird jeder Zähler gespeist?', feedSource: 'Zähler', feedHow: 'Gespeist über', feedLast: 'Letzte Meldung',
       feedAuto: 'Auswahl', feedFlow: 'Flow', feedBoth: 'Auswahl und Flow', feedNone: 'nicht gespeist', feedAutoOff: 'Auswahl vorbereitet, automatisches Lesen ist aus',
+      feedRun: 'Jetzt lesen und aktualisieren', feedRunning: 'liest ...', feedRunDone: 'Gelesen', interval: 'Lesen alle', every5: 'alle 5 Minuten', every10: 'alle 10 Minuten', every15: 'alle 15 Minuten', every30: 'alle 30 Minuten', every60: 'jede Stunde',
+      intervalHint: 'Kürzer = aktuellere Kostenwerte, aber mehr Abfragen an Homey. 15 Minuten genügt, die Preise ändern sich nur alle 15 Minuten.',
       feedFlowAgo: 'Flow zuletzt', feedAutoAgo: 'Auswahl zuletzt', feedNoReport: 'noch keine Meldung',
       feedHint: 'Pro Zähler siehst du, ob die Werte aus der Auswahl (die App liest das Gerät selbst) oder aus einem Flow kommen. Meldet beides, gilt der jüngste Wert.',
     },
@@ -34,6 +36,8 @@
       managedHint: 'You manage your consumers and their meters in Setup under "Energy management".',
       feedTitle: 'How is each meter fed?', feedSource: 'Meter', feedHow: 'Fed by', feedLast: 'Last report',
       feedAuto: 'Selection', feedFlow: 'Flow', feedBoth: 'Selection and Flow', feedNone: 'not fed', feedAutoOff: 'Selection prepared, automatic reading is off',
+      feedRun: 'Read now and refresh', feedRunning: 'reading ...', feedRunDone: 'Read', interval: 'Read every', every5: 'every 5 minutes', every10: 'every 10 minutes', every15: 'every 15 minutes', every30: 'every 30 minutes', every60: 'every hour',
+      intervalHint: 'Shorter = fresher cost values but more requests to Homey. 15 minutes is enough, prices only change every 15 minutes.',
       feedFlowAgo: 'Flow last', feedAutoAgo: 'Selection last', feedNoReport: 'no report yet',
       feedHint: 'For each meter you see whether the values come from the selection (the app reads the device itself) or from a Flow. If both report, the latest value counts.',
     },
@@ -141,7 +145,8 @@
     var c = state.cfg;
     var rows = KINDS.map(function (k) { return feedRow(S[k], k, c.sources[k].deviceId, c.sources[k].capability); });
     (c.consumers || []).forEach(function (x) { if (x.name) rows.push(feedRow(x.name, 'consumer:' + x.name, x.deviceId, x.capability)); });
-    return '<h3>' + esc(S.feedTitle) + '</h3><p class="sub">' + esc(S.feedHint) + '</p><div class="mt-feeds">' + rows.join('') + '</div>';
+    return '<h3>' + esc(S.feedTitle) + '</h3><p class="sub">' + esc(S.feedHint) + '</p><div class="mt-feeds">' + rows.join('') + '</div>'
+      + '<p><button class="btn" data-mt-run="1">' + esc(S.feedRun) + '</button> <span class="sub" id="mt-feed-msg">' + esc(state.feedMsg || '') + '</span></p>';
   }
 
   function row(label, idPrefix, devId, cap, statusKey, nameField) {
@@ -155,6 +160,14 @@
     var nameField = '<input id="mt-c' + i + '-name" type="text" value="' + esc(c.name) + '" placeholder="' + esc(S.name) + '">';
     return row('', 'mt-c' + i, c.deviceId, c.capability, c.name ? 'consumer:' + c.name : null, nameField)
       + '<div class="mt-rm"><button class="btn" data-mt-remove="' + i + '">' + esc(S.remove) + '</button></div>';
+  }
+
+  function intervalRow() {
+    var cur = Number(state.cfg.intervalMin) || 15;
+    var opts = [[5, S.every5], [10, S.every10], [15, S.every15], [30, S.every30], [60, S.every60]].map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
+    }).join('');
+    return '<div class="mt-row"><label class="mt-f"><span>' + esc(S.interval) + '</span><select id="mt-interval">' + opts + '</select></label></div><p class="sub">' + esc(S.intervalHint) + '</p>';
   }
 
   function render() {
@@ -175,6 +188,7 @@
       + feedTable()
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
       + '<label class="mt-c"><span class="swt"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '><i></i></span> <span>' + esc(S.enable) + '</span></label>'
+      + intervalRow()
       + rows
       + (state.managed
         ? '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.managedHint) + '</p>'
@@ -196,7 +210,7 @@
       var p = 'mt-c' + i;
       return { name: val(p + '-name', c.name), deviceId: val(p + '-dev', c.deviceId), capability: val(p + '-cap', c.capability) };
     });
-    var out = { enabled: !!(enabledEl && enabledEl.checked), sources: sources };
+    var out = { enabled: !!(enabledEl && enabledEl.checked), intervalMin: Number(val('mt-interval', state.cfg.intervalMin || 15)) || 15, sources: sources };
     if (!state.managed) out.consumers = consumers; // sonst verwaltet das Energiemanagement sie
     return out;
   }
@@ -204,6 +218,7 @@
   function syncToState() {
     var f = collect();
     state.cfg.enabled = f.enabled;
+    state.cfg.intervalMin = f.intervalMin;
     state.cfg.sources = f.sources;
     state.consumers = f.consumers;
   }
@@ -243,6 +258,20 @@
       syncToState();
       state.consumers.splice(Number(t.getAttribute('data-mt-remove')), 1);
       render();
+    } else if (t.getAttribute('data-mt-run')) {
+      state.feedMsg = S.feedRunning;
+      var msg = $('mt-feed-msg');
+      if (msg) msg.textContent = state.feedMsg;
+      api('POST', '/meters/run').then(function (r) {
+        state.status = r.status || {}; state.seen = r.seen || {};
+        state.feedMsg = S.feedRunDone;
+        syncToState();
+        render();
+      }).catch(function (e) {
+        state.feedMsg = S.error + ': ' + (e && e.message || e);
+        var m2 = $('mt-feed-msg');
+        if (m2) m2.textContent = state.feedMsg;
+      });
     } else if (t.getAttribute('data-mt-save')) {
       var body = collect();
       if (body.consumers) body.consumers = body.consumers.filter(function (c) { return c.name && c.deviceId && c.capability; });
