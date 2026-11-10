@@ -76,7 +76,7 @@ test('index.html bindet ems.js ein, hat Reiter und Panel und startet EmsUi', () 
 test('EmsUi rendert Status, Wallbox, Verbraucher und Batterie ohne Fehler', async () => {
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-ems').innerHTML;
+  const html = env.els.get('ems-view-main').innerHTML;
   assert.match(html, /Energiemanagement aktivieren/);
   assert.match(html, /<h2>Wallbox<\/h2>/);
   assert.match(html, /Luftentfeuchter/);
@@ -86,12 +86,13 @@ test('EmsUi rendert Status, Wallbox, Verbraucher und Batterie ohne Fehler', asyn
   assert.match(html, /Trockenlauf/);
   assert.doesNotMatch(html, /undefined|null/);
   assert.equal(env.els.get('t-ems').textContent, 'EMS');
+  assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
 });
 
 test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte mit Ein/Aus', async () => {
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-ems').innerHTML;
+  const html = env.els.get('ems-view-main').innerHTML;
   assert.ok(html.includes('Geräte (einmal wählen)'));
   assert.match(html, /id="ems-d-meter"[\s\S]*Energiezähler/);
   assert.match(html, /id="ems-d-chg"[\s\S]*Wallbox Garage/);
@@ -109,8 +110,8 @@ test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte m
 });
 
 test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen und Wechseln', async () => {
-  assert.match(indexHtml, /data-tab="emscmp"/);
-  assert.match(indexHtml, /id="panel-emscmp"/);
+  assert.match(indexHtml, /data-ems-sub="cmp"/);
+  assert.match(indexHtml, /id="ems-view-cmp"/);
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
   const html = env.els.get('ems-cmp-data').innerHTML;
@@ -121,14 +122,15 @@ test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen
   assert.match(html, /Kapazität reserviert/);
   assert.match(html, /kein Überschuss/);
   assert.doesNotMatch(html, /undefined|null/);
-  assert.equal(env.els.get('t-emscmp').textContent, 'Vergleich');
+  assert.equal(env.els.get('ems-sub-cmp').textContent, 'Vergleich');
+  assert.equal(env.els.get('ems-sub-main').textContent, 'Betrieb');
 });
 
 test('EmsUi: Modus "Überschuss" zeigt andere Felder als "voll"', async () => {
   const surplusCfg = normalizeConfig({ enabled: true, consumers: [{ id: 'dev1', name: 'X', mode: 'surplus' }] });
   const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: surplusCfg } });
   await env.ctx.window.EmsUi.init(env.api, 'en');
-  const html = env.els.get('panel-ems').innerHTML;
+  const html = env.els.get('ems-view-main').innerHTML;
   assert.match(html, /Minimum surplus/);
   assert.match(html, /Grace before switching off/);
   assert.doesNotMatch(html, /Full from SoC/);
@@ -137,7 +139,7 @@ test('EmsUi: Modus "Überschuss" zeigt andere Felder als "voll"', async () => {
 test('EmsUi: Speichern schickt die Konfiguration, Hinzufügen/Entfernen ändert die Liste', async () => {
   const env = makeEnv({ ...responses, 'PUT /ems/config': cfg });
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const click = env.handlers['panel-ems:click'];
+  const click = env.handlers['ems-view-main:click'];
   const attr = (name) => ({ getAttribute: (n) => (n === name ? '1' : null) });
   click({ target: attr('data-ems-add') });
   assert.equal(env.ctx.window.EmsUi._state.consumers.length, 2);
@@ -156,7 +158,7 @@ test('EmsUi: Speichern schickt die Konfiguration, Hinzufügen/Entfernen ändert 
 test('EmsUi: Fehler vom Server wird angezeigt', async () => {
   const env = makeEnv({ ...responses, 'GET /ems/shadow': new Error('kaputt') });
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  assert.match(env.els.get('panel-ems').innerHTML, /Fehler: kaputt/);
+  assert.match(env.els.get('ems-view-main').innerHTML, /Fehler: kaputt/);
 });
 
 test('EmsUi: Steuerungs-Schalter pro Bereich, sofort gespeichert, Fehler setzt zurück', async () => {
@@ -164,11 +166,11 @@ test('EmsUi: Steuerungs-Schalter pro Bereich, sofort gespeichert, Fehler setzt z
   const r2 = { ...responses, 'PUT /ems/toggle': withLive };
   const env = makeEnv(r2);
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-ems').innerHTML;
+  const html = env.els.get('ems-view-main').innerHTML;
   assert.match(html, /data-ems-toggle="charger"/);
   assert.match(html, /data-ems-toggle="dev1"/);
   assert.doesNotMatch(html, /id="ems-live"/);
-  const change = env.handlers['panel-ems:change'];
+  const change = env.handlers['ems-view-main:change'];
   const mk = (target, checked) => ({ checked, parentNode: null, getAttribute: (n) => (n === 'data-ems-toggle' ? target : null) });
   r2['GET /ems/shadow'] = { ...shadow, config: withLive }; // der Server liefert nach dem Schalten den neuen Stand
   change({ target: mk('dev1', true) });
@@ -180,7 +182,7 @@ test('EmsUi: Steuerungs-Schalter pro Bereich, sofort gespeichert, Fehler setzt z
   const bad = makeEnv({ ...responses, 'PUT /ems/toggle': new Error('nein') });
   await bad.ctx.window.EmsUi.init(bad.api, 'de');
   const box = mk('charger', true);
-  bad.handlers['panel-ems:change']({ target: box });
+  bad.handlers['ems-view-main:change']({ target: box });
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(box.checked, false, 'Schalter springt bei Fehler zurück');
   assert.match(bad.els.get('ems-toggle-err').textContent, /nein/);
@@ -201,7 +203,7 @@ test('EmsUi: Typ "Luftentfeuchter" zeigt den Feuchte-Notlauf mit Sensor-Auswahl 
     ] },
   });
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-emscmp') ? env.els.get('panel-ems').innerHTML : '';
+  const html = env.els.get('ems-view-cmp') ? env.els.get('ems-view-main').innerHTML : '';
   assert.match(html, /Feuchte-Notlauf/);
   assert.match(html, /Notlauf ein ab/);
   assert.match(html, /value="70"/);
@@ -218,24 +220,24 @@ test('EmsUi: Typ "Luftentfeuchter" zeigt den Feuchte-Notlauf mit Sensor-Auswahl 
   // ein allgemeiner Verbraucher zeigt den Block nicht
   const plain = makeEnv(responses);
   await plain.ctx.window.EmsUi.init(plain.api, 'de');
-  assert.doesNotMatch(plain.els.get('panel-ems').innerHTML, /Notlauf bei hoher Luftfeuchtigkeit/);
+  assert.doesNotMatch(plain.els.get('ems-view-main').innerHTML, /Notlauf bei hoher Luftfeuchtigkeit/);
 });
 
 test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', async () => {
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
   const banned = /Andi|Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom/i;
-  const ems = env.els.get('panel-ems').innerHTML;
+  const ems = env.els.get('ems-view-main').innerHTML;
   assert.doesNotMatch(ems, banned, 'EMS-Reiter (de)');
   const en = makeEnv(responses);
   await en.ctx.window.EmsUi.init(en.api, 'en');
-  assert.doesNotMatch(en.els.get('panel-ems').innerHTML, banned, 'EMS-Reiter (en)');
+  assert.doesNotMatch(en.els.get('ems-view-main').innerHTML, banned, 'EMS-Reiter (en)');
   // Im Vergleich dürfen sie vorkommen
   assert.match(env.els.get('ems-cmp-data').innerHTML, /Andis EMS/);
   // Die Vergleichsquelle liegt im Vergleichs-Reiter, nicht mehr in der Geräte-Karte
-  assert.match(env.els.get('panel-emscmp').innerHTML, /id="ems-d-andi"/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-andi"/);
   assert.doesNotMatch(ems, /ems-d-andi/);
-  assert.match(env.els.get('panel-emscmp').innerHTML, /ems-b-target/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
   assert.doesNotMatch(ems, /ems-b-target/);
 });
 
@@ -243,7 +245,7 @@ test('EmsUi: Capability als Dropdown mit Titeln, nur passende Werte', async () =
   const withMeter = normalizeConfig({ enabled: true, devices: { meter: { id: 'em1', capability: 'measure_power' } } });
   const env = makeEnv({ ...responses, 'GET /ems/shadow': { ...shadow, config: withMeter } });
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const html = env.els.get('panel-ems').innerHTML;
+  const html = env.els.get('ems-view-main').innerHTML;
   const sel = html.match(/id="ems-d-meter-cap">([\s\S]*?)<\/select>/)[1];
   assert.match(sel, /Leistung \(measure_power\)/);
   assert.match(sel, /Hausverbrauch \(measure_power\.load\)/);
@@ -257,10 +259,86 @@ test('EmsUi: Gerätewechsel wählt die passende Capability vor und behält ander
   await env.ctx.window.EmsUi.init(env.api, 'de');
   env.el('ems-d-house').value = 'em1';
   env.el('ems-maxamps').value = '10';
-  env.handlers['panel-ems:change']({ target: { getAttribute: (n) => (n === 'data-ems-dev' ? 'ems-d-house' : null) } });
+  env.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-dev' ? 'ems-d-house' : null) } });
   const cfg2 = env.ctx.window.EmsUi._state.cfg;
   assert.equal(cfg2.devices.house.id, 'em1');
   assert.equal(cfg2.devices.house.capability, 'measure_power.load');
   assert.equal(cfg2.charger.maxAmps, 10, 'Eingabe bleibt beim Neuzeichnen erhalten');
-  assert.match(env.els.get('panel-ems').innerHTML, /value="measure_power\.load" selected/);
+  assert.match(env.els.get('ems-view-main').innerHTML, /value="measure_power\.load" selected/);
+});
+
+test('Umschalter Betrieb / Vergleich im EMS-Reiter schaltet die Ansichten um', async () => {
+  const env = makeEnv(responses);
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const click = env.handlers['ems-sub:click'];
+  assert.ok(click, 'Umschalter hat einen Handler');
+  const mk = (which) => ({ target: { getAttribute: (n) => (n === 'data-ems-sub' ? which : null) } });
+  const toggles = [];
+  env.el('ems-sub-main').classList = { toggle: (c, on) => toggles.push(['main', on]) };
+  env.el('ems-sub-cmp').classList = { toggle: (c, on) => toggles.push(['cmp', on]) };
+  click(mk('cmp'));
+  assert.equal(env.els.get('ems-view-main').hidden, true);
+  assert.equal(env.els.get('ems-view-cmp').hidden, false);
+  click(mk('main'));
+  assert.equal(env.els.get('ems-view-main').hidden, false);
+  assert.equal(env.els.get('ems-view-cmp').hidden, true);
+  assert.deepEqual(JSON.stringify(toggles), JSON.stringify([['main', false], ['cmp', true], ['main', true], ['cmp', false]]));
+});
+
+// ---------------------------------------------------------------- Navigation und Kopf
+
+test('Navigation: vier Reiter in fester Reihenfolge, Segmented Control ohne Scrollbalken', () => {
+  const order = [...indexHtml.matchAll(/class="tab[^"]*" data-tab="(\w+)"/g)].map((m) => m[1]);
+  assert.deepEqual(order, ['overview', 'costs', 'ems', 'settings']);
+  const css = indexHtml.match(/\.tabs \{[\s\S]*?\}/)[0];
+  assert.match(css, /display: grid/);
+  assert.match(css, /repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.doesNotMatch(css, /overflow-x: auto/);
+  assert.match(css, /scrollbar-width: none/);
+  assert.match(indexHtml, /\.tab\.active \{[^}]*box-shadow/);
+  assert.match(indexHtml, /\.tab\.active \{[^}]*font-weight: 600/);
+});
+
+test('Navigation: Hilfe ist ein Abschnitt im Setup, kein eigener Reiter', () => {
+  assert.doesNotMatch(indexHtml, /data-tab="help"/);
+  assert.doesNotMatch(indexHtml, /id="t-help"/);
+  assert.doesNotMatch(indexHtml, /id="panel-help"/);
+  const settings = indexHtml.indexOf('id="panel-settings"');
+  const help = indexHtml.indexOf('id="h2-helpsec"');
+  const ems = indexHtml.indexOf('id="panel-ems"');
+  assert.ok(settings > 0 && help > settings && help < ems, 'Hilfe liegt im Setup-Panel');
+  for (const id of ['h2-forum', 'btn-forum', 'h2-recommend', 'dl-recommend', 'h2-features', 'ul-features']) {
+    assert.match(indexHtml, new RegExp('id="' + id + '"'), id + ' bleibt erhalten');
+  }
+  assert.match(indexHtml, /tabs: \{ overview: 'Übersicht', costs: 'Kosten', settings: 'Setup'/);
+  assert.match(indexHtml, /tabs: \{ overview: 'Overview', costs: 'Costs', settings: 'Setup'/);
+});
+
+test('Kopf: Untertitel steht im Setup, nicht mehr über den Reitern', () => {
+  const sub = indexHtml.indexOf('id="p-sub"');
+  const nav = indexHtml.indexOf('<nav class="tabs">');
+  const settings = indexHtml.indexOf('id="panel-settings"');
+  assert.ok(sub > settings, 'Untertitel im Setup-Panel');
+  assert.ok(nav > 0 && nav < settings);
+  // vor den Reitern steht kein Untertitel mehr
+  assert.doesNotMatch(indexHtml.slice(indexHtml.indexOf('<body>'), nav), /id="p-sub"/);
+});
+
+test('Preis-Badge: semantische Farben für günstig, normal, hoch (auch im Dunkelmodus)', () => {
+  assert.match(indexHtml, /\.level\.lv-cheap \{ background: var\(--st-lv-cheap-bg\)/);
+  assert.match(indexHtml, /\.level\.lv-normal \{ background: var\(--st-lv-normal-bg\)/);
+  assert.match(indexHtml, /\.level\.lv-expensive \{ background: var\(--st-lv-exp-bg\)/);
+  assert.match(indexHtml, /'<span class="level lv-' \+ levelClass \+ '">'/);
+  // Light-Werte laut Vorgabe, in jedem der 5 Theme-Blöcke definiert
+  assert.equal((indexHtml.match(/--st-lv-cheap-bg: #dcfce7;/g) || []).length, 2);
+  assert.equal((indexHtml.match(/--st-lv-normal-fg: #0369a1;/g) || []).length, 2);
+  assert.equal((indexHtml.match(/--st-lv-exp-fg: #b91c1c;/g) || []).length, 2);
+  assert.equal((indexHtml.match(/--st-lv-cheap-bg: #14532d;/g) || []).length, 3, 'Dunkel in 3 Blöcken');
+  assert.equal((indexHtml.match(/--st-seg-active-bg:/g) || []).length, 5);
+});
+
+test('Ready: Homey.ready() erst nach dem ersten Laden', () => {
+  const i = indexHtml.indexOf('loadAll().then(function () {');
+  assert.ok(i > 0);
+  assert.match(indexHtml.slice(i, i + 80), /Homey\.ready\(\)/);
 });

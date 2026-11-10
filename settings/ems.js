@@ -6,7 +6,7 @@
 
   var STR = {
     de: {
-      tab: 'EMS',
+      tab: 'EMS', subMain: 'Betrieb',
       intro: 'Steuert die Wallbox und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
       enable: 'Energiemanagement aktivieren',
       type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)', humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
@@ -30,7 +30,7 @@
       agree: 'Übereinstimmung mit Andis EMS', day: 'Tag', same: 'gleich',
     },
     en: {
-      tab: 'EMS',
+      tab: 'EMS', subMain: 'Operation',
       intro: 'Controls the EV charger and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
       enable: 'Enable energy management',
       type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)', humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
@@ -310,7 +310,7 @@
   }
 
   function renderCompare() {
-    var panel = $('panel-emscmp');
+    var panel = $('ems-view-cmp');
     if (!panel) return;
     if (!state.cmpBuilt && state.cfg) {
       panel.innerHTML = '<div id="ems-cmp-data"></div><div id="ems-cmp-settings">' + compareSettingsHtml() + '</div>';
@@ -329,7 +329,7 @@
   }
 
   function render() {
-    var panel = $('panel-ems');
+    var panel = $('ems-view-main');
     if (!panel || !state.cfg) return;
     var c = state.cfg;
     var list = state.consumers.length ? state.consumers.map(consumerRow).join('') : '<p class="sub">' + esc(S.noConsumers) + '</p>';
@@ -461,6 +461,22 @@
     });
   }
 
+  /** Umschalter Betrieb / Vergleich innerhalb des EMS-Reiters. */
+  function onSubClick(ev) {
+    var t = ev.target;
+    var which = t && t.getAttribute ? t.getAttribute('data-ems-sub') : null;
+    if (!which) return;
+    var main = $('ems-view-main');
+    var cmp = $('ems-view-cmp');
+    if (main) main.hidden = which !== 'main';
+    if (cmp) cmp.hidden = which !== 'cmp';
+    var b1 = $('ems-sub-main');
+    var b2 = $('ems-sub-cmp');
+    [[b1, which === 'main'], [b2, which === 'cmp']].forEach(function (p) {
+      if (p[0] && p[0].classList && p[0].classList.toggle) p[0].classList.toggle('active', p[1]);
+    });
+  }
+
   function onChange(ev) {
     var t = ev.target;
     if (t && t.getAttribute && t.getAttribute('data-ems-toggle') !== null && t.getAttribute('data-ems-toggle') !== undefined) {
@@ -484,9 +500,13 @@
     S = STR[LANG];
     var btn = $('t-ems');
     if (btn) btn.textContent = S.tab;
-    var cbtn = $('t-emscmp');
-    if (cbtn) cbtn.textContent = S.cmpTab;
-    var panel = $('panel-ems');
+    var subMain = $('ems-sub-main');
+    if (subMain) subMain.textContent = S.subMain;
+    var subCmp = $('ems-sub-cmp');
+    if (subCmp) subCmp.textContent = S.cmpTab;
+    var sub = $('ems-sub');
+    if (sub) sub.addEventListener('click', onSubClick);
+    var panel = $('ems-view-main');
     if (panel) {
       panel.addEventListener('click', onClick);
       panel.addEventListener('change', onChange);
@@ -501,9 +521,7 @@
     if (state.timer) return;
     state.timer = setInterval(function () {
       var panel = $('panel-ems');
-      var cmp = $('panel-emscmp');
-      var open = (panel && panel.classList && panel.classList.contains('active')) || (cmp && cmp.classList && cmp.classList.contains('active'));
-      if (open) refreshStatusOnly();
+      if (panel && panel.classList && panel.classList.contains('active')) refreshStatusOnly();
     }, 20000);
   }
 
