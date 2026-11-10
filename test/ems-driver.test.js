@@ -40,11 +40,12 @@ const { EmsController } = require('../lib/ems/EmsController');
 
 const CAPS = { onoff: false, ems_mode: null, ems_status_text: null, ems_surplus: null, ems_charge_now: false };
 
-function makeHomey({ ems = null } = {}) {
+function makeHomey({ ems = null, priceDevices = [{}] } = {}) {
   const fired = [];
   return {
     fired,
     app: { ems },
+    drivers: { getDriver: (id) => ({ getDevices: () => (id === 'innostrom' ? priceDevices : []) }) },
     i18n: { getLanguage: () => 'de' },
     flow: {
       getDeviceTriggerCard: (id) => ({ trigger: async (dev, tokens) => { fired.push([id, tokens]); } }),
@@ -123,6 +124,23 @@ test('Treiber: bietet genau ein Gerät an, danach keines mehr', async () => {
   const second = new EmsDriver(homey, [{}]);
   second.homey = homey;
   assert.deepEqual(await second.onPairListDevices(), []);
+});
+
+test('Treiber: ohne Preis-Gerät (Innostrom) kein Koppeln, mit klarer Meldung', async () => {
+  const homey = makeHomey({ priceDevices: [] });
+  const drv = new EmsDriver(homey, []);
+  drv.homey = homey;
+  await assert.rejects(() => drv.onPairListDevices(), /Preis-Gerät/);
+  const en = makeHomey({ priceDevices: [] });
+  en.i18n.getLanguage = () => 'en';
+  const d2 = new EmsDriver(en, []);
+  d2.homey = en;
+  await assert.rejects(() => d2.onPairListDevices(), /price device first/);
+  const noDriver = makeHomey();
+  noDriver.drivers = { getDriver: () => { throw new Error('kein Treiber'); } };
+  const d3 = new EmsDriver(noDriver, []);
+  d3.homey = noDriver;
+  await assert.rejects(() => d3.onPairListDevices(), /Preis-Gerät/);
 });
 
 // ---------------------------------------------------------------- Gerät

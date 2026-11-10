@@ -33,7 +33,8 @@
       whyPv: 'Verbessert die Berechnung des Überschusses (Erzeugung minus Verbrauch) und die Verteilung auf Batterie und Geräte.',
       whyHouse: 'Verbessert die Berechnung des Überschusses. Kann derselbe Zähler wie der Netzzähler sein, wenn er den Hausverbrauch liefert.',
       whyBat: 'Optional. Mit Batterie gibt es Schutz-Stufen, die Prognose-Sperre und Modi nach Batteriestand. Ohne läuft alles nach Überschuss.',
-      whyPrice: 'Kommt automatisch aus dieser App (15-Minuten-Preise), hier ist nichts zu wählen.',
+      whyPrice: 'Voraussetzung: das Preis-Gerät «Dynamischer Stromtarif CH» ist eingerichtet. Die 15-Minuten-Preise kommen automatisch von dort, hier ist nichts zu wählen.',
+      priceMissing: 'Preis-Gerät fehlt - zuerst in Homey hinzufügen', noPriceDevice: 'Das Energiemanagement braucht das Preis-Gerät «Dynamischer Stromtarif CH». Füge es in Homey unter «Geräte» → «+» hinzu.',
       whyFc: 'Optional. Du lieferst deine PV-Prognose per Flow-Aktion «PV-Prognose setzen» ein. Sie steuert die Prognose-Sperre.',
       autoPrice: 'aus dieser App', fcNone: 'nicht eingeliefert', fcAge: 'zuletzt vor', fcStale: 'veraltet', fcSlots: 'Einträge', min: 'min', h: 'h',
       factor: 'Korrekturfaktor', factorHint: 'Wird auf jeden Wert der Prognose angewendet, zum Beispiel 0.75, wenn sie meist 25 % zu hoch liegt.',
@@ -82,7 +83,8 @@
       whyPv: 'Improves the surplus calculation (generation minus consumption) and how it is split between battery and devices.',
       whyHouse: 'Improves the surplus calculation. Can be the same meter as the grid meter if it reports house consumption.',
       whyBat: 'Optional. With a battery there are protection levels, the forecast gate and modes by battery level. Without it everything runs by surplus.',
-      whyPrice: 'Comes automatically from this app (15-minute prices), nothing to choose here.',
+      whyPrice: 'Prerequisite: the "Swiss Dynamic Electricity Tariff" price device is set up. The 15-minute prices come from it automatically, nothing to choose here.',
+      priceMissing: 'Price device missing - add it in Homey first', noPriceDevice: 'Energy management needs the "Swiss Dynamic Electricity Tariff" price device. Add it in Homey under Devices → "+".',
       whyFc: 'Optional. You feed your solar forecast with the Flow action "Set the solar forecast". It drives the forecast gate.',
       autoPrice: 'from this app', fcNone: 'not fed', fcAge: 'last', fcStale: 'outdated', fcSlots: 'entries', min: 'min', h: 'h',
       factor: 'Correction factor', factorHint: 'Applied to every forecast value, for example 0.75 if it is usually 25 % too high.',
@@ -214,6 +216,9 @@
     { key: 'price', tag: 'auto', label: 'srcPrice', why: 'whyPrice', icon: 'coin', color: COLORS.price },
   ];
 
+  function priceMissing() { return !!(state.shadow && state.shadow.priceDevice === false); }
+  function srcTag(s) { return s.key === 'price' && priceMissing() ? 'required' : s.tag; }
+
   function srcDevice(key) {
     var c = state.cfg;
     if (key === 'grid') return { id: c.devices.meter.id, cap: c.devices.meter.capability };
@@ -237,7 +242,7 @@
     return { text: S.fcAge + ' ' + ago + ' (' + pv.slots + ' ' + S.fcSlots + ')' + (pv.stale ? ' - ' + S.fcStale : ''), cls: pv.stale ? 'warn' : 'ok' };
   }
   function srcSummary(s) {
-    if (s.key === 'price') return { text: S.autoPrice, cls: 'ok' };
+    if (s.key === 'price') return priceMissing() ? { text: S.priceMissing, cls: 'bad' } : { text: S.autoPrice, cls: 'ok' };
     if (s.key === 'fc') return forecastInfo();
     var d = srcDevice(s.key);
     if (d.id) return { text: deviceName(d.id) || d.id, cls: 'ok' };
@@ -369,7 +374,10 @@
 
   function missingRequired() {
     var miss = [];
-    SOURCES.forEach(function (s) { if (s.tag === 'required' && !srcDevice(s.key).id) miss.push(S[s.label]); });
+    SOURCES.forEach(function (s) {
+      if (s.key === 'price') { if (priceMissing()) miss.push(S[s.label]); return; }
+      if (s.tag === 'required' && !srcDevice(s.key).id) miss.push(S[s.label]);
+    });
     return miss;
   }
 
@@ -404,7 +412,7 @@
     var miss = missingRequired();
     if (head) head.innerHTML = (miss.length ? '<span class="st-open"></span>' : '<span class="st-check">✓</span>') + esc(S.devicesSec);
     var src = SOURCES.map(function (s) {
-      return listRow('src-' + s.key, s.icon, s.color, S[s.label], tagHtml(s.tag), srcSummary(s), srcBody(s));
+      return listRow('src-' + s.key, s.icon, s.color, S[s.label], tagHtml(srcTag(s)), srcSummary(s), srcBody(s));
     }).join('');
     var rows = state.rows.map(function (r, i) {
       var name = r.kind === 'charger' ? S.wallbox + (r.name ? ' (' + r.name + ')' : '') : (r.name || S.consumers.charAt(0) + S.consumers.slice(1).toLowerCase());
@@ -489,7 +497,7 @@
       + '<span class="swt"><input class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1"' + (cfg.enabled ? ' checked' : '') + '><i></i></span></div>'
       + (cfg.enabled && ch ? '<div class="ems-st" style="margin-top:8px"><span class="ems-chip">' + esc(modeLabel(ch.mine.mode)) + '</span><span class="sub" style="margin:0">' + esc(ch.mine.reason) + '</span></div>' : '')
       + (vals.length ? '<div class="ems-vals">' + vals.map(function (v) { return '<span>' + esc(v) + '</span>'; }).join('') + '</div>' : '')
-      + (warn ? '<p class="warn">' + esc(warn) + '</p>' : '') + (errs ? '<p class="warn">' + esc(errs) + '</p>' : '') + '</div>';
+      + (priceMissing() ? '<p class="warn">' + esc(S.noPriceDevice) + '</p>' : '') + (warn ? '<p class="warn">' + esc(warn) + '</p>' : '') + (errs ? '<p class="warn">' + esc(errs) + '</p>' : '') + '</div>';
     var items = liveRows().map(function (x) {
       var r = x.r;
       var name = r.kind === 'charger' ? S.wallbox : r.name;

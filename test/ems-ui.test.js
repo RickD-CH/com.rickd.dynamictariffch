@@ -423,3 +423,15 @@ test('Setup: Kopf ist grün getönt, wenn alles eingerichtet ist, sonst gelb; Qu
   assert.match(setup(ok), /DATENQUELLEN/);
   assert.match(setup(ok), /Hausbatterie/);
 });
+
+test('Setup: Preis-Gerät ist Voraussetzung - fehlt es, wird der Strompreis zur Pflicht und der Kopf warnt', async () => {
+  const ok = await start(scenario({ cfg: { devices: { meter: { id: 'em' } } } }));
+  assert.match(setup(ok), /class="ems-head ems-head-ok"/);
+  assert.match(setup(ok), /aus dieser App/);
+  const miss = await start(scenario({ cfg: { devices: { meter: { id: 'em' } } }, shadow: { priceDevice: false } }));
+  assert.match(setup(miss), /class="ems-head ems-head-warn"/);
+  assert.match(setup(miss), /Es fehlt noch: Strompreis/);
+  assert.match(setup(miss), /Preis-Gerät fehlt/);
+  assert.match(main(miss), /braucht das Preis-Gerät/);
+  assert.doesNotMatch(main(ok), /braucht das Preis-Gerät/);
+});
