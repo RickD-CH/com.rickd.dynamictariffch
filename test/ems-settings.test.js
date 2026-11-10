@@ -38,12 +38,18 @@ function makeEnv(responses) {
 const cfg = normalizeConfig({ enabled: true, consumers: [{ id: 'dev1', name: 'Luftentfeuchter', mode: 'soc', socOn: 85 }] });
 const shadow = {
   enabled: true, shadow: true, config: cfg,
+  overallAgreePct: 92,
+  days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30, normal: 10 }, andi: { hold: 33, normal: 7 } }],
+  events: [{ ts: 1800000000000, soc: 99, price: 29.1, mine: 'hold', andi: 'hold', reason: 'Kapazität reserviert' }],
   current: { soc: 99, mine: { mode: 'hold' }, andi: { mode: 'hold' }, errors: [] },
   charger: {
     current: {
       live: false, mine: { mode: 'idle', reason: '270 W Überschuss' }, andi: { mode: 'idle', reason: 'x' },
       gridW: -270, pvW: 901, gate: { blocked: false, remainingKwh: 2.6, thresholdKwh: 0 }, warning: null,
     },
+    overallAgreePct: 100,
+    days: [{ day: '2026-11-10', ticks: 12, compared: 12, agree: 12, agreePct: 100, mine: { idle: 12 }, andi: { idle: 12 } }],
+    events: [{ ts: 1800000000000, soc: 100, price: null, mine: 'idle', andi: 'idle', reason: 'kein Überschuss' }],
   },
 };
 const responses = {
@@ -100,6 +106,22 @@ test('EmsUi: Geräte-Karte bietet passende Geräte an, Verbraucher nur Geräte m
   const collected = put.ctx.window.EmsUi._collect();
   assert.equal(collected.devices.meter.capability, 'measure_power');
   assert.equal(collected.battery.socCapability, 'measure_battery');
+});
+
+test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen und Wechseln', async () => {
+  assert.match(indexHtml, /data-tab="emscmp"/);
+  assert.match(indexHtml, /id="panel-emscmp"/);
+  const env = makeEnv(responses);
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const html = env.els.get('panel-emscmp').innerHTML;
+  assert.match(html, /Andis EMS/);
+  assert.match(html, /Gesamt gleich: <b>92 %<\/b>/);
+  assert.match(html, /Gesamt gleich: <b>100 %<\/b>/);
+  assert.match(html, /2026-11-10/);
+  assert.match(html, /Kapazität reserviert/);
+  assert.match(html, /kein Überschuss/);
+  assert.doesNotMatch(html, /undefined|null/);
+  assert.equal(env.els.get('t-emscmp').textContent, 'EMS-Vergleich');
 });
 
 test('EmsUi: Modus "Überschuss" zeigt andere Felder als "voll"', async () => {

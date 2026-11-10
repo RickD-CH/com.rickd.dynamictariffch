@@ -9,6 +9,8 @@
       tab: 'Energiemanagement',
       intro: 'Steuert die Wallbox (go-e) und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
       enable: 'Energiemanagement aktivieren',
+      cmpTab: 'EMS-Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
+      cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
       devicesSec: 'Geräte (einmal wählen)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
       meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
       control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
@@ -30,6 +32,8 @@
       tab: 'Energy management',
       intro: 'Controls the EV charger (go-e) and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
       enable: 'Enable energy management',
+      cmpTab: 'EMS comparison', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
+      cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
       devicesSec: 'Devices (choose once)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
       meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
       control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
@@ -207,6 +211,38 @@
     return '<div class="card"><h2>' + esc(S.control) + '</h2><p class="sub">' + esc(S.controlHint) + '</p>' + rows.join('') + '<p class="warn" id="ems-toggle-err" hidden></p></div>';
   }
 
+  function counts(o) {
+    var keys = Object.keys(o || {});
+    return keys.length ? keys.map(function (k) { return modeLabel(k) + ' ' + o[k]; }).join(' / ') : '-';
+  }
+
+  /** Vergleichstabelle für einen Bereich (Batterie oder Wallbox). */
+  function cmpSection(title, data) {
+    if (!data) return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.none) + '</p></div>';
+    var pct = data.overallAgreePct === null || data.overallAgreePct === undefined ? '-' : data.overallAgreePct + ' %';
+    var days = (data.days || []).slice().reverse().map(function (d) {
+      return '<tr><td>' + esc(d.day) + '</td><td>' + esc(d.agreePct === null || d.agreePct === undefined ? '-' : d.agreePct + ' %') + '</td><td>' + esc(d.compared) + '/' + esc(d.ticks) + '</td><td>' + esc(counts(d.mine)) + '</td><td>' + esc(counts(d.andi)) + '</td></tr>';
+    }).join('');
+    var ev = (data.events || []).slice(0, 25).map(function (e) {
+      return '<tr><td>' + esc(time(e.ts)) + '</td><td>' + esc(e.soc === null || e.soc === undefined ? '-' : e.soc + ' %') + '</td><td>' + esc(e.price === null || e.price === undefined ? '-' : e.price) + '</td><td>' + esc(modeLabel(e.mine)) + '</td><td>' + esc(modeLabel(e.andi)) + '</td><td>' + esc(e.reason) + '</td></tr>';
+    }).join('');
+    return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.overall) + ': <b>' + esc(pct) + '</b></p>'
+      + (days ? '<h3>' + esc(S.perDay) + '</h3><table class="ems-t"><tr><th>' + esc(S.day) + '</th><th>' + esc(S.same) + '</th><th>' + esc(S.compared) + '/' + esc(S.runs) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th></tr>' + days + '</table>' : '<p class="sub">' + esc(S.none) + '</p>')
+      + (ev ? '<h3>' + esc(S.changes) + '</h3><table class="ems-t"><tr><th>' + esc(S.time) + '</th><th>SoC</th><th>' + esc(S.price) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th><th>' + esc(S.reason) + '</th></tr>' + ev + '</table>' : '')
+      + '</div>';
+  }
+
+  function renderCompare() {
+    var panel = $('panel-emscmp');
+    if (!panel) return;
+    var sh = state.shadow;
+    if (!sh || !sh.enabled) { panel.innerHTML = '<div class="card"><p class="sub">' + esc(S.off) + '</p></div>'; return; }
+    panel.innerHTML = '<style>.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td,.ems-t th{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top;text-align:left}</style>'
+      + '<div class="card"><p class="sub">' + esc(S.cmpIntro) + '</p></div>'
+      + cmpSection(S.cmpBattery, { overallAgreePct: sh.overallAgreePct, days: sh.days, events: sh.events })
+      + cmpSection(S.cmpCharger, sh.charger ? { overallAgreePct: sh.charger.overallAgreePct, days: sh.charger.days, events: sh.charger.events } : null);
+  }
+
   function render() {
     var panel = $('panel-ems');
     if (!panel || !state.cfg) return;
@@ -255,6 +291,7 @@
     return load().then(function () {
       var el = $('ems-status');
       if (el) el.innerHTML = statusHtml();
+      renderCompare();
     }).catch(function () {});
   }
 
@@ -332,13 +369,15 @@
     S = STR[LANG];
     var btn = $('t-ems');
     if (btn) btn.textContent = S.tab;
+    var cbtn = $('t-emscmp');
+    if (cbtn) cbtn.textContent = S.cmpTab;
     var panel = $('panel-ems');
     if (panel) {
       panel.addEventListener('click', onClick);
       panel.addEventListener('change', onChange);
     }
     return Promise.all([load(), api('GET', '/ems/devices').then(function (r) { state.devices = r.devices || []; }).catch(function () { state.devices = []; })])
-      .then(function () { render(); })
+      .then(function () { render(); renderCompare(); })
       .catch(function (e) { if (panel) panel.innerHTML = '<p class="warn">' + esc(S.error + ': ' + (e && e.message || e)) + '</p>'; });
   }
 
@@ -347,7 +386,9 @@
     if (state.timer) return;
     state.timer = setInterval(function () {
       var panel = $('panel-ems');
-      if (panel && panel.classList && panel.classList.contains('active')) refreshStatusOnly();
+      var cmp = $('panel-emscmp');
+      var open = (panel && panel.classList && panel.classList.contains('active')) || (cmp && cmp.classList && cmp.classList.contains('active'));
+      if (open) refreshStatusOnly();
     }, 20000);
   }
 
