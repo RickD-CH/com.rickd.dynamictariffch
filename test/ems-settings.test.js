@@ -185,3 +185,38 @@ test('EmsUi: Steuerungs-Schalter pro Bereich, sofort gespeichert, Fehler setzt z
   assert.equal(box.checked, false, 'Schalter springt bei Fehler zurück');
   assert.match(bad.els.get('ems-toggle-err').textContent, /nein/);
 });
+
+test('EmsUi: Typ "Luftentfeuchter" zeigt den Feuchte-Notlauf mit Sensor-Auswahl und eigenen Werten', async () => {
+  const dehum = normalizeConfig({
+    enabled: true,
+    consumers: [{ id: 'dev1', name: 'Entfeuchter', type: 'dehumidifier', humidity: { enabled: true, sensorId: 'hs1', onAbove: 70, offBelow: 64, runMin: 45 } }],
+  });
+  const env = makeEnv({
+    ...responses,
+    'GET /ems/shadow': { ...shadow, config: dehum },
+    'GET /ems/devices': { devices: [
+      { id: 'dev1', name: 'DryFy', caps: ['onoff'] },
+      { id: 'hs1', name: 'Feuchtesensor Estrich', caps: ['measure_humidity'] },
+      { id: 'em1', name: 'Energiezähler', caps: ['measure_power'] },
+    ] },
+  });
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const html = env.els.get('panel-emscmp') ? env.els.get('panel-ems').innerHTML : '';
+  assert.match(html, /Feuchte-Notlauf/);
+  assert.match(html, /Notlauf ein ab/);
+  assert.match(html, /value="70"/);
+  assert.match(html, /value="64"/);
+  assert.match(html, /value="45"/);
+  assert.match(html, /Feuchtesensor Estrich/);
+  const sensorSelect = html.match(/ems-c0-humSensor">([\s\S]*?)<\/select>/)[1];
+  assert.doesNotMatch(sensorSelect, /Energiezähler/);
+  // Speichern: Werte werden gesammelt
+  const collected = env.ctx.window.EmsUi._collect().consumers[0];
+  assert.equal(collected.type, 'dehumidifier');
+  assert.equal(collected.humidity.onAbove, 70);
+  assert.equal(collected.humidity.runMin, 45);
+  // ein allgemeiner Verbraucher zeigt den Block nicht
+  const plain = makeEnv(responses);
+  await plain.ctx.window.EmsUi.init(plain.api, 'de');
+  assert.doesNotMatch(plain.els.get('panel-ems').innerHTML, /Notlauf bei hoher Luftfeuchtigkeit/);
+});

@@ -9,6 +9,7 @@
       tab: 'Energiemanagement',
       intro: 'Steuert die Wallbox (go-e) und einzelne Verbraucher nach Batterie und Überschuss. Solange "Befehle senden" aus ist, wird nur gerechnet und protokolliert (Trockenlauf).',
       enable: 'Energiemanagement aktivieren',
+      type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)', humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       cmpTab: 'EMS-Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
       devicesSec: 'Geräte (einmal wählen)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
@@ -32,6 +33,7 @@
       tab: 'Energy management',
       intro: 'Controls the EV charger (go-e) and single consumers by battery state and surplus. While "Send commands" is off, it only calculates and logs (dry run).',
       enable: 'Enable energy management',
+      type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)', humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       cmpTab: 'EMS comparison', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
       devicesSec: 'Devices (choose once)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
@@ -72,7 +74,7 @@
   }
   function num(id, fallback) {
     var el = $(id);
-    var v = el ? Number(el.value) : NaN;
+    var v = el && el.value !== '' && el.value !== null && el.value !== undefined ? Number(el.value) : NaN;
     return isFinite(v) ? v : fallback;
   }
   function chk(id) { var el = $(id); return !!(el && el.checked); }
@@ -93,6 +95,15 @@
         stopGraceS: num(p + 'stopGraceS', c.stopGraceS), minRunMin: num(p + 'minRunMin', c.minRunMin),
         minOffMin: num(p + 'minOffMin', c.minOffMin), protectSoc: num(p + 'protectSoc', c.protectSoc),
         useForecastGate: chk(p + 'useGate'),
+        type: val(p + 'type', c.type || 'generic'),
+        humidity: {
+          enabled: chk(p + 'humEnable'),
+          sensorId: val(p + 'humSensor', (c.humidity && c.humidity.sensorId) || ''),
+          capability: (c.humidity && c.humidity.capability) || 'measure_humidity',
+          onAbove: num(p + 'humOn', c.humidity ? c.humidity.onAbove : 65),
+          offBelow: num(p + 'humOff', c.humidity ? c.humidity.offBelow : 61),
+          runMin: num(p + 'humRun', c.humidity ? c.humidity.runMin : 60),
+        },
       };
     });
   }
@@ -135,7 +146,19 @@
       params += field(S.minSurplus, p + 'minSurplusW', c.minSurplusW) + field(S.startSustain, p + 'startSustainS', c.startSustainS)
         + field(S.stopGrace, p + 'stopGraceS', c.stopGraceS);
     }
+    var typeOpts = [['generic', S.typeGeneric], ['dehumidifier', S.typeDehum]].map(function (t) {
+      return '<option value="' + t[0] + '"' + (t[0] === (c.type || 'generic') ? ' selected' : '') + '>' + esc(t[1]) + '</option>';
+    }).join('');
+    var h = c.humidity || { enabled: false, sensorId: '', onAbove: 65, offBelow: 61, runMin: 60 };
+    var humBlock = (c.type === 'dehumidifier')
+      ? '<div class="ems-box"><h3>' + esc(S.humTitle) + '</h3>'
+        + '<div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.humSensor) + '</span><select id="' + p + 'humSensor">' + deviceOptions(h.sensorId, hasCap(/^measure_humidity$/)) + '</select></label>'
+        + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div>'
+        + '<p class="sub">' + esc(S.humHint) + '</p></div>'
+      : '';
     return '<div class="ems-box">'
+      + '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label></div>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'id">' + opts + '</select></label>'
       + field(S.name, p + 'name', c.name, 'text') + '</div>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modes + '</select></label></div>'
@@ -143,6 +166,7 @@
       + '<div class="ems-row">' + field(S.minRun, p + 'minRunMin', c.minRunMin) + field(S.minOff, p + 'minOffMin', c.minOffMin) + field(S.protect, p + 'protectSoc', c.protectSoc) + '</div>'
       + '<div class="ems-row">' + check(S.useGate, p + 'useGate', c.useForecastGate)
       + '<button class="btn" data-ems-remove="' + i + '">' + esc(S.remove) + '</button></div>'
+      + humBlock
       + '</div>';
   }
 
@@ -305,7 +329,7 @@
     var t = ev.target;
     if (!t || !t.getAttribute) return;
     if (t.getAttribute('data-ems-add')) {
-      state.consumers = collectConsumers().concat([{ id: '', name: S.consumers, mode: 'full', fullSoc: 98, socOn: 80, hysteresis: 5, minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false }]);
+      state.consumers = collectConsumers().concat([{ id: '', name: S.consumers, mode: 'full', fullSoc: 98, socOn: 80, hysteresis: 5, minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false, type: 'generic', humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 } }]);
       render();
     } else if (t.getAttribute('data-ems-remove') !== null && t.getAttribute('data-ems-remove') !== undefined) {
       var idx = Number(t.getAttribute('data-ems-remove'));

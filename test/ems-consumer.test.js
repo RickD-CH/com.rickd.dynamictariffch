@@ -128,3 +128,70 @@ test('von aussen ausgeschaltet: Zustand wird übernommen, Pause beginnt', () => 
   assert.equal(st.isOn, false);
   assert.equal(r.wantOn, false);
 });
+
+// ---------------------------------------------------------------- Feuchte-Notlauf
+const hum = { enabled: true, sensorId: 's1', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 };
+const hcfg = (o = {}) => ({ mode: 'full', minRunMin: 30, minOffMin: 30, humidity: hum, ...o });
+const he = (h, o = {}) => env({ soc: 50, humidity: h, ...o });
+
+test('Notlauf: ab 65 % ein, unabhängig von SoC, Pause und Prognose-Sperre', () => {
+  const st = makeConsumerState();
+  st.stoppedAt = t0 - MIN; // Pause läuft noch
+  const r = run(hcfg(), st, he(66, { forecastGateBlocks: true }), t0);
+  assert.deepEqual(r.commands, [{ type: 'on' }]);
+  assert.match(r.reason, /Feuchte-Notlauf gestartet/);
+});
+
+test('Notlauf: unter 65 % passiert nichts, Sensor ohne Wert löst nicht aus', () => {
+  const st = makeConsumerState();
+  assert.deepEqual(run(hcfg(), st, he(64), t0).commands, []);
+  assert.deepEqual(run(hcfg(), st, he(null), t0 + MIN).commands, []);
+  assert.deepEqual(run(hcfg({ humidity: { ...hum, enabled: false } }), makeConsumerState(), he(80), t0).commands, []);
+});
+
+test('Notlauf: endet, wenn die Feuchte unter 61 % fällt, und das Gerät geht sofort aus', () => {
+  const st = makeConsumerState();
+  run(hcfg(), st, he(66), t0);
+  const mid = run(hcfg(), st, he(63), t0 + 10 * MIN);
+  assert.equal(mid.wantOn, true);
+  assert.match(mid.reason, /noch 50 min/);
+  const end = run(hcfg(), st, he(60), t0 + 20 * MIN);
+  assert.deepEqual(end.commands, [{ type: 'off' }]);
+  assert.match(end.reason, /Notlauf beendet \(Feuchte 60% < 61%\)/);
+});
+
+test('Notlauf: endet nach der Höchstdauer und startet nicht neu, solange die Feuchte oben bleibt', () => {
+  const st = makeConsumerState();
+  run(hcfg(), st, he(70), t0);
+  const timeout = run(hcfg(), st, he(70), t0 + 61 * MIN);
+  assert.deepEqual(timeout.commands, [{ type: 'off' }]);
+  assert.match(timeout.reason, /Zeit abgelaufen/);
+  // weiter 70 %: kein neuer Notlauf
+  assert.deepEqual(run(hcfg(), st, he(70), t0 + 62 * MIN).commands, []);
+  assert.deepEqual(run(hcfg(), st, he(70), t0 + 200 * MIN).commands, []);
+  // zwischendurch unter 65 %, dann wieder darüber -> neuer Notlauf
+  run(hcfg(), st, he(60), t0 + 210 * MIN);
+  const again = run(hcfg(), st, he(66), t0 + 220 * MIN);
+  assert.deepEqual(again.commands, [{ type: 'on' }]);
+});
+
+test('Notlauf: eigene Werte (Ein 70 %, Dauer 20 min)', () => {
+  const st = makeConsumerState();
+  const cfg = hcfg({ humidity: { ...hum, onAbove: 70, offBelow: 66, runMin: 20 } });
+  assert.deepEqual(run(cfg, st, he(69), t0).commands, []);
+  assert.deepEqual(run(cfg, st, he(71), t0 + MIN).commands, [{ type: 'on' }]);
+  assert.deepEqual(run(cfg, st, he(71), t0 + 22 * MIN).commands, [{ type: 'off' }]);
+});
+
+test('Notlauf: von Hand eingeschaltetes Gerät wird nicht angefasst', () => {
+  const st = makeConsumerState();
+  const r = run(hcfg(), st, he(80, { actualOn: true }), t0);
+  assert.deepEqual(r.commands, []);
+  assert.equal(st.externalOn, true);
+});
+
+test('Notlauf: Schutz-SoC gilt nicht für den Notlauf', () => {
+  const st = makeConsumerState();
+  const r = run(hcfg({ protectSoc: 60 }), st, he(66, { soc: 10 }), t0);
+  assert.deepEqual(r.commands, [{ type: 'on' }]);
+});

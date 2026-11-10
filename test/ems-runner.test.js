@@ -237,3 +237,38 @@ test('applyToggle: nur der gewählte Bereich ändert sich, unbekanntes Ziel wird
   assert.equal(applyToggle(base, 'unbekannt', true), null);
   assert.equal(applyToggle(c2, 'charger', false).charger.live, false);
 });
+
+test('Konfiguration: Feuchte-Notlauf wird geprüft (aus unter ein, Sensor nötig)', () => {
+  const mk = (h) => normalizeConfig({ consumers: [{ id: 'a', type: 'dehumidifier', humidity: h }] }).consumers[0];
+  assert.equal(mk({ enabled: true }).humidity.enabled, false, 'ohne Sensor kein Notlauf');
+  const ok = mk({ enabled: true, sensorId: 's', onAbove: 70, offBelow: 80, runMin: 0 });
+  assert.equal(ok.humidity.enabled, true);
+  assert.equal(ok.humidity.onAbove, 70);
+  assert.equal(ok.humidity.offBelow, 66, 'aus muss unter ein liegen');
+  assert.equal(ok.humidity.runMin, 1);
+  assert.equal(ok.type, 'dehumidifier');
+  assert.equal(mk(undefined).humidity.onAbove, 65);
+  assert.equal(normalizeConfig({ consumers: [{ id: 'a', type: 'quatsch' }] }).consumers[0].type, 'generic');
+});
+
+test('Notlauf im Runner: liest den Feuchte-Sensor und schaltet den Entfeuchter', async () => {
+  const consumer = {
+    id: 'dev1', name: 'Entfeuchter', mode: 'full', live: true, type: 'dehumidifier', minOffMin: 0,
+    humidity: { enabled: true, sensorId: 'sens1', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
+  };
+  const { runner, calls, state } = setup({ cfg: { consumers: [consumer] }, inputs: { batterySoc: 40 } });
+  state.consumers.set('sens1', { actualOn: null, powerW: null, available: true, values: { measure_humidity: 62 } });
+  await runner.tickCharger(at(12));
+  assert.deepEqual(calls.consumer, [], 'unter 65 % kein Notlauf');
+  state.consumers.set('sens1', { actualOn: null, powerW: null, available: true, values: { measure_humidity: 67 } });
+  await runner.tickCharger(at(12) + 30_000);
+  assert.equal(calls.consumer.length, 1);
+  assert.equal(calls.consumer[0].on, true);
+  assert.equal(calls.consumer[0].live, true);
+  assert.match(runner.consumerEvents.at(-1).reason, /Feuchte-Notlauf/);
+  // Sensor fällt aus: der Notlauf läuft bis zur Höchstdauer weiter, Gerät wird nicht ausgeschaltet
+  state.consumers.set('sens1', { actualOn: null, powerW: null, available: false, values: {} });
+  state.consumers.set('dev1', { actualOn: true, powerW: 600, available: true, values: {} });
+  await runner.tickCharger(at(12) + 90_000);
+  assert.equal(calls.consumer.length, 1);
+});
