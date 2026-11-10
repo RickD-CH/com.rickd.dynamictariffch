@@ -342,3 +342,19 @@ test('Ready: Homey.ready() erst nach dem ersten Laden', () => {
   assert.ok(i > 0);
   assert.match(indexHtml.slice(i, i + 80), /Homey\.ready\(\)/);
 });
+
+test('Vergleich: bei ausgeschaltetem EMS bleiben die bisherigen Daten sichtbar, mit Hinweis', async () => {
+  const off = { ...shadow, enabled: false, current: undefined, charger: { ...shadow.charger, current: undefined }, config: normalizeConfig({ enabled: false }) };
+  const env = makeEnv({ ...responses, 'GET /ems/shadow': off });
+  await env.ctx.window.EmsUi.init(env.api, 'de');
+  const html = env.els.get('ems-cmp-data').innerHTML;
+  assert.match(html, /Das Energiemanagement ist ausgeschaltet/);
+  assert.match(html, /Gesamt gleich: <b>92 %<\/b>/);
+  assert.match(html, /2026-11-10/);
+  assert.match(html, /Kapazität reserviert/);
+  assert.doesNotMatch(html, /undefined|null/);
+  // eingeschaltet: kein Hinweis
+  const on = makeEnv(responses);
+  await on.ctx.window.EmsUi.init(on.api, 'de');
+  assert.doesNotMatch(on.els.get('ems-cmp-data').innerHTML, /ist ausgeschaltet/);
+});
