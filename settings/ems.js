@@ -29,6 +29,9 @@
       pvAvg: 'Durchschnitt', pvCost: 'Kosten ca.', pvNeedAmount: 'Menge eingeben', pvBadTime: 'Uhrzeit ungültig',
       pvR_prices_missing: 'Für diese Frist sind noch nicht alle Preise bekannt', pvR_too_expensive: 'Unter dem Höchstpreis gibt es nicht genug Viertelstunden', pvR_too_short: 'Bis dahin reicht die Zeit nicht',
       pvR_no_block: 'Es gibt keinen zusammenhängenden Block unter dem Höchstpreis', pvR_deadline_passed: 'Die Frist ist schon vorbei', pvHave: 'möglich', pvOf: 'von',
+      pvSave: 'Übernehmen', pvJobs: 'AKTIVE AUFTRÄGE', pvJobWord: 'Auftrag', pvRemove: 'Entfernen', pvUntilShort: 'bis', pvRunningNow: 'läuft jetzt', pvPlannedAt: 'geplant', pvWaiting: 'wartet auf Preise',
+      pvProgress: 'Viertelstunden gelaufen', pvJobNote: 'Aufträge werden bei jedem Lauf mit den aktuellen Preisen neu geplant. Im Testbetrieb wird nur simuliert, geschaltet wird erst, wenn der Schalter des Geräts auf live steht.', pvSaveFailed: 'Konnte nicht gespeichert werden',
+      pvSavedOk: 'Auftrag übernommen',
       setupReady: 'Bereit: alle Pflicht-Quellen sind gewählt', setupMissing: 'Es fehlt noch:',
       setupNoBat: 'Ohne Hausbatterie läuft das Energiemanagement trotzdem: Wallbox und Verbraucher laden nach Überschuss. Modi nach Batteriestand sind dann nicht möglich.',
       suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
@@ -85,6 +88,9 @@
       pvAvg: 'Average', pvCost: 'Cost approx.', pvNeedAmount: 'Enter an amount', pvBadTime: 'Invalid time',
       pvR_prices_missing: 'Not all prices are known for this deadline yet', pvR_too_expensive: 'Not enough quarter-hours under the maximum price', pvR_too_short: 'There is not enough time until then',
       pvR_no_block: 'There is no continuous block under the maximum price', pvR_deadline_passed: 'The deadline has already passed', pvHave: 'possible', pvOf: 'of',
+      pvSave: 'Apply', pvJobs: 'ACTIVE JOBS', pvJobWord: 'job', pvRemove: 'Remove', pvUntilShort: 'by', pvRunningNow: 'running now', pvPlannedAt: 'planned', pvWaiting: 'waiting for prices',
+      pvProgress: 'quarter-hours run', pvJobNote: 'Jobs are re-planned on every run with the current prices. In test mode they are only simulated; devices are switched only when the device switch is on live.', pvSaveFailed: 'Could not be saved',
+      pvSavedOk: 'Job applied',
       setupReady: 'Ready: all required sources are chosen', setupMissing: 'Still missing:',
       setupNoBat: 'Without a home battery energy management still works: the EV charger and consumers charge from surplus. Modes by battery level are then not possible.',
       suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
@@ -145,7 +151,7 @@
   var S = STR.en;
   var LANG = 'en';
   var state = {
-    cfg: null, shadow: null, meters: null, plan: null, planDay: 'today', preview: null, draft: { target: 'charger', time: '07:00', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
+    cfg: null, shadow: null, meters: null, plan: null, planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
     msg: '', built: false, renderedNoDevice: null, timer: null, cmpBuilt: false,
   };
 
@@ -554,7 +560,7 @@
   function planStateText(row, state) {
     if (row.kind === 'battery') return state === 'charge' ? S.planBatCharge : (state === 'hold' ? S.planBatHold : S.planBatNormal);
     if (row.kind === 'consumer') return S.planOn;
-    if (row.kind === 'job') return S.pvPreviewLbl;
+    if (row.kind === 'job') return row.preview ? S.pvPreviewLbl : S.pvJobWord;
     return modeLabel(state);
   }
 
@@ -645,7 +651,7 @@
         var label;
         if (row.kind === 'battery') label = S.planBat;
         else if (row.kind === 'charger') label = S.planWallbox + (test.charger ? ' - ' + S.planTest : '');
-        else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + S.pvPreviewLbl;
+        else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord);
         else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
         body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day);
       });
@@ -698,6 +704,25 @@
     return '<p class="' + (res.feasible ? 'ems-ok' : 'ems-warn') + '" style="margin:8px 0 0;font-size:13px">' + esc(parts.join(' - ')) + '</p>';
   }
 
+  function jobLineHtml(j) {
+    var name = j.kind === 'charger' ? S.wallbox : (j.name || j.id);
+    var what = j.amount + (j.kind === 'charger' ? ' kWh' : ' h');
+    var status;
+    if (j.runningNow) status = S.pvRunningNow;
+    else if (j.from) status = S.pvPlannedAt + ' ' + hm(j.from) + ' - ' + hm(j.to);
+    else status = S.pvWaiting;
+    var warn = !j.feasible ? '<div class="ems-s ems-warn">' + esc(S['pvR_' + j.reason] || j.reason) + '</div>' : '';
+    return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:#0277bd">' + icon('forecast', 17) + '</span>'
+      + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + ' - ' + esc(what) + ' ' + esc(S.pvUntilShort) + ' ' + esc(time(j.deadline)) + '</span>'
+      + '<span class="ems-item-s ems-muted">' + esc(status) + ' - ' + j.done + ' / ' + j.need + ' ' + esc(S.pvProgress) + '</span>' + warn + '</span>'
+      + '<button class="btn" data-ems-jobdel="' + esc(j.id) + '">' + esc(S.pvRemove) + '</button></div></div>';
+  }
+
+  function jobsListHtml() {
+    if (!state.jobs || !state.jobs.length) return '';
+    return '<p class="lbl">' + esc(S.pvJobs) + '</p><div class="ems-list">' + state.jobs.map(jobLineHtml).join('') + '</div><p class="ems-why">' + esc(S.pvJobNote) + '</p>';
+  }
+
   function previewFormHtml() {
     var d = state.draft;
     var targets = draftTargets();
@@ -708,13 +733,50 @@
     var f = function (label, key, type, extra) {
       return '<label class="ems-f"><span>' + esc(label) + '</span><input type="' + type + '" data-ems-draft="' + key + '" value="' + esc(d[key]) + '"' + (extra || '') + '></label>';
     };
-    return '<p class="lbl">' + esc(S.pvTitle) + '</p><div class="card" id="ems-preview-form"><p class="ems-why" style="margin-top:0">' + esc(S.pvIntro) + '</p>'
+    return jobsListHtml() + '<p class="lbl">' + esc(S.pvTitle) + '</p><div class="card" id="ems-preview-form"><p class="ems-why" style="margin-top:0">' + esc(S.pvIntro) + '</p>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.pvDevice) + '</span><select data-ems-draft="target">' + opts + '</select></label></div>'
       + '<div class="ems-row">' + f(S.pvUntil, 'time', 'time') + f(isCharger ? S.pvKwh : S.pvHours, 'amount', 'number', ' step="' + (isCharger ? '1' : '0.25') + '" min="0"') + '</div>'
       + '<div class="ems-row">' + f(S.pvPower, 'powerKw', 'number', ' step="0.1" min="0"') + f(S.pvMaxPrice, 'maxPrice', 'number', ' step="0.5" min="0"') + '</div>'
       + (isCharger ? '' : '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-draft="contiguous"' + (d.contiguous ? ' checked' : '') + '><i></i></span> <span>' + esc(S.pvBlock) + '</span></label>')
-      + '<p style="margin:10px 0 0"><button class="btn" data-ems-preview="run">' + esc(S.pvRun) + '</button> <button class="btn" data-ems-preview="clear">' + esc(S.pvClear) + '</button></p>'
-      + previewResultHtml() + '</div>';
+      + '<p style="margin:10px 0 0"><button class="btn" data-ems-preview="run">' + esc(S.pvRun) + '</button> <button class="btn primary" data-ems-preview="save">' + esc(S.pvSave) + '</button> <button class="btn" data-ems-preview="clear">' + esc(S.pvClear) + '</button></p>'
+      + previewResultHtml() + '<p class="ems-why" id="ems-job-msg" style="margin-bottom:0">' + esc(state.jobMsg || '') + '</p></div>';
+  }
+
+  function draftJob() {
+    var d = state.draft;
+    var targets = draftTargets();
+    var cur = targets.filter(function (t) { return t.id === d.target; })[0] || targets[0];
+    if (!cur) return null;
+    return { id: cur.id, kind: cur.kind, time: d.time, amount: d.amount === '' ? 0 : Number(d.amount), powerKw: d.powerKw === '' ? null : Number(d.powerKw), maxPrice: d.maxPrice === '' ? null : Number(d.maxPrice), contiguous: d.contiguous !== false };
+  }
+
+  function saveJob() {
+    var job = draftJob();
+    if (!job) return Promise.resolve();
+    state.jobMsg = '';
+    return api('POST', '/ems/jobs', job).then(function (r) {
+      state.jobs = (r && r.jobs) || [];
+      state.preview = null;
+      state.jobMsg = S.pvSavedOk;
+      return api('GET', '/ems/plan').catch(function () { return null; });
+    }).then(function (p) {
+      if (p) state.plan = p;
+      renderMain();
+    }).catch(function (e) {
+      state.jobMsg = S.pvSaveFailed + ': ' + (e && e.message || e);
+      renderMain();
+    });
+  }
+
+  function deleteJob(id) {
+    return api('DELETE', '/ems/jobs/' + encodeURIComponent(id)).then(function (r) {
+      state.jobs = (r && r.jobs) || [];
+      state.jobMsg = '';
+      return api('GET', '/ems/plan').catch(function () { return null; });
+    }).then(function (p) {
+      if (p) state.plan = p;
+      renderMain();
+    }).catch(function () { renderMain(); });
   }
 
   function runPreview() {
@@ -722,7 +784,7 @@
     var targets = draftTargets();
     var cur = targets.filter(function (t) { return t.id === d.target; })[0] || targets[0];
     if (!cur) return Promise.resolve();
-    var job = { id: cur.id, kind: cur.kind, time: d.time, amount: d.amount === '' ? 0 : Number(d.amount), powerKw: d.powerKw === '' ? null : Number(d.powerKw), maxPrice: d.maxPrice === '' ? null : Number(d.maxPrice), contiguous: d.contiguous !== false };
+    var job = draftJob();
     return api('POST', '/ems/plan/preview', { jobs: [job] }).then(function (r) {
       state.preview = r || null;
       // Zum Tag springen, an dem der Auftrag läuft (sonst sieht man die Vorschau nicht)
@@ -914,8 +976,10 @@
       api('GET', '/ems/consumers').catch(function () { return { current: [], events: [] }; }),
       api('GET', '/meters').catch(function () { return null; }),
       api('GET', '/ems/plan').catch(function () { return null; }),
+      api('GET', '/ems/jobs').catch(function () { return { jobs: [] }; }),
     ]).then(function (r) {
       state.plan = r[3];
+      state.jobs = (r[4] && r[4].jobs) || [];
       state.shadow = r[0];
       state.consumersState = r[1].current || [];
       state.events = r[1].events || [];
@@ -994,9 +1058,12 @@
     var adv = up(t, 'data-ems-adv');
     var rm = up(t, 'data-ems-remove');
     var planDay = up(t, 'data-ems-planday');
+    var jobDel = up(t, 'data-ems-jobdel');
     var pv = up(t, 'data-ems-preview');
-    if (pv) {
-      if (pv === 'clear') { state.preview = null; state.draft.amount = ''; state.draft.powerKw = ''; state.draft.maxPrice = ''; renderMain(); } else { runPreview(); }
+    if (jobDel) {
+      deleteJob(jobDel);
+    } else if (pv) {
+      if (pv === 'save') { saveJob(); } else if (pv === 'clear') { state.preview = null; state.draft.amount = ''; state.draft.powerKw = ''; state.draft.maxPrice = ''; renderMain(); } else { runPreview(); }
     } else if (planDay) {
       state.planDay = planDay;
       renderMain();

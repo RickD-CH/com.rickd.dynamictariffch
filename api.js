@@ -43,6 +43,18 @@ module.exports = {
     return homey.app.ems.getPlan();
   },
 
+  async getEmsJobs({ homey }) {
+    return homey.app.ems.listJobs();
+  },
+
+  async postEmsJob({ homey, body }) {
+    return homey.app.ems.saveJob(body);
+  },
+
+  async deleteEmsJob({ homey, params }) {
+    return homey.app.ems.deleteJob(params && params.id);
+  },
+
   async postEmsPlanPreview({ homey, body }) {
     return homey.app.ems.previewPlan(body);
   },

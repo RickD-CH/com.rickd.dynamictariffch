@@ -229,3 +229,47 @@ test('Anzeige: Menge fehlt oder reicht nicht - klare Meldung, kein Absturz', asy
     assert.match(html, /möglich 0 von 8/);
   } finally { restore(); }
 });
+
+test('Anzeige: Übernehmen speichert den Auftrag, die Liste zeigt Stand und Entfernen löscht ihn', async () => {
+  const { ctrl, restore } = makeController();
+  const calls = [];
+  const cfg = normalizeConfig({ enabled: true, charger: { id: 'wb' }, consumers: [{ id: 'dry', name: 'Entfeuchter' }] });
+  let jobs = [];
+  try {
+    const env = makeEnv({
+      'GET /ems/shadow': { enabled: true, deviceExists: true, shadow: true, config: cfg, pv: {}, current: null, charger: { current: { live: false, mine: { mode: 'idle', reason: 'x' }, connected: false } } },
+      'GET /ems/consumers': { current: [], events: [] }, 'GET /ems/devices': { devices: [] }, 'GET /meters': null,
+      'GET /ems/plan': () => ctrl.getPlan(),
+      'GET /ems/jobs': () => ({ jobs }),
+      'POST /ems/plan/preview': (b) => ctrl.previewPlan(b),
+      'POST /ems/jobs': (b) => {
+        jobs = [{ id: b.id, kind: b.kind, name: null, time: b.time, amount: b.amount, deadline: at(31), need: 8, done: 0, status: 'active', runningNow: false, from: at(24), to: at(26), feasible: true, reason: 'ok', planned: 8 }];
+        return { jobs };
+      },
+      'DELETE /ems/jobs/charger': () => { jobs = []; return { jobs }; },
+    }, calls);
+    await env.ctx.window.EmsUi.init(env.api, 'de');
+    const change = (attr, value) => env.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-draft' ? attr : null), value, parentNode: null } });
+    const click = (attr, value) => env.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === attr ? value : null), parentNode: null } });
+    assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /AKTIVE AUFTRÄGE/);
+    assert.match(env.els.get('ems-view-main').innerHTML, />Übernehmen</);
+    change('amount', '20');
+    await wait();
+    click('data-ems-preview', 'save');
+    await wait(30);
+    const post = calls.find((c) => c[0] === 'POST' && c[1] === '/ems/jobs');
+    assert.ok(post, 'Auftrag gespeichert');
+    assert.equal(post[2].amount, 20);
+    const html = env.els.get('ems-view-main').innerHTML;
+    assert.match(html, /AKTIVE AUFTRÄGE/);
+    assert.match(html, /Wallbox - 20 kWh bis/);
+    assert.match(html, /geplant 00:00 - 02:00/);
+    assert.match(html, /0 \/ 8 Viertelstunden gelaufen/);
+    assert.match(html, /Auftrag übernommen/);
+    assert.doesNotMatch(html, /undefined|NaN/);
+    click('data-ems-jobdel', 'charger');
+    await wait(30);
+    assert.ok(calls.some((c) => c[0] === 'DELETE' && c[1] === '/ems/jobs/charger'));
+    assert.doesNotMatch(env.els.get('ems-view-main').innerHTML, /AKTIVE AUFTRÄGE/);
+  } finally { restore(); }
+});

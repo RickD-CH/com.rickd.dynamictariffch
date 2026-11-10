@@ -160,6 +160,18 @@
       "method": "get",
       "path": "/ems/plan"
     },
+    "getEmsJobs": {
+      "method": "get",
+      "path": "/ems/jobs"
+    },
+    "postEmsJob": {
+      "method": "post",
+      "path": "/ems/jobs"
+    },
+    "deleteEmsJob": {
+      "method": "delete",
+      "path": "/ems/jobs/:id"
+    },
     "postEmsPlanPreview": {
       "method": "post",
       "path": "/ems/plan/preview"
