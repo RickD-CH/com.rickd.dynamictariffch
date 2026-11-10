@@ -15,6 +15,25 @@ function firstDevice(homey) {
 
 module.exports = {
 
+  // --- Zählerstände automatisch lesen ---
+  async getMeters({ homey }) {
+    return homey.app.meters.getStatus();
+  },
+
+  async putMeters({ homey, body }) {
+    homey.app.meters.putConfig(body);
+    return homey.app.meters.getStatus();
+  },
+
+  async postMetersRun({ homey }) {
+    await homey.app.meters.readOnce();
+    return homey.app.meters.getStatus();
+  },
+
+  async getMetersDevices({ homey }) {
+    return { devices: await homey.app.meters.listDevices() };
+  },
+
   // --- EMS (Energiemanagement) ---
   async getEmsShadow({ homey }) {
     return homey.app.ems.getShadow();

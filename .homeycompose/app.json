@@ -179,6 +179,22 @@
     "putEmsToggle": {
       "method": "put",
       "path": "/ems/toggle"
+    },
+    "getMeters": {
+      "method": "get",
+      "path": "/meters"
+    },
+    "putMeters": {
+      "method": "put",
+      "path": "/meters"
+    },
+    "postMetersRun": {
+      "method": "post",
+      "path": "/meters/run"
+    },
+    "getMetersDevices": {
+      "method": "get",
+      "path": "/meters/devices"
     }
   },
   "support": "https://community.homey.app/t/160031",

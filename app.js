@@ -2,6 +2,7 @@
 
 const Homey = require('homey');
 const { EmsController } = require('./lib/ems/EmsController');
+const { MeterReader } = require('./lib/MeterReader');
 
 class DynamicTariffApp extends Homey.App {
 
@@ -10,10 +11,13 @@ class DynamicTariffApp extends Homey.App {
     this._registerFlowCards();
     this.ems = new EmsController(this);
     this.ems.start();
+    this.meters = new MeterReader(this);
+    this.meters.start();
   }
 
   async onUninit() {
     if (this.ems) this.ems.stop();
+    if (this.meters) this.meters.stop();
   }
 
   _registerFlowCards() {
