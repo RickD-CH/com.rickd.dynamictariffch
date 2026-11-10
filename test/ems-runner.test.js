@@ -4,6 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { EmsRunner } = require('../lib/ems/EmsRunner');
 const { ShadowLog } = require('../lib/ems/ShadowLog');
+const { PlanLog } = require('../lib/ems/PlanLog');
 const { PriceFeed } = require('../lib/ems/PriceFeed');
 const { PvFeed } = require('../lib/ems/PvFeed');
 const { normalizeConfig, applyToggle } = require('../lib/ems/Config');
@@ -61,12 +62,13 @@ function setup({ cfg = {}, inputs = {}, pvSum = 3 } = {}) {
     ...cfg,
     charger: { id: 'chg1', ...(cfg.charger || {}) },
   });
+  const planLog = new PlanLog(makeStore());
   const runner = new EmsRunner({
-    getConfig: () => config, prices, pv, inputs: fakeInputs, actuators,
+    planLog, getConfig: () => config, prices, pv, inputs: fakeInputs, actuators,
     shadowLog: new ShadowLog(makeStore()), chargerLog: new ShadowLog(makeStore(), 'Europe/Zurich', 'charger'),
     store: makeStore(),
   });
-  return { runner, calls, state };
+  return { runner, calls, state, planLog };
 }
 
 test('PriceFeed: Preise aus dem Preisspeicher in Rp./kWh, Viertelstunden', async () => {
@@ -301,4 +303,27 @@ test('Ohne Hausbatterie: Verbraucher nach Überschuss läuft, Modus nach Batteri
   assert.deepEqual(calls.consumer.map((c) => [c.id, c.on]), [['dev1', true]], 'nur der Überschuss-Verbraucher startet');
   const b = runner.consumerCurrent.find((c) => c.id === 'dev2');
   assert.match(b.reason, /Keine Hausbatterie/);
+});
+
+test('Plan-Verlauf: Batterie-Lauf und Wallbox-/Verbraucher-Lauf schreiben je Viertelstunde einen Eintrag', async () => {
+  const { runner, planLog } = setup({ cfg: { consumers: [{ id: 'dry', name: 'Entfeuchter', mode: 'surplus' }] } });
+  await runner.tick(at(10, 1));
+  await runner.tickCharger(at(10, 2));
+  await runner.tickCharger(at(10, 3));
+  assert.equal(planLog.entries.length, 1);
+  const e = planLog.entries[0];
+  assert.equal(e.t, at(10));
+  assert.ok(e.b, 'Batterie-Modus gespeichert');
+  assert.ok(e.c, 'Wallbox-Modus gespeichert');
+  assert.ok('dry' in (e.k || {}), 'Verbraucher gespeichert');
+  await runner.tickCharger(at(10, 16));
+  assert.equal(planLog.entries.length, 2);
+});
+
+test('Plan-Verlauf: ohne planLog läuft alles wie vorher', async () => {
+  const { runner } = setup();
+  runner.planLog = null;
+  await runner.tick(at(10, 1));
+  await runner.tickCharger(at(10, 2));
+  assert.ok(runner.current);
 });

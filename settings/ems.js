@@ -17,6 +17,12 @@
       stWarn: 'Läuft mit Warnung', switchHint: 'Schalter ein: die App schaltet das Gerät wirklich. Aus: sie rechnet nur mit (Testbetrieb).',
       pvLbl: 'PV', gridLbl: 'Netz', batLbl: 'Batterie',
       noConsumers: 'Noch kein Verbraucher eingetragen.',
+      plan: 'PLAN', planToday: 'Heute', planTomorrow: 'Morgen', planPrice: 'Preis in Rp./kWh', planPv: 'Solar-Prognose', planNow: 'jetzt',
+      planBlock: 'Günstigster Block (2 h)', planPvKwh: 'Solar erwartet', planPriceRange: 'Preis min bis max', planNoPrices: 'Für diesen Tag sind noch keine Preise da.',
+      planBat: 'Batterie (Plan)', planWallbox: 'Wallbox (Verlauf)', planTest: 'Test', planPlanned: 'geplant',
+      planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
+      planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
+      planDayTitle: 'Plan-Tag',
       setupReady: 'Bereit: alle Pflicht-Quellen sind gewählt', setupMissing: 'Es fehlt noch:',
       setupNoBat: 'Ohne Hausbatterie läuft das Energiemanagement trotzdem: Wallbox und Verbraucher laden nach Überschuss. Modi nach Batteriestand sind dann nicht möglich.',
       suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
@@ -60,6 +66,12 @@
       stWarn: 'Running with a warning', switchHint: 'Switch on: the app really switches the device. Off: it only calculates along (test mode).',
       pvLbl: 'PV', gridLbl: 'Grid', batLbl: 'Battery',
       noConsumers: 'No consumer yet.',
+      plan: 'PLAN', planToday: 'Today', planTomorrow: 'Tomorrow', planPrice: 'Price in Rp./kWh', planPv: 'Solar forecast', planNow: 'now',
+      planBlock: 'Cheapest block (2 h)', planPvKwh: 'Solar expected', planPriceRange: 'Price min to max', planNoPrices: 'No prices for this day yet.',
+      planBat: 'Battery (plan)', planWallbox: 'EV charger (history)', planTest: 'test', planPlanned: 'planned',
+      planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
+      planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
+      planDayTitle: 'Plan day',
       setupReady: 'Ready: all required sources are chosen', setupMissing: 'Still missing:',
       setupNoBat: 'Without a home battery energy management still works: the EV charger and consumers charge from surplus. Modes by battery level are then not possible.',
       suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
@@ -119,7 +131,7 @@
   var S = STR.en;
   var LANG = 'en';
   var state = {
-    cfg: null, shadow: null, meters: null, devices: [], consumersState: [], events: [], rows: [], open: {},
+    cfg: null, shadow: null, meters: null, plan: null, planDay: 'today', devices: [], consumersState: [], events: [], rows: [], open: {},
     msg: '', built: false, renderedNoDevice: null, timer: null, cmpBuilt: false,
   };
 
@@ -433,6 +445,13 @@
       + '.ems-chip{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--st-lv-cheap-bg);color:var(--st-lv-cheap-fg)}'
       + '.ems-vals{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--st-muted);margin-top:8px}'
       + '.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td,.ems-t th{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top;text-align:left}'
+      + '.pl-w{position:relative}.pl-lbl{font-size:11px;color:var(--st-muted);margin:8px 0 2px}.pl-svg{display:block;width:100%}'
+      + '.pl-now{position:absolute;top:0;bottom:16px;width:2px;margin-left:-1px;background:var(--st-text);opacity:.5;pointer-events:none;z-index:1}'
+      + '.pl-axis{position:relative;height:14px;margin-top:2px;font-size:10px;color:var(--st-muted)}.pl-axis span{position:absolute;transform:translateX(-50%)}'
+      + '.pl-c{fill:var(--st-cheap)}.pl-n{fill:var(--st-normal)}.pl-e{fill:var(--st-expensive)}.pl-past{opacity:.45}'
+      + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:#e08a1e;opacity:.85}.pl-trk{fill:var(--st-seg-bg)}'
+      + '.pl-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--st-muted);margin-top:8px}.pl-leg span{display:flex;align-items:center;gap:4px}'
+      + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
   }
 
@@ -476,16 +495,152 @@
       var name = r.kind === 'charger' ? S.wallbox : r.name;
       var cs = (state.consumersState || []).filter(function (c) { return c.name === r.name; })[0];
       var sub = r.kind === 'charger' ? (ch && ch.connected ? ch.mine.reason : rowSub(r)) : (cs && cs.reason ? cs.reason : rowSub(r));
+      var subHasTag = r.kind === 'charger' ? !(ch && ch.connected) : !(cs && cs.reason); // rowSub() nennt Testbetrieb/live schon
       var sw = '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="' + (r.kind === 'charger' ? 'charger' : esc(r.deviceId)) + '"' + (r.live ? ' checked' : '') + '><i></i></span>';
       return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + rowColor(r) + '">' + icon(rowIcon(r), 17) + '</span>'
-        + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + '</span><span class="ems-item-s ems-muted">' + esc(sub) + ' - ' + esc(r.live ? S.modeLiveTag : S.modeTest) + '</span></span>' + sw + '</div></div>';
+        + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + '</span><span class="ems-item-s ems-muted">' + esc(sub) + (subHasTag ? '' : ' - ' + esc(r.live ? S.modeLiveTag : S.modeTest)) + '</span></span>' + sw + '</div></div>';
     }).join('');
     var wb = state.rows[0] && state.rows[0].kind === 'charger' && state.rows[0].deviceId
       ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
     var list = (items || wb) ? '<div class="ems-list">' + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
-    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>';
+    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + planHtml();
+  }
+
+  // ---------------------------------------------------------------- Plan-Sicht (unten im Betrieb)
+
+  var PLAN_COLORS = {
+    charge: '#3b9d4a', hold: '#d98a1a', normal: '#9aa0a6',
+    instant_ev: '#5b52c8', solar_ev: '#9a93e8', holding: '#d4d1f3', battery_priority: '#d4d1f3', error: '#d32f2f',
+  };
+  var PLAN_STEP = 10;
+
+  function hm(ms) {
+    try { return new Date(ms).toLocaleTimeString(LANG === 'de' ? 'de-CH' : 'en-GB', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' }); } catch (e) { return String(ms); }
+  }
+
+  /** Aufeinanderfolgende gleiche Zellen zu Abschnitten zusammenfassen. */
+  function planRuns(cells) {
+    var out = [];
+    var cur = null;
+    cells.forEach(function (c, i) {
+      var key = (c.state || '') + (c.planned ? '|p' : '');
+      if (cur && cur.key === key) { cur.n += 1; } else { cur = { key: key, state: c.state, planned: c.planned, i: i, n: 1 }; out.push(cur); }
+    });
+    return out;
+  }
+
+  function planStateText(row, state) {
+    if (row.kind === 'battery') return state === 'charge' ? S.planBatCharge : (state === 'hold' ? S.planBatHold : S.planBatNormal);
+    if (row.kind === 'consumer') return S.planOn;
+    return modeLabel(state);
+  }
+
+  function planLaneColor(row, state) {
+    if (!state) return null;
+    if (row.kind === 'consumer') return state === 'on' ? consumerPlanColor(row.id) : null;
+    return PLAN_COLORS[state] || null;
+  }
+
+  function consumerPlanColor(id) {
+    var r = state.rows.filter(function (x) { return x.kind === 'consumer' && x.deviceId === id; })[0];
+    return r ? rowColor(r) : COLORS.generic;
+  }
+
+  function planLaneSvg(row, day) {
+    var W = day.slots.length * PLAN_STEP;
+    var parts = ['<rect class="pl-trk" x="0" y="0" width="' + W + '" height="14" rx="3"/>'];
+    planRuns(row.cells).forEach(function (r) {
+      var color = planLaneColor(row, r.state);
+      if (!color) return;
+      var x = r.i * PLAN_STEP;
+      var t0 = day.slots[r.i].t;
+      var t1 = day.slots[r.i + r.n - 1].t + 900000;
+      var title = hm(t0) + ' - ' + hm(t1) + ': ' + planStateText(row, r.state) + (r.planned ? ' (' + S.planPlanned + ')' : '');
+      var plan = r.planned ? ' fill-opacity="0.45" stroke="' + color + '" stroke-width="1" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"' : '';
+      parts.push('<rect x="' + x + '" y="1" width="' + (r.n * PLAN_STEP) + '" height="12" rx="2" fill="' + color + '"' + plan + '><title>' + esc(title) + '</title></rect>');
+    });
+    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' 14" preserveAspectRatio="none" style="height:14px">' + parts.join('') + '</svg>';
+  }
+
+  function planPriceSvg(day, nowMs) {
+    var n = day.slots.length;
+    var W = n * PLAN_STEP;
+    var H = 80;
+    var vals = day.slots.map(function (s) { return s.price; }).filter(function (v) { return v !== null; });
+    var hi = Math.max.apply(null, vals.concat([0.01]));
+    var lo = Math.min.apply(null, vals.concat([0]));
+    var scale = (H - 4) / (hi - lo);
+    var zero = 2 + hi * scale;
+    var parts = [];
+    var b = day.stats.cheapestBlock;
+    if (b) parts.push('<rect class="pl-blk" x="' + (b.i * PLAN_STEP) + '" y="0" width="' + (b.n * PLAN_STEP) + '" height="' + H + '" rx="3"/>');
+    day.slots.forEach(function (s, i) {
+      if (s.price === null) return;
+      var h = Math.max(1, Math.abs(s.price) * scale);
+      var y = s.price >= 0 ? zero - h : zero;
+      var cls = 'pl-' + (s.level === 'cheap' ? 'c' : (s.level === 'expensive' ? 'e' : 'n')) + (s.t + 900000 <= nowMs ? ' pl-past' : '');
+      parts.push('<rect class="' + cls + '" x="' + (i * PLAN_STEP) + '" y="' + y.toFixed(1) + '" width="' + (PLAN_STEP - 1) + '" height="' + h.toFixed(1) + '"><title>' + esc(hm(s.t) + ': ' + s.price + ' Rp./kWh') + '</title></rect>');
+    });
+    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
+  }
+
+  function planPvSvg(day) {
+    var n = day.slots.length;
+    var W = n * PLAN_STEP;
+    var H = 34;
+    var max = Math.max.apply(null, day.slots.map(function (s) { return s.pvKw || 0; }).concat([0.1]));
+    var parts = ['<rect class="pl-trk" x="0" y="0" width="' + W + '" height="' + H + '" rx="3"/>'];
+    day.slots.forEach(function (s, i) {
+      if (!s.pvKw) return;
+      var h = Math.max(1, (s.pvKw / max) * (H - 2));
+      parts.push('<rect class="pl-pv" x="' + (i * PLAN_STEP) + '" y="' + (H - h).toFixed(1) + '" width="' + PLAN_STEP + '" height="' + h.toFixed(1) + '"><title>' + esc(hm(s.t) + ': ' + s.pvKw + ' kW') + '</title></rect>');
+    });
+    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
+  }
+
+  function planHtml() {
+    var p = state.plan;
+    if (!p || !p.days || !p.days.length) return '';
+    var day = p.days.filter(function (d) { return d.key === state.planDay; })[0] || p.days[0];
+    var n = day.slots.length;
+    var tabs = '<div class="subtabs" style="max-width:240px" data-ems-plantabs="1">' + p.days.map(function (d) {
+      return '<button class="subtab' + (d.key === day.key ? ' active' : '') + '" data-ems-planday="' + d.key + '">' + esc(d.key === 'today' ? S.planToday : S.planTomorrow) + '</button>';
+    }).join('') + '</div>';
+    var hasPrices = day.stats.min !== null;
+    var nowPct = day.key === 'today' ? ((p.nowMs - day.from) / (day.to - day.from) * 100) : null;
+    var nowLine = nowPct !== null && nowPct >= 0 && nowPct <= 100 ? '<div class="pl-now" style="left:' + nowPct.toFixed(2) + '%" title="' + esc(S.planNow) + '"></div>' : '';
+    var test = p.dryRun || {};
+    var body = '';
+    if (!hasPrices) {
+      body = '<p class="sub">' + esc(S.planNoPrices) + '</p>';
+    } else {
+      body += '<div class="pl-w">' + nowLine;
+      body += '<div class="pl-lbl">' + esc(S.planPrice) + '</div>' + planPriceSvg(day, p.nowMs);
+      if (day.slots.some(function (s) { return s.pvKw !== null; })) body += '<div class="pl-lbl">' + esc(S.planPv) + '</div>' + planPvSvg(day);
+      day.rows.forEach(function (row) {
+        var label;
+        if (row.kind === 'battery') label = S.planBat;
+        else if (row.kind === 'charger') label = S.planWallbox + (test.charger ? ' - ' + S.planTest : '');
+        else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
+        body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day);
+      });
+      body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
+      body += '</div>';
+    }
+    var cards = '';
+    if (hasPrices) {
+      var b = day.stats.cheapestBlock;
+      cards = '<div class="ems-cards">'
+        + (b ? '<div class="ems-card"><div class="ems-k">' + esc(S.planBlock) + '</div><div class="ems-v">' + hm(b.from) + ' - ' + hm(b.to) + '</div><div class="ems-s">&#216; ' + b.avg + ' Rp./kWh</div></div>' : '')
+        + '<div class="ems-card"><div class="ems-k">' + esc(S.planPriceRange) + '</div><div class="ems-v">' + day.stats.min + ' - ' + day.stats.max + '</div><div class="ems-s">&#216; ' + day.stats.avg + ' Rp./kWh</div></div>'
+        + (day.stats.pvKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + day.stats.pvKwh + ' kWh</div></div>' : '')
+        + '</div>';
+    }
+    var legend = '<div class="pl-leg"><span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>'
+      + '<span><i style="background:' + PLAN_COLORS.charge + '"></i>' + esc(S.planBatCharge) + '</span><span><i style="background:' + PLAN_COLORS.hold + '"></i>' + esc(S.planBatHold) + '</span></div>';
+    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + legend + '<p class="ems-why">' + esc(S.planNote) + '</p></div>';
   }
 
   function renderMain() {
@@ -667,7 +822,9 @@
       api('GET', '/ems/shadow'),
       api('GET', '/ems/consumers').catch(function () { return { current: [], events: [] }; }),
       api('GET', '/meters').catch(function () { return null; }),
+      api('GET', '/ems/plan').catch(function () { return null; }),
     ]).then(function (r) {
+      state.plan = r[3];
       state.shadow = r[0];
       state.consumersState = r[1].current || [];
       state.events = r[1].events || [];
@@ -741,7 +898,11 @@
     var open = up(t, 'data-ems-open');
     var adv = up(t, 'data-ems-adv');
     var rm = up(t, 'data-ems-remove');
-    if (open) {
+    var planDay = up(t, 'data-ems-planday');
+    if (planDay) {
+      state.planDay = planDay;
+      renderMain();
+    } else if (open) {
       sync();
       state.open[open] = !state.open[open];
       renderSetup();
