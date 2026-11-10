@@ -23,6 +23,13 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      planTable: 'ABLAUF: WANN PASSIERT WAS', planColTime: 'Zeit', planColWhat: 'Was passiert', planColPrice: 'Ø Rp.', planNothing: 'Für diesen Tag ist nichts geplant oder aufgezeichnet.',
+      planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant', planLegWallbox: 'Wallbox lädt', planLegConsumer: 'Verbraucher ein', planLegJob: 'Auftrag / Vorschau',
+      calcTitle: 'BERECHNUNG', calcRow: 'Rechenintervall', calcAuto: 'Automatisch', calcEvery: 'Alle', calcSecs: 's', calcOptAuto: 'Automatisch (15 s mit Auto, 30 s mit Verbrauchern, sonst 5 min)', calcOpt15: 'Alle 15 Sekunden', calcOpt30: 'Alle 30 Sekunden', calcOpt60: 'Jede Minute', calcOpt300: 'Alle 5 Minuten',
+      calcLabel: 'Wallbox und Verbraucher rechnen', calcTick: 'Batterie-Plan alle (Minuten)', calcDevices: 'gelesene Geräte', calcCalls: 'Abfragen pro Stunde',
+      calcAutoImpact: 'Je nach Lage: ruhig 5 min, mit Verbrauchern 30 s, mit Auto an der Wallbox 15 s.',
+      calcImpact: 'Kürzer: reagiert schneller auf Wolken und Lastwechsel, belastet Homey aber stärker (sehr viele Abfragen können das Limit von Homey erreichen). Länger: ruhiger und schonender, die Anlage reagiert träger und etwas Überschuss geht ans Netz. Halte- und Karenzzeiten (in Sekunden) wirken nur im Takt des Laufs.',
+      calcTickHint: 'Der Batterie-Plan (nur Vergleich) rechnet in diesem Takt, 1 bis 15 Minuten. Die Preise ändern sich nur alle 15 Minuten.',
       pvTitle: 'VORSCHAU: AUFTRAG PLANEN', pvIntro: 'Gib ein, was bis wann passieren soll. Die Vorschau zeigt, in welchen Viertelstunden es laufen würde. Es wird nichts gespeichert und nichts geschaltet.',
       pvDevice: 'Gerät', pvUntil: 'Fertig bis', pvKwh: 'Energie (kWh)', pvHours: 'Laufzeit (h)', pvPower: 'Leistung (kW, leer = automatisch)', pvMaxPrice: 'Höchstpreis (Rp./kWh, leer = egal)',
       pvBlock: 'am Stück laufen', pvRun: 'Vorschau', pvClear: 'Zurücksetzen', pvPreviewLbl: 'Vorschau', pvRunsFrom: 'Läuft von', pvTo: 'bis', pvIn: 'in', pvQuarters: 'Viertelstunden zwischen',
@@ -82,6 +89,13 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      planTable: 'SCHEDULE: WHAT HAPPENS WHEN', planColTime: 'Time', planColWhat: 'What happens', planColPrice: 'Avg Rp.', planNothing: 'Nothing is planned or recorded for this day.',
+      planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned', planLegWallbox: 'EV charging', planLegConsumer: 'Consumer on', planLegJob: 'Job / preview',
+      calcTitle: 'CALCULATION', calcRow: 'Calculation interval', calcAuto: 'Automatic', calcEvery: 'Every', calcSecs: 's', calcOptAuto: 'Automatic (15 s with a car, 30 s with consumers, else 5 min)', calcOpt15: 'Every 15 seconds', calcOpt30: 'Every 30 seconds', calcOpt60: 'Every minute', calcOpt300: 'Every 5 minutes',
+      calcLabel: 'EV charger and consumers calculate', calcTick: 'Battery plan every (minutes)', calcDevices: 'devices read', calcCalls: 'requests per hour',
+      calcAutoImpact: 'Depending on the situation: idle 5 min, with consumers 30 s, with a car at the charger 15 s.',
+      calcImpact: 'Shorter: reacts faster to clouds and load changes but puts more load on Homey (very many requests can hit Homey\'s limit). Longer: calmer and gentler, but the system reacts more slowly and some surplus goes to the grid. Hold and grace times (in seconds) only act in the rhythm of the run.',
+      calcTickHint: 'The battery plan (comparison only) calculates at this rhythm, 1 to 15 minutes. Prices only change every 15 minutes.',
       pvTitle: 'PREVIEW: PLAN A JOB', pvIntro: 'Enter what should happen by when. The preview shows in which quarter-hours it would run. Nothing is saved and nothing is switched.',
       pvDevice: 'Device', pvUntil: 'Done by', pvKwh: 'Energy (kWh)', pvHours: 'Run time (h)', pvPower: 'Power (kW, empty = automatic)', pvMaxPrice: 'Maximum price (Rp./kWh, empty = any)',
       pvBlock: 'run in one block', pvRun: 'Preview', pvClear: 'Reset', pvPreviewLbl: 'preview', pvRunsFrom: 'Runs from', pvTo: 'to', pvIn: 'in', pvQuarters: 'quarter-hours between',
@@ -141,6 +155,7 @@
     drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
     plug: 'M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0zM12 16v5',
     plus: 'M12 5v14M5 12h14',
+    clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
     chevron: 'M6 9l6 6 6-6',
     check: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8 12l3 3 5-6',
     warn: 'M12 3 2 20h20zM12 10v5M12 17.5v.5',
@@ -417,6 +432,35 @@
       + (open ? '<div class="ems-item-b">' + body + '</div>' : '') + '</div>';
   }
 
+  function calcDeviceCount() {
+    var c = state.cfg;
+    var ids = {};
+    var add = function (id) { if (id) ids[id] = true; };
+    add(c.devices.meter.id); add(c.devices.house.id); add(c.devices.inverter.id); add(c.battery.deviceId);
+    state.rows.forEach(function (r) {
+      if (r.kind === 'charger') add(r.deviceId);
+      else if (r.control !== false && r.deviceId) { add(r.deviceId); if (r.humidity && r.humidity.enabled) add(r.humidity.sensorId); }
+    });
+    return Object.keys(ids).length;
+  }
+
+  function calcSummary() {
+    var s = Number(state.cfg.refreshS) || 0;
+    return s ? S.calcEvery + ' ' + s + ' ' + S.calcSecs : S.calcAuto;
+  }
+
+  function calcBody() {
+    var s = Number(state.cfg.refreshS) || 0;
+    var d = calcDeviceCount();
+    var opt = function (v, label) { return '<option value="' + v + '"' + (s === v ? ' selected' : '') + '>' + esc(label) + '</option>'; };
+    var impact = s ? d + ' ' + S.calcDevices + ', ' + Math.round(d * 3600 / s) + ' ' + S.calcCalls : S.calcAutoImpact + ' (' + d + ' ' + S.calcDevices + ': ' + Math.round(d * 3600 / 300) + ' - ' + Math.round(d * 3600 / 15) + ' ' + S.calcCalls + ')';
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.calcLabel) + '</span><select data-ems-calc="refreshS">'
+      + opt(0, S.calcOptAuto) + opt(15, S.calcOpt15) + opt(30, S.calcOpt30) + opt(60, S.calcOpt60) + opt(300, S.calcOpt300) + '</select></label></div>'
+      + '<p class="ems-why"><b>' + esc(impact) + '</b></p><p class="ems-why">' + esc(S.calcImpact) + '</p>'
+      + '<div class="ems-row"><label class="ems-f"><span>' + esc(S.calcTick) + '</span><input type="number" min="1" max="15" step="1" data-ems-calc="tickMinutes" value="' + esc(state.cfg.tickMinutes || 5) + '"></label></div>'
+      + '<p class="ems-why">' + esc(S.calcTickHint) + '</p>';
+  }
+
   function renderSetup() {
     var host = $('ems-view-devices');
     if (!host) return;
@@ -441,6 +485,7 @@
       + '<p class="lbl">' + esc(S.sources) + '</p><div class="ems-list">' + src + '</div>'
       + '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + rows
       + '<div class="ems-item ems-add" data-ems-add="1"><span class="ems-ic" style="background:var(--st-seg-bg);color:var(--st-text)">' + icon('plus', 17) + '</span><span class="ems-item-n">' + esc(S.addConsumer) + '</span></div></div>'
+      + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
       + '<p><button class="ems-save" data-ems-save="1">' + esc(S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
   }
 
@@ -476,6 +521,7 @@
       + '.pl-axis{position:relative;height:14px;margin-top:2px;font-size:10px;color:var(--st-muted)}.pl-axis span{position:absolute;transform:translateX(-50%)}'
       + '.pl-c{fill:var(--st-cheap)}.pl-n{fill:var(--st-normal)}.pl-e{fill:var(--st-expensive)}.pl-past{opacity:.45}'
       + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:#e08a1e;opacity:.85}.pl-trk{fill:var(--st-seg-bg)}'
+      + '.pl-chip{display:inline-block;background:var(--st-chip-bg);border-radius:999px;padding:1px 8px;margin:1px 4px 1px 0;font-size:11px}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--st-muted);margin-top:8px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -628,6 +674,56 @@
     return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
   }
 
+  /** Legende gleich unter den Grafiken: nur, was in diesem Tag vorkommt. */
+  function legendHtml(day) {
+    var kinds = {};
+    day.rows.forEach(function (row) { kinds[row.kind] = true; });
+    var sq = function (bg, text) { return '<span><i style="background:' + bg + '"></i>' + esc(text) + '</span>'; };
+    var html = '<div class="pl-leg"><span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>';
+    if (kinds.battery) html += sq(PLAN_COLORS.charge, S.planBatCharge) + sq(PLAN_COLORS.hold, S.planBatHold);
+    if (kinds.charger) html += sq(PLAN_COLORS.instant_ev, S.planLegWallbox);
+    if (kinds.consumer) html += sq(COLORS.dehumidifier, S.planLegConsumer);
+    if (kinds.job) html += sq('#0277bd', S.planLegJob);
+    return html + '</div>';
+  }
+
+  /** Was in dieser Zelle der Zeile "aktiv" ist (Text) oder null. */
+  function planActive(row, cell) {
+    var st = cell.state;
+    var tag = cell.planned ? ' (' + S.planTag + ')' : '';
+    if (!st) return null;
+    if (row.kind === 'battery') return st === 'charge' ? S.batLbl + ': ' + S.planBatCharge + tag : (st === 'hold' ? S.batLbl + ': ' + S.planBatHold + tag : null);
+    if (row.kind === 'charger') return st === 'solar_ev' ? S.wallbox + ': ' + S.planChSolar : (st === 'instant_ev' ? S.wallbox + ': ' + S.planChFull : null);
+    if (row.kind === 'consumer') return st === 'on' ? row.name + ': ' + S.planOn : null;
+    if (row.kind === 'job') return st === 'on' ? (row.name || S.wallbox) + ': ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord) + tag : null;
+    return null;
+  }
+
+  /** Tabelle: Uhrzeit von-bis, was passiert, Durchschnittspreis. Gleiche Zustände werden zu einem Zeitraum zusammengefasst. */
+  function planTableHtml(day, p) {
+    var runs = [];
+    var cur = null;
+    day.slots.forEach(function (slot, i) {
+      var parts = [];
+      day.rows.forEach(function (row) { var a = planActive(row, row.cells[i]); if (a) parts.push(a); });
+      var key = parts.join('|');
+      if (!key) { cur = null; return; }
+      if (cur && cur.key === key) { cur.i1 = i; } else { cur = { key: key, parts: parts, i0: i, i1: i }; runs.push(cur); }
+    });
+    var head = '<p class="lbl">' + esc(S.planTable) + '</p>';
+    if (!runs.length) return head + '<p class="sub">' + esc(S.planNothing) + '</p>';
+    var rows = runs.map(function (r) {
+      var from = day.slots[r.i0].t;
+      var to = day.slots[r.i1].t + 900000;
+      var prices = day.slots.slice(r.i0, r.i1 + 1).map(function (x) { return x.price; }).filter(function (v) { return v !== null; });
+      var avg = prices.length ? Math.round(prices.reduce(function (a, b) { return a + b; }, 0) / prices.length * 10) / 10 : '-';
+      var cls = p.nowMs >= from && p.nowMs < to ? 'pl-cur' : (to <= p.nowMs ? 'pl-pastrow' : '');
+      return '<tr class="' + cls + '"><td style="white-space:nowrap">' + hm(from) + ' - ' + hm(to) + '</td><td>'
+        + r.parts.map(function (x) { return '<span class="pl-chip">' + esc(x) + '</span>'; }).join('') + '</td><td style="text-align:right">' + avg + '</td></tr>';
+    }).join('');
+    return head + '<div style="overflow-x:auto"><table class="ems-t pl-tab"><thead><tr><th>' + esc(S.planColTime) + '</th><th>' + esc(S.planColWhat) + '</th><th style="text-align:right">' + esc(S.planColPrice) + '</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
   function planHtml() {
     var p = state.preview && state.preview.days ? state.preview : state.plan;
     if (!p || !p.days || !p.days.length) return '';
@@ -656,6 +752,7 @@
         body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day);
       });
       body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
+      body += legendHtml(day);
       body += '</div>';
     }
     var cards = '';
@@ -667,9 +764,7 @@
         + (day.stats.pvKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + day.stats.pvKwh + ' kWh</div></div>' : '')
         + '</div>';
     }
-    var legend = '<div class="pl-leg"><span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>'
-      + '<span><i style="background:' + PLAN_COLORS.charge + '"></i>' + esc(S.planBatCharge) + '</span><span><i style="background:' + PLAN_COLORS.hold + '"></i>' + esc(S.planBatHold) + '</span></div>';
-    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + legend + '<p class="ems-why">' + esc(S.planNote) + '</p></div>' + previewFormHtml();
+    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(day, p) : '') + '<p class="ems-why">' + esc(S.planNote) + '</p></div>' + previewFormHtml();
   }
 
   // ---------------------------------------------------------------- Vorschau: Auftrag planen
@@ -934,6 +1029,8 @@
       battery: { deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS },
       pv: { factor: c.pv ? c.pv.factor : 1 },
+      refreshS: Number(c.refreshS) || 0,
+      tickMinutes: Number(c.tickMinutes) || 5,
       consumers: consumers,
     };
     var cost = state.rows.filter(function (r) { return r.name && r.meterDeviceId && r.meterCap; }).map(function (r) {
@@ -1094,6 +1191,13 @@
     var t = ev.target;
     if (!t || !t.getAttribute) return;
     var g = function (n) { var v = t.getAttribute(n); return v === null || v === undefined ? null : v; };
+    var calc = g('data-ems-calc');
+    if (calc !== null) {
+      sync();
+      state.cfg[calc] = Number(t.value) || 0;
+      renderSetup();
+      return;
+    }
     var dr = g('data-ems-draft');
     if (dr !== null) {
       if (dr === 'contiguous') state.draft.contiguous = !!t.checked;

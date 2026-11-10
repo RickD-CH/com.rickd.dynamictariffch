@@ -435,3 +435,27 @@ test('Setup: Preis-Gerät ist Voraussetzung - fehlt es, wird der Strompreis zur 
   assert.match(main(miss), /braucht das Preis-Gerät/);
   assert.doesNotMatch(main(ok), /braucht das Preis-Gerät/);
 });
+
+test('Setup: Berechnung - Rechenintervall mit Auswirkung (Geräte, Abfragen pro Stunde), gespeichert beim Speichern', async () => {
+  const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
+  assert.match(setup(env), /BERECHNUNG/);
+  assert.match(setup(env), /Rechenintervall/);
+  assert.match(setup(env), />Automatisch</);
+  click(env, 'ems-view-devices', { 'data-ems-open': 'calc' });
+  let html = setup(env);
+  assert.match(html, /data-ems-calc="refreshS"/);
+  assert.match(html, /gelesene Geräte/);
+  assert.match(html, /belastet Homey aber stärker/);
+  assert.match(html, /data-ems-calc="tickMinutes"/);
+  env.handlers['ems-view-devices:change']({ target: { getAttribute: (n) => (n === 'data-ems-calc' ? 'refreshS' : null), value: '30', parentNode: null } });
+  html = setup(env);
+  assert.match(html, /Alle 30 s/);
+  assert.match(html, /\d+ gelesene Geräte, \d+ Abfragen pro Stunde/);
+  const put = env.api;
+  const before = env.calls.length;
+  await env.ctx.window.EmsUi._collect();
+  const body = env.ctx.window.EmsUi._collect().ems;
+  assert.equal(body.refreshS, 30);
+  assert.equal(body.tickMinutes, 5);
+  assert.ok(put && before >= 0);
+});

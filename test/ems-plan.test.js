@@ -246,3 +246,35 @@ test('Anzeige: ohne Plan-Daten oder ohne Preise kein Absturz, englische Texte', 
   const en = await startUi({ ...plan(), dryRun: {} }, 'en');
   assert.match(en.els.get('ems-view-main').innerHTML, /Cheapest block \(2 h\)/);
 });
+
+test('Anzeige: Legende direkt unter den Grafiken (vor den Kennzahlen), Ablauf-Tabelle mit Zeitraum, Inhalt und Preis', async () => {
+  const p = {
+    ...plan({
+      hasBattery: true, chargerEnabled: true, consumers: [{ id: 'dry', name: 'Entfeuchter' }], reserveHours: 6,
+      batteryPlan: { mode: 'hold', chargeSlots: [{ start: day0 + 13 * 3600000, end: day0 + 13.25 * 3600000, price: 5 }, { start: day0 + 13.25 * 3600000, end: day0 + 13.5 * 3600000, price: 5 }], reserveSlots: [] },
+      log: [{ t: day0 + 10 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 } }, { t: day0 + 10.25 * 3600000, c: 'solar_ev', w: 2000, k: { dry: 1 } }],
+    }),
+    active: true, dryRun: {},
+  };
+  const env = await startUi(p);
+  const html = env.els.get('ems-view-main').innerHTML;
+  const at = (s) => html.indexOf(s);
+  assert.ok(at('class="pl-leg"') > at('class="pl-axis"'), 'Legende nach der Zeitachse');
+  assert.ok(at('class="pl-leg"') < at('class="ems-cards"'), 'Legende vor den Kennzahlen');
+  assert.match(html, /Wallbox lädt/);
+  assert.match(html, /Verbraucher ein/);
+  assert.match(html, /ABLAUF: WANN PASSIERT WAS/);
+  const table = html.slice(at('class="ems-t pl-tab"'));
+  assert.match(table, /10:00 - 10:30/, 'zwei Viertelstunden mit gleichem Zustand = ein Zeitraum');
+  assert.match(table, /Wallbox: lädt \(Solar\)/);
+  assert.match(table, /Entfeuchter: ein/);
+  assert.match(table, /13:00 - 13:30/);
+  assert.match(table, /Batterie: Netzladen \(geplant\)/);
+  assert.match(table, /class="pl-cur"|class="pl-pastrow"/, 'aktueller und vergangene Zeilen markiert');
+  assert.doesNotMatch(table.slice(0, table.indexOf('</table>')), /undefined|NaN/);
+});
+
+test('Anzeige: Tabelle ohne Ereignisse sagt es', async () => {
+  const env = await startUi({ ...plan(), dryRun: {} });
+  assert.match(env.els.get('ems-view-main').innerHTML, /Für diesen Tag ist nichts geplant oder aufgezeichnet/);
+});

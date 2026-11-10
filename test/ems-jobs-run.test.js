@@ -210,3 +210,28 @@ test('Controller: ungültige Aufträge werden abgelehnt, fehlende Preise nicht (
     assert.equal(r.jobs[0].reason, 'too_short');
   } finally { restore(); }
 });
+
+// ---------------------------------------------------------------- Rechenintervall
+
+test('Rechenintervall: Konfiguration nimmt nur erlaubte Werte, Standard automatisch', () => {
+  assert.equal(normalizeConfig({}).refreshS, 0);
+  for (const v of [15, 30, 60, 300]) assert.equal(normalizeConfig({ refreshS: v }).refreshS, v);
+  for (const v of [1, 7, 999, -5, 'abc', null]) assert.equal(normalizeConfig({ refreshS: v }).refreshS, 0);
+});
+
+test('Rechenintervall: automatisch 15 s mit Auto, 30 s mit Verbrauchern, 5 min sonst; fest = immer der gewählte Wert', async () => {
+  const auto = setup();
+  assert.equal(await auto.runner.tickCharger(at(10)), 15000, 'Auto angesteckt');
+  const idle = setup({ inputs: { chargerConnected: false } });
+  assert.equal(await idle.runner.tickCharger(at(10)), 30000, 'Verbraucher aktiv');
+  const none = setup({ inputs: { chargerConnected: false }, consumers: [] });
+  assert.equal(await none.runner.tickCharger(at(10)), 300000, 'nichts zu tun');
+  for (const s of [15, 30, 60, 300]) {
+    const fixed = setup({ inputs: { chargerConnected: false }, consumers: [] });
+    fixed.runner.getConfig().refreshS = s;
+    assert.equal(await fixed.runner.tickCharger(at(10)), s * 1000);
+    const withCar = setup();
+    withCar.runner.getConfig().refreshS = s;
+    assert.equal(await withCar.runner.tickCharger(at(10)), s * 1000, 'fest gilt auch mit Auto');
+  }
+});
