@@ -13,7 +13,7 @@
       cmpOff: 'Das Energiemanagement ist ausgeschaltet, es kommen keine neuen Vergleichsdaten. Gezeigt werden die bisherigen. Zum Weitervergleichen im Reiter «Betrieb» aktivieren (Testbetrieb, es wird nichts gesteuert).',
       cmpSource: 'Vergleichsquelle', cmpTab: 'Vergleich', cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund', runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none: 'Noch keine Daten.',
-      devicesSec: 'Geräte (einmal wählen)', chosen: 'gewählt', pickFirst: '- zuerst Gerät wählen -', nowSec: 'Jetzt (Vergleich)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
+      devicesSec: 'Geräte für das Energiemanagement', devicesMissing: 'Noch nicht alle Geräte gewählt. Das geht im Setup unter «Geräte für das Energiemanagement».', chosen: 'gewählt', pickFirst: '- zuerst Gerät wählen -', nowSec: 'Jetzt (Vergleich)', devicesHint: 'Welche Geräte das Energiemanagement lesen und steuern soll. Die Auswahl bleibt nur auf deinem Homey.',
       meter: 'Netzzähler (+ = Bezug)', house: 'Hausverbrauch', inverter: 'PV-Wechselrichter', battery2: 'Batterie', charger2: 'Wallbox', andiEmsDev: 'EMS von Andi (optional, nur Vergleich)', capab: 'Wert (Capability)', notChosen: 'noch nicht gewählt',
       control: 'Steuerung', controlHint: 'Pro Bereich: ein = die App schaltet das Gerät wirklich, aus = sie rechnet nur mit (Trockenlauf). Beim Ausschalten bleibt das Gerät, wie es gerade ist.', on: 'ein', offTag: 'aus', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       status: 'Jetzt',
@@ -38,7 +38,7 @@
       cmpOff: 'Energy management is switched off, so no new comparison data arrives. The previous data is shown. To keep comparing, enable it in the "Operation" view (test mode, nothing is controlled).',
       cmpSource: 'Comparison source', cmpTab: 'Compare', cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason', runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none: 'No data yet.',
-      devicesSec: 'Devices (choose once)', chosen: 'chosen', pickFirst: '- choose a device first -', nowSec: 'Now (comparison)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
+      devicesSec: 'Devices for energy management', devicesMissing: 'Not all devices chosen yet. You can do that in Setup under "Devices for energy management".', chosen: 'chosen', pickFirst: '- choose a device first -', nowSec: 'Now (comparison)', devicesHint: 'Which devices the energy management reads and controls. The choice stays on your Homey only.',
       meter: 'Grid meter (+ = import)', house: 'House consumption', inverter: 'PV inverter', battery2: 'Battery', charger2: 'EV charger', andiEmsDev: "Andi's EMS (optional, comparison only)", capab: 'Value (capability)', notChosen: 'not chosen yet',
       control: 'Control', controlHint: 'Per area: on = the app really switches the device, off = it only calculates along (dry run). Switching off leaves the device as it is.', on: 'on', offTag: 'off', toggleFailed: 'Could not set the switch',
       status: 'Now',
@@ -132,7 +132,7 @@
     return '<label class="ems-f"><span>' + esc(label) + '</span><input id="' + id + '" type="' + (type || 'number') + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
   }
   function check(label, id, on) {
-    return '<label class="ems-c"><input id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span></label>';
+    return '<label class="ems-c"><input class="sw" id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span></label>';
   }
 
   function consumerRow(c, i) {
@@ -237,20 +237,25 @@
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idField + '"' + (capField ? ' data-ems-dev="' + idField + '"' : '') + '>' + deviceOptions(cur, filter) + '</select></label>'
       + (capField ? '<label class="ems-f ems-wide"><span>' + esc(S.capab) + '</span><select id="' + capField + '">' + capOptions(cur, capRe, capVal) + '</select></label>' : '') + '</div>';
   }
+  function chosenCount() {
+    var c = state.cfg;
+    return [c.devices.meter.id, c.devices.house.id, c.devices.inverter.id, c.battery.deviceId, c.charger.id].filter(Boolean).length;
+  }
+
   function devicesHtml() {
     var c = state.cfg;
     var chosen = [c.devices.meter.id, c.devices.house.id, c.devices.inverter.id, c.battery.deviceId, c.charger.id].filter(Boolean).length;
-    return '<details class="card sec"' + (chosen < 5 ? ' open' : '') + '><summary><h2>' + esc(S.devicesSec) + '</h2><div class="ems-s">' + chosen + '/5 ' + esc(S.chosen) + '</div></summary><p class="sub">' + esc(S.devicesHint) + '</p>'
+    return '<p class="sub">' + esc(S.devicesHint) + '</p>'
       + devRow(S.meter, 'ems-d-meter', c.devices.meter.id, hasCap(/^measure_power/), 'ems-d-meter-cap', c.devices.meter.capability, CAP_RE.meter)
       + devRow(S.house, 'ems-d-house', c.devices.house.id, hasCap(/^measure_power/), 'ems-d-house-cap', c.devices.house.capability, CAP_RE.house)
       + devRow(S.inverter, 'ems-d-inv', c.devices.inverter.id, hasCap(/^measure_power/), 'ems-d-inv-cap', c.devices.inverter.capability, CAP_RE.inv)
       + devRow(S.battery2, 'ems-d-bat', c.battery.deviceId, hasCap(/^measure_battery/), 'ems-d-bat-cap', c.battery.socCapability, CAP_RE.bat)
       + devRow(S.charger2, 'ems-d-chg', c.charger.id, hasCap(/^(evcharger_charging|target_power)/), null, null)
-      + '</details>';
+      + '<p><button class="btn primary" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-dev">' + esc(state.msg) + '</span></p>';
   }
 
   function toggleRow(target, label, on) {
-    return '<label class="ems-c ems-tg"><input type="checkbox" data-ems-toggle="' + esc(target) + '"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span> <span class="ems-s">' + esc(on ? S.on : S.offTag) + '</span></label>';
+    return '<label class="ems-c ems-tg"><input class="sw" type="checkbox" data-ems-toggle="' + esc(target) + '"' + (on ? ' checked' : '') + '> <span>' + esc(label) + '</span> <span class="ems-s">' + esc(on ? S.on : S.offTag) + '</span></label>';
   }
 
   function controlHtml() {
@@ -332,7 +337,20 @@
       + cmpSection(S.cmpCharger, sh.charger ? { overallAgreePct: sh.charger.overallAgreePct, days: sh.charger.days, events: sh.charger.events } : null);
   }
 
+  /** Geräte-Auswahl liegt im Setup-Reiter (eigener Container in index.html). */
+  function renderDevices() {
+    var host = $('ems-view-devices');
+    if (!host || !state.cfg) return;
+    host.innerHTML = devicesHtml();
+    var head = $('h2-emsdev');
+    if (head) {
+      var done = chosenCount() >= 5;
+      head.innerHTML = (done ? '<span class="st-check">✓</span>' : '<span class="st-open"></span>') + esc(S.devicesSec) + ' <span class="ems-s">' + chosenCount() + '/5 ' + esc(S.chosen) + '</span>';
+    }
+  }
+
   function render() {
+    renderDevices();
     var panel = $('ems-view-main');
     if (!panel || !state.cfg) return;
     var c = state.cfg;
@@ -346,7 +364,7 @@
       + '.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top}'
       + '</style>'
       + '<div class="card"><p class="sub">' + esc(S.intro) + '</p>' + check(S.enable, 'ems-enabled', c.enabled) + '</div>'
-      + devicesHtml()
+      + (chosenCount() < 5 ? '<div class="card"><p class="warn">' + esc(S.devicesMissing) + '</p></div>' : '')
       + controlHtml()
       + '<div class="card"><h2>' + esc(S.status) + '</h2><div id="ems-status">' + statusHtml() + '</div></div>'
       + '<div class="card"><h2>' + esc(S.wallbox) + '</h2>'
@@ -365,7 +383,7 @@
       api('GET', '/ems/consumers').catch(function () { return { current: [], events: [] }; }),
     ]).then(function (r) {
       state.shadow = r[0];
-      if (!state.cfg) state.cfg = r[0].config;
+      if (!state.cfg) state.cfg = JSON.parse(JSON.stringify(r[0].config)); // eigene Kopie: Formularänderungen dürfen die Serverantwort nicht verändern
       state.serverCfg = r[0].config;
       if (!state.loadedConsumers) { state.consumers = (state.cfg.consumers || []).map(function (c) { return Object.assign({}, c); }); state.loadedConsumers = true; }
       state.consumersState = r[1].current;
@@ -388,6 +406,8 @@
     if (el) el.textContent = text;
     var el2 = $('ems-msg-cmp');
     if (el2) el2.textContent = text;
+    var el3 = $('ems-msg-dev');
+    if (el3) el3.textContent = text;
   }
 
   function onClick(ev) {
@@ -514,6 +534,11 @@
     if (panel) {
       panel.addEventListener('click', onClick);
       panel.addEventListener('change', onChange);
+    }
+    var devHost = $('ems-view-devices');
+    if (devHost) {
+      devHost.addEventListener('click', onClick);
+      devHost.addEventListener('change', onChange);
     }
     return Promise.all([load(), api('GET', '/ems/devices').then(function (r) { state.devices = r.devices || []; }).catch(function () { state.devices = []; })])
       .then(function () { render(); renderCompare(); })

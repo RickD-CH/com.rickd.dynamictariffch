@@ -130,7 +130,7 @@
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
       + '</style>'
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
-      + '<label class="mt-c"><input id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '> <span>' + esc(S.enable) + '</span></label>'
+      + '<label class="mt-c"><input class="sw" id="mt-enabled" type="checkbox"' + (c.enabled ? ' checked' : '') + '> <span>' + esc(S.enable) + '</span></label>'
       + rows
       + '<h3>' + esc(S.consumers) + '</h3><p class="sub">' + esc(S.consumerHint) + '</p>' + cons
       + '<p><button class="btn" data-mt-add="1">' + esc(S.add) + '</button></p>'
