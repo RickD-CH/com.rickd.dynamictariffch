@@ -23,6 +23,13 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      carCal: 'Wochenkalender (Abfahrt und Ziel-Ladestand)', carCalHint: 'An welchen Tagen das Auto bis wann wie voll sein soll. «Nächste Abfahrt» unter «Heute» überschreibt einen Tag.',
+      carDays: { mon: 'Mo', tue: 'Di', wed: 'Mi', thu: 'Do', fri: 'Fr', sat: 'Sa', sun: 'So' }, carTime: 'Abfahrt', carSoc: 'Ziel %',
+      carHoliday: 'Ferien: Kalender pausiert', carGrid: 'Netz nachladen, wenn die Sonne bis zur Abfahrt nicht reicht', carGridHint: 'Ein: die App lädt in den günstigsten Viertelstunden bis zur Abfahrt. Aus: nur Solarstrom.',
+      carCard: 'E-AUTO', carNext: 'Nächstes Ziel', carNone: 'kein Ziel geplant', carFromCal: 'Kalender', carFromOverride: 'Nächste Abfahrt',
+      carSt: { none: 'Kein Ziel', no_soc: 'Ladestand unbekannt', no_capacity: 'Batteriegrösse fehlt (Einrichten → E-Auto)', reached: 'Ziel erreicht', solar_only: 'Nur Solarstrom', planned: 'Geplant', short: 'Reicht nicht ganz bis zur Abfahrt' },
+      carNotConnected: 'nicht angesteckt', carOverride: 'Nächste Abfahrt (überschreibt den Kalender)', carToday: 'Heute', carTomorrow: 'Morgen', carCharge: 'laden',
+      carApply: 'Übernehmen', carClear: 'Kalender gilt wieder', carSaved: 'Gespeichert',
       silent: 'Silent-Modus: nur simulieren', silentHint: 'Ein: es wird nichts geschaltet, auch wenn einzelne Geräte auf live stehen. Das Protokoll zeigt, was passiert wäre. Erst ausschalten, wenn der Vergleich passt.',
       stSilent: 'Silent-Modus: es wird nur simuliert', silentTag: 'Silent',
       batCtl: 'Batterie steuern', batCtlOn: 'Batterie über das Energiemanagement steuern', batCtlFound: 'Vorlage für dieses Gerät erkannt: Laden, Halten und Normal über die Karten der Batterie.',
@@ -112,6 +119,13 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      carCal: 'Weekly calendar (departure and target charge)', carCalHint: 'On which days the car should be how full by when. "Next departure" under "Today" overrides a day.',
+      carDays: { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' }, carTime: 'Departure', carSoc: 'Target %',
+      carHoliday: 'Holiday: calendar paused', carGrid: 'Charge from the grid if the sun is not enough by departure', carGridHint: 'On: the app charges in the cheapest quarter-hours before departure. Off: solar only.',
+      carCard: 'EV', carNext: 'Next target', carNone: 'no target planned', carFromCal: 'calendar', carFromOverride: 'next departure',
+      carSt: { none: 'No target', no_soc: 'Charge level unknown', no_capacity: 'Battery size missing (Set up → EV)', reached: 'Target reached', solar_only: 'Solar only', planned: 'Planned', short: 'Not quite enough before departure' },
+      carNotConnected: 'not plugged in', carOverride: 'Next departure (overrides the calendar)', carToday: 'Today', carTomorrow: 'Tomorrow', carCharge: 'charge',
+      carApply: 'Apply', carClear: 'Use the calendar again', carSaved: 'Saved',
       silent: 'Silent mode: simulate only', silentHint: 'On: nothing is switched, even if single devices are set to live. The log shows what would have happened. Switch it off only when the comparison looks right.',
       stSilent: 'Silent mode: only simulating', silentTag: 'silent',
       batCtl: 'Control the battery', batCtlOn: 'Control the battery through energy management', batCtlFound: 'Template for this device found: charge, hold and normal via the battery\'s cards.',
@@ -381,6 +395,27 @@
     }).catch(function () { state.batteryCards = { preset: null, cards: [] }; state.batteryCardsLoading = false; renderSetup(); });
   }
 
+  var CAR_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  function carSchedule() {
+    var c = state.cfg.car || {};
+    var sc = c.schedule || {};
+    var days = {};
+    CAR_DAYS.forEach(function (d) { var e = (sc.days && sc.days[d]) || {}; days[d] = { on: e.on === true, time: e.time || '06:00', soc: e.soc || 80 }; });
+    return { days: days, holiday: sc.holiday === true, gridCharge: sc.gridCharge !== false, override: sc.override || null };
+  }
+  function carCalendarHtml() {
+    var sc = carSchedule();
+    var rows = CAR_DAYS.map(function (d) {
+      var e = sc.days[d];
+      return '<tr><td><span class="swt"><input class="sw" id="ems-car-' + d + '-on" type="checkbox"' + (e.on ? ' checked' : '') + '><i></i></span></td><td>' + esc(S.carDays[d]) + '</td>'
+        + '<td><input id="ems-car-' + d + '-time" type="time" value="' + esc(e.time) + '"></td><td><input id="ems-car-' + d + '-soc" type="number" min="10" max="100" step="5" value="' + esc(e.soc) + '" style="width:64px"></td></tr>';
+    }).join('');
+    return '<div class="ems-box"><b>' + esc(S.carCal) + '</b><p class="ems-why">' + esc(S.carCalHint) + '</p>'
+      + '<table class="ems-t car-cal"><thead><tr><th></th><th></th><th>' + esc(S.carTime) + '</th><th>' + esc(S.carSoc) + '</th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<div class="ems-row">' + check(S.carHoliday, 'ems-car-holiday', sc.holiday) + '</div>'
+      + '<div class="ems-row">' + check(S.carGrid, 'ems-car-grid', sc.gridCharge) + '</div><p class="ems-why">' + esc(S.carGridHint) + '</p></div>';
+  }
+
   function srcBody(s) {
     var why = '<p class="ems-why">' + esc(S[s.why]) + '</p>';
     if (s.key === 'price') return why;
@@ -403,7 +438,7 @@
     }
     var d = srcDevice(s.key);
     if (s.key === 'bat' && d.id) why += batteryControlHtml();
-    var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div>' : '';
+    var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div>' + carCalendarHtml() : '';
     return why + carExtra + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
       + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label></div>';
   }
@@ -651,6 +686,7 @@
       + '.pl-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:0}.pl-dot.pl-c{background:var(--st-cheap)}.pl-dot.pl-n{background:var(--st-normal)}.pl-dot.pl-e{background:var(--st-expensive)}'
       + '.pl-pva{stroke:#e08a1e;stroke-width:2}'
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
+      + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
@@ -666,6 +702,50 @@
       out.push({ i: i, r: r });
     });
     return out;
+  }
+
+  function carCardHtml() {
+    var c = state.cfg.car || {};
+    if (!c.deviceId) return '';
+    var car = (state.shadow && state.shadow.car) || null;
+    var sc = carSchedule();
+    var lines = [];
+    var socTxt = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '-';
+    if (car && car.departure) {
+      lines.push(S.carNext + ': ' + car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at) + ' (' + (car.departure.source === 'override' ? S.carFromOverride : S.carFromCal) + ')');
+    } else lines.push(S.carNext + ': ' + S.carNone);
+    if (car) {
+      var st = (S.carSt && S.carSt[car.state]) || car.state;
+      if (car.starts && car.starts.length) st += ': ' + hm(car.starts[0]) + ' - ' + hm(car.starts[car.starts.length - 1] + 900000) + (car.needKwh ? ' (' + car.needKwh + ' kWh)' : '');
+      lines.push(st + (car.connected ? '' : ' - ' + S.carNotConnected));
+    }
+    var o = state.carDraft || (sc.override ? { day: 'tomorrow', time: sc.override.time, soc: sc.override.soc, on: sc.override.on } : { day: 'tomorrow', time: '06:00', soc: 80, on: true });
+    var form = '<p class="lbl" style="margin-top:12px">' + esc(S.carOverride) + '</p><div class="ems-row">'
+      + '<label class="ems-f"><span>&nbsp;</span><select data-ems-carf="day"><option value="today"' + (o.day === 'today' ? ' selected' : '') + '>' + esc(S.carToday) + '</option><option value="tomorrow"' + (o.day !== 'today' ? ' selected' : '') + '>' + esc(S.carTomorrow) + '</option></select></label>'
+      + '<label class="ems-f"><span>' + esc(S.carTime) + '</span><input type="time" data-ems-carf="time" value="' + esc(o.time) + '"></label>'
+      + '<label class="ems-f"><span>' + esc(S.carSoc) + '</span><input type="number" min="10" max="100" step="5" data-ems-carf="soc" value="' + esc(o.soc) + '" style="width:70px"></label></div>'
+      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carf="on"' + (o.on ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carCharge) + '</span></label>'
+      + '<p style="margin:8px 0 0"><button class="btn primary" data-ems-car="save">' + esc(S.carApply) + '</button>' + (sc.override ? ' <button class="btn" data-ems-car="clear">' + esc(S.carClear) + '</button>' : '') + ' <span class="sub">' + esc(state.carMsg || '') + '</span></p>';
+    return '<p class="lbl">' + esc(S.carCard) + '</p><div class="card" id="ems-car"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('charger', 17) + '</span><b>' + esc(socTxt) + '</b></div>'
+      + lines.map(function (l) { return '<p class="ems-why" style="margin:4px 0">' + esc(l) + '</p>'; }).join('') + form + '</div>';
+  }
+
+  function localDateKey(offsetDays) {
+    var d = new Date(Date.now() + offsetDays * 86400000);
+    try { return d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }); } catch (e) { return d.toISOString().slice(0, 10); }
+  }
+
+  function saveCarOverride(clear) {
+    var sc = carSchedule();
+    var o = state.carDraft || { day: 'tomorrow', time: '06:00', soc: 80, on: true };
+    sc.override = clear ? null : { date: localDateKey(o.day === 'today' ? 0 : 1), on: o.on !== false, time: o.time || '06:00', soc: Number(o.soc) || 80 };
+    var car = Object.assign({}, state.cfg.car, { schedule: sc });
+    return api('PUT', '/ems/config', { car: car }).then(function (cfg) {
+      if (cfg && cfg.car) state.cfg.car = JSON.parse(JSON.stringify(cfg.car)); else state.cfg.car = car;
+      state.carDraft = null;
+      state.carMsg = S.carSaved;
+      return refreshStatus();
+    }).catch(function (e) { state.carMsg = S.error + ': ' + (e && e.message || e); renderMain(); });
   }
 
   function batteryControlled() {
@@ -741,6 +821,7 @@
       ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
+    var carHtml = carCardHtml();
     var batItem = '';
     if (bc) {
       var bctl = sh.batteryControl;
@@ -752,7 +833,7 @@
     }
     if (silentOn) items = items.replace(/ - (live|Testbetrieb|test mode)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>');
     var list = (items || wb || batItem) ? '<div class="ems-list">' + batItem + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
-    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
+    return styleHtml() + head + carHtml + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
   }
 
   // ---------------------------------------------------------------- Plan-Sicht (unten im Betrieb)
@@ -1233,6 +1314,15 @@
           state.cfg.battery.targetSoc = num('ems-bc-target', state.cfg.battery.targetSoc);
         }
       }
+      if (s.key === 'car' && state.open['src-car'] && $('ems-car-mon-on')) {
+        var sc0 = carSchedule();
+        CAR_DAYS.forEach(function (d) {
+          sc0.days[d] = { on: chk('ems-car-' + d + '-on'), time: val('ems-car-' + d + '-time', sc0.days[d].time), soc: num('ems-car-' + d + '-soc', sc0.days[d].soc) };
+        });
+        sc0.holiday = chk('ems-car-holiday');
+        sc0.gridCharge = chk('ems-car-grid');
+        state.cfg.car = Object.assign({}, state.cfg.car, { schedule: sc0 });
+      }
       if (s.key === 'car' && state.open['src-car'] && $('ems-car-cap')) state.cfg.car = Object.assign({ deviceId: '', socCapability: 'measure_battery' }, state.cfg.car, { capacityKwh: num('ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0) });
       var d = srcDevice(s.key);
       if (!state.open['src-' + s.key]) return;
@@ -1306,7 +1396,7 @@
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS },
       pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
-      car: { deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
+      car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
       refreshS: Number(c.refreshS) || 0,
       tickMinutes: Number(c.tickMinutes) || 5,
       consumers: consumers,
@@ -1383,7 +1473,7 @@
   function refreshStatus() {
     // Wer gerade in der Vorschau tippt, wird nicht unterbrochen (das Neuzeichnen würde die Eingabe löschen).
     var ae = typeof document !== 'undefined' ? document.activeElement : null;
-    if (ae && ae.getAttribute && ae.getAttribute('data-ems-draft') !== null) return Promise.resolve();
+    if (ae && ae.getAttribute && (ae.getAttribute('data-ems-draft') !== null || ae.getAttribute('data-ems-carf') !== null)) return Promise.resolve();
     return load().then(function () {
       if (noDevice() !== state.renderedNoDevice) { render(); } else { renderMain(); }
       renderCompare();
@@ -1438,6 +1528,8 @@
     var adv = up(t, 'data-ems-adv');
     var rm = up(t, 'data-ems-remove');
     var planDay = up(t, 'data-ems-planday');
+    var carBtn = up(t, 'data-ems-car');
+    if (carBtn) { saveCarOverride(carBtn === 'clear'); return; }
     var jobDel = up(t, 'data-ems-jobdel');
     var pv = up(t, 'data-ems-preview');
     if (jobDel) {
@@ -1475,6 +1567,13 @@
     var t = ev.target;
     if (!t || !t.getAttribute) return;
     var g = function (n) { var v = t.getAttribute(n); return v === null || v === undefined ? null : v; };
+    var carf = g('data-ems-carf');
+    if (carf !== null) {
+      var sc1 = carSchedule();
+      state.carDraft = state.carDraft || (sc1.override ? { day: 'tomorrow', time: sc1.override.time, soc: sc1.override.soc, on: sc1.override.on } : { day: 'tomorrow', time: '06:00', soc: 80, on: true });
+      state.carDraft[carf] = carf === 'on' ? !!t.checked : t.value;
+      return;
+    }
     var pvk = g('data-ems-pv');
     if (pvk !== null) {
       sync();

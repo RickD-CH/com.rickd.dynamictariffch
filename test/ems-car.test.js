@@ -24,7 +24,10 @@ function slotList() {
 // ---------------------------------------------------------------- Konfiguration und Eingang
 
 test('Config: E-Auto (Gerät, Ladestand-Wert, Batteriegrösse) wird geprüft', () => {
-  assert.equal(JSON.stringify(normalizeConfig({}).car), JSON.stringify({ deviceId: '', socCapability: 'measure_battery', capacityKwh: 0 }));
+  const def = normalizeConfig({}).car;
+  assert.equal(JSON.stringify({ deviceId: def.deviceId, socCapability: def.socCapability, capacityKwh: def.capacityKwh }), JSON.stringify({ deviceId: '', socCapability: 'measure_battery', capacityKwh: 0 }));
+  assert.equal(def.schedule.gridCharge, true, 'Netz nachladen standardmässig an');
+  assert.equal(def.schedule.days.mon.on, false, 'Kalender standardmässig aus');
   const c = normalizeConfig({ car: { deviceId: 'tesla', socCapability: 'measure_battery.soc', capacityKwh: 75 } }).car;
   assert.equal(c.deviceId, 'tesla');
   assert.equal(c.capacityKwh, 75);

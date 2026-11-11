@@ -187,3 +187,16 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Live** nur mit Silent aus **und** Schalter «Batterie» auf live (`/ems/toggle` mit `target: 'battery'`).
 - **Nur ein System pro Batterie:** vor live die Batterie-Steuerung im anderen Energiemanagement und eigene Batterie-Flows ausschalten.
 - Offen: Vorlagen für andere Batterien (oder freie Karten-Auswahl je Modus).
+
+## E-Auto: Wochenkalender und «Nächste Abfahrt» (11.11.2026)
+
+`car.schedule` (`lib/ems/planner/carSchedule.js`): Wochenkalender Mo bis So (an/aus, Abfahrt, Ziel-SoC), Ferienmodus (pausiert den Kalender),
+«Netz nachladen» (Standard an) und «Nächste Abfahrt» (`override`, für heute oder morgen; überschreibt den Kalender an diesem Datum, auch mit «nicht laden»).
+
+- Bei jedem Wallbox-Lauf: nächste Abfahrt bestimmen, mit dem **aktuellen** Ladestand die Energie rechnen ((Ziel - SoC) / 100 x Batteriegrösse) und die
+  günstigsten Viertelstunden bis zur Abfahrt wählen (Leistung = Maximalstrom x Phasen). In einer gewählten Viertelstunde lädt die Wallbox mit voller Leistung,
+  nur mit angestecktem Auto. Ausserhalb gilt die Überschuss-Regel (Solarstrom). Ziel erreicht = kein Laden mehr.
+- «Netz nachladen» aus: kein Plan, nur Solarstrom.
+- Anzeige: Auto-Karte unter «Heute» (Ladestand, nächstes Ziel mit Quelle, Status, geplante Zeit, Formular «Nächste Abfahrt»), Zeile «E-Auto» im Plan.
+- Einrichten → EMS → E-Auto: Gerät, Ladestand-Wert, Batteriegrösse, Wochenkalender, Ferien, «Netz nachladen».
+- Offen: Solar-Vorrang in der Planung (Viertelstunden mit erwartetem Überschuss bevorzugen), Flow-Karte «Ziel setzen».
