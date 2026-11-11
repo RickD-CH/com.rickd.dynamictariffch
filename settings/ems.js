@@ -60,7 +60,7 @@
       pvTitle: 'VORSCHAU: AUFTRAG PLANEN', pvIntro: 'Gib ein, was bis wann passieren soll. Die Vorschau zeigt, in welchen Viertelstunden es laufen würde. Es wird nichts gespeichert und nichts geschaltet.',
       pvDevice: 'Gerät', pvUntil: 'Fertig bis', pvKwh: 'Energie (kWh)', pvHours: 'Laufzeit (h)', pvPower: 'Leistung (kW, leer = automatisch)', pvMaxPrice: 'Höchstpreis (Rp./kWh, leer = egal)',
       pvBlock: 'am Stück laufen', pvRun: 'Vorschau', pvClear: 'Zurücksetzen', pvPreviewLbl: 'Vorschau', pvRunsFrom: 'Läuft von', pvTo: 'bis', pvIn: 'in', pvQuarters: 'Viertelstunden zwischen',
-      pvAvg: 'Durchschnitt', pvCost: 'Kosten ca.', pvNeedAmount: 'Menge eingeben', pvBadTime: 'Uhrzeit ungültig',
+      pvAvg: 'Durchschnitt', pvCost: 'Kosten ca.', pvNeedAmount: 'Menge eingeben', pvBadTime: 'Uhrzeit ungültig', pvRepeat: 'Wiederholen', pvRep: { once: 'einmalig', daily: 'täglich', weekdays: 'Mo bis Fr', weekend: 'Sa und So' }, pvRepeatSoc: 'Ein Ziel-Ladestand gilt nur einmalig. Jede Woche gleich: Wochenvorlage unter «E-Auto».', pvRepeatHint: 'Wiederkehrend: geplant wird jeweils in den 24 Stunden vor der Frist.',
       pvR_prices_missing: 'Für diese Frist sind noch nicht alle Preise bekannt', pvR_too_expensive: 'Unter dem Höchstpreis gibt es nicht genug Viertelstunden', pvR_too_short: 'Bis dahin reicht die Zeit nicht',
       pvR_no_block: 'Es gibt keinen zusammenhängenden Block unter dem Höchstpreis', pvR_deadline_passed: 'Die Frist ist schon vorbei', pvHave: 'möglich', pvOf: 'von',
       pvSave: 'Übernehmen', pvJobs: 'AKTIVE AUFTRÄGE', pvJobWord: 'Auftrag', pvRemove: 'Entfernen', pvUntilShort: 'bis', pvRunningNow: 'läuft jetzt', pvPlannedAt: 'geplant', pvWaiting: 'wartet auf Preise',
@@ -156,7 +156,7 @@
       pvTitle: 'PREVIEW: PLAN A JOB', pvIntro: 'Enter what should happen by when. The preview shows in which quarter-hours it would run. Nothing is saved and nothing is switched.',
       pvDevice: 'Device', pvUntil: 'Done by', pvKwh: 'Energy (kWh)', pvHours: 'Run time (h)', pvPower: 'Power (kW, empty = automatic)', pvMaxPrice: 'Maximum price (Rp./kWh, empty = any)',
       pvBlock: 'run in one block', pvRun: 'Preview', pvClear: 'Reset', pvPreviewLbl: 'preview', pvRunsFrom: 'Runs from', pvTo: 'to', pvIn: 'in', pvQuarters: 'quarter-hours between',
-      pvAvg: 'Average', pvCost: 'Cost approx.', pvNeedAmount: 'Enter an amount', pvBadTime: 'Invalid time',
+      pvAvg: 'Average', pvCost: 'Cost approx.', pvNeedAmount: 'Enter an amount', pvBadTime: 'Invalid time', pvRepeat: 'Repeat', pvRep: { once: 'once', daily: 'daily', weekdays: 'Mon to Fri', weekend: 'Sat and Sun' }, pvRepeatSoc: 'A target charge applies once only. Same every week: weekly template under "EV".', pvRepeatHint: 'Recurring: planned within the 24 hours before the deadline.',
       pvR_prices_missing: 'Not all prices are known for this deadline yet', pvR_too_expensive: 'Not enough quarter-hours under the maximum price', pvR_too_short: 'There is not enough time until then',
       pvR_no_block: 'There is no continuous block under the maximum price', pvR_deadline_passed: 'The deadline has already passed', pvHave: 'possible', pvOf: 'of',
       pvSave: 'Apply', pvJobs: 'ACTIVE JOBS', pvJobWord: 'job', pvRemove: 'Remove', pvUntilShort: 'by', pvRunningNow: 'running now', pvPlannedAt: 'planned', pvWaiting: 'waiting for prices',
@@ -226,7 +226,7 @@
   var S = STR.en;
   var LANG = 'en';
   var state = {
-    cfg: null, shadow: null, meters: null, plan: null, flows: [], batteryCards: null, batteryEvents: [], planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', targetSoc: '', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
+    cfg: null, shadow: null, meters: null, plan: null, flows: [], batteryCards: null, batteryEvents: [], planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', targetSoc: '', amount: '', powerKw: '', maxPrice: '', contiguous: true, repeat: 'once' }, devices: [], consumersState: [], events: [], rows: [], open: {},
     msg: '', built: false, renderedNoDevice: null, timer: null, cmpBuilt: false,
   };
 
@@ -1142,6 +1142,7 @@
     if (res.error === 'carcap') return '<p class="warn">' + esc(S.pvNeedCarCap) + '</p>';
     if (res.error === 'reached') return '<p class="ems-ok" style="margin:8px 0 0;font-size:13px">' + esc(S.pvReachedAlready) + ' (' + Math.round(res.carSoc) + ' % / ' + res.targetSoc + ' %)</p>';
     if (res.error === 'time') return '<p class="warn">' + esc(S.pvBadTime) + '</p>';
+    if (res.error === 'repeatsoc') return '<p class="warn">' + esc(S.pvRepeatSoc) + '</p>';
     var parts = [];
     var n = res.starts.length;
     if (res.carSoc !== null && res.carSoc !== undefined && res.targetSoc) parts.push(S.pvSocFrom + ' ' + Math.round(res.carSoc) + ' % ' + S.pvSocTo + ' ' + res.targetSoc + ' % = ' + res.amountKwh + ' kWh');
@@ -1166,7 +1167,7 @@
     else status = S.pvWaiting;
     var warn = !j.feasible ? '<div class="ems-s ems-warn">' + esc(S['pvR_' + j.reason] || j.reason) + '</div>' : '';
     return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:#0277bd">' + icon('forecast', 17) + '</span>'
-      + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + ' - ' + esc(what) + ' ' + esc(S.pvUntilShort) + ' ' + esc(time(j.deadline)) + '</span>'
+      + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + ' - ' + esc(what) + ' ' + esc(S.pvUntilShort) + ' ' + esc(time(j.deadline)) + (j.repeat && j.repeat !== 'once' ? ' (' + esc(S.pvRep[j.repeat] || j.repeat) + ')' : '') + '</span>'
       + '<span class="ems-item-s ems-muted">' + esc(status) + ' - ' + j.done + ' / ' + j.need + ' ' + esc(S.pvProgress) + '</span>' + warn + '</span>'
       + '<button class="btn" data-ems-jobdel="' + esc(j.id) + '">' + esc(S.pvRemove) + '</button></div></div>';
   }
@@ -1190,7 +1191,9 @@
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.pvDevice) + '</span><select data-ems-draft="target">' + opts + '</select></label></div>'
       + (isCharger && state.cfg.car && state.cfg.car.deviceId ? '<p class="ems-why" style="margin:0">' + esc(S.carNow) + ': ' + (carSocNow() === null ? '-' : Math.round(carSocNow()) + ' %') + '</p>' : '')
       + '<div class="ems-row">' + f(S.pvUntil, 'time', 'time') + (isCharger && state.cfg.car && state.cfg.car.deviceId ? f(S.pvTargetSoc, 'targetSoc', 'number', ' step="1" min="1" max="100"') : '') + f(isCharger ? S.pvKwh : S.pvHours, 'amount', 'number', ' step="' + (isCharger ? '1' : '0.25') + '" min="0"') + '</div>'
-      + '<div class="ems-row">' + f(S.pvPower, 'powerKw', 'number', ' step="0.1" min="0"') + f(S.pvMaxPrice, 'maxPrice', 'number', ' step="0.5" min="0"') + '</div>'
+      + '<div class="ems-row">' + f(S.pvPower, 'powerKw', 'number', ' step="0.1" min="0"') + f(S.pvMaxPrice, 'maxPrice', 'number', ' step="0.5" min="0"')
+      + '<label class="ems-f"><span>' + esc(S.pvRepeat) + '</span><select data-ems-draft="repeat">' + ['once', 'daily', 'weekdays', 'weekend'].map(function (k) { return '<option value="' + k + '"' + ((d.repeat || 'once') === k ? ' selected' : '') + '>' + esc(S.pvRep[k]) + '</option>'; }).join('') + '</select></label></div>'
+      + (d.repeat && d.repeat !== 'once' ? '<p class="ems-why" style="margin:0">' + esc(S.pvRepeatHint) + '</p>' : '')
       + (isCharger ? '' : '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-draft="contiguous"' + (d.contiguous ? ' checked' : '') + '><i></i></span> <span>' + esc(S.pvBlock) + '</span></label>')
       + '<p style="margin:10px 0 0"><button class="btn" data-ems-preview="run">' + esc(S.pvRun) + '</button> <button class="btn primary" data-ems-preview="save">' + esc(S.pvSave) + '</button> <button class="btn" data-ems-preview="clear">' + esc(S.pvClear) + '</button></p>'
       + previewResultHtml() + '<p class="ems-why" id="ems-job-msg" style="margin-bottom:0">' + esc(state.jobMsg || '') + '</p></div>';
@@ -1201,7 +1204,7 @@
     var targets = draftTargets();
     var cur = targets.filter(function (t) { return t.id === d.target; })[0] || targets[0];
     if (!cur) return null;
-    return { id: cur.id, kind: cur.kind, time: d.time, targetSoc: cur.kind === 'charger' && d.targetSoc !== '' && d.targetSoc !== undefined ? Number(d.targetSoc) : null, amount: d.amount === '' ? 0 : Number(d.amount), powerKw: d.powerKw === '' ? null : Number(d.powerKw), maxPrice: d.maxPrice === '' ? null : Number(d.maxPrice), contiguous: d.contiguous !== false };
+    return { id: cur.id, kind: cur.kind, time: d.time, targetSoc: cur.kind === 'charger' && d.targetSoc !== '' && d.targetSoc !== undefined ? Number(d.targetSoc) : null, amount: d.amount === '' ? 0 : Number(d.amount), powerKw: d.powerKw === '' ? null : Number(d.powerKw), maxPrice: d.maxPrice === '' ? null : Number(d.maxPrice), contiguous: d.contiguous !== false, repeat: d.repeat || 'once' };
   }
 
   function saveJob() {

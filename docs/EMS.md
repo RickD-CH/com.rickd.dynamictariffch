@@ -215,3 +215,13 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Ferien mit Enddatum** (`schedule.holidayUntil`, bis und mit; leer = bis ausgeschaltet).
 - Plan-Sicht: die Batterie-Zeile sagt, ob sie nur **Empfehlung** ist (keine Steuerung eingerichtet), **Test** (Silent
   oder nicht live) oder **gesteuert**.
+
+## Wiederkehrende Aufträge (11.11.2026)
+
+- Formular unter «Ausblick»: **Wiederholen** einmalig (Standard), täglich, Mo bis Fr, Sa und So (`job.repeat`).
+- Erledigt oder abgelaufen → nicht gelöscht, sondern auf die nächste Frist gesetzt (`rollJob`). Geplant wird je Lauf
+  nur in den 24 Stunden vor der Frist und nie vor der alten Frist (`job.from`), damit ein um 3 Uhr fertiger Auftrag
+  nicht gleich nochmals läuft und am Freitag nicht schon für Montag.
+- Ziel-Ladestand nur einmalig; jede Woche gleich = Wochenvorlage des E-Autos.
+- **Geräte mit Programmstart** (Geschirrspüler, Waschmaschine mit Startverzögerung): als Verbraucher «per Flow»
+  einrichten, nur den Ein-Flow wählen (Aus leer lassen, wird übersprungen), Auftrag mit Laufzeit «am Stück».
