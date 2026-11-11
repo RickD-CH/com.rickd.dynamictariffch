@@ -8,14 +8,14 @@
     "local"
   ],
   "name": {
-    "en": "Swiss Dynamic Electricity Tariff",
-    "de": "Dynamischer Stromtarif CH",
+    "en": "Swiss Dynamic Tariff & EMS",
+    "de": "Dynamischer Stromtarif CH & EMS",
     "fr": "Tarif électrique dynamique CH",
     "it": "Tariffa elettrica dinamica CH"
   },
   "description": {
-    "en": "Run your home when Swiss electricity is cheapest",
-    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist",
+    "en": "Run your home on the cheapest Swiss electricity, with built-in energy management",
+    "de": "Dein Zuhause nutzt Strom, wenn er am günstigsten ist, mit eigenem Energiemanagement",
     "fr": "Faites tourner votre maison quand l'électricité suisse est la moins chère",
     "it": "Fai funzionare la tua casa quando l'elettricità svizzera costa meno"
   },
@@ -28,7 +28,10 @@
       "AEW",
       "Innostrom",
       "Swisspower",
-      "spot price"
+      "spot price",
+      "energy management",
+      "EMS",
+      "EV charger"
     ],
     "de": [
       "dynamischer Stromtarif",
@@ -38,7 +41,10 @@
       "AEW",
       "Innostrom",
       "Swisspower",
-      "Spotpreis"
+      "Spotpreis",
+      "Energiemanagement",
+      "EMS",
+      "Wallbox"
     ],
     "fr": [
       "tarif électrique dynamique",
