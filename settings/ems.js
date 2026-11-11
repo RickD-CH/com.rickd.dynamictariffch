@@ -304,7 +304,8 @@
     { key: 'grid', tag: 'required', label: 'srcGrid', why: 'whyGrid', icon: 'bolt', color: COLORS.grid, filter: hasCap(/^measure_power/), re: /^measure_power/, prefer: 'measure_power' },
     { key: 'pv', tag: 'recommended', label: 'srcPv', why: 'whyPv', icon: 'solar', color: COLORS.pv, filter: hasCap(/^measure_power/), re: /^measure_power/, prefer: 'measure_power' },
     { key: 'house', tag: 'recommended', label: 'srcHouse', why: 'whyHouse', icon: 'home', color: COLORS.house, filter: hasCap(/^measure_power/), re: /^measure_power/, prefer: 'measure_power.load' },
-    { key: 'car', tag: 'recommended', label: 'srcCar', why: 'whyCar', icon: 'plug', color: '#7f77dd', filter: hasCap(/^measure_battery/), re: /^measure_battery/, prefer: 'measure_battery' },
+    // Auto-Apps liefern den Ladestand unter verschiedenen Namen: alle Autos und Geräte mit Batteriewert, jeder Wert wählbar
+    { key: 'car', tag: 'recommended', label: 'srcCar', why: 'whyCar', icon: 'plug', color: '#7f77dd', filter: function (d) { return d.cls === 'car' || hasCap(/^measure_battery/)(d); }, re: /./, prefer: 'measure_battery' },
     { key: 'bat', tag: 'optional', label: 'srcBat', why: 'whyBat', icon: 'battery', color: COLORS.bat, filter: hasCap(/^measure_battery/), re: /^measure_battery/, prefer: 'measure_battery' },
     { key: 'fc', tag: 'optional', label: 'srcFc', why: 'whyFc', icon: 'forecast', color: COLORS.fc },
     { key: 'price', tag: 'auto', label: 'srcPrice', why: 'whyPrice', icon: 'coin', color: COLORS.price },
