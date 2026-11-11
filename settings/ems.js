@@ -41,7 +41,10 @@
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
       batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
       logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logAll: 'Alle', logCar: 'E-Auto', logWallbox: 'Wallbox', logBat: 'Batterie', logCons: 'Verbraucher', logFuse: 'Hausanschluss', logMore: 'Mehr anzeigen', logLess: 'Weniger anzeigen', logToday: 'Heute', logYesterday: 'Gestern',
-      secCar: 'E-AUTO', secWallbox: 'WALLBOX', secBat: 'HAUSBATTERIE', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
+      secCar: 'E-AUTO', secWallbox: 'WALLBOX', secBat: 'HAUSBATTERIE',
+      carWaiting: 'Daten folgen mit dem nächsten Lauf', autoCharge: 'Automatisch laden', autoChargeOff: 'Aus: die Wallbox läuft wie bisher (eigene App oder Flows)', autoChargeNoCar: 'Kein Auto angesteckt',
+      cnLimit: 'Grenze', cnNone: 'bis zum Abstecken', cnNoneManual: 'bis ausgeschaltet', cnSoc: 'bis Ladestand (%)', cnKwh: 'bis Energie (kWh)', cnUntil: 'bis', cnNow: 'jetzt', cnLoaded: 'geladen', cnHint: 'Sofort laden lädt mit voller Leistung, egal zu welchem Preis, und geht bei der Grenze von selbst aus.',
+      logCmdOnly: 'nur Schaltungen', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
@@ -148,7 +151,10 @@
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
       batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
       logTitle: 'LOG', logNone: 'No entries yet.', logAll: 'All', logCar: 'EV', logWallbox: 'EV charger', logBat: 'Battery', logCons: 'Devices', logFuse: 'House connection', logMore: 'Show more', logLess: 'Show less', logToday: 'Today', logYesterday: 'Yesterday',
-      secCar: 'EV', secWallbox: 'EV CHARGER', secBat: 'HOME BATTERY', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
+      secCar: 'EV', secWallbox: 'EV CHARGER', secBat: 'HOME BATTERY',
+      carWaiting: 'Data follows with the next run', autoCharge: 'Charge automatically', autoChargeOff: 'Off: the charger works as before (own app or flows)', autoChargeNoCar: 'No car plugged in',
+      cnLimit: 'Limit', cnNone: 'until unplugged', cnNoneManual: 'until switched off', cnSoc: 'up to charge level (%)', cnKwh: 'up to energy (kWh)', cnUntil: 'up to', cnNow: 'now', cnLoaded: 'charged', cnHint: 'Charge now charges at full power regardless of the price and switches itself off at the limit.',
+      logCmdOnly: 'switching only', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
@@ -890,6 +896,27 @@
     return out;
   }
 
+  /** Sofort laden mit Grenze (aufklappbar): bis abgesteckt, bis Ladestand % oder bis kWh. */
+  function chargeNowHtml(cfg, ch) {
+    var lim = cfg.charger.chargeNowLimit || { kind: 'none', value: null };
+    var hasCar = !!(cfg.car && cfg.car.deviceId);
+    var p = ch && ch.chargeNow;
+    var sub;
+    if (lim.kind === 'soc') sub = S.cnUntil + ' ' + lim.value + ' %' + (cfg.charger.chargeNow && p && p.soc !== null && p.soc !== undefined ? ' (' + S.cnNow + ' ' + Math.round(p.soc) + ' %)' : '');
+    else if (lim.kind === 'kwh') sub = S.cnUntil + ' ' + lim.value + ' kWh' + (cfg.charger.chargeNow && p ? ' (' + p.kwh + ' kWh ' + S.cnLoaded + ')' : '');
+    else sub = cfg.charger.chargeNowAutoOff !== false ? S.cnNone : S.cnNoneManual;
+    var opt = function (k, label) { return '<option value="' + k + '"' + (lim.kind === k ? ' selected' : '') + '>' + esc(label) + '</option>'; };
+    var val = lim.kind === 'soc' || lim.kind === 'kwh'
+      ? '<label class="ems-f"><span>&nbsp;</span><input type="number" data-ems-cnlim="value" value="' + esc(lim.value) + '" min="' + (lim.kind === 'soc' ? 10 : 1) + '" max="' + (lim.kind === 'soc' ? 100 : 150) + '" step="' + (lim.kind === 'soc' ? 5 : 1) + '" style="width:80px"></label>'
+      : '';
+    return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span>'
+      + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span><span class="ems-item-s ems-muted">' + esc(sub) + '</span></span>'
+      + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div>'
+      + '<details class="ems-adv" style="margin:0;padding:0 12px 10px"' + (state.cnOpen ? ' open' : '') + '><summary data-ems-cnopen="1">' + esc(S.cnLimit) + '</summary>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>&nbsp;</span><select data-ems-cnlim="kind">' + opt('none', cfg.charger.chargeNowAutoOff !== false ? S.cnNone : S.cnNoneManual) + (hasCar ? opt('soc', S.cnSoc) : '') + opt('kwh', S.cnKwh) + '</select></label>' + val + '</div>'
+      + '<p class="ems-why" style="margin:0">' + esc(S.cnHint) + '</p></details></div>';
+  }
+
   /** Hausanschluss: höchste Phase, Grenze, Drosselung, Abgeschaltetes. */
   function fuseLineHtml() {
     var f = state.cfg.fuse;
@@ -907,8 +934,9 @@
     var c = state.cfg.car || {};
     if (!c.deviceId) return '';
     var car = (state.shadow && state.shadow.car) || null;
-    var soc = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '-';
-    var parts = [S.carSocLbl + ' ' + soc];
+    var soc = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '';
+    var parts = [(S.carSocLbl + ' ' + soc).trim()];
+    if (!car) parts.push(S.carWaiting);
     if (car && car.departure) parts.push(car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at));
     if (car) {
       var st = (S.carSt && S.carSt[car.state]) || car.state;
@@ -997,30 +1025,47 @@
     var rows = [];
     var tag = function (live) { return live ? '' : ' (' + S.logTestTag + ')'; };
     (state.events || []).forEach(function (e) {
-      rows.push({ kind: 'cons', ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
+      rows.push({ kind: 'cons', dev: e.name, cmd: true, ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
     });
     (state.batteryEvents || []).forEach(function (e) {
-      rows.push({ kind: 'bat', ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.reason });
+      rows.push({ kind: 'bat', cmd: true, ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.reason });
     });
     (state.fuseEvents || []).forEach(function (e) {
       var what = e.action === 'over' ? S.fuseEvOver : (e.action === 'shed' ? (e.name + ' ' + S.fuseEvShed) : (e.action === 'throttle' ? S.fuseEvThrottle + ' ' + e.capAmps + ' A' : (e.action === 'throttle_end' ? S.fuseEvThrottleEnd : S.fuseEvRelease)));
-      rows.push({ kind: 'fuse', ts: e.ts, text: S.fuseNow + ': ' + what + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
+      rows.push({ kind: 'fuse', cmd: e.action !== 'over', ts: e.ts, text: S.fuseNow + ': ' + what + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
     });
     var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true && state.cfg.silent === false;
     var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
     if (state.cfg && state.cfg.charger && state.cfg.charger.id) {
-      ce.forEach(function (e) { rows.push({ kind: 'car', ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + tag(chargerLive), reason: e.reason }); });
+      // Schaltung = Laden beginnt oder endet; Wechsel zwischen Warte-Zuständen sind nur Status
+      var charging = function (m) { return m === 'solar_ev' || m === 'instant_ev' || m === 'price_ev'; };
+      var prev = null;
+      ce.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
+        var now = charging(e.mine);
+        rows.push({ kind: 'car', cmd: prev === null ? now : now !== prev, ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
+        prev = now;
+      });
     }
     var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
     var kinds = [['all', S.logAll], ['car', hasCar ? S.logCar : S.logWallbox], ['bat', S.logBat], ['cons', S.logCons], ['fuse', S.logFuse]]
       .filter(function (k) { return k[0] === 'all' || rows.some(function (x) { return x.kind === k[0]; }); });
     var f = state.logFilter || 'all';
     if (!kinds.some(function (k) { return k[0] === f; })) f = 'all';
-    var shown = rows.filter(function (x) { return f === 'all' || x.kind === f; }).sort(function (a, b) { return b.ts - a.ts; });
+    var devs = [];
+    rows.forEach(function (x) { if (x.kind === 'cons' && devs.indexOf(x.dev) < 0) devs.push(x.dev); });
+    var dv = f === 'cons' && devs.indexOf(state.logDev) >= 0 ? state.logDev : '';
+    var shown = rows.filter(function (x) {
+      return (f === 'all' || x.kind === f) && (!state.logCmdOnly || x.cmd) && (!dv || x.dev === dv);
+    }).sort(function (a, b) { return b.ts - a.ts; });
     var limit = state.logMore ? 60 : 12;
     var chips = kinds.length > 2 ? '<div class="log-f">' + kinds.map(function (k) {
       return '<button class="log-chip' + (k[0] === f ? ' on' : '') + '" data-ems-logf="' + k[0] + '">' + esc(k[1]) + '</button>';
-    }).join('') + '</div>' : '';
+    }).join('') + '<button class="log-chip' + (state.logCmdOnly ? ' on' : '') + '" data-ems-logcmd="1">' + esc(S.logCmdOnly) + '</button></div>' : '';
+    if (f === 'cons' && devs.length > 1) {
+      chips += '<div class="log-f">' + [''].concat(devs).map(function (d) {
+        return '<button class="log-chip' + (d === dv ? ' on' : '') + '" data-ems-logdev="' + esc(d || '*') + '">' + esc(d || S.logAll) + '</button>';
+      }).join('') + '</div>';
+    }
     var body = '';
     if (!shown.length) body = '<p class="sub" style="margin:0">' + esc(S.logNone) + '</p>';
     else {
@@ -1070,20 +1115,19 @@
       + (priceMissing() ? '<p class="warn">' + esc(S.noPriceDevice) + '</p>' : '') + (warn ? '<p class="warn">' + esc(warn) + '</p>' : '') + (errs ? '<p class="warn">' + esc(errs) + '</p>' : '') + '</div>';
     var rowHtml = function (x) {
       var r = x.r;
-      var name = r.kind === 'charger' ? S.wallbox : r.name;
+      var name = r.kind === 'charger' ? S.autoCharge : r.name;
       var cs = (state.consumersState || []).filter(function (c) { return c.name === r.name; })[0];
-      var sub = r.kind === 'charger' ? (ch && ch.connected ? ch.mine.reason : rowSub(r)) : (cs && cs.reason ? cs.reason : rowSub(r));
-      var subHasTag = r.kind === 'charger' ? !(ch && ch.connected) : !(cs && cs.reason); // rowSub() nennt Testbetrieb/live schon
+      var sub = r.kind === 'charger'
+        ? (!r.live ? S.autoChargeOff : (ch && ch.connected ? modeLabel(ch.mine.mode) + (ch.mine.reason ? ' - ' + ch.mine.reason : '') : S.autoChargeNoCar)) + (silentOn && r.live ? ' - ' + S.silentTag : '')
+        : (cs && cs.reason ? cs.reason : rowSub(r));
+      var subHasTag = r.kind === 'charger' ? true : !(cs && cs.reason); // rowSub() nennt Testbetrieb/live schon
       var sw = '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="' + (r.kind === 'charger' ? 'charger' : esc(r.deviceId)) + '"' + (r.live ? ' checked' : '') + '><i></i></span>';
       return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + rowColor(r) + '">' + icon(rowIcon(r), 17) + '</span>'
         + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + '</span><span class="ems-item-s ems-muted">' + esc(sub) + (subHasTag ? '' : ' - ' + esc(r.live ? S.modeLiveTag : S.modeTest)) + '</span></span>' + sw + '</div></div>';
     };
     var chargerItem = liveRows().filter(function (x) { return x.r.kind === 'charger'; }).map(rowHtml).join('');
     var items = liveRows().filter(function (x) { return x.r.kind !== 'charger'; }).map(rowHtml).join('');
-    var wb = state.rows[0] && state.rows[0].kind === 'charger' && state.rows[0].deviceId
-      ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
-        + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
-      : '';
+    var wb = state.rows[0] && state.rows[0].kind === 'charger' && state.rows[0].deviceId ? chargeNowHtml(cfg, ch) : '';
     var carItem = carCompactHtml();
     var batItem = '';
     if (bc) {
@@ -1742,7 +1786,7 @@
   function refreshStatus() {
     // Wer gerade in der Vorschau tippt, wird nicht unterbrochen (das Neuzeichnen würde die Eingabe löschen).
     var ae = typeof document !== 'undefined' ? document.activeElement : null;
-    if (ae && ae.getAttribute && (ae.getAttribute('data-ems-draft') !== null || ae.getAttribute('data-ems-carf') !== null || ae.getAttribute('data-ems-carcal') !== null)) return Promise.resolve();
+    if (ae && ae.getAttribute && (ae.getAttribute('data-ems-draft') !== null || ae.getAttribute('data-ems-carf') !== null || ae.getAttribute('data-ems-carcal') !== null || ae.getAttribute('data-ems-cnlim') !== null)) return Promise.resolve();
     return load().then(function () {
       if (noDevice() !== state.renderedNoDevice) { render(); } else { renderMain(); }
       renderCompare();
@@ -1822,8 +1866,12 @@
       renderSetup();
       return;
     }
+    if (up(t, 'data-ems-cnopen')) { state.cnOpen = !state.cnOpen; return; }
     var logF = up(t, 'data-ems-logf');
-    if (logF) { state.logFilter = logF; renderMain(); return; }
+    if (logF) { state.logFilter = logF; state.logDev = ''; renderMain(); return; }
+    if (up(t, 'data-ems-logcmd')) { state.logCmdOnly = !state.logCmdOnly; renderMain(); return; }
+    var logDev = up(t, 'data-ems-logdev');
+    if (logDev) { state.logDev = logDev === '*' ? '' : logDev; renderMain(); return; }
     if (up(t, 'data-ems-logmore')) { state.logMore = !state.logMore; renderMain(); return; }
     var bccBtn = up(t, 'data-ems-bcc');
     if (bccBtn) {
@@ -1946,6 +1994,16 @@
     if (g('data-ems-enable') !== null) {
       var on = !!t.checked;
       api('PUT', '/ems/config', { enabled: on }).then(function () { return refreshStatus(); }).catch(function () { t.checked = !on; });
+      return;
+    }
+    var cnl = g('data-ems-cnlim');
+    if (cnl !== null) {
+      var curLim = Object.assign({ kind: 'none', value: null }, state.cfg.charger.chargeNowLimit);
+      if (cnl === 'kind') { curLim.kind = t.value; curLim.value = t.value === 'soc' ? 80 : (t.value === 'kwh' ? 10 : null); } else curLim.value = Number(t.value);
+      api('PUT', '/ems/config', { charger: { chargeNowLimit: curLim } }).then(function (cfgNew) {
+        state.cfg.charger.chargeNowLimit = cfgNew && cfgNew.charger ? cfgNew.charger.chargeNowLimit : curLim;
+        renderMain();
+      }).catch(function () { renderMain(); });
       return;
     }
     if (g('data-ems-chargenow') !== null) {
