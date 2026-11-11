@@ -106,7 +106,7 @@ function setup({ consumer = {}, inputs = {}, jobs = [] } = {}) {
   };
   const actuators = { charger: async () => ({}), consumer: async (id, on, o) => { calls.push({ id, on, live: o.live, flow: o.flow }); return { cmd: on ? 'on' : 'off', live: o.live }; } };
   const config = normalizeConfig({
-    enabled: true, devices: { meter: { id: 'm' } }, charger: { id: '', enabled: false },
+    enabled: true, silent: false, devices: { meter: { id: 'm' } }, charger: { id: '', enabled: false },
     consumers: [{ id: 'flow:s1', name: 'Sauna', controlKind: 'flow', flowOn: { id: 'fOn', name: 'Sauna an' }, flowOff: { id: 'fOff', name: 'Sauna aus' }, assumedW: 3000, mode: 'surplus', startSustainS: 0, stopGraceS: 0, minRunMin: 0, minOffMin: 0, live: false, ...consumer }],
   });
   const js = new JobStore(mem());

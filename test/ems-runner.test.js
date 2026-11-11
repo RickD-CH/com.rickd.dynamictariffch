@@ -56,7 +56,7 @@ function setup({ cfg = {}, inputs = {}, pvSum = 3 } = {}) {
     consumer: async (id, on, o) => { calls.consumer.push({ id, on, live: o.live }); return { cmd: on ? 'on' : 'off', live: o.live }; },
   };
   const config = normalizeConfig({
-    enabled: true,
+    enabled: true, silent: false,
     devices: { meter: { id: 'meter1' }, inverter: { id: 'inv1' }, ...(cfg.devices || {}) },
     battery: { deviceId: 'bat1', ...(cfg.battery || {}) },
     ...cfg,
@@ -191,7 +191,7 @@ test('Schalter Trockenlauf -> live setzt den simulierten Zustand zurück (keine 
   assert.equal(calls.consumer[0].live, false);
   // auf live schalten: Gerät ist in Wirklichkeit aus -> es darf ohne 30 min Pause echt starten
   live = true;
-  runner.getConfig = () => normalizeConfig({ enabled: true, battery: { deviceId: 'bat1' }, consumers: [consumer()] });
+  runner.getConfig = () => normalizeConfig({ enabled: true, silent: false, battery: { deviceId: 'bat1' }, consumers: [consumer()] });
   state.consumers.set('dev1', { actualOn: false, powerW: 0, available: true });
   await runner.tickCharger(at(12) + 40_000);
   assert.equal(calls.consumer.length, 2);

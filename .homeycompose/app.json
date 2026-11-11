@@ -196,6 +196,10 @@
       "method": "get",
       "path": "/ems/flows"
     },
+    "getEmsBatteryCards": {
+      "method": "get",
+      "path": "/ems/battery-cards"
+    },
     "getEmsConsumers": {
       "method": "get",
       "path": "/ems/consumers"

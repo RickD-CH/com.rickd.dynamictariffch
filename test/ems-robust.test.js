@@ -71,7 +71,7 @@ test('failSafe: greift nur bei selbst gestartetem Laden, nach 60 s Mindeststrom,
 function liveRunner() {
   const calls = [];
   const state = { i: { gridW: -9000, houseW: 500, pvW: 10000, batterySoc: 99, batteryW: 0, batteryCapacityKwh: 10, chargerRead: true, chargerConnected: true, chargerState: 'plugged_in_charging', chargerPowerW: 0, chargerPhases: 3, chargeNow: false, andi: null } };
-  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'm' }, inverter: { id: 'inv' } }, battery: { deviceId: 'bat' }, charger: { id: 'wb', live: true } });
+  const config = normalizeConfig({ enabled: true, silent: false, devices: { meter: { id: 'm' }, inverter: { id: 'inv' } }, battery: { deviceId: 'bat' }, charger: { id: 'wb', live: true } });
   const runner = new EmsRunner({
     getConfig: () => config, prices: new PriceFeed(() => null), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
     inputs: { chargerInputs: async () => state.i, consumerStates: async () => new Map(), battery: async () => ({ soc: 99, capacityKwh: 10 }), andiBatteryPlan: async () => null },

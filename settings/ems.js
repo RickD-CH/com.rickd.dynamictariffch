@@ -23,6 +23,14 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      silent: 'Silent-Modus: nur simulieren', silentHint: 'Ein: es wird nichts geschaltet, auch wenn einzelne Geräte auf live stehen. Das Protokoll zeigt, was passiert wäre. Erst ausschalten, wenn der Vergleich passt.',
+      stSilent: 'Silent-Modus: es wird nur simuliert', silentTag: 'Silent',
+      batCtl: 'Batterie steuern', batCtlOn: 'Batterie über das Energiemanagement steuern', batCtlFound: 'Vorlage für dieses Gerät erkannt: Laden, Halten und Normal über die Karten der Batterie.',
+      batCtlNone: 'Für dieses Gerät ist noch keine Vorlage vorhanden. Die Batterie wird nicht gesteuert.', batCtlLoading: 'Karten der Batterie werden geprüft ...',
+      batCtlWarn: 'Nur ein System darf die Batterie steuern. Schalte die Batteriesteuerung im anderen Energiemanagement und eigene Batterie-Flows aus, bevor du live schaltest.',
+      batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
+      batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
+      batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
       logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'Test',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
@@ -104,6 +112,14 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      silent: 'Silent mode: simulate only', silentHint: 'On: nothing is switched, even if single devices are set to live. The log shows what would have happened. Switch it off only when the comparison looks right.',
+      stSilent: 'Silent mode: only simulating', silentTag: 'silent',
+      batCtl: 'Control the battery', batCtlOn: 'Control the battery through energy management', batCtlFound: 'Template for this device found: charge, hold and normal via the battery\'s cards.',
+      batCtlNone: 'There is no template for this device yet. The battery is not controlled.', batCtlLoading: 'Checking the battery\'s cards ...',
+      batCtlWarn: 'Only one system may control the battery. Switch off battery control in the other energy management and your own battery flows before going live.',
+      batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
+      batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
+      batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
       logTitle: 'LOG', logNone: 'No entries yet.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'test',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
@@ -196,7 +212,7 @@
   var S = STR.en;
   var LANG = 'en';
   var state = {
-    cfg: null, shadow: null, meters: null, plan: null, flows: [], planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', targetSoc: '', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
+    cfg: null, shadow: null, meters: null, plan: null, flows: [], batteryCards: null, batteryEvents: [], planDay: 'today', preview: null, jobs: [], draft: { target: 'charger', time: '07:00', targetSoc: '', amount: '', powerKw: '', maxPrice: '', contiguous: true }, devices: [], consumersState: [], events: [], rows: [], open: {},
     msg: '', built: false, renderedNoDevice: null, timer: null, cmpBuilt: false,
   };
 
@@ -330,6 +346,41 @@
     return '<label class="ems-c"><span class="swt"><input class="sw" id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '><i></i></span> <span>' + esc(label) + '</span></label>';
   }
 
+  function batteryControlHtml() {
+    var c = state.cfg;
+    var bc = c.battery.control || {};
+    var cards = state.batteryCards;
+    var html = '<div class="ems-box"><b>' + esc(S.batCtl) + '</b><div class="ems-row">' + check(S.batCtlOn, 'ems-bc-on', bc.enabled) + '</div>';
+    if (!cards) html += '<p class="ems-why">' + esc(S.batCtlLoading) + '</p>';
+    else if (!cards.preset) html += '<p class="ems-why ems-warn">' + esc(S.batCtlNone) + '</p>';
+    else {
+      html += '<p class="ems-why ems-ok">' + esc(S.batCtlFound) + '</p>';
+      if (bc.enabled) {
+        var title = function (id) { var k = (cards.cards || []).filter(function (x) { return x.id === id; })[0]; return k && k.title ? k.title.replace(/\[\[[^\]]*\]\]/g, '…') : id; };
+        var steps = { charge: ['luna2000_start_force_charge'], hold: ['luna2000_stop_force_charge_discharge', 'luna2000_set_max_discharge_power'], normal: ['luna2000_stop_force_charge_discharge', 'luna2000_set_working_mode', 'luna2000_set_max_discharge_power'] };
+        html += '<div class="ems-row">' + field(S.batCtlPower, 'ems-bc-power', c.battery.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + field(S.batCtlTarget, 'ems-bc-target', c.battery.targetSoc, 'number', ' step="1" min="10" max="100"') + '</div>'
+          + '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>'
+          + '<p class="ems-why"><b>' + esc(S.batCtlSteps) + '</b><br>'
+          + esc(S.batModeCharge) + ': ' + steps.charge.map(title).map(esc).join(', ') + '<br>'
+          + esc(S.batModeHold) + ': ' + steps.hold.map(title).map(esc).join(', ') + '<br>'
+          + esc(S.batModeNormal) + ': ' + steps.normal.map(title).map(esc).join(', ') + ' (' + esc(S.batCarSkip) + ')</p>'
+          + '<p class="ems-why ems-warn">' + esc(S.batCtlWarn) + '</p>';
+      }
+    }
+    return html + '</div>';
+  }
+
+  function loadBatteryCards() {
+    if (state.batteryCardsLoading || !state.cfg || !state.cfg.battery.deviceId) return;
+    state.batteryCardsLoading = true;
+    api('GET', '/ems/battery-cards').then(function (r) {
+      state.batteryCards = r || { preset: null, cards: [] };
+      state.batteryCardsLoading = false;
+      if (state.batteryCards.preset && state.cfg.battery.control) state.cfg.battery.control.preset = state.batteryCards.preset;
+      renderSetup();
+    }).catch(function () { state.batteryCards = { preset: null, cards: [] }; state.batteryCardsLoading = false; renderSetup(); });
+  }
+
   function srcBody(s) {
     var why = '<p class="ems-why">' + esc(S[s.why]) + '</p>';
     if (s.key === 'price') return why;
@@ -351,6 +402,7 @@
         + '<p class="ems-why">' + esc(S.fcCurveHint) + '</p><p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
     }
     var d = srcDevice(s.key);
+    if (s.key === 'bat' && d.id) why += batteryControlHtml();
     var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div>' : '';
     return why + carExtra + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
       + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label></div>';
@@ -616,12 +668,21 @@
     return out;
   }
 
+  function batteryControlled() {
+    var c = state.cfg;
+    return !!(c && c.battery && c.battery.deviceId && c.battery.control && c.battery.control.enabled && c.battery.control.preset);
+  }
+  function batModeLabel(m) { return m === 'charge' ? S.batModeCharge : (m === 'hold' ? S.batModeHold : S.batModeNormal); }
+
   function protocolHtml() {
     var rows = [];
     (state.events || []).forEach(function (e) {
       rows.push({ ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + (e.live ? '' : ' (' + S.logTestTag + ')'), reason: e.reason });
     });
-    var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true;
+    (state.batteryEvents || []).forEach(function (e) {
+      rows.push({ ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + (e.live ? '' : ' (' + S.logTestTag + ')') + (e.error ? ' - ' + S.error : ''), reason: e.reason });
+    });
+    var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true && state.cfg.silent === false;
     var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
     if (state.cfg && state.cfg.charger && state.cfg.charger.id) {
       ce.forEach(function (e) { rows.push({ ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + (chargerLive ? '' : ' (' + S.logTestTag + ')'), reason: e.reason }); });
@@ -644,9 +705,13 @@
     var warn = ch && ch.warning;
     var errs = cur && cur.errors && cur.errors.length ? cur.errors.join(' | ') : '';
     var title; var dot;
+    var silentOn = cfg.silent !== false;
+    var bc = batteryControlled() ? cfg.battery.control : null;
+    if (bc && bc.live) live = live.concat([{ r: { kind: 'battery' } }]);
     if (!cfg.enabled) { title = S.stOff; dot = 'var(--st-muted)'; }
     else if (warn) { title = S.stWarn; dot = '#d98a1a'; }
-    else if (live.length) { title = S.stLive + ': ' + live.map(function (x) { return x.r.kind === 'charger' ? S.wallbox : x.r.name; }).join(', '); dot = 'var(--st-switch-on)'; }
+    else if (silentOn) { title = S.stSilent; dot = 'var(--st-switch-on)'; }
+    else if (live.length) { title = S.stLive + ': ' + live.map(function (x) { return x.r.kind === 'charger' ? S.wallbox : (x.r.kind === 'battery' ? S.batRow : x.r.name); }).join(', '); dot = 'var(--st-switch-on)'; }
     else { title = S.stTest; dot = 'var(--st-switch-on)'; }
     var vals = [];
     if (ch) {
@@ -659,6 +724,8 @@
       + '<span class="swt"><input class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1"' + (cfg.enabled ? ' checked' : '') + '><i></i></span></div>'
       + (cfg.enabled && ch ? '<div class="ems-st" style="margin-top:8px"><span class="ems-chip">' + esc(modeLabel(ch.mine.mode)) + '</span><span class="sub" style="margin:0">' + esc(ch.mine.reason) + '</span></div>' : '')
       + (vals.length ? '<div class="ems-vals">' + vals.map(function (v) { return '<span>' + esc(v) + '</span>'; }).join('') + '</div>' : '')
+      + '<div class="ems-st" style="margin-top:10px"><span style="flex:1;font-size:14px">' + esc(S.silent) + '</span><span class="swt"><input class="sw" id="ems-silent" type="checkbox" data-ems-silent="1"' + (silentOn ? ' checked' : '') + '><i></i></span></div>'
+      + '<p class="ems-why" style="margin-bottom:0">' + esc(S.silentHint) + '</p>'
       + (priceMissing() ? '<p class="warn">' + esc(S.noPriceDevice) + '</p>' : '') + (warn ? '<p class="warn">' + esc(warn) + '</p>' : '') + (errs ? '<p class="warn">' + esc(errs) + '</p>' : '') + '</div>';
     var items = liveRows().map(function (x) {
       var r = x.r;
@@ -674,7 +741,17 @@
       ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
-    var list = (items || wb) ? '<div class="ems-list">' + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
+    var batItem = '';
+    if (bc) {
+      var bctl = sh.batteryControl;
+      var bsub = bctl && bctl.lastMode ? S.batSent + ': ' + batModeLabel(bctl.lastMode) + (bctl.lastSentAt ? ' (' + time(bctl.lastSentAt) + ')' : '') : S.batRowNone;
+      var btag = silentOn ? S.silentTag : (bc.live ? S.modeLiveTag : S.modeTest);
+      batItem = '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.bat + '">' + icon('battery', 17) + '</span>'
+        + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.batRow) + '</span><span class="ems-item-s ems-muted">' + esc(bsub) + ' - ' + esc(btag) + '</span></span>'
+        + '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="battery"' + (bc.live ? ' checked' : '') + '><i></i></span></div></div>';
+    }
+    if (silentOn) items = items.replace(/ - (live|Testbetrieb|test mode)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>');
+    var list = (items || wb || batItem) ? '<div class="ems-list">' + batItem + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
     return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
   }
 
@@ -1146,6 +1223,16 @@
     if (!state.cfg || noDevice()) return;
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
+      if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
+        var bcc = state.cfg.battery.control = Object.assign({ enabled: false, live: false, preset: '', normalDischargeW: 7000, repeatMin: 10 }, state.cfg.battery.control);
+        bcc.enabled = chk('ems-bc-on');
+        if ($('ems-bc-normal')) {
+          bcc.normalDischargeW = num('ems-bc-normal', bcc.normalDischargeW);
+          bcc.repeatMin = num('ems-bc-repeat', bcc.repeatMin);
+          state.cfg.battery.chargePowerKw = num('ems-bc-power', state.cfg.battery.chargePowerKw);
+          state.cfg.battery.targetSoc = num('ems-bc-target', state.cfg.battery.targetSoc);
+        }
+      }
       if (s.key === 'car' && state.open['src-car'] && $('ems-car-cap')) state.cfg.car = Object.assign({ deviceId: '', socCapability: 'measure_battery' }, state.cfg.car, { capacityKwh: num('ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0) });
       var d = srcDevice(s.key);
       if (!state.open['src-' + s.key]) return;
@@ -1213,7 +1300,10 @@
     });
     var ems = {
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, andiEms: c.devices.andiEms },
-      battery: { deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh },
+      battery: {
+        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw,
+        control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10 },
+      },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS },
       pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
       car: { deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
@@ -1268,6 +1358,7 @@
       state.shadow = r[0];
       state.consumersState = r[1].current || [];
       state.events = r[1].events || [];
+      state.batteryEvents = r[1].batteryEvents || [];
       state.meters = r[2];
       if (!state.cfg) state.cfg = JSON.parse(JSON.stringify(r[0].config)); // eigene Kopie: Formularänderungen dürfen die Serverantwort nicht verändern
       if (!state.built) { buildRows(); state.built = true; }
@@ -1280,6 +1371,8 @@
         });
         state.cfg.enabled = sc.enabled;
         state.cfg.compare = sc.compare === true;
+        state.cfg.silent = sc.silent !== false;
+        if (sc.battery && sc.battery.control) state.cfg.battery.control = Object.assign({}, state.cfg.battery.control, { live: sc.battery.control.live === true });
         state.cfg.charger.live = sc.charger.live;
         state.cfg.charger.chargeNow = sc.charger.chargeNow;
       }
@@ -1357,6 +1450,7 @@
     } else if (open) {
       sync();
       state.open[open] = !state.open[open];
+      if (open === 'src-bat' && state.open[open] && !state.batteryCards) loadBatteryCards();
       renderSetup();
     } else if (adv) {
       state.open[adv] = !state.open[adv];
@@ -1414,6 +1508,12 @@
       runPreview();
       return;
     }
+    if (g('data-ems-silent') !== null) {
+      var silentOn = !!t.checked;
+      api('PUT', '/ems/config', { silent: silentOn }).then(function () { state.cfg.silent = silentOn; return refreshStatus(); }).catch(function () { t.checked = !silentOn; });
+      return;
+    }
+    if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {
       var cmpOn = !!t.checked;
       api('PUT', '/ems/config', { compare: cmpOn }).then(function () { state.cfg.compare = cmpOn; return refreshStatus(); }).catch(function () { t.checked = !cmpOn; });

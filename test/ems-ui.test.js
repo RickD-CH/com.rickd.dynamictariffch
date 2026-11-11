@@ -301,7 +301,10 @@ test('Setup: ungespeicherte Eingaben überleben das Aufklappen anderer Zeilen', 
 test('Betrieb: Statuskopf mit Farbe, grossem Schalter, Modus, Werten', async () => {
   const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }));
   const html = main(env);
-  assert.match(html, /Läuft im Testbetrieb \(es wird nichts geschaltet\)/);
+  assert.match(html, /Silent-Modus: es wird nur simuliert/, 'Standard: Silent-Modus an');
+  assert.match(html, /id="ems-silent" type="checkbox" data-ems-silent="1" checked/);
+  const test = await start(scenario({ cfg: { ...fullCfg, silent: false }, meters: fullMeters }));
+  assert.match(main(test), /Läuft im Testbetrieb \(es wird nichts geschaltet\)/);
   assert.match(html, /<span class="swt"><input class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1" checked><i><\/i><\/span>/);
   assert.match(html, /ems-chip">Bereit/);
   assert.match(html, /PV 514 W/);
@@ -325,8 +328,10 @@ test('Betrieb: Zeilen mit Schalter für Wallbox und geschaltete Verbraucher, rei
 });
 
 test('Betrieb: live schaltet den Kopf auf "steuert", Warnung färbt gelb', async () => {
-  const live = await start(scenario({ cfg: { ...fullCfg, charger: { ...fullCfg.charger, live: true } } }));
+  const live = await start(scenario({ cfg: { ...fullCfg, silent: false, charger: { ...fullCfg.charger, live: true } } }));
   assert.match(main(live), /Läuft und steuert: Wallbox/);
+  const silentLive = await start(scenario({ cfg: { ...fullCfg, charger: { ...fullCfg.charger, live: true } } }));
+  assert.match(main(silentLive), /Silent-Modus: es wird nur simuliert/, 'Silent schlägt den Schalter je Gerät');
   const warn = await start(scenario({ cfg: fullCfg, shadow: { charger: { current: { live: true, mine: { mode: 'idle', reason: 'x' }, gridW: 0, pvW: 0, warning: 'Ein anderes Energiemanagement steuert diese Wallbox ebenfalls - dort ausschalten' } } } }));
   assert.match(main(warn), /Läuft mit Warnung/);
   assert.match(main(warn), /anderes Energiemanagement/);
