@@ -1,10 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Energiemanagement: Haus mit Regelkreis aus zwei Pfeil-Bögen und Blitz -->
-  <path d="M12 47 50 13 88 47"/>
-  <path d="M22 38V87H78V38"/>
-  <path d="M55.13 48.9A15 15 0 0 1 55.13 77.1"/>
-  <path d="M61.2 79.15 55.13 77.1 58.46 71.63"/>
-  <path d="M44.87 77.1A15 15 0 0 1 44.87 48.9"/>
-  <path d="M38.8 46.85 44.87 48.9 41.54 54.37"/>
-  <path d="M50.8 55 43.6 64.6H49.2L48.4 71 56.4 61.4H50.8Z" stroke-width="4.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Energiemanagement: Haus isometrisch mit Solarpanel, Tür, Fenster und Blitz am Giebel (aus 3D-Modell projiziert) -->
+  <path d="M14.74 67.74 L55.04 91 L55.04 63.09 L14.74 39.82Z" stroke-width="2.6"/>
+  <path d="M85.26 73.55 L55.04 91 L55.04 63.09 L70.15 32.26 L85.26 45.64Z" stroke-width="2.6"/>
+  <path d="M14.74 39.82 L55.04 63.09 L70.15 32.26 L29.85 9Z" stroke-width="2.6"/>
+  <path d="M20.79 71.23 L20.79 54.94 L28.85 59.6 L28.85 75.88" stroke-width="2"/>
+  <path d="M35.9 70.65 L48.99 78.21 L48.99 67.74 L35.9 60.18Z" stroke-width="2"/>
+  <path d="M42.45 74.43 L42.45 63.96" stroke-width="1.4"/>
+  <path d="M35.9 65.41 L48.99 72.97" stroke-width="1.4"/>
+  <path d="M22.2 37.8 L52.42 55.25 L62.69 34.29 L32.47 16.84Z" stroke-width="2"/>
+  <path d="M32.27 43.61 L42.55 22.66" stroke-width="1.4"/>
+  <path d="M42.34 49.43 L52.62 28.47" stroke-width="1.4"/>
+  <path d="M27.34 27.32 L57.55 44.77" stroke-width="1.4"/>
+  <path d="M70.87 53.71 L64.34 67.53 L69.42 64.6 L68.7 71.72 L75.95 57.48 L70.87 60.41Z" stroke-width="1.8" fill="currentColor"/>
 </svg>
