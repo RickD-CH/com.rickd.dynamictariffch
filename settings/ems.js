@@ -33,7 +33,9 @@
       silent: 'Silent-Modus: nur simulieren', silentHint: 'Ein: es wird nichts geschaltet, auch wenn einzelne Geräte auf live stehen. Das Protokoll zeigt, was passiert wäre. Erst ausschalten, wenn der Vergleich passt.',
       stSilent: 'Silent-Modus: es wird nur simuliert', silentTag: 'Silent',
       batCtl: 'Batterie steuern', batCtlOn: 'Batterie über das Energiemanagement steuern', batCtlFound: 'Vorlage für dieses Gerät erkannt: Laden, Halten und Normal über die Karten der Batterie.',
-      batCtlNone: 'Für dieses Gerät ist noch keine Vorlage vorhanden. Die Batterie wird nicht gesteuert.', batCtlLoading: 'Karten der Batterie werden geprüft ...',
+      batCtlNone: 'Für dieses Gerät gibt es keine fertige Vorlage. Ordne unten selbst zu, welche Karten der Batterie bei Laden, Halten und Normal laufen.', batCtlNoCards: 'Das Gerät bietet keine Aktionskarten. Die Batterie kann nicht gesteuert werden.',
+      batCtlMap: 'Zuordnung', batCtlMapAuto: 'erkannte Vorlage', batCtlMapCustom: 'eigene Zuordnung', batCtlAddStep: 'Karte hinzufügen', batCtlPick: '- Karte wählen -', batCtlDel: 'Entfernen',
+      batCtlPh: 'In Zahlenfeldern gehen auch Platzhalter: {power} = Ladeleistung (W), {target_soc} = Ziel-Ladestand (%), {normal_discharge} = normale Entladeleistung (W).', batCtlEmpty: 'keine Karte (es wird nichts gesendet)', batCtlLoading: 'Karten der Batterie werden geprüft ...',
       batCtlWarn: 'Nur ein System darf die Batterie steuern. Schalte die Batteriesteuerung im anderen Energiemanagement und eigene Batterie-Flows aus, bevor du live schaltest.',
       batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
@@ -129,7 +131,9 @@
       silent: 'Silent mode: simulate only', silentHint: 'On: nothing is switched, even if single devices are set to live. The log shows what would have happened. Switch it off only when the comparison looks right.',
       stSilent: 'Silent mode: only simulating', silentTag: 'silent',
       batCtl: 'Control the battery', batCtlOn: 'Control the battery through energy management', batCtlFound: 'Template for this device found: charge, hold and normal via the battery\'s cards.',
-      batCtlNone: 'There is no template for this device yet. The battery is not controlled.', batCtlLoading: 'Checking the battery\'s cards ...',
+      batCtlNone: 'There is no ready-made template for this device. Assign below which of the battery\'s cards run for Charge, Hold and Normal.', batCtlNoCards: 'The device has no action cards. The battery cannot be controlled.',
+      batCtlMap: 'Mapping', batCtlMapAuto: 'detected template', batCtlMapCustom: 'own mapping', batCtlAddStep: 'Add card', batCtlPick: '- pick a card -', batCtlDel: 'Remove',
+      batCtlPh: 'Number fields also accept placeholders: {power} = charge power (W), {target_soc} = target charge (%), {normal_discharge} = normal discharge power (W).', batCtlEmpty: 'no card (nothing is sent)', batCtlLoading: 'Checking the battery\'s cards ...',
       batCtlWarn: 'Only one system may control the battery. Switch off battery control in the other energy management and your own battery flows before going live.',
       batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
@@ -367,14 +371,16 @@
     var cards = state.batteryCards;
     var html = '<div class="ems-box"><b>' + esc(S.batCtl) + '</b><div class="ems-row">' + check(S.batCtlOn, 'ems-bc-on', bc.enabled) + '</div>';
     if (!cards) html += '<p class="ems-why">' + esc(S.batCtlLoading) + '</p>';
-    else if (!cards.preset) html += '<p class="ems-why ems-warn">' + esc(S.batCtlNone) + '</p>';
-    else {
-      html += '<p class="ems-why ems-ok">' + esc(S.batCtlFound) + '</p>';
+    else if (!cards.preset && !(cards.cards || []).length) html += '<p class="ems-why ems-warn">' + esc(S.batCtlNoCards) + '</p>';
+    else if (!cards.preset || bc.preset === 'custom') {
+      html += cards.preset ? mapSelectHtml(bc, cards) : '<p class="ems-why">' + esc(S.batCtlNone) + '</p>';
+      if (bc.enabled) html += batteryValuesHtml(c, bc) + customMapHtml(bc, cards) + '<p class="ems-why ems-warn">' + esc(S.batCtlWarn) + '</p>';
+    } else {
+      html += '<p class="ems-why ems-ok">' + esc(S.batCtlFound) + '</p>' + mapSelectHtml(bc, cards);
       if (bc.enabled) {
-        var title = function (id) { var k = (cards.cards || []).filter(function (x) { return x.id === id; })[0]; return k && k.title ? k.title.replace(/\[\[[^\]]*\]\]/g, '…') : id; };
+        var title = function (id) { return cardTitle(cards, id); };
         var steps = { charge: ['luna2000_start_force_charge'], hold: ['luna2000_stop_force_charge_discharge', 'luna2000_set_max_discharge_power'], normal: ['luna2000_stop_force_charge_discharge', 'luna2000_set_working_mode', 'luna2000_set_max_discharge_power'] };
-        html += '<div class="ems-row">' + field(S.batCtlPower, 'ems-bc-power', c.battery.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + field(S.batCtlTarget, 'ems-bc-target', c.battery.targetSoc, 'number', ' step="1" min="10" max="100"') + '</div>'
-          + '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>'
+        html += batteryValuesHtml(c, bc)
           + '<p class="ems-why"><b>' + esc(S.batCtlSteps) + '</b><br>'
           + esc(S.batModeCharge) + ': ' + steps.charge.map(title).map(esc).join(', ') + '<br>'
           + esc(S.batModeHold) + ': ' + steps.hold.map(title).map(esc).join(', ') + '<br>'
@@ -385,13 +391,98 @@
     return html + '</div>';
   }
 
+  function cardTitle(cards, id) {
+    var k = ((cards && cards.cards) || []).filter(function (x) { return x.id === id; })[0];
+    return k && k.title ? k.title.replace(/\[\[[^\]]*\]\]/g, '…') : id;
+  }
+  function batteryValuesHtml(c, bc) {
+    return '<div class="ems-row">' + field(S.batCtlPower, 'ems-bc-power', c.battery.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + field(S.batCtlTarget, 'ems-bc-target', c.battery.targetSoc, 'number', ' step="1" min="10" max="100"') + '</div>'
+      + '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>';
+  }
+  /** Erkannte Vorlage oder eigene Zuordnung (nur wenn eine Vorlage erkannt wurde). */
+  function mapSelectHtml(bc, cards) {
+    var cur = bc.preset === 'custom' ? 'custom' : cards.preset;
+    return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.batCtlMap) + '</span><select data-ems-bcpreset="1">'
+      + '<option value="' + esc(cards.preset) + '"' + (cur !== 'custom' ? ' selected' : '') + '>' + esc(S.batCtlMapAuto) + '</option>'
+      + '<option value="custom"' + (cur === 'custom' ? ' selected' : '') + '>' + esc(S.batCtlMapCustom) + '</option></select></label></div>';
+  }
+  var BAT_MODES = ['charge', 'hold', 'normal'];
+  var MAX_BAT_STEPS = 4;
+  function customMap(bc) {
+    var m = bc.custom || {};
+    var out = {};
+    BAT_MODES.forEach(function (k) { out[k] = Array.isArray(m[k]) ? m[k] : []; });
+    return out;
+  }
+  /** Je Modus bis 4 Karten der Batterie mit ihren Argumenten. */
+  function customMapHtml(bc, cards) {
+    var map = customMap(bc);
+    var list = (cards.cards || []);
+    return BAT_MODES.map(function (mode) {
+      var steps = map[mode];
+      var rows = steps.map(function (st, i) {
+        var p = 'ems-bcc-' + mode + '-' + i;
+        var def = list.filter(function (x) { return x.id === st.card; })[0];
+        var opts = '<option value="">' + esc(S.batCtlPick) + '</option>' + list.map(function (k) { return '<option value="' + esc(k.id) + '"' + (k.id === st.card ? ' selected' : '') + '>' + esc(cardTitle(cards, k.id)) + '</option>'; }).join('');
+        var args = def ? (def.args || []).map(function (a) {
+          var v = st.args && st.args[a.name] !== undefined ? st.args[a.name] : '';
+          var lbl = '<span>' + esc(a.title || a.name) + '</span>';
+          if (a.type === 'dropdown' && a.values) {
+            return '<label class="ems-f">' + lbl + '<select id="' + p + '-a-' + esc(a.name) + '">' + a.values.map(function (o) { return '<option value="' + esc(o.id) + '"' + (String(v) === o.id ? ' selected' : '') + '>' + esc(o.title) + '</option>'; }).join('') + '</select></label>';
+          }
+          if (a.type === 'checkbox') return '<label class="ems-c"><input type="checkbox" id="' + p + '-a-' + esc(a.name) + '"' + (v === true ? ' checked' : '') + '> ' + lbl + '</label>';
+          return '<label class="ems-f">' + lbl + '<input type="text" id="' + p + '-a-' + esc(a.name) + '" value="' + esc(v) + '" style="width:130px"></label>';
+        }).join('') : '';
+        return '<div class="ems-box" style="margin:6px 0"><div class="ems-row"><label class="ems-f ems-wide"><span>' + (i + 1) + '.</span><select id="' + p + '-card" data-ems-bccard="1">' + opts + '</select></label>'
+          + '<button class="btn" data-ems-bcc="del:' + mode + ':' + i + '">' + esc(S.batCtlDel) + '</button></div>'
+          + (args ? '<div class="ems-row">' + args + '</div>' : '')
+          + (mode === 'normal' ? '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + '-skip"' + (st.skipWhenCarCharging ? ' checked' : '') + '><i></i></span> <span>' + esc(S.batCarSkip) + '</span></label>' : '')
+          + '</div>';
+      }).join('');
+      var name = mode === 'charge' ? S.batModeCharge : (mode === 'hold' ? S.batModeHold : S.batModeNormal);
+      return '<p class="lbl" style="margin-top:10px">' + esc(name.toUpperCase()) + '</p>' + (rows || '<p class="ems-why">' + esc(S.batCtlEmpty) + '</p>')
+        + (steps.length < MAX_BAT_STEPS ? '<button class="btn" data-ems-bcc="add:' + mode + '">' + esc(S.batCtlAddStep) + '</button>' : '');
+    }).join('') + '<p class="ems-why">' + esc(S.batCtlPh) + '</p>';
+  }
+  /** Eingaben der eigenen Zuordnung übernehmen (Zahlenfelder als Zahl, Platzhalter als Text). */
+  function syncCustomMap(bc) {
+    if (!$('ems-bcc-marker') && !state.batteryCards) return;
+    var cards = (state.batteryCards && state.batteryCards.cards) || [];
+    var map = customMap(bc);
+    BAT_MODES.forEach(function (mode) {
+      map[mode] = map[mode].map(function (st, i) {
+        var p = 'ems-bcc-' + mode + '-' + i;
+        if (!$(p + '-card')) return st;
+        var card = String($(p + '-card').value || '');
+        var def = cards.filter(function (x) { return x.id === card; })[0];
+        var args = {};
+        if (card === st.card && def) {
+          (def.args || []).forEach(function (a) {
+            var id = p + '-a-' + a.name;
+            if (!$(id)) return;
+            if (a.type === 'checkbox') { args[a.name] = chk(id); return; }
+            var v = String(val(id, '')).trim();
+            if (v === '') return;
+            if (a.type === 'number' && !/^\{\w+\}$/.test(v) && isFinite(Number(v))) args[a.name] = Number(v);
+            else args[a.name] = v;
+          });
+        }
+        return { card: card, args: args, skipWhenCarCharging: mode === 'normal' && chk(p + '-skip') };
+      });
+    });
+    bc.custom = map;
+  }
+
   function loadBatteryCards() {
     if (state.batteryCardsLoading || !state.cfg || !state.cfg.battery.deviceId) return;
     state.batteryCardsLoading = true;
     api('GET', '/ems/battery-cards').then(function (r) {
       state.batteryCards = r || { preset: null, cards: [] };
       state.batteryCardsLoading = false;
-      if (state.batteryCards.preset && state.cfg.battery.control) state.cfg.battery.control.preset = state.batteryCards.preset;
+      var bcl = state.cfg.battery.control;
+      // erkannte Vorlage übernehmen, ausser es ist bewusst eine eigene Zuordnung gewählt; ohne Vorlage: eigene Zuordnung
+      if (bcl && state.batteryCards.preset && bcl.preset !== 'custom') bcl.preset = state.batteryCards.preset;
+      else if (bcl && !state.batteryCards.preset && (state.batteryCards.cards || []).length) bcl.preset = 'custom';
       renderSetup();
     }).catch(function () { state.batteryCards = { preset: null, cards: [] }; state.batteryCardsLoading = false; renderSetup(); });
   }
@@ -402,7 +493,7 @@
     var sc = c.schedule || {};
     var days = {};
     CAR_DAYS.forEach(function (d) { var e = (sc.days && sc.days[d]) || {}; days[d] = { on: e.on === true, time: e.time || '06:00', soc: e.soc || 80 }; });
-    return { days: days, holiday: sc.holiday === true, gridCharge: sc.gridCharge !== false, override: sc.override || null };
+    return { days: days, holiday: sc.holiday === true, holidayUntil: sc.holidayUntil || '', gridCharge: sc.gridCharge !== false, override: sc.override || null };
   }
   /** Wochenvorlage mit Entwurf: Änderungen bleiben erhalten, bis gespeichert oder verworfen wird (auch beim Neuzeichnen). */
   function carTemplate() { return state.carCal || carSchedule(); }
@@ -1356,6 +1447,7 @@
           state.cfg.battery.chargePowerKw = num('ems-bc-power', state.cfg.battery.chargePowerKw);
           state.cfg.battery.targetSoc = num('ems-bc-target', state.cfg.battery.targetSoc);
         }
+        syncCustomMap(bcc);
       }
       if (s.key === 'car' && state.open['src-car'] && $('ems-car-cap')) state.cfg.car = Object.assign({ deviceId: '', socCapability: 'measure_battery' }, state.cfg.car, { capacityKwh: num('ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0) });
       var d = srcDevice(s.key);
@@ -1427,7 +1519,7 @@
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
         deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw,
-        control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10 },
+        control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
       pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
@@ -1568,6 +1660,18 @@
     if (carBtn === 'resetcal') { state.carCal = null; renderMain(); return; }
     if (carBtn) { saveCarOverride(carBtn === 'clear'); return; }
     if (up(t, 'data-ems-carcalopen')) { state.carCalOpen = !state.carCalOpen; return; }
+    var bccBtn = up(t, 'data-ems-bcc');
+    if (bccBtn) {
+      sync();
+      var bcx = state.cfg.battery.control;
+      var bm = customMap(bcx);
+      var bp = bccBtn.split(':');
+      if (bp[0] === 'add' && bm[bp[1]] && bm[bp[1]].length < MAX_BAT_STEPS) bm[bp[1]].push({ card: '', args: {}, skipWhenCarCharging: false });
+      if (bp[0] === 'del' && bm[bp[1]]) bm[bp[1]].splice(Number(bp[2]), 1);
+      bcx.custom = bm;
+      renderSetup();
+      return;
+    }
     var jobDel = up(t, 'data-ems-jobdel');
     var pv = up(t, 'data-ems-preview');
     if (jobDel) {
@@ -1665,6 +1769,8 @@
       return;
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
+    if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
+    if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {
       var cmpOn = !!t.checked;
       api('PUT', '/ems/config', { compare: cmpOn }).then(function () { state.cfg.compare = cmpOn; return refreshStatus(); }).catch(function () { t.checked = !cmpOn; });

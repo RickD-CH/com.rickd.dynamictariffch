@@ -77,7 +77,7 @@ test('Config: Silent-Modus standardmässig an, Batteriesteuerung standardmässig
   const d = normalizeConfig({});
   assert.equal(d.silent, true);
   assert.equal(normalizeConfig({ silent: false }).silent, false);
-  assert.deepEqual(JSON.parse(JSON.stringify(d.battery.control)), { enabled: false, live: false, preset: '', normalDischargeW: 7000, repeatMin: 10 });
+  assert.deepEqual(JSON.parse(JSON.stringify(d.battery.control)), { enabled: false, live: false, preset: '', normalDischargeW: 7000, repeatMin: 10, custom: { charge: [], hold: [], normal: [] } });
   const c = normalizeConfig({ battery: { control: { enabled: true, preset: 'luna2000', normalDischargeW: -5, repeatMin: 1 } } }).battery.control;
   assert.equal(c.normalDischargeW, 0);
   assert.equal(c.repeatMin, 2);

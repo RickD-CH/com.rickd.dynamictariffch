@@ -225,3 +225,13 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Ziel-Ladestand nur einmalig; jede Woche gleich = Wochenvorlage des E-Autos.
 - **Geräte mit Programmstart** (Geschirrspüler, Waschmaschine mit Startverzögerung): als Verbraucher «per Flow»
   einrichten, nur den Ein-Flow wählen (Aus leer lassen, wird übersprungen), Auftrag mit Laufzeit «am Stück».
+
+## Andere Batterien: eigene Zuordnung (11.11.2026)
+
+- Einrichten → Hausbatterie → «Batterie steuern». Ohne erkannte Vorlage (oder mit «Zuordnung: eigene Zuordnung»)
+  wählt man je Modus (Laden, Halten, Normal) bis 4 Aktionskarten des Batterie-Geräts und deren Argumente
+  (`battery.control.preset = 'custom'`, `battery.control.custom`).
+- Zahlenfelder nehmen auch Platzhalter: `{power}` (Ladeleistung W), `{target_soc}` (Ziel-Ladestand %),
+  `{normal_discharge}` (normale Entladeleistung W). Bei Normal pro Karte «nicht, solange das Auto lädt».
+- Ein Modus ohne Karte sendet nichts. Silent-Modus und der Live-Schalter der Batterie gelten wie bei der Vorlage.
+- Bietet das Gerät keine Aktionskarten, kann es nicht gesteuert werden (Hinweis in der Einrichtung).
