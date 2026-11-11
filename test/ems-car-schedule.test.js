@@ -166,22 +166,24 @@ async function ui(car, carState) {
   return { ctx, els, el, handlers, calls };
 }
 
-test('Anzeige: Auto-Karte unter «Heute» mit Ladestand, nächstem Ziel, Status; «Nächste Abfahrt» speichert ein Überschreiben für morgen', async () => {
+test('Anzeige: «Heute» zeigt eine kurze Auto-Zeile; «Ausblick» die Auto-Karte mit Status und «Heute/Morgen», das ein Übersteuern speichert', async () => {
   const car = { deviceId: 'car', capacityKwh: 60, schedule: weekdays(true) };
-  const state = { state: 'planned', soc: 40, connected: true, needKwh: 24, starts: [wed(0), wed(0, 15)], departure: { at: wed(6), soc: 80, source: 'calendar', date: '2026-11-11' } };
+  const state = { state: 'planned', soc: 40, connected: false, needKwh: 24, starts: [wed(0), wed(0, 15)], departure: { at: wed(6), soc: 80, source: 'calendar', date: '2026-11-11' } };
   const u = await ui(car, state);
-  const html = u.els.get('ems-view-main').innerHTML;
-  assert.match(html, /E-AUTO/);
-  assert.match(html, /<b>40 %<\/b>/);
-  assert.match(html, /Nächstes Ziel: 80 % bis/);
-  assert.match(html, /\(Kalender\)/);
-  assert.match(html, /Geplant: 00:00 - 00:30 \(24 kWh\)/);
-  assert.match(html, /Nächste Abfahrt \(überschreibt den Kalender\)/);
-  // Eingaben und Übernehmen
-  const change = (f, value, checked) => u.handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-carf' ? f : null), value, checked, parentNode: null } });
+  const today = u.els.get('ems-view-main').innerHTML;
+  assert.match(today, /id="ems-car-line"/);
+  assert.match(today, /E-Auto 40 % - 80 % bis .* - Geplant 00:00-00:30 \(nicht angesteckt\)/);
+  assert.doesNotMatch(today, /data-ems-carf|Wochenvorlage/, 'kein Formular unter «Heute»');
+  const plan = u.els.get('ems-view-plan').innerHTML;
+  assert.match(plan, /E-AUTO/);
+  assert.match(plan, /<b>40 %<\/b>/);
+  assert.match(plan, /Nächstes Ziel: 80 % bis .*\(Vorlage\)/);
+  assert.match(plan, /Geplant: 00:00 - 00:30 \(24 kWh\)/);
+  assert.ok(plan.indexOf('Heute oder morgen anders') < plan.indexOf('Wochenvorlage (Mo bis So)'), '«Heute/Morgen» oben, Vorlage darunter');
+  const change = (f, value, checked) => u.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-carf' ? f : null), value, checked, parentNode: null } });
   change('time', '07:30');
   change('soc', '60');
-  u.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === 'data-ems-car' ? 'save' : null), parentNode: null } });
+  u.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === 'data-ems-car' ? 'save' : null), parentNode: null } });
   await new Promise((r) => setTimeout(r, 20));
   const put = u.calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');
   const o = put[2].car.schedule.override;
@@ -190,26 +192,41 @@ test('Anzeige: Auto-Karte unter «Heute» mit Ladestand, nächstem Ziel, Status;
   assert.equal(o.on, true);
   assert.match(o.date, /^\d{4}-\d{2}-\d{2}$/);
   assert.equal(put[2].car.deviceId, 'car', 'restliche Auto-Einstellungen bleiben');
-  assert.equal(put[2].car.schedule.days.mon.on, true, 'Kalender bleibt');
+  assert.equal(put[2].car.schedule.days.mon.on, true, 'Vorlage bleibt');
 });
 
-test('Anzeige: Einrichten → E-Auto zeigt den Wochenkalender, Ferien und «Netz nachladen» (Standard an); ohne Auto keine Karte', async () => {
-  const u = await ui({ deviceId: 'car', capacityKwh: 60 }, null);
+test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel; Entwurf bleibt beim Neuzeichnen; Speichern behält «Heute/Morgen»', async () => {
+  const car = { deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), override: { date: '2026-11-11', on: true, time: '07:00', soc: 70 } } };
+  const u = await ui(car, null);
+  let plan = u.els.get('ems-view-plan').innerHTML;
+  assert.match(plan, /<details class="ems-adv car-tpl"><summary data-ems-carcalopen="1">Wochenvorlage \(Mo bis So\)<\/summary>/, 'eingeklappt');
+  for (const d of ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']) assert.match(plan, new RegExp('<td>' + d + '</td>'));
+  assert.match(plan, /Ferien: Kalender pausiert/);
+  assert.match(plan, /data-ems-carcal="grid" checked/, 'Netz nachladen standardmässig an');
+  // Freitag: anderes Ziel, Samstag einschalten
+  const change = (cc, value, checked) => u.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-carcal' ? cc : null), value, checked, parentNode: null } });
+  change('fri:soc', '100');
+  change('fri:time', '05:30');
+  change('sat:on', null, true);
+  change('sat:time', '09:00');
+  u.ctx.window.EmsUi._render();
+  plan = u.els.get('ems-view-plan').innerHTML;
+  assert.match(plan, /<details class="ems-adv car-tpl" open>/, 'mit Entwurf bleibt die Vorlage offen');
+  assert.match(plan, /data-ems-carcal="fri:soc" value="100"/, 'Entwurf übersteht das Neuzeichnen');
+  assert.match(plan, /Verwerfen/);
+  u.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === 'data-ems-car' ? 'savecal' : null), parentNode: null } });
+  await new Promise((r) => setTimeout(r, 20));
+  const put = u.calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');
+  const sc = put[2].car.schedule;
+  assert.deepEqual(JSON.parse(JSON.stringify(sc.days.fri)), { on: true, time: '05:30', soc: 100 });
+  assert.deepEqual(JSON.parse(JSON.stringify(sc.days.sat)), { on: true, time: '09:00', soc: 80 });
+  assert.equal(sc.days.mon.soc, 80);
+  assert.equal(sc.override.time, '07:00', '«Heute/Morgen» bleibt beim Speichern der Vorlage');
+  // Einrichten: nur noch Gerät, Wert, Grösse und Hinweis
   u.handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n === 'data-ems-open' ? 'src-car' : null), parentNode: null } });
-  const html = u.els.get('ems-view-devices').innerHTML;
-  assert.match(html, /Wochenkalender \(Abfahrt und Ziel-Ladestand\)/);
-  for (const d of ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']) assert.match(html, new RegExp('<td>' + d + '</td>'));
-  assert.match(html, /Ferien: Kalender pausiert/);
-  assert.match(html, /id="ems-car-grid" type="checkbox" checked/);
-  // Kalender speichern: Mo an, 05:45, 90 %
-  u.el('ems-car-mon-on').checked = true;
-  u.el('ems-car-mon-time').value = '05:45';
-  u.el('ems-car-mon-soc').value = '90';
-  u.el('ems-car-grid').checked = true;
-  const body = u.ctx.window.EmsUi._collect().ems.car;
-  assert.deepEqual(JSON.parse(JSON.stringify(body.schedule.days.mon)), { on: true, time: '05:45', soc: 90 });
-  assert.equal(body.schedule.days.tue.on, false);
-  assert.equal(body.schedule.gridCharge, true);
+  const setup = u.els.get('ems-view-devices').innerHTML;
+  assert.match(setup, /unter «Ausblick» ein/);
+  assert.doesNotMatch(setup, /data-ems-carcal/);
   const none = await ui({}, null);
-  assert.doesNotMatch(none.els.get('ems-view-main').innerHTML, /E-AUTO/);
+  assert.doesNotMatch(none.els.get('ems-view-main').innerHTML + none.els.get('ems-view-plan').innerHTML, /E-AUTO|ems-car-line/);
 });

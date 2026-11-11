@@ -195,6 +195,6 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   günstigsten Viertelstunden bis zur Abfahrt wählen (Leistung = Maximalstrom x Phasen). In einer gewählten Viertelstunde lädt die Wallbox mit voller Leistung,
   nur mit angestecktem Auto. Ausserhalb gilt die Überschuss-Regel (Solarstrom). Ziel erreicht = kein Laden mehr.
 - «Netz nachladen» aus: kein Plan, nur Solarstrom.
-- Anzeige: Auto-Karte unter «Heute» (Ladestand, nächstes Ziel mit Quelle, Status, geplante Zeit, Formular «Nächste Abfahrt»), Zeile «E-Auto» im Plan.
-- Einrichten → EMS → E-Auto: Gerät, Ladestand-Wert, Batteriegrösse, Wochenkalender, Ferien, «Netz nachladen».
+- Anzeige: kurze Auto-Zeile unter «Heute»; unter «Ausblick» die Auto-Karte (Ladestand, nächstes Ziel, Status, «Heute oder morgen anders», einklappbare Wochenvorlage Mo bis So mit eigenem Ziel je Tag, Ferien, «Netz nachladen»), Zeile «E-Auto» im Plan.
+- Einrichten → EMS → E-Auto: Gerät, Ladestand-Wert, Batteriegrösse.
 - Offen: Solar-Vorrang in der Planung (Viertelstunden mit erwartetem Überschuss bevorzugen), Flow-Karte «Ziel setzen».
