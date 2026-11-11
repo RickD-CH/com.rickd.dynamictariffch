@@ -23,6 +23,8 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
+      logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'Test',
+      cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
       carCap: 'Batteriegrösse des Autos (kWh)', carSocLbl: 'E-Auto', carNow: 'E-Auto jetzt', pvTargetSoc: 'Ziel-Ladestand (%, statt Energie)', pvNeedCarSoc: 'Der Ladestand des E-Autos ist unbekannt (Setup → E-Auto)', pvNeedCarCap: 'Batteriegrösse des E-Autos fehlt (Setup → E-Auto)',
@@ -102,6 +104,8 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
+      logTitle: 'LOG', logNone: 'No entries yet.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'test',
+      cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
       carCap: 'Car battery size (kWh)', carSocLbl: 'EV', carNow: 'EV now', pvTargetSoc: 'Target charge (%, instead of energy)', pvNeedCarSoc: 'The EV charge level is unknown (Setup → EV)', pvNeedCarCap: 'Car battery size is missing (Setup → EV)',
@@ -612,6 +616,25 @@
     return out;
   }
 
+  function protocolHtml() {
+    var rows = [];
+    (state.events || []).forEach(function (e) {
+      rows.push({ ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + (e.live ? '' : ' (' + S.logTestTag + ')'), reason: e.reason });
+    });
+    var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true;
+    var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
+    if (state.cfg && state.cfg.charger && state.cfg.charger.id) {
+      ce.forEach(function (e) { rows.push({ ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + (chargerLive ? '' : ' (' + S.logTestTag + ')'), reason: e.reason }); });
+    }
+    rows.sort(function (a, b) { return b.ts - a.ts; });
+    var body = rows.length
+      ? '<table class="ems-t pl-tab"><tbody>' + rows.slice(0, 12).map(function (x) {
+        return '<tr><td class="pl-time">' + esc(time(x.ts)) + '</td><td class="pl-what" title="' + esc(x.text + ' - ' + (x.reason || '')) + '">' + esc(x.text) + ' <span class="ems-muted">' + esc(x.reason || '') + '</span></td></tr>';
+      }).join('') + '</tbody></table>'
+      : '<p class="sub" style="margin:0">' + esc(S.logNone) + '</p>';
+    return '<p class="lbl">' + esc(S.logTitle) + '</p><div class="card" id="ems-log">' + body + '</div>';
+  }
+
   function mainHtml() {
     var sh = state.shadow || {};
     var cfg = state.cfg;
@@ -652,7 +675,7 @@
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
     var list = (items || wb) ? '<div class="ems-list">' + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
-    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>';
+    return styleHtml() + head + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
   }
 
   // ---------------------------------------------------------------- Plan-Sicht (unten im Betrieb)
@@ -1096,9 +1119,14 @@
     }
     var host = $('ems-cmp-data');
     if (!host) return;
+    var on = !!(state.cfg && state.cfg.compare);
+    var sw = '<div class="card"><label class="ems-c"><span class="swt"><input class="sw" id="ems-cmp-on" type="checkbox" data-ems-compare="1"' + (on ? ' checked' : '') + '><i></i></span> <span>' + esc(S.cmpSwitch) + '</span></label><p class="ems-why">' + esc(S.cmpSwitchHint) + '</p></div>';
+    var settings = $('ems-cmp-settings');
+    if (settings) settings.hidden = !on;
+    if (!on) { host.innerHTML = styleHtml() + sw; return; }
     var sh = state.shadow;
     if (!sh) { host.innerHTML = '<div class="card"><p class="sub">' + esc(S.none2) + '</p></div>'; return; }
-    host.innerHTML = styleHtml()
+    host.innerHTML = styleHtml() + sw
       + '<div class="card"><p class="sub">' + esc(S.cmpIntro) + '</p></div>'
       + (sh.enabled ? '' : '<div class="card"><p class="warn">' + esc(S.cmpOff) + '</p></div>')
       + compareNowHtml()
@@ -1251,6 +1279,7 @@
           (sc.consumers || []).forEach(function (x) { if (row.kind === 'consumer' && x.id === row.deviceId) row.live = x.live === true; });
         });
         state.cfg.enabled = sc.enabled;
+        state.cfg.compare = sc.compare === true;
         state.cfg.charger.live = sc.charger.live;
         state.cfg.charger.chargeNow = sc.charger.chargeNow;
       }
@@ -1383,6 +1412,11 @@
       else state.draft[dr] = t.value;
       if (dr === 'target') { state.draft.amount = ''; state.draft.powerKw = ''; state.preview = null; renderMain(); return; }
       runPreview();
+      return;
+    }
+    if (g('data-ems-compare') !== null) {
+      var cmpOn = !!t.checked;
+      api('PUT', '/ems/config', { compare: cmpOn }).then(function () { state.cfg.compare = cmpOn; return refreshStatus(); }).catch(function () { t.checked = !cmpOn; });
       return;
     }
     if (g('data-ems-toggle') !== null) { onToggle(t); return; }

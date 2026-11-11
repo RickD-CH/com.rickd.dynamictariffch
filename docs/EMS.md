@@ -158,3 +158,11 @@ einmal beim Speichern und über den Knopf «Jetzt lesen und aktualisieren» (`PO
 - **Verbraucher:** höchstens 8 gesteuerte Verbraucher (`MAX_CONSUMERS`); die Oberfläche lehnt mehr beim Speichern mit einer Meldung ab.
 - **Nur Preise:** `homey-api` wird erst beim ersten Lesen oder Schalten geladen; ohne EMS-Gerät und ohne Zähler-Auswahl gibt es keine Timer und keinen Zugriff
   auf andere Geräte (`test/price-only.test.js`).
+
+## Vergleich hinter einem Schalter, Protokoll (11.11.2026)
+
+- `compare` (Config, Standard aus): nur wenn ein, liest das EMS die fremde App (`andiBatteryPlan`, Vergleichs-Gerät, Prognose-Rückfall). Wer schon
+  eine Vergleichsquelle gewählt hatte, bleibt eingeschaltet. Schalter in Einrichten → Vergleich. Vor der Veröffentlichung fallen Ansicht, Code und die
+  Berechtigung `homey:app:com.huawei.fusionsolar` ganz weg.
+- **Protokoll** unter «Heute» (nach dem Betrieb): die letzten 12 Schaltungen der Verbraucher und Moduswechsel der Wallbox mit Grund, ohne Fremdnamen.
+  Es bleibt, wenn der Vergleich wegfällt.

@@ -36,7 +36,7 @@ function makeEnv(responses) {
   return { ctx, els, el, handlers, api, calls };
 }
 
-const cfg = normalizeConfig({ enabled: true, consumers: [{ id: 'dev1', name: 'Luftentfeuchter', mode: 'soc', socOn: 85 }] });
+const cfg = normalizeConfig({ enabled: true, compare: true, consumers: [{ id: 'dev1', name: 'Luftentfeuchter', mode: 'soc', socOn: 85 }] });
 const shadow = {
   enabled: true, shadow: true, config: cfg,
   overallAgreePct: 92,
@@ -172,7 +172,7 @@ test('Ready: Homey.ready() erst nach dem ersten Laden', () => {
 });
 
 test('Vergleich: bei ausgeschaltetem EMS bleiben die bisherigen Daten sichtbar, mit Hinweis', async () => {
-  const off = { ...shadow, enabled: false, current: undefined, charger: { ...shadow.charger, current: undefined }, config: normalizeConfig({ enabled: false }) };
+  const off = { ...shadow, enabled: false, current: undefined, charger: { ...shadow.charger, current: undefined }, config: normalizeConfig({ enabled: false, compare: true }) };
   const env = makeEnv({ ...responses, 'GET /ems/shadow': off });
   await env.ctx.window.EmsUi.init(env.api, 'de');
   const html = env.els.get('ems-cmp-data').innerHTML;

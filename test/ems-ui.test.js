@@ -379,7 +379,7 @@ test('Neutral: keine Hersteller- oder Personennamen in Betrieb und Setup (de und
 });
 
 test('Vergleich: zeigt weiter die Daten, Quelle und Batterie-Planer liegen dort', async () => {
-  const env = await start(scenario({ cfg: fullCfg, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, andi: { hold: 33 } }], events: [] } }));
+  const env = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, andi: { hold: 33 } }], events: [] } }));
   const data = env.els.get('ems-cmp-data').innerHTML;
   assert.match(data, /Gesamt gleich: <b>92 %<\/b>/);
   assert.match(data, /Andis EMS/);

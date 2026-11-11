@@ -147,3 +147,108 @@ test('Verbraucher-Grenze: 8 gesteuerte Verbraucher, die Oberfläche lehnt mehr m
   assert.equal(calls.length, before, 'kein PUT');
   assert.match(st.msg, /Höchstens 8 gesteuerte Verbraucher/);
 });
+
+// ---------------------------------------------------------------- Vergleich hinter einem Schalter, neutrales Protokoll
+
+test('Config: Vergleich ist standardmässig aus, bleibt an, wo schon eine Vergleichsquelle gewählt war', () => {
+  assert.equal(normalizeConfig({}).compare, false);
+  assert.equal(normalizeConfig({ compare: true }).compare, true);
+  assert.equal(normalizeConfig({ devices: { andiEms: 'abc' } }).compare, true, 'bestehende Einrichtung läuft weiter');
+  assert.equal(normalizeConfig({ compare: false, devices: { andiEms: 'abc' } }).compare, false, 'ausdrücklich aus');
+});
+
+function compareRunner(compare) {
+  const asked = { plan: 0, device: [] };
+  const config = normalizeConfig({ enabled: true, compare, devices: { meter: { id: 'm' }, andiEms: compare ? 'x' : '' }, battery: { deviceId: 'bat' }, charger: { id: 'wb' } });
+  const runner = new EmsRunner({
+    getConfig: () => config, prices: new PriceFeed(() => null), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
+    inputs: {
+      battery: async () => ({ soc: 50, capacityKwh: 10 }),
+      andiBatteryPlan: async () => { asked.plan += 1; return { mode: 'hold', reason: '' }; },
+      chargerInputs: async () => ({ gridW: 0, chargerRead: true, chargerConnected: false, andi: null }),
+      consumerStates: async () => new Map(),
+    },
+    shadowLog: new ShadowLog(countingStore()), store: null,
+  });
+  return { runner, asked };
+}
+
+test('Ohne Vergleich liest das EMS keine fremde App; mit Vergleich schon', async () => {
+  const off = compareRunner(false);
+  await off.runner.tick(T0);
+  assert.equal(off.asked.plan, 0, 'kein Aufruf der fremden App');
+  assert.equal(off.runner.current.andi, null);
+  const on = compareRunner(true);
+  await on.runner.tick(T0);
+  assert.equal(on.asked.plan, 1);
+  assert.equal(on.runner.current.andi.mode, 'hold');
+});
+
+test('Inputs.chargerInputs: das Vergleichs-Gerät wird nur mit Vergleich gelesen', async () => {
+  const { Inputs } = require('../lib/ems/Inputs');
+  const inputs = new Inputs({}, () => {});
+  const read = [];
+  inputs._api = async () => ({ devices: { getDevice: async ({ id }) => { read.push(id); return { available: true, capabilitiesObj: {} }; } } });
+  await inputs.chargerInputs(normalizeConfig({ compare: false, devices: { meter: { id: 'em' }, andiEms: 'other' }, charger: { id: 'wb' } }));
+  assert.ok(!read.includes('other'));
+  read.length = 0;
+  await inputs.chargerInputs(normalizeConfig({ compare: true, devices: { meter: { id: 'em' }, andiEms: 'other' }, charger: { id: 'wb' } }));
+  assert.ok(read.includes('other'));
+});
+
+function uiEnv(extra = {}, lang = 'de') {
+  const emsJs = fs.readFileSync(path.join(__dirname, '../settings/ems.js'), 'utf8');
+  const els = new Map();
+  const handlers = {};
+  const el = (id) => { if (!els.has(id)) els.set(id, { id, innerHTML: '', textContent: '', value: '', checked: false, hidden: false, classList: { contains: () => true, toggle() {} }, addEventListener: (t, f) => { handlers[`${id}:${t}`] = f; } }); return els.get(id); };
+  const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  vm.createContext(ctx);
+  vm.runInContext(emsJs, ctx);
+  const calls = [];
+  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, charger: { id: 'wb' }, consumers: [{ id: 'dry', name: 'Entfeuchter' }], ...extra.cfg });
+  const res = {
+    'GET /ems/shadow': { enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: { live: false, mine: { mode: 'idle', reason: 'x' }, connected: false }, events: extra.chargerEvents || [] } },
+    'GET /ems/consumers': { current: [], events: extra.events || [] }, 'GET /ems/devices': { devices: [] }, 'GET /ems/flows': { flows: [] }, 'GET /meters': null,
+    'PUT /ems/config': config,
+  };
+  return { ctx, els, handlers, calls, init: () => ctx.window.EmsUi.init((m, p, b) => { calls.push([m, p, b]); return Promise.resolve(res[`${m} ${p}`]); }, lang) };
+}
+
+test('Protokoll unter «Heute»: Schaltungen und Moduswechsel mit Grund, ohne Fremdnamen, auch ohne Vergleich', async () => {
+  const now = Date.now();
+  const env = uiEnv({
+    events: [{ ts: now - 60000, id: 'dry', name: 'Entfeuchter', cmd: 'on', live: false, reason: 'SoC 99% >= 98%' }],
+    chargerEvents: [{ ts: now - 30000, mine: 'solar_ev', reason: 'Überschuss 2.5 kW', soc: 80 }],
+  });
+  await env.init();
+  const html = env.els.get('ems-view-main').innerHTML;
+  assert.match(html, /PROTOKOLL/);
+  assert.match(html, /Entfeuchter: ein \(Test\)/);
+  assert.match(html, /SoC 99% &gt;= 98%/);
+  assert.match(html, /Wallbox: Lädt mit Solarstrom \(Test\)/);
+  assert.match(html, /Überschuss 2\.5 kW/);
+  assert.ok(html.indexOf('Wallbox: Lädt') < html.indexOf('Entfeuchter: ein'), 'jüngster Eintrag zuerst');
+  assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/g, ''), /Andi|Huawei|FusionSolar|EMMA/i);
+  const empty = uiEnv();
+  await empty.init();
+  assert.match(empty.els.get('ems-view-main').innerHTML, /Noch keine Einträge/);
+});
+
+test('Vergleichs-Ansicht: Schalter, ausgeschaltet nur der Schalter und der Hinweis; Einschalten speichert', async () => {
+  const off = uiEnv();
+  await off.init();
+  const html = off.els.get('ems-cmp-data').innerHTML; // der Schalter steht im Datenbereich der Vergleichs-Ansicht
+  assert.match(html, /Vergleich aktiv/);
+  assert.match(html, /greift sie auf keine andere App zu/);
+  assert.match(html, /data-ems-compare="1"/);
+  assert.doesNotMatch(off.els.get('ems-cmp-data').innerHTML, /Gesamt gleich|Andis EMS/);
+  assert.equal(off.els.get('ems-cmp-settings').hidden, true);
+  off.handlers['ems-view-cmp:change']({ target: { getAttribute: (n) => (n === 'data-ems-compare' ? '1' : null), checked: true, parentNode: null } });
+  await new Promise((r) => setTimeout(r, 15));
+  const put = off.calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');
+  assert.deepEqual(JSON.parse(JSON.stringify(put[2])), { compare: true });
+  const on = uiEnv({ cfg: { compare: true } });
+  await on.init();
+  assert.match(on.els.get('ems-cmp-data').innerHTML, /checked/);
+  assert.equal(on.els.get('ems-cmp-settings').hidden, false);
+});
