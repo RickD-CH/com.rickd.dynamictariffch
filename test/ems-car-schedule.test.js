@@ -172,7 +172,9 @@ test('Anzeige: «Heute» zeigt eine kurze Auto-Zeile; «Ausblick» die Auto-Kart
   const u = await ui(car, state);
   const today = u.els.get('ems-view-main').innerHTML;
   assert.match(today, /id="ems-car-line"/);
-  assert.match(today, /E-Auto 40 % - 80 % bis .* - Geplant 00:00-00:30 \(nicht angesteckt\)/);
+  assert.match(today, /<p class="lbl">E-AUTO<\/p><div class="ems-list"><div class="ems-item" id="ems-car-line">/, 'eigener Abschnitt E-Auto');
+  assert.match(today, /E-Auto 40 %<\/span>/);
+  assert.match(today, /80 % bis .* - Geplant 00:00-00:30 \(nicht angesteckt\)/);
   assert.doesNotMatch(today, /data-ems-carf|Wochenvorlage/, 'kein Formular unter «Heute»');
   const plan = u.els.get('ems-view-plan').innerHTML;
   assert.match(plan, /E-AUTO/);

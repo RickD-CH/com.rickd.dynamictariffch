@@ -234,6 +234,34 @@ test('Protokoll unter «Heute»: Schaltungen und Moduswechsel mit Grund, ohne Fr
   assert.match(empty.els.get('ems-view-main').innerHTML, /Noch keine Einträge/);
 });
 
+test('Protokoll: Filter nach Bereich, Tage als Zwischenzeilen, 12 Einträge und «Mehr anzeigen»', async () => {
+  const now = Date.now();
+  const events = [];
+  for (let k = 0; k < 20; k++) {
+    events.push({
+      ts: now - (k + 1) * 3600000, id: 'dry', name: 'Entfeuchter', cmd: k % 2 ? 'off' : 'on', live: false, reason: `r${k}`,
+    });
+  }
+  const env = uiEnv({ events, chargerEvents: [{ ts: now - 30000, mine: 'solar_ev', reason: 'Überschuss', soc: 80 }] });
+  await env.init();
+  const main = () => env.els.get('ems-view-main').innerHTML;
+  assert.match(main(), /data-ems-logf="all">Alle/);
+  assert.match(main(), /data-ems-logf="car">Wallbox/, 'ohne E-Auto heisst der Filter Wallbox');
+  assert.match(main(), /data-ems-logf="cons">Verbraucher/);
+  assert.doesNotMatch(main(), /data-ems-logf="fuse"/, 'Bereiche ohne Einträge fehlen');
+  assert.match(main(), /class="log-day"><td colspan="2">Heute/);
+  assert.equal((main().match(/class="pl-time"/g) || []).length, 12);
+  assert.match(main(), /Mehr anzeigen \(21\)/);
+  const click = (attr, v) => env.handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === attr ? v : null), parentNode: null } });
+  click('data-ems-logmore', '1');
+  assert.equal((main().match(/class="pl-time"/g) || []).length, 21);
+  assert.match(main(), /Weniger anzeigen/);
+  click('data-ems-logf', 'car');
+  assert.equal((main().match(/class="pl-time"/g) || []).length, 1);
+  assert.match(main(), /log-chip on" data-ems-logf="car"/);
+  assert.doesNotMatch(main().replace(/<style>[\s\S]*?<\/style>/g, ''), /Entfeuchter: /);
+});
+
 test('Vergleichs-Ansicht: Schalter, ausgeschaltet nur der Schalter und der Hinweis; Einschalten speichert', async () => {
   const off = uiEnv();
   await off.init();

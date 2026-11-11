@@ -40,7 +40,8 @@
       batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
       batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
-      logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
+      logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logAll: 'Alle', logCar: 'E-Auto', logWallbox: 'Wallbox', logBat: 'Batterie', logCons: 'Verbraucher', logFuse: 'Hausanschluss', logMore: 'Mehr anzeigen', logLess: 'Weniger anzeigen', logToday: 'Heute', logYesterday: 'Gestern',
+      secCar: 'E-AUTO', secWallbox: 'WALLBOX', secBat: 'HAUSBATTERIE', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
@@ -146,7 +147,8 @@
       batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
       batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
-      logTitle: 'LOG', logNone: 'No entries yet.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
+      logTitle: 'LOG', logNone: 'No entries yet.', logAll: 'All', logCar: 'EV', logWallbox: 'EV charger', logBat: 'Battery', logCons: 'Devices', logFuse: 'House connection', logMore: 'Show more', logLess: 'Show less', logToday: 'Today', logYesterday: 'Yesterday',
+      secCar: 'EV', secWallbox: 'EV CHARGER', secBat: 'HOME BATTERY', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
@@ -871,6 +873,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
+      + '.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-chip{font:inherit;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--st-border);background:var(--st-bg);color:var(--st-text);cursor:pointer}.log-chip.on{background:var(--st-accent);border-color:var(--st-accent);color:#fff}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -912,7 +915,8 @@
       if (car.starts && car.starts.length) st += ' ' + hm(car.starts[0]) + '-' + hm(car.starts[car.starts.length - 1] + 900000);
       parts.push(st + (car.connected ? '' : ' (' + S.carNotConnected + ')'));
     }
-    return '<div class="card" id="ems-car-line"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + '</span></div></div>';
+    return '<div class="ems-item" id="ems-car-line"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span>'
+      + '<span class="ems-item-t"><span class="ems-item-n">' + esc(parts[0]) + '</span><span class="ems-item-s ems-muted" style="white-space:normal">' + esc(parts.slice(1).join(' - ')) + '</span></span></div></div>';
   }
 
   /** Auto-Karte unter «Ausblick»: Status, «Heute/Morgen» oben, Wochenvorlage einklappbar darunter. */
@@ -978,31 +982,60 @@
   }
   function batModeLabel(m) { return m === 'charge' ? S.batModeCharge : (m === 'hold' ? S.batModeHold : S.batModeNormal); }
 
+  function dayKey(ms) {
+    try { return new Date(ms).toLocaleDateString('de-CH', { timeZone: 'Europe/Zurich', day: '2-digit', month: '2-digit', year: 'numeric' }); } catch (e) { return ''; }
+  }
+  function dayLabel(ms) {
+    var k = dayKey(ms);
+    if (k === dayKey(Date.now())) return S.logToday;
+    if (k === dayKey(Date.now() - 86400000)) return S.logYesterday;
+    return k.slice(0, 6);
+  }
+
+  /** Protokoll: Filter nach Bereich, nach Tagen gruppiert, 12 Einträge oder mehr. */
   function protocolHtml() {
     var rows = [];
+    var tag = function (live) { return live ? '' : ' (' + S.logTestTag + ')'; };
     (state.events || []).forEach(function (e) {
-      rows.push({ ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + (e.live ? '' : ' (' + S.logTestTag + ')'), reason: e.reason });
+      rows.push({ kind: 'cons', ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
     });
     (state.batteryEvents || []).forEach(function (e) {
-      rows.push({ ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + (e.live ? '' : ' (' + S.logTestTag + ')') + (e.error ? ' - ' + S.error : ''), reason: e.reason });
+      rows.push({ kind: 'bat', ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.reason });
     });
     (state.fuseEvents || []).forEach(function (e) {
       var what = e.action === 'over' ? S.fuseEvOver : (e.action === 'shed' ? (e.name + ' ' + S.fuseEvShed) : (e.action === 'throttle' ? S.fuseEvThrottle + ' ' + e.capAmps + ' A' : (e.action === 'throttle_end' ? S.fuseEvThrottleEnd : S.fuseEvRelease)));
-      rows.push({ ts: e.ts, text: S.fuseNow + ': ' + what + (e.live ? '' : ' (' + S.logTestTag + ')') + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
+      rows.push({ kind: 'fuse', ts: e.ts, text: S.fuseNow + ': ' + what + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
     });
     var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true && state.cfg.silent === false;
     var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
     if (state.cfg && state.cfg.charger && state.cfg.charger.id) {
-      ce.forEach(function (e) { rows.push({ ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + (chargerLive ? '' : ' (' + S.logTestTag + ')'), reason: e.reason }); });
+      ce.forEach(function (e) { rows.push({ kind: 'car', ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + tag(chargerLive), reason: e.reason }); });
     }
-    rows.sort(function (a, b) { return b.ts - a.ts; });
-    var body = rows.length
-      ? '<table class="ems-t pl-tab"><tbody>' + rows.slice(0, 12).map(function (x) {
-        return '<tr><td class="pl-time">' + esc(time(x.ts)) + '</td><td class="pl-what" title="' + esc(x.text + ' - ' + (x.reason || '')) + '">' + esc(x.text) + ' <span class="ems-muted">' + esc(x.reason || '') + '</span></td></tr>';
-      }).join('') + '</tbody></table>'
-      : '<p class="sub" style="margin:0">' + esc(S.logNone) + '</p>';
-    return '<p class="lbl">' + esc(S.logTitle) + '</p><div class="card" id="ems-log">' + body + '</div>';
+    var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
+    var kinds = [['all', S.logAll], ['car', hasCar ? S.logCar : S.logWallbox], ['bat', S.logBat], ['cons', S.logCons], ['fuse', S.logFuse]]
+      .filter(function (k) { return k[0] === 'all' || rows.some(function (x) { return x.kind === k[0]; }); });
+    var f = state.logFilter || 'all';
+    if (!kinds.some(function (k) { return k[0] === f; })) f = 'all';
+    var shown = rows.filter(function (x) { return f === 'all' || x.kind === f; }).sort(function (a, b) { return b.ts - a.ts; });
+    var limit = state.logMore ? 60 : 12;
+    var chips = kinds.length > 2 ? '<div class="log-f">' + kinds.map(function (k) {
+      return '<button class="log-chip' + (k[0] === f ? ' on' : '') + '" data-ems-logf="' + k[0] + '">' + esc(k[1]) + '</button>';
+    }).join('') + '</div>' : '';
+    var body = '';
+    if (!shown.length) body = '<p class="sub" style="margin:0">' + esc(S.logNone) + '</p>';
+    else {
+      var lastDay = '';
+      body = '<table class="ems-t pl-tab"><tbody>' + shown.slice(0, limit).map(function (x) {
+        var d = dayLabel(x.ts);
+        var headRow = d !== lastDay ? '<tr class="log-day"><td colspan="2">' + esc(d) + '</td></tr>' : '';
+        lastDay = d;
+        return headRow + '<tr><td class="pl-time">' + esc(hm(x.ts)) + '</td><td class="pl-what" title="' + esc(x.text + ' - ' + (x.reason || '')) + '">' + esc(x.text) + ' <span class="ems-muted">' + esc(x.reason || '') + '</span></td></tr>';
+      }).join('') + '</tbody></table>';
+      if (shown.length > 12) body += '<p style="margin:6px 0 0"><button class="btn" data-ems-logmore="1">' + esc(state.logMore ? S.logLess : S.logMore) + ' (' + Math.min(shown.length, 60) + ')</button></p>';
+    }
+    return '<p class="lbl">' + esc(S.logTitle) + '</p><div class="card" id="ems-log">' + chips + body + '</div>';
   }
+
 
   function mainHtml() {
     var sh = state.shadow || {};
@@ -1035,7 +1068,7 @@
       + '<div class="ems-st" style="margin-top:10px"><span style="flex:1;font-size:14px">' + esc(S.silent) + '</span><span class="swt"><input class="sw" id="ems-silent" type="checkbox" data-ems-silent="1"' + (silentOn ? ' checked' : '') + '><i></i></span></div>'
       + '<p class="ems-why" style="margin-bottom:0">' + esc(S.silentHint) + '</p>'
       + (priceMissing() ? '<p class="warn">' + esc(S.noPriceDevice) + '</p>' : '') + (warn ? '<p class="warn">' + esc(warn) + '</p>' : '') + (errs ? '<p class="warn">' + esc(errs) + '</p>' : '') + '</div>';
-    var items = liveRows().map(function (x) {
+    var rowHtml = function (x) {
       var r = x.r;
       var name = r.kind === 'charger' ? S.wallbox : r.name;
       var cs = (state.consumersState || []).filter(function (c) { return c.name === r.name; })[0];
@@ -1044,12 +1077,14 @@
       var sw = '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="' + (r.kind === 'charger' ? 'charger' : esc(r.deviceId)) + '"' + (r.live ? ' checked' : '') + '><i></i></span>';
       return '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + rowColor(r) + '">' + icon(rowIcon(r), 17) + '</span>'
         + '<span class="ems-item-t"><span class="ems-item-n">' + esc(name) + '</span><span class="ems-item-s ems-muted">' + esc(sub) + (subHasTag ? '' : ' - ' + esc(r.live ? S.modeLiveTag : S.modeTest)) + '</span></span>' + sw + '</div></div>';
-    }).join('');
+    };
+    var chargerItem = liveRows().filter(function (x) { return x.r.kind === 'charger'; }).map(rowHtml).join('');
+    var items = liveRows().filter(function (x) { return x.r.kind !== 'charger'; }).map(rowHtml).join('');
     var wb = state.rows[0] && state.rows[0].kind === 'charger' && state.rows[0].deviceId
       ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
-    var carHtml = fuseLineHtml() + carCompactHtml();
+    var carItem = carCompactHtml();
     var batItem = '';
     if (bc) {
       var bctl = sh.batteryControl;
@@ -1059,9 +1094,13 @@
         + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.batRow) + '</span><span class="ems-item-s ems-muted">' + esc(bsub) + ' - ' + esc(btag) + '</span></span>'
         + '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="battery"' + (bc.live ? ' checked' : '') + '><i></i></span></div></div>';
     }
-    if (silentOn) items = items.replace(/ - (gesteuert|nicht gesteuert|controlled|not controlled)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>');
-    var list = (items || wb || batItem) ? '<div class="ems-list">' + batItem + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
-    return styleHtml() + head + carHtml + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
+    var silentTags = function (h) { return silentOn ? h.replace(/ - (gesteuert|nicht gesteuert|controlled|not controlled)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>') : h; };
+    var sections = '';
+    if (carItem || chargerItem || wb) sections += '<p class="lbl">' + esc(carItem ? S.secCar : S.secWallbox) + '</p><div class="ems-list">' + carItem + silentTags(chargerItem) + wb + '</div>';
+    if (batItem) sections += '<p class="lbl">' + esc(S.secBat) + '</p><div class="ems-list">' + batItem + '</div>';
+    if (items) sections += '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + silentTags(items) + '</div>';
+    if (!sections) sections = '<p class="lbl">' + esc(S.consumers) + '</p><p class="sub">' + esc(S.noConsumers) + '</p>';
+    return styleHtml() + head + fuseLineHtml() + sections + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
   }
 
   // ---------------------------------------------------------------- Plan-Sicht (unten im Betrieb)
@@ -1783,6 +1822,9 @@
       renderSetup();
       return;
     }
+    var logF = up(t, 'data-ems-logf');
+    if (logF) { state.logFilter = logF; renderMain(); return; }
+    if (up(t, 'data-ems-logmore')) { state.logMore = !state.logMore; renderMain(); return; }
     var bccBtn = up(t, 'data-ems-bcc');
     if (bccBtn) {
       sync();
