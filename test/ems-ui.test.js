@@ -178,7 +178,7 @@ test('Setup: eine Liste aus Wallbox, geschalteten Verbrauchern und reinen Kosten
   assert.match(html, /Entfeuchter/);
   assert.match(html, /Sauna/);
   assert.match(html, /nur Kostenzähler/);
-  assert.match(html, /Ab Batterie-SoC - Testbetrieb/);
+  assert.match(html, /Ab Batterie-SoC - nicht gesteuert/);
   assert.match(html, /Verbraucher hinzufügen/);
   const rows = env.ctx.window.EmsUi._state.rows;
   assert.equal(JSON.stringify(rows.map((r) => r.name)), JSON.stringify(['E-Auto', 'Entfeuchter', 'Sauna']));
@@ -304,7 +304,7 @@ test('Betrieb: Statuskopf mit Farbe, grossem Schalter, Modus, Werten', async () 
   assert.match(html, /Silent-Modus: es wird nur simuliert/, 'Standard: Silent-Modus an');
   assert.match(html, /id="ems-silent" type="checkbox" data-ems-silent="1" checked/);
   const test = await start(scenario({ cfg: { ...fullCfg, silent: false }, meters: fullMeters }));
-  assert.match(main(test), /Läuft im Testbetrieb \(es wird nichts geschaltet\)/);
+  assert.match(main(test), /Läuft, aber noch kein Gerät ist zum Steuern freigegeben/);
   assert.match(html, /<span class="swt"><input class="sw" id="ems-enabled" type="checkbox" data-ems-enable="1" checked><i><\/i><\/span>/);
   assert.match(html, /ems-chip">Bereit/);
   assert.match(html, /PV 514 W/);
@@ -324,7 +324,7 @@ test('Betrieb: Zeilen mit Schalter für Wallbox und geschaltete Verbraucher, rei
   assert.doesNotMatch(html, /Sauna/);
   assert.match(html, /data-ems-chargenow="1"/);
   assert.match(html, /Sofort laden/);
-  assert.match(html, /Schalter ein: die App schaltet das Gerät wirklich/);
+  assert.match(html, /Schalter ein: das Energiemanagement steuert dieses Gerät/);
 });
 
 test('Betrieb: live schaltet den Kopf auf "steuert", Warnung färbt gelb', async () => {

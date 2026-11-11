@@ -13,15 +13,15 @@
       tab: 'Ausblick', subMain: 'Betrieb', cmpTab: 'Vergleich',
       noDevice: 'Das Energiemanagement ist noch nicht eingerichtet. Füge in Homey unter «Geräte» → «+» → «Dynamischer Stromtarif CH» das Gerät «Energiemanagement» hinzu.',
       devicesSec: 'Energiemanagement einrichten', sources: 'DATENQUELLEN', consumers: 'VERBRAUCHER',
-      stOff: 'Ausgeschaltet', stTest: 'Läuft im Testbetrieb (es wird nichts geschaltet)', stLive: 'Läuft und steuert',
-      stWarn: 'Läuft mit Warnung', switchHint: 'Schalter ein: die App schaltet das Gerät wirklich. Aus: sie rechnet nur mit (Testbetrieb).',
+      stOff: 'Ausgeschaltet', stTest: 'Läuft, aber noch kein Gerät ist zum Steuern freigegeben', stLive: 'Läuft und steuert',
+      stWarn: 'Läuft mit Warnung', switchHint: 'Schalter ein: das Energiemanagement steuert dieses Gerät. Aus: es lässt das Gerät in Ruhe. Solange der Silent-Modus an ist, wird nur simuliert.',
       pvLbl: 'PV', gridLbl: 'Netz', batLbl: 'Batterie',
       noConsumers: 'Noch kein Verbraucher eingetragen.',
       plan: 'PLAN', planToday: 'Heute', planTomorrow: 'Morgen', planPrice: 'Preis in Rp./kWh', planPv: 'Solar-Prognose', planNow: 'jetzt',
       planBlock: 'Günstigster Block (2 h)', planPvKwh: 'Solar erwartet', planPriceRange: 'Preis min bis max', planNoPrices: 'Für diesen Tag sind noch keine Preise da.',
-      planBat: 'Batterie (Plan)', planBatAdvice: 'Empfehlung, wird nicht gesteuert', planBatLive: 'gesteuert', planWallbox: 'Wallbox (Verlauf)', planTest: 'Test', planPlanned: 'geplant',
+      planBat: 'Batterie (Plan)', planBatAdvice: 'Empfehlung, wird nicht gesteuert', planBatLive: 'gesteuert', planWallbox: 'Wallbox (Verlauf)', planTest: 'simuliert', planPlanned: 'geplant',
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
-      planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Testbetrieb ist es die Simulation.',
+      planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Silent-Modus ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
       carCal: 'Wochenvorlage (Mo bis So)', carCalHint: 'Gilt jede Woche. Ein Eintrag für «Heute» oder «Morgen» oben übersteuert den Tag.', carCalSave: 'Vorlage speichern', carCalReset: 'Verwerfen', carSetupHint: 'Ziele, «Heute/Morgen» und die Wochenvorlage stellst du unter «Ausblick» ein.',
       carDays: { mon: 'Mo', tue: 'Di', wed: 'Mi', thu: 'Do', fri: 'Fr', sat: 'Sa', sun: 'So' }, carTime: 'Abfahrt', carSoc: 'Ziel %',
@@ -30,7 +30,7 @@
       carSt: { none: 'Kein Ziel', no_soc: 'Ladestand unbekannt', no_capacity: 'Batteriegrösse fehlt (Einrichten → E-Auto)', reached: 'Ziel erreicht', solar_only: 'Nur Solarstrom', planned: 'Geplant', short: 'Reicht nicht ganz bis zur Abfahrt' },
       carNotConnected: 'nicht angesteckt', carOverride: 'Heute oder morgen anders (übersteuert die Vorlage)', carToday: 'Heute', carTomorrow: 'Morgen', carCharge: 'laden',
       carApply: 'Übernehmen', carClear: 'Vorlage gilt wieder', carSaved: 'Gespeichert',
-      silent: 'Silent-Modus: nur simulieren', silentHint: 'Ein: es wird nichts geschaltet, auch wenn einzelne Geräte auf live stehen. Das Protokoll zeigt, was passiert wäre. Erst ausschalten, wenn der Vergleich passt.',
+      silent: 'Silent-Modus: nur simulieren', silentHint: 'Ein: es wird nichts geschaltet. Protokoll und Ausblick zeigen, was passieren würde. Aus: die Geräte mit eingeschaltetem Schalter werden wirklich gesteuert.',
       stSilent: 'Silent-Modus: es wird nur simuliert', silentTag: 'Silent',
       batCtl: 'Batterie steuern', batCtlOn: 'Batterie über das Energiemanagement steuern', batCtlFound: 'Vorlage für dieses Gerät erkannt: Laden, Halten und Normal über die Karten der Batterie.',
       batCtlNone: 'Für dieses Gerät gibt es keine fertige Vorlage. Ordne unten selbst zu, welche Karten der Batterie bei Laden, Halten und Normal laufen.', batCtlNoCards: 'Das Gerät bietet keine Aktionskarten. Die Batterie kann nicht gesteuert werden.',
@@ -40,7 +40,7 @@
       batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
       batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
-      logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'Test',
+      logTitle: 'PROTOKOLL', logNone: 'Noch keine Einträge.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
@@ -66,7 +66,7 @@
       pvR_prices_missing: 'Für diese Frist sind noch nicht alle Preise bekannt', pvR_too_expensive: 'Unter dem Höchstpreis gibt es nicht genug Viertelstunden', pvR_too_short: 'Bis dahin reicht die Zeit nicht',
       pvR_no_block: 'Es gibt keinen zusammenhängenden Block unter dem Höchstpreis', pvR_deadline_passed: 'Die Frist ist schon vorbei', pvHave: 'möglich', pvOf: 'von',
       pvSave: 'Übernehmen', pvJobs: 'AKTIVE AUFTRÄGE', pvJobWord: 'Auftrag', pvRemove: 'Entfernen', pvUntilShort: 'bis', pvRunningNow: 'läuft jetzt', pvPlannedAt: 'geplant', pvWaiting: 'wartet auf Preise',
-      pvProgress: 'Viertelstunden gelaufen', pvJobNote: 'Aufträge werden bei jedem Lauf mit den aktuellen Preisen neu geplant. Im Testbetrieb wird nur simuliert, geschaltet wird erst, wenn der Schalter des Geräts auf live steht.', pvSaveFailed: 'Konnte nicht gespeichert werden',
+      pvProgress: 'Viertelstunden gelaufen', pvJobNote: 'Aufträge werden bei jedem Lauf mit den aktuellen Preisen neu geplant. Im Silent-Modus wird nur simuliert.', pvSaveFailed: 'Konnte nicht gespeichert werden',
       pvSavedOk: 'Auftrag übernommen',
       setupReady: 'Bereit: alle Pflicht-Quellen sind gewählt', setupMissing: 'Es fehlt noch:',
       setupNoBat: 'Ohne Hausbatterie läuft das Energiemanagement trotzdem: Wallbox und Verbraucher laden nach Überschuss. Modi nach Batteriestand sind dann nicht möglich.',
@@ -104,12 +104,12 @@
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
-      modeTest: 'Testbetrieb', modeLiveTag: 'live', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
+      modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
       save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       modeNames: { disabled: 'Aus', idle: 'Bereit', holding: 'Wartet auf Überschuss', solar_ev: 'Lädt mit Solarstrom', instant_ev: 'Lädt mit voller Leistung', battery_priority: 'Batterie hat Vorrang', error: 'Fehler' },
       otherEms: 'Steuert schon ein anderes Energiemanagement diese Wallbox, dort zuerst ausschalten. Sonst steuern zwei Systeme dieselbe Wallbox.',
       cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das andere Energiemanagement tut. Gleich = beide wählen im selben Lauf denselben Modus.',
-      cmpOff: 'Das Energiemanagement ist ausgeschaltet, es kommen keine neuen Vergleichsdaten. Gezeigt werden die bisherigen. Zum Weitervergleichen im Reiter «Betrieb» einschalten (Testbetrieb, es wird nichts gesteuert).',
+      cmpOff: 'Das Energiemanagement ist ausgeschaltet, es kommen keine neuen Vergleichsdaten. Gezeigt werden die bisherigen. Zum Weitervergleichen im Reiter «Betrieb» einschalten (mit Silent-Modus wird nichts gesteuert).',
       cmpSource: 'Vergleichsquelle', cmpDev: 'Anderes Energiemanagement (optional, nur Vergleich)', batterySec: 'Batterie-Planer (nur Vergleich)',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund',
       runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Anderes EMS', none2: 'Noch keine Daten.', day: 'Tag', same: 'gleich', nowSec: 'Jetzt (Vergleich)',
@@ -119,13 +119,13 @@
       tab: 'Outlook', subMain: 'Operation', cmpTab: 'Compare',
       noDevice: 'Energy management is not set up yet. In Homey go to Devices → "+" → "Swiss Dynamic Electricity Tariff" and add the "Energy management" device.',
       devicesSec: 'Set up energy management', sources: 'DATA SOURCES', consumers: 'CONSUMERS',
-      stOff: 'Switched off', stTest: 'Running in test mode (nothing is switched)', stLive: 'Running and controlling',
-      stWarn: 'Running with a warning', switchHint: 'Switch on: the app really switches the device. Off: it only calculates along (test mode).',
+      stOff: 'Switched off', stTest: 'Running, but no device is released for control yet', stLive: 'Running and controlling',
+      stWarn: 'Running with a warning', switchHint: 'Switch on: the energy management controls this device. Off: it leaves the device alone. While silent mode is on, everything is only simulated.',
       pvLbl: 'PV', gridLbl: 'Grid', batLbl: 'Battery',
       noConsumers: 'No consumer yet.',
       plan: 'PLAN', planToday: 'Today', planTomorrow: 'Tomorrow', planPrice: 'Price in Rp./kWh', planPv: 'Solar forecast', planNow: 'now',
       planBlock: 'Cheapest block (2 h)', planPvKwh: 'Solar expected', planPriceRange: 'Price min to max', planNoPrices: 'No prices for this day yet.',
-      planBat: 'Battery (plan)', planBatAdvice: 'recommendation, not controlled', planBatLive: 'controlled', planWallbox: 'EV charger (history)', planTest: 'test', planPlanned: 'planned',
+      planBat: 'Battery (plan)', planBatAdvice: 'recommendation, not controlled', planBatLive: 'controlled', planWallbox: 'EV charger (history)', planTest: 'simulated', planPlanned: 'planned',
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
@@ -136,7 +136,7 @@
       carSt: { none: 'No target', no_soc: 'Charge level unknown', no_capacity: 'Battery size missing (Set up → EV)', reached: 'Target reached', solar_only: 'Solar only', planned: 'Planned', short: 'Not quite enough before departure' },
       carNotConnected: 'not plugged in', carOverride: 'Different today or tomorrow (overrides the template)', carToday: 'Today', carTomorrow: 'Tomorrow', carCharge: 'charge',
       carApply: 'Apply', carClear: 'Use the template again', carSaved: 'Saved',
-      silent: 'Silent mode: simulate only', silentHint: 'On: nothing is switched, even if single devices are set to live. The log shows what would have happened. Switch it off only when the comparison looks right.',
+      silent: 'Silent mode: simulate only', silentHint: 'On: nothing is switched. Log and outlook show what would happen. Off: devices with their switch on are really controlled.',
       stSilent: 'Silent mode: only simulating', silentTag: 'silent',
       batCtl: 'Control the battery', batCtlOn: 'Control the battery through energy management', batCtlFound: 'Template for this device found: charge, hold and normal via the battery\'s cards.',
       batCtlNone: 'There is no ready-made template for this device. Assign below which of the battery\'s cards run for Charge, Hold and Normal.', batCtlNoCards: 'The device has no action cards. The battery cannot be controlled.',
@@ -146,7 +146,7 @@
       batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
       batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
-      logTitle: 'LOG', logNone: 'No entries yet.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'test',
+      logTitle: 'LOG', logNone: 'No entries yet.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
@@ -172,7 +172,7 @@
       pvR_prices_missing: 'Not all prices are known for this deadline yet', pvR_too_expensive: 'Not enough quarter-hours under the maximum price', pvR_too_short: 'There is not enough time until then',
       pvR_no_block: 'There is no continuous block under the maximum price', pvR_deadline_passed: 'The deadline has already passed', pvHave: 'possible', pvOf: 'of',
       pvSave: 'Apply', pvJobs: 'ACTIVE JOBS', pvJobWord: 'job', pvRemove: 'Remove', pvUntilShort: 'by', pvRunningNow: 'running now', pvPlannedAt: 'planned', pvWaiting: 'waiting for prices',
-      pvProgress: 'quarter-hours run', pvJobNote: 'Jobs are re-planned on every run with the current prices. In test mode they are only simulated; devices are switched only when the device switch is on live.', pvSaveFailed: 'Could not be saved',
+      pvProgress: 'quarter-hours run', pvJobNote: 'Jobs are re-planned on every run with the current prices. In silent mode they are only simulated.', pvSaveFailed: 'Could not be saved',
       pvSavedOk: 'Job applied',
       setupReady: 'Ready: all required sources are chosen', setupMissing: 'Still missing:',
       setupNoBat: 'Without a home battery energy management still works: the EV charger and consumers charge from surplus. Modes by battery level are then not possible.',
@@ -210,12 +210,12 @@
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
-      modeTest: 'test mode', modeLiveTag: 'live', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
+      modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
       save: 'Save energy management settings', saved: 'Saved', error: 'Error', toggleFailed: 'Could not set the switch',
       modeNames: { disabled: 'Off', idle: 'Idle', holding: 'Waiting for surplus', solar_ev: 'Charging from solar', instant_ev: 'Charging at full power', battery_priority: 'Battery first', error: 'Error' },
       otherEms: 'If another energy management already controls this charger, switch it off there first. Otherwise two systems control the same charger.',
       cmpIntro: "What this energy management would do, compared with what the other energy management does. Same = both choose the same mode in the same run.",
-      cmpOff: 'Energy management is switched off, so no new comparison data arrives. The previous data is shown. To keep comparing, switch it on in the "Operation" view (test mode, nothing is controlled).',
+      cmpOff: 'Energy management is switched off, so no new comparison data arrives. The previous data is shown. To keep comparing, switch it on in the "Operation" view (with silent mode nothing is controlled).',
       cmpSource: 'Comparison source', cmpDev: 'Other energy management (optional, comparison only)', batterySec: 'Battery planner (comparison only)',
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason',
       runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: 'Other EMS', none2: 'No data yet.', day: 'Day', same: 'same', nowSec: 'Now (comparison)',
@@ -226,6 +226,7 @@
   // Symbole (Linien, 24x24)
   var ICONS = {
     bolt: 'M13 3 4 14h7l-1 7 9-11h-7z',
+    car: 'M5 17H3v-5l2-5h14l2 5v5h-2M9 17h6M3 12h18M7 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM17 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
     solar: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5',
     home: 'M3 11 12 3l9 8M5 10v10h14V10',
     battery: 'M4 8h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zM21 11v2M8 11v2',
@@ -325,7 +326,7 @@
     { key: 'pv', tag: 'recommended', label: 'srcPv', why: 'whyPv', icon: 'solar', color: COLORS.pv, filter: hasCap(/^measure_power/), re: /^measure_power/, prefer: 'measure_power' },
     { key: 'house', tag: 'recommended', label: 'srcHouse', why: 'whyHouse', icon: 'home', color: COLORS.house, filter: hasCap(/^measure_power/), re: /^measure_power/, prefer: 'measure_power.load' },
     // Auto-Apps liefern den Ladestand unter verschiedenen Namen: alle Autos und Geräte mit Batteriewert, jeder Wert wählbar
-    { key: 'car', tag: 'recommended', label: 'srcCar', why: 'whyCar', icon: 'plug', color: '#7f77dd', filter: function (d) { return d.cls === 'car' || hasCap(/^measure_battery/)(d); }, re: /./, prefer: 'measure_battery' },
+    { key: 'car', tag: 'recommended', label: 'srcCar', why: 'whyCar', icon: 'car', color: '#7f77dd', filter: function (d) { return d.cls === 'car' || hasCap(/^measure_battery/)(d); }, re: /./, prefer: 'measure_battery' },
     { key: 'bat', tag: 'optional', label: 'srcBat', why: 'whyBat', icon: 'battery', color: COLORS.bat, filter: hasCap(/^measure_battery/), re: /^measure_battery/, prefer: 'measure_battery' },
     { key: 'fc', tag: 'optional', label: 'srcFc', why: 'whyFc', icon: 'forecast', color: COLORS.fc },
     { key: 'price', tag: 'auto', label: 'srcPrice', why: 'whyPrice', icon: 'coin', color: COLORS.price },
@@ -911,7 +912,7 @@
       if (car.starts && car.starts.length) st += ' ' + hm(car.starts[0]) + '-' + hm(car.starts[car.starts.length - 1] + 900000);
       parts.push(st + (car.connected ? '' : ' (' + S.carNotConnected + ')'));
     }
-    return '<div class="card" id="ems-car-line"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('charger', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + '</span></div></div>';
+    return '<div class="card" id="ems-car-line"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + '</span></div></div>';
   }
 
   /** Auto-Karte unter «Ausblick»: Status, «Heute/Morgen» oben, Wochenvorlage einklappbar darunter. */
@@ -937,7 +938,7 @@
       + '<label class="ems-f"><span>' + esc(S.carSoc) + '</span><input type="number" min="10" max="100" step="5" data-ems-carf="soc" value="' + esc(o.soc) + '" style="width:70px"></label></div>'
       + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carf="on"' + (o.on ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carCharge) + '</span></label>'
       + '<p style="margin:8px 0 0"><button class="btn primary" data-ems-car="save">' + esc(S.carApply) + '</button>' + (sc.override ? ' <button class="btn" data-ems-car="clear">' + esc(S.carClear) + '</button>' : '') + ' <span class="sub">' + esc(state.carMsg || '') + '</span></p>';
-    return '<p class="lbl">' + esc(S.carCard) + '</p><div class="card" id="ems-car"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('charger', 17) + '</span><b>' + esc(socTxt) + '</b></div>'
+    return '<p class="lbl">' + esc(S.carCard) + '</p><div class="card" id="ems-car"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span><b>' + esc(socTxt) + '</b></div>'
       + lines.map(function (l) { return '<p class="ems-why" style="margin:4px 0">' + esc(l) + '</p>'; }).join('') + form + carCalendarHtml() + '</div>';
   }
 
@@ -1019,7 +1020,7 @@
     else if (warn) { title = S.stWarn; dot = '#d98a1a'; }
     else if (silentOn) { title = S.stSilent; dot = 'var(--st-switch-on)'; }
     else if (live.length) { title = S.stLive + ': ' + live.map(function (x) { return x.r.kind === 'charger' ? S.wallbox : (x.r.kind === 'battery' ? S.batRow : x.r.name); }).join(', '); dot = 'var(--st-switch-on)'; }
-    else { title = S.stTest; dot = 'var(--st-switch-on)'; }
+    else { title = S.stTest; dot = '#d98a1a'; }
     var vals = [];
     if (ch) {
       if (ch.pvW !== null && ch.pvW !== undefined) vals.push(S.pvLbl + ' ' + Math.round(ch.pvW) + ' W');
@@ -1058,7 +1059,7 @@
         + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.batRow) + '</span><span class="ems-item-s ems-muted">' + esc(bsub) + ' - ' + esc(btag) + '</span></span>'
         + '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="battery"' + (bc.live ? ' checked' : '') + '><i></i></span></div></div>';
     }
-    if (silentOn) items = items.replace(/ - (live|Testbetrieb|test mode)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>');
+    if (silentOn) items = items.replace(/ - (gesteuert|nicht gesteuert|controlled|not controlled)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>');
     var list = (items || wb || batItem) ? '<div class="ems-list">' + batItem + items + wb + '</div>' : '<p class="sub">' + esc(S.noConsumers) + '</p>';
     return styleHtml() + head + carHtml + '<p class="lbl">' + esc(S.consumers) + '</p>' + list + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
   }

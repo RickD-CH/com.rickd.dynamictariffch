@@ -223,9 +223,9 @@ test('Protokoll unter «Heute»: Schaltungen und Moduswechsel mit Grund, ohne Fr
   await env.init();
   const html = env.els.get('ems-view-main').innerHTML;
   assert.match(html, /PROTOKOLL/);
-  assert.match(html, /Entfeuchter: ein \(Test\)/);
+  assert.match(html, /Entfeuchter: ein \(simuliert\)/);
   assert.match(html, /SoC 99% &gt;= 98%/);
-  assert.match(html, /Wallbox: Lädt mit Solarstrom \(Test\)/);
+  assert.match(html, /Wallbox: Lädt mit Solarstrom \(simuliert\)/);
   assert.match(html, /Überschuss 2\.5 kW/);
   assert.ok(html.indexOf('Wallbox: Lädt') < html.indexOf('Entfeuchter: ein'), 'jüngster Eintrag zuerst');
   assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/g, ''), /Huawei|FusionSolar|EMMA/i);

@@ -224,8 +224,8 @@ test('Anzeige: Plan unter dem Betrieb mit Preis, Solar, Zeilen, Tabs Heute/Morge
   assert.match(html, />Morgen</);
   assert.equal((html.match(/class="pl-svg"/g) || []).length, 5, 'Preis, Solar, Batterie, Wallbox, Entfeuchter');
   assert.match(html, /Batterie \(Plan\)/);
-  assert.match(html, /Wallbox \(Verlauf\) - Test/);
-  assert.match(html, /Entfeuchter - Test/);
+  assert.match(html, /Wallbox \(Verlauf\) - simuliert/);
+  assert.match(html, /Entfeuchter - simuliert/);
   assert.match(html, /class="pl-now"/);
   assert.match(html, /Günstigster Block \(2 h\)/);
   assert.match(html, /13:00 - 15:00/);

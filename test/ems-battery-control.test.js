@@ -200,7 +200,7 @@ test('Anzeige: Silent-Schalter speichert; Batterie-Zeile mit Live-Schalter; Prot
   assert.match(main, /Silent-Modus: es wird nur simuliert/);
   assert.match(main, /data-ems-toggle="battery"/);
   assert.match(main, /zuletzt: Halten/);
-  assert.match(main, /Batterie: Halten \(Test\)/);
+  assert.match(main, /Batterie: Halten \(simuliert\)/);
   handlers['ems-view-main:change']({ target: { getAttribute: (n) => (n === 'data-ems-silent' ? '1' : null), checked: false, parentNode: null } });
   await new Promise((r) => setTimeout(r, 15));
   const put = calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');

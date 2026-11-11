@@ -219,7 +219,7 @@ test('Anzeige: Verbraucher per Flow - Schaltart wählbar, Flow-Dropdowns, Hinwei
   assert.equal(JSON.stringify(c[0].flowOn), JSON.stringify({ id: 'f1', advanced: false, name: 'Sauna an' }));
   assert.equal(JSON.stringify(c[0].flowOff), JSON.stringify({ id: 'f2', advanced: true, name: 'Sauna aus' }));
   assert.equal(c[0].assumedW, 3000);
-  assert.match(ui.setup(), /Bei Überschuss - Testbetrieb|Bei voller Batterie - Testbetrieb/, 'Betriebsart erscheint, sobald ein Flow gewählt ist');
+  assert.match(ui.setup(), /Bei Überschuss - nicht gesteuert|Bei voller Batterie - nicht gesteuert/, 'Betriebsart erscheint, sobald ein Flow gewählt ist');
   // zurück auf Gerät: künstliche ID verschwindet
   ui.set('row1-kind', 'device');
   ui.change({ 'data-ems-mode': '1' });
