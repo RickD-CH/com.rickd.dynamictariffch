@@ -95,6 +95,15 @@ class EmsDevice extends Homey.Device {
       .catch((err) => this.error('Trigger ems_error:', err && err.message));
   }
 
+  /** Hausanschluss: Grenze überschritten, Wallbox gedrosselt oder ein Gerät ausgeschaltet. */
+  fireFuse(current, phase, action, live) {
+    this.homey.flow.getDeviceTriggerCard('ems_fuse_overload')
+      .trigger(this, {
+        current: Number(current) || 0, phase: Number(phase) || 0, action: String(action || ''), live: live === true,
+      })
+      .catch((err) => this.error('Trigger ems_fuse_overload:', err && err.message));
+  }
+
   /** Das E-Auto hat sein Ziel erreicht. */
   fireCarTargetReached(soc, target) {
     this.homey.flow.getDeviceTriggerCard('ems_car_target_reached')

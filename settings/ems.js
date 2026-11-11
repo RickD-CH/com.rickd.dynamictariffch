@@ -73,6 +73,14 @@
       suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
       tagRequired: 'Pflicht', tagRecommended: 'Empfohlen', tagOptional: 'Optional', tagAuto: 'Automatisch',
       notChosen: 'nicht gewählt', device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- keines -', pickFirst: '- zuerst Gerät wählen -',
+      fuseTitle: 'HAUSANSCHLUSS', fuseRow: 'Hausanschluss-Schutz', fuseOff: 'aus', fuseOn: 'Hausanschluss schützen',
+      fuseWhy: 'Hält jede Phase unter der Grenze der Hausanschluss-Sicherung: zuerst wird die Wallbox gedrosselt, reicht das nicht, werden die Geräte unten der Reihe nach ausgeschaltet.',
+      fuseAmps: 'Sicherung (A)', fuseReserve: 'Reserve (% der Sicherung)', fuseLimitLbl: 'Grenze', fusePerPhase: 'pro Phase', fuseMeter: 'Zähler mit Phasenströmen', fuseMeterGrid: 'wie Netzzähler', fusePhase: 'Phase',
+      fuseThrottle: 'Wallbox drosseln, damit keine Phase über die Grenze geht', fuseThrottleHint: 'Die Wallbox bekommt höchstens den Strom, der auf der knappsten Phase noch frei ist. Gilt, wenn das Energiemanagement die Wallbox steuert.',
+      fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
+      fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
+      fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
+      fuseNow: 'Hausanschluss', fuseOf: 'von', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
       whyGrid: 'Der Netzzähler ist die Grundlage: Bezug positiv, Einspeisung negativ. Ohne ihn kann nichts geregelt werden.',
       whyPv: 'Verbessert die Berechnung des Überschusses (Erzeugung minus Verbrauch) und die Verteilung auf Batterie und Geräte.',
@@ -171,6 +179,14 @@
       suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
       tagRequired: 'Required', tagRecommended: 'Recommended', tagOptional: 'Optional', tagAuto: 'Automatic',
       notChosen: 'not chosen', device: 'Device', value: 'Value', pick: '- choose device -', none: '- none -', pickFirst: '- choose a device first -',
+      fuseTitle: 'HOUSE CONNECTION', fuseRow: 'Main fuse protection', fuseOff: 'off', fuseOn: 'Protect the main fuse',
+      fuseWhy: 'Keeps every phase below the limit of the main fuse: first the EV charger is throttled; if that is not enough, the devices below are switched off one after the other.',
+      fuseAmps: 'Main fuse (A)', fuseReserve: 'Reserve (% of the fuse)', fuseLimitLbl: 'Limit', fusePerPhase: 'per phase', fuseMeter: 'Meter with phase currents', fuseMeterGrid: 'same as grid meter', fusePhase: 'Phase',
+      fuseThrottle: 'Throttle the EV charger so that no phase exceeds the limit', fuseThrottleHint: 'The charger gets at most the current still free on the tightest phase. Applies when the energy management controls the charger.',
+      fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
+      fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
+      fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
+      fuseNow: 'House connection', fuseOf: 'of', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
       whyGrid: 'The grid meter is the basis: import positive, export negative. Nothing can be controlled without it.',
       whyPv: 'Improves the surplus calculation (generation minus consumption) and how it is split between battery and devices.',
@@ -684,6 +700,72 @@
       + '<p class="ems-suggest"><button class="btn" data-ems-suggest="1">' + esc(S.suggest) + '</button> <span class="sub" id="ems-suggest-msg">' + esc(state.suggestMsg || '') + '</span></p>';
   }
 
+  var FUSE_DEFAULT = { enabled: false, live: false, amps: 40, reservePct: 90, meterId: '', caps: ['measure_current.phase1', 'measure_current.phase2', 'measure_current.phase3'], throttle: true, holdS: 10, restoreMin: 5, shed: [{ kind: 'charger' }] };
+  function fuseCfg() {
+    if (!state.cfg.fuse) state.cfg.fuse = JSON.parse(JSON.stringify(FUSE_DEFAULT));
+    return state.cfg.fuse;
+  }
+  function fuseLimit(f) { return Math.round(f.amps * f.reservePct) / 100; }
+  function shedKey(e) { return e.kind === 'device' ? 'd:' + e.id : (e.kind === 'flow' ? 'f:' + e.flow.id : 'charger'); }
+  function shedName(e) {
+    if (e.kind === 'charger') return S.wallbox;
+    if (e.kind === 'device') { var d = findDevice(e.id); return d ? d.name : (e.name || e.id); }
+    return (e.name || (e.flow && e.flow.name) || S.fuseFlow) + ' (' + S.fuseFlow + ')';
+  }
+  function fuseSummary() {
+    var f = fuseCfg();
+    if (!f.enabled) return { text: S.fuseOff, cls: 'muted' };
+    return { text: S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A - ' + (f.shed.length ? f.shed.map(shedName).join(', ') : S.fuseShedNone), cls: 'ok' };
+  }
+  function fuseBody() {
+    var f = fuseCfg();
+    var html = '<p class="ems-why">' + esc(S.fuseWhy) + '</p><div class="ems-row">' + check(S.fuseOn, 'ems-fuse-on', f.enabled) + '</div>';
+    if (!f.enabled) return html;
+    var meterId = f.meterId || state.cfg.devices.meter.id;
+    var used = {};
+    f.shed.forEach(function (e) { used[shedKey(e)] = true; });
+    var rows = f.shed.map(function (e, i) {
+      return '<div class="ems-row" style="align-items:center;margin:4px 0"><span style="flex:1;font-size:14px">' + (i + 1) + '. ' + esc(shedName(e)) + '</span>'
+        + (i > 0 ? '<button class="btn" data-ems-fuseup="' + i + '">' + esc(S.fuseUp) + '</button>' : '')
+        + '<button class="btn" data-ems-fusedel="' + i + '">' + esc(S.fuseDel) + '</button></div>';
+    }).join('') || '<p class="ems-why">' + esc(S.fuseShedNone) + '</p>';
+    var addOpts = '<option value="">' + esc(S.fuseAddPick) + '</option>'
+      + (!used.charger && state.cfg.charger.id ? '<option value="charger">' + esc(S.wallbox) + '</option>' : '')
+      + state.devices.filter(function (d) { return !used['d:' + d.id] && d.id !== state.cfg.charger.id && (d.caps || []).some(function (c) { return c === 'onoff' || c === 'thermostat_mode'; }); })
+        .map(function (d) { return '<option value="d:' + esc(d.id) + '">' + esc(d.name) + '</option>'; }).join('')
+      + (state.flows || []).filter(function (x) { return !used['f:' + x.id]; })
+        .map(function (x) { return '<option value="f:' + esc(x.id) + '">' + esc(S.fuseFlow + ': ' + x.name) + '</option>'; }).join('');
+    var cur = state.shadow && state.shadow.fuse;
+    return html
+      + '<div class="ems-row">' + field(S.fuseAmps, 'ems-fuse-amps', f.amps, 'number', ' step="1" min="6" max="250"') + field(S.fuseReserve, 'ems-fuse-pct', f.reservePct, 'number', ' step="1" min="50" max="100"') + '</div>'
+      + '<p class="ems-why"><b>' + esc(S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A ' + S.fusePerPhase) + '</b></p>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.fuseMeter) + '</span><select id="ems-fuse-dev" data-ems-fusedev="1">' + deviceOptions(f.meterId, hasCap(/^measure_current/), S.fuseMeterGrid) + '</select></label></div>'
+      + '<div class="ems-row">' + [0, 1, 2].map(function (k) {
+        return '<label class="ems-f"><span>' + esc(S.fusePhase + ' ' + (k + 1)) + '</span><select id="ems-fuse-cap' + k + '">' + capOptions(meterId, /^measure_current/, f.caps[k]) + '</select></label>';
+      }).join('') + '</div>'
+      + (cur && cur.error ? '<p class="ems-why ems-warn">' + esc(S.fuseNoPhases) + '</p>' : '')
+      + check(S.fuseThrottle, 'ems-fuse-throttle', f.throttle) + '<p class="ems-why">' + esc(S.fuseThrottleHint) + '</p>'
+      + '<div class="ems-row">' + field(S.fuseHold, 'ems-fuse-hold', f.holdS, 'number', ' step="1" min="0" max="120"') + field(S.fuseRestore, 'ems-fuse-restore', f.restoreMin, 'number', ' step="1" min="1" max="60"') + '</div>'
+      + '<p class="lbl">' + esc(S.fuseShedTitle) + '</p>' + rows
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>&nbsp;</span><select id="ems-fuse-addsel">' + addOpts + '</select></label><button class="btn" data-ems-fuseadd="1">' + esc(S.fuseAdd) + '</button></div>'
+      + '<p class="ems-why">' + esc(S.fuseNoRestore) + '</p>'
+      + '<div class="ems-row">' + check(S.fuseLive, 'ems-fuse-live', f.live) + '</div><p class="ems-why ems-warn">' + esc(S.fuseLiveHint) + '</p>';
+  }
+  function syncFuse() {
+    if (!state.cfg || !state.open.fuse || !$('ems-fuse-on')) return;
+    var f = fuseCfg();
+    f.enabled = chk('ems-fuse-on');
+    if (!$('ems-fuse-amps') || !f.enabled) return;
+    f.amps = num('ems-fuse-amps', f.amps);
+    f.reservePct = num('ems-fuse-pct', f.reservePct);
+    f.meterId = String($('ems-fuse-dev').value || '');
+    f.caps = [0, 1, 2].map(function (k) { return val('ems-fuse-cap' + k, f.caps[k]); });
+    f.throttle = chk('ems-fuse-throttle');
+    f.holdS = num('ems-fuse-hold', f.holdS);
+    f.restoreMin = num('ems-fuse-restore', f.restoreMin);
+    f.live = chk('ems-fuse-live');
+  }
+
   function listRow(key, ic, color, title, tagHtmlStr, summary, body) {
     var open = !!state.open[key];
     return '<div class="ems-item' + (open ? ' open' : '') + '"><div class="ems-item-h" data-ems-open="' + esc(key) + '">'
@@ -746,6 +828,7 @@
       + '<p class="lbl">' + esc(S.sources) + '</p><div class="ems-list">' + src + '</div>'
       + '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + rows
       + '<div class="ems-item ems-add" data-ems-add="1"><span class="ems-ic" style="background:var(--st-seg-bg);color:var(--st-text)">' + icon('plus', 17) + '</span><span class="ems-item-n">' + esc(S.addConsumer) + '</span></div></div>'
+      + '<p class="lbl">' + esc(S.fuseTitle) + '</p><div class="ems-list">' + listRow('fuse', 'bolt', '#c0392b', S.fuseRow, '', fuseSummary(), fuseBody()) + '</div>'
       + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
       + '<p><button class="ems-save" data-ems-save="1">' + esc(S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
   }
@@ -801,6 +884,18 @@
       out.push({ i: i, r: r });
     });
     return out;
+  }
+
+  /** Hausanschluss: höchste Phase, Grenze, Drosselung, Abgeschaltetes. */
+  function fuseLineHtml() {
+    var f = state.cfg.fuse;
+    var cur = state.shadow && state.shadow.fuse;
+    if (!f || !f.enabled || !cur || cur.maxA === null || cur.maxA === undefined) return '';
+    var parts = [S.fuseNow + ' ' + (Math.round(cur.maxA * 10) / 10) + ' A ' + S.fuseOf + ' ' + cur.limitA + ' A'];
+    if (cur.capAmps !== null && cur.capAmps !== undefined && cur.capAmps < state.cfg.charger.maxAmps && state.cfg.charger.id) parts.push(S.fuseThrottled + ' ' + cur.capAmps + ' A');
+    if (cur.shed && cur.shed.length) parts.push(S.fuseShedNow + ' ' + cur.shed.join(', '));
+    var bad = cur.over || (cur.shed && cur.shed.length);
+    return '<div class="card" id="ems-fuse-line"><div class="ems-st"><span class="ems-ic" style="background:' + (bad ? '#c0392b' : '#6b7280') + '">' + icon('bolt', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + (cur.live ? '' : ' <span class="ems-muted">(' + esc(S.logTestTag) + ')</span>') + '</span></div></div>';
   }
 
   /** Kurze Statuszeile für «Heute». */
@@ -890,6 +985,10 @@
     (state.batteryEvents || []).forEach(function (e) {
       rows.push({ ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + (e.live ? '' : ' (' + S.logTestTag + ')') + (e.error ? ' - ' + S.error : ''), reason: e.reason });
     });
+    (state.fuseEvents || []).forEach(function (e) {
+      var what = e.action === 'over' ? S.fuseEvOver : (e.action === 'shed' ? (e.name + ' ' + S.fuseEvShed) : (e.action === 'throttle' ? S.fuseEvThrottle + ' ' + e.capAmps + ' A' : (e.action === 'throttle_end' ? S.fuseEvThrottleEnd : S.fuseEvRelease)));
+      rows.push({ ts: e.ts, text: S.fuseNow + ': ' + what + (e.live ? '' : ' (' + S.logTestTag + ')') + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
+    });
     var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true && state.cfg.silent === false;
     var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
     if (state.cfg && state.cfg.charger && state.cfg.charger.id) {
@@ -949,7 +1048,7 @@
       ? '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('bolt', 17) + '</span><span class="ems-item-t"><span class="ems-item-n">' + esc(S.chargeNow) + '</span></span>'
         + '<span class="swt"><input class="sw" id="ems-chargenow" type="checkbox" data-ems-chargenow="1"' + (cfg.charger.chargeNow ? ' checked' : '') + '><i></i></span></div></div>'
       : '';
-    var carHtml = carCompactHtml();
+    var carHtml = fuseLineHtml() + carCompactHtml();
     var batItem = '';
     if (bc) {
       var bctl = sh.batteryControl;
@@ -1436,6 +1535,7 @@
   /** Liest die Eingaben der aufgeklappten Zeilen in den Zustand (damit ein Neuzeichnen nichts verliert). */
   function sync() {
     if (!state.cfg || noDevice()) return;
+    syncFuse();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
@@ -1526,6 +1626,7 @@
       car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
       refreshS: Number(c.refreshS) || 0,
       tickMinutes: Number(c.tickMinutes) || 5,
+      fuse: c.fuse ? JSON.parse(JSON.stringify(c.fuse)) : undefined,
       consumers: consumers,
     };
     var cost = state.rows.filter(function (r) { return r.name && r.meterDeviceId && r.meterCap; }).map(function (r) {
@@ -1576,6 +1677,7 @@
       state.consumersState = r[1].current || [];
       state.events = r[1].events || [];
       state.batteryEvents = r[1].batteryEvents || [];
+      state.fuseEvents = r[1].fuseEvents || [];
       state.meters = r[2];
       if (!state.cfg) state.cfg = JSON.parse(JSON.stringify(r[0].config)); // eigene Kopie: Formularänderungen dürfen die Serverantwort nicht verändern
       if (!state.built) { buildRows(); state.built = true; }
@@ -1660,6 +1762,26 @@
     if (carBtn === 'resetcal') { state.carCal = null; renderMain(); return; }
     if (carBtn) { saveCarOverride(carBtn === 'clear'); return; }
     if (up(t, 'data-ems-carcalopen')) { state.carCalOpen = !state.carCalOpen; return; }
+    var fuseAdd = up(t, 'data-ems-fuseadd');
+    var fuseDel = up(t, 'data-ems-fusedel');
+    var fuseUp = up(t, 'data-ems-fuseup');
+    if (fuseAdd || fuseDel !== null || fuseUp !== null) {
+      sync();
+      var fz = fuseCfg();
+      if (fuseAdd) {
+        var pick = String(($('ems-fuse-addsel') || {}).value || '');
+        if (pick === 'charger') fz.shed.push({ kind: 'charger' });
+        else if (pick.indexOf('d:') === 0) { var dv = findDevice(pick.slice(2)); fz.shed.push({ kind: 'device', id: pick.slice(2), name: dv ? dv.name : '' }); }
+        else if (pick.indexOf('f:') === 0) { var fl = (state.flows || []).filter(function (x) { return x.id === pick.slice(2); })[0]; if (fl) fz.shed.push({ kind: 'flow', flow: { id: fl.id, advanced: !!fl.advanced, name: fl.name }, name: fl.name }); }
+      } else if (fuseDel !== null) {
+        fz.shed.splice(Number(fuseDel), 1);
+      } else {
+        var ui = Number(fuseUp);
+        if (ui > 0) { var mv = fz.shed.splice(ui, 1)[0]; fz.shed.splice(ui - 1, 0, mv); }
+      }
+      renderSetup();
+      return;
+    }
     var bccBtn = up(t, 'data-ems-bcc');
     if (bccBtn) {
       sync();
@@ -1769,6 +1891,7 @@
       return;
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
+    if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
     if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {

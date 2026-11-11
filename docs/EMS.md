@@ -235,3 +235,25 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   `{normal_discharge}` (normale Entladeleistung W). Bei Normal pro Karte «nicht, solange das Auto lädt».
 - Ein Modus ohne Karte sendet nichts. Silent-Modus und der Live-Schalter der Batterie gelten wie bei der Vorlage.
 - Bietet das Gerät keine Aktionskarten, kann es nicht gesteuert werden (Hinweis in der Einrichtung).
+
+## Hausanschluss-Schutz (11.11.2026)
+
+- Einrichten → EMS → **Hausanschluss**: Sicherung (Standard 40 A), Reserve (90 % = Grenze 36 A pro Phase), Zähler mit
+  Phasenströmen (Standard Netzzähler, `measure_current.phase1-3`), Wartezeit (10 s), Freigabe (5 min).
+- **Stufe 1, Drosseln** (`fuse.throttle`, Standard an): bei jedem Lauf bekommt die Wallbox höchstens den freien Strom der
+  knappsten Phase, die sie nutzt (Grenze minus Phasenstrom plus eigener Wallbox-Strom; einphasig Phase 1). Unter dem
+  Mindeststrom Stopp. Gilt für die Wallbox-Steuerung des EMS (`applyFuseCap`, `chargerCapAmps`).
+- **Stufe 2, Abschalten**: liegt eine Phase länger als die Wartezeit über der Grenze, wird der nächste laufende Eintrag
+  der Liste ausgeschaltet (Wallbox, Geräte mit onoff oder Thermostat-Modus «off», oder ein Flow), danach jeweils nach
+  einer weiteren Wartezeit der nächste. Standard-Liste: Wallbox.
+- **Freigabe**: alle Phasen mindestens 2 A unter der Grenze während der Freigabezeit. Die Wallbox darf wieder laden,
+  ausgeschaltete Geräte bleiben aus; EMS-Verbraucher in der Liste schaltet das EMS bis zur Freigabe nicht ein.
+- **Echtzeit**: das EMS meldet sich auf die drei Phasenströme an (`Inputs.watch`); ab 1 A unter der Grenze wird sofort
+  gerechnet (höchstens alle 3 s), bei Überlast alle 5 s, sonst mit Schutz höchstens alle 30 s.
+- **Live**: eigener Schalter «Schutz live», der Silent-Modus hat Vorrang. Ohne live wird nur protokolliert.
+  Eine Wallbox, die das EMS nicht steuert, wird live direkt gestoppt (wie im bisherigen Flow).
+- Auslöser **«Der Hausanschluss ist überlastet»** (`ems_fuse_overload`: Strom, Phase, Aktion, live) bei Überschreiten,
+  Drosseln und Abschalten. Heute zeigt eine Zeile (höchste Phase, Grenze, Drosselung, Ausgeschaltetes), das Protokoll
+  die Ereignisse.
+- Übergang: solange der Schutz nicht live ist, bleibt der eigene Flow «Hausanschluss 40A ...» der Schutz. Beim
+  Live-Schalten die entsprechenden Zweige im Flow ausschalten.

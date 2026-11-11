@@ -1,0 +1,55 @@
+{
+  "title": {
+    "en": "The house connection is overloaded",
+    "de": "Der Hausanschluss ist überlastet"
+  },
+  "hint": {
+    "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off (also in silent mode, then \"live\" is no).",
+    "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird (auch im Silent-Modus, dann ist «live» nein)."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "current",
+      "type": "number",
+      "title": {
+        "en": "Highest phase current (A)",
+        "de": "Höchster Phasenstrom (A)"
+      },
+      "example": 37.5
+    },
+    {
+      "name": "phase",
+      "type": "number",
+      "title": {
+        "en": "Phase",
+        "de": "Phase"
+      },
+      "example": 2
+    },
+    {
+      "name": "action",
+      "type": "string",
+      "title": {
+        "en": "Action",
+        "de": "Aktion"
+      },
+      "example": "Sauna ausgeschaltet"
+    },
+    {
+      "name": "live",
+      "type": "boolean",
+      "title": {
+        "en": "Live",
+        "de": "Live"
+      },
+      "example": false
+    }
+  ]
+}

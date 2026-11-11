@@ -86,7 +86,9 @@ module.exports = {
 
   async getEmsConsumers({ homey }) {
     const r = homey.app.ems.runner;
-    return { current: r ? r.consumerCurrent : [], events: r ? r.consumerEvents.slice(-30).reverse() : [], batteryEvents: r && r.batteryEvents ? r.batteryEvents.slice(-30).reverse() : [] };
+    return {
+      current: r ? r.consumerCurrent : [], events: r ? r.consumerEvents.slice(-30).reverse() : [], batteryEvents: r && r.batteryEvents ? r.batteryEvents.slice(-30).reverse() : [], fuseEvents: r && r.fuseEvents ? r.fuseEvents.slice(-30).reverse() : [],
+    };
   },
 
   async getEmsBatteryCards({ homey }) {
