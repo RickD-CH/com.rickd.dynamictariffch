@@ -188,7 +188,7 @@ test('Anzeige: Formular unter dem Plan, Änderung löst die Vorschau aus, Ergebn
     await wait();
     const post = calls.find((c) => c[1] === '/ems/plan/preview');
     assert.ok(post, 'Vorschau angefragt');
-    assert.equal(JSON.stringify(post[2].jobs[0]), JSON.stringify({ id: 'charger', kind: 'charger', time: '07:00', targetSoc: null, amount: 20, powerKw: null, maxPrice: null, contiguous: true }));
+    assert.equal(JSON.stringify(post[2].jobs[0]), JSON.stringify({ id: 'charger', kind: 'charger', time: '07:00', targetSoc: null, amount: 20, powerKw: null, maxPrice: null, contiguous: true, repeat: 'once' }));
     const after = env.els.get('ems-view-plan').innerHTML;
     assert.match(after, /Läuft von|in \d+ Viertelstunden/);
     assert.match(after, /Kosten ca\. 2\.00 CHF/);

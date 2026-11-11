@@ -18,7 +18,6 @@ const { fromLocal } = require('../lib/time');
 
 const TZ = 'Europe/Zurich';
 const Q = 15 * 60 * 1000;
-const H = 3600 * 1000;
 // Dienstag, 10.11.2026
 const day0 = fromLocal(2026, 11, 10, 0, 0).getTime();
 const at = (h, m = 0) => day0 + (h * 60 + m) * 60 * 1000;
@@ -81,7 +80,7 @@ test('stepJob: plant erst ab «from» (läuft vorher nicht, obwohl es günstig w
 
 // ---------------------------------------------------------------- Runner: erledigt → nächste Frist
 
-function setup(jobs) {
+function makeRunner(jobs) {
   const slots = slotList().map((s) => ({ start: new Date(s.start), end: new Date(s.end), integrated: s.price / 100 }));
   const priceStore = { range: (a, b) => slots.filter((s) => s.start >= a && s.start < b), value: (s) => s.integrated };
   const state = { on: new Map() };
@@ -110,7 +109,7 @@ function setup(jobs) {
 }
 
 test('Runner: täglicher Auftrag ist nach dem Lauf nicht weg, sondern wartet auf die nächste Nacht', async () => {
-  const { runner, js } = setup([{
+  const { runner, js } = makeRunner([{
     id: 'dry', kind: 'consumer', time: '03:00', amount: 1, deadline: at(3), need: 4, ran: [], runningQ: null, contiguous: true, maxPrice: null, repeat: 'daily',
   }]);
   for (const m of [1, 16, 31, 46]) await runner.tickCharger(at(1, m));
@@ -122,7 +121,7 @@ test('Runner: täglicher Auftrag ist nach dem Lauf nicht weg, sondern wartet auf
   await runner.tickCharger(at(2, 16));
   assert.equal(runner.consumerCurrent[0].wantOn, false, 'läuft heute Nacht nicht nochmals');
   // abgelaufen (App war aus): ebenfalls weiter zur nächsten Frist
-  const off = setup([{
+  const off = makeRunner([{
     id: 'dry', kind: 'consumer', time: '03:00', amount: 1, deadline: at(3), need: 4, ran: [], runningQ: null, contiguous: true, maxPrice: null, repeat: 'weekdays',
   }]);
   await off.runner.tickCharger(at(12));
@@ -145,7 +144,12 @@ function makeController(nowMs) {
   ctrl.jobStore = new JobStore({ get: (k) => settings.get(`ems.${k}`), set: (k, v) => settings.set(`ems.${k}`, v) });
   const real = Date.now;
   Date.now = () => nowMs;
-  return { ctrl, restore: () => { Date.now = real; } };
+  return {
+    ctrl,
+    restore: () => {
+      Date.now = real;
+    },
+  };
 }
 
 test('Controller: wiederkehrender Auftrag wird mit Wiederholung gespeichert und angezeigt; Ziel-Ladestand nur einmalig', () => {
@@ -167,5 +171,7 @@ test('Controller: wiederkehrender Auftrag wird mit Wiederholung gespeichert und 
     });
     assert.equal(once.jobs.find((x) => x.id === 'charger').repeat, 'once');
     assert.equal(ctrl.jobStore.get('charger').from, null);
-  } finally { restore(); }
+  } finally {
+    restore();
+  }
 });
