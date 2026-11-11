@@ -257,3 +257,12 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   die Ereignisse.
 - Übergang: solange der Schutz nicht live ist, bleibt der eigene Flow «Hausanschluss 40A ...» der Schutz. Beim
   Live-Schalten die entsprechenden Zweige im Flow ausschalten.
+
+## Verbraucher mit Akku (11.11.2026)
+
+- Jeder Verbraucher kann einen **Akku-Block** haben (keine eigene Kategorie): Ladestand von einem Gerät und Wert
+  (`consumer.accu`), z. B. eBike an einer Steckdose. Werte 0 bis 1 werden zu Prozent.
+- Ab **stopAt** (80 %) aus, auch während Auftrag oder Mindestlaufzeit; wieder frei erst unter **resumeBelow** (75 %).
+- Unter **chargeBelow** (20 %) wird auch ohne Überschuss geladen, bis chargeBelow + 10 %.
+- **maxRunMin** (240 min) am Stück: aus und gesperrt wie «voll» (Schutz bei ausfallendem Ladestand). Die Sperre endet
+  unter resumeBelow, ohne lesbaren Ladestand nach 12 Stunden. 0 = ohne Höchstdauer.

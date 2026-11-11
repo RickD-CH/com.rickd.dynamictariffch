@@ -106,6 +106,8 @@
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
+      accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
+      accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
@@ -216,6 +218,8 @@
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
+      accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
+      accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
@@ -573,6 +577,7 @@
       kind: 'consumer', name: '', control: true, deviceId: '', type: 'generic', mode: hasBattery() ? 'full' : 'surplus', fullSoc: 98, socOn: 80, hysteresis: 5,
       minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false,
       humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
+      accu: { enabled: false, sensorId: '', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 240 },
       meterDeviceId: '', meterCap: '',
       controlKind: 'device', flowOn: { id: '', advanced: false, name: '' }, flowOff: { id: '', advanced: false, name: '' }, assumedW: 0,
     };
@@ -597,6 +602,7 @@
       var m = findMeter(x.name);
       var r = Object.assign(newConsumerRow(), x, { kind: 'consumer', control: true, deviceId: x.id, meterDeviceId: m ? m.deviceId : '', meterCap: m ? m.capability : '' });
       r.humidity = Object.assign({}, newConsumerRow().humidity, x.humidity || {});
+      r.accu = Object.assign({}, newConsumerRow().accu, x.accu || {});
       r.flowOn = Object.assign({ id: '', advanced: false, name: '' }, x.flowOn || {});
       r.flowOff = Object.assign({ id: '', advanced: false, name: '' }, x.flowOff || {});
       rows.push(r);
@@ -676,9 +682,16 @@
           + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.humSensor) + '</span><select id="' + p + 'humSensor">' + deviceOptions(h.sensorId, hasCap(/^measure_humidity$/), S.none) + '</select></label>'
           + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div><p class="ems-why">' + esc(S.humHint) + '</p></div>'
         : '';
+      var ac = r.accu || newConsumerRow().accu;
+      var accu = '<div class="ems-box"><b>' + esc(S.accuTitle) + '</b><div class="ems-row">' + check(S.accuEnable, p + 'accuEnable', ac.enabled) + '</div>'
+        + (ac.enabled ? '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.accuSensor) + '</span><select id="' + p + 'accuSensor" data-ems-mode="' + i + '">' + deviceOptions(ac.sensorId, hasCap(/^measure_battery/), S.none) + '</select></label>'
+          + '<label class="ems-f"><span>' + esc(S.accuCap) + '</span><select id="' + p + 'accuCap">' + capOptions(ac.sensorId, /^measure_battery/, ac.capability) + '</select></label></div>'
+          + '<div class="ems-row">' + field(S.accuStop, p + 'accuStop', ac.stopAt) + field(S.accuResume, p + 'accuResume', ac.resumeBelow) + field(S.accuLow, p + 'accuLow', ac.chargeBelow) + field(S.accuMax, p + 'accuMax', ac.maxRunMin) + '</div>'
+          + '<p class="ems-why">' + esc(S.accuHint) + '</p>' : '')
+        + '</div>';
       ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label></div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
-        + '<div class="ems-row">' + params + '</div>'
+        + '<div class="ems-row">' + params + '</div>' + accu
         + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
         + field(S.minRun, p + 'minRunMin', r.minRunMin) + field(S.minOff, p + 'minOffMin', r.minOffMin) + field(S.protect, p + 'protectSoc', r.protectSoc) + '</div>'
         + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>';
@@ -791,7 +804,7 @@
     add(c.devices.meter.id); add(c.devices.house.id); add(c.devices.inverter.id); add(c.battery.deviceId); add(c.car && c.car.deviceId);
     state.rows.forEach(function (r) {
       if (r.kind === 'charger') add(r.deviceId);
-      else if (r.control !== false && r.deviceId) { if (r.controlKind !== 'flow') add(r.deviceId); if (r.humidity && r.humidity.enabled) add(r.humidity.sensorId); }
+      else if (r.control !== false && r.deviceId) { if (r.controlKind !== 'flow') add(r.deviceId); if (r.humidity && r.humidity.enabled) add(r.humidity.sensorId); if (r.accu && r.accu.enabled) add(r.accu.sensorId); }
     });
     return Object.keys(ids).length;
   }
@@ -1666,6 +1679,17 @@
       r.mode = val(p + 'mode', r.mode);
       ['fullSoc', 'socOn', 'hysteresis', 'minSurplusW', 'startSustainS', 'stopGraceS', 'minRunMin', 'minOffMin', 'protectSoc'].forEach(function (k) { r[k] = num(p + k, r[k]); });
       if ($(p + 'useGate')) r.useForecastGate = chk(p + 'useGate');
+      if ($(p + 'accuEnable')) {
+        var ac0 = r.accu || newConsumerRow().accu;
+        var sensor = $(p + 'accuSensor') ? val(p + 'accuSensor', ac0.sensorId) : ac0.sensorId;
+        var cap = $(p + 'accuCap') ? val(p + 'accuCap', ac0.capability) : ac0.capability;
+        var dev = findDevice(sensor);
+        if (dev && (dev.caps || []).indexOf(cap) < 0) cap = (dev.caps || []).filter(function (x) { return /^measure_battery/.test(x); })[0] || cap;
+        r.accu = {
+          enabled: chk(p + 'accuEnable'), sensorId: sensor, capability: cap,
+          stopAt: num(p + 'accuStop', ac0.stopAt), resumeBelow: num(p + 'accuResume', ac0.resumeBelow), chargeBelow: num(p + 'accuLow', ac0.chargeBelow), maxRunMin: num(p + 'accuMax', ac0.maxRunMin),
+        };
+      }
       if (r.type === 'dehumidifier' && $(p + 'humSensor')) {
         r.humidity = {
           enabled: chk(p + 'humEnable'), sensorId: val(p + 'humSensor', r.humidity.sensorId), capability: r.humidity.capability || 'measure_humidity',
@@ -1696,7 +1720,7 @@
         controlKind: r.controlKind === 'flow' ? 'flow' : 'device', flowOn: r.flowOn, flowOff: r.flowOff, assumedW: r.assumedW || 0,
         id: r.deviceId, name: r.name || 'Verbraucher', enabled: true, live: r.live === true, type: r.type, mode: r.mode,
         fullSoc: r.fullSoc, socOn: r.socOn, hysteresis: r.hysteresis, minSurplusW: r.minSurplusW, startSustainS: r.startSustainS, stopGraceS: r.stopGraceS,
-        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, humidity: r.humidity,
+        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, humidity: r.humidity, accu: r.accu,
       };
     });
     var ems = {
@@ -1983,6 +2007,7 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
+    if (t.id && /accuEnable$/.test(t.id)) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
     if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {
