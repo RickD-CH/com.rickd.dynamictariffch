@@ -166,3 +166,24 @@ einmal beim Speichern und über den Knopf «Jetzt lesen und aktualisieren» (`PO
   Berechtigung `homey:app:com.huawei.fusionsolar` ganz weg.
 - **Protokoll** unter «Heute» (nach dem Betrieb): die letzten 12 Schaltungen der Verbraucher und Moduswechsel der Wallbox mit Grund, ohne Fremdnamen.
   Es bleibt, wenn der Vergleich wegfällt.
+
+## Silent-Modus und Batteriesteuerung (11.11.2026)
+
+**Silent-Modus** (`silent`, Standard **an**): globaler Schalter unter «Heute». Solange er an ist, wird nichts geschaltet, egal wie die Schalter je
+Gerät stehen (Wallbox, Verbraucher, Batterie). Alle Entscheide werden berechnet und protokolliert («Protokoll», `batteryEvents`, `consumerEvents`,
+Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
+
+**Batteriesteuerung** (`battery.control`, Standard aus; `lib/ems/planner/batteryControl.js`):
+- Der Batterie-Planer liefert alle `tickMinutes` einen Modus: `charge` (Netzladen), `hold` (Entladung sperren), `normal`.
+- Eine **Vorlage** übersetzt den Modus in Aktionskarten des Batterie-Geräts (über `flow.runFlowCardAction`, `Actuators.battery`). Erkannt wird sie an den
+  Karten, die das Gerät anbietet (`GET /ems/battery-cards`). Heute gibt es eine Vorlage (`luna2000`):
+  - Laden: «Laden mit {Ladeleistung} W bis {Ziel-SoC} % starten»
+  - Halten: Zwangsladen stoppen, maximale Entladeleistung 0 W
+  - Normal: Zwangsladen stoppen, Betriebsmodus «Eigenverbrauch maximieren», maximale Entladeleistung {normal, Standard 7000 W}.
+    Die Freigabe der Entladung wird ausgelassen, solange das Auto lädt (> 500 W), und danach nachgeholt.
+- Gesendet wird bei jedem Moduswechsel, Laden und Halten zusätzlich alle `repeatMin` (Standard 10) Minuten. Erster Lauf nach dem Start oder Umschalten:
+  nur beobachten. Ein fehlgeschlagener Befehl gilt als nicht gesendet und wird beim nächsten Lauf wiederholt.
+- **Freigabe:** Wird das EMS ausgeschaltet und hat die App zuletzt Laden oder Halten gesendet, sendet sie Normal.
+- **Live** nur mit Silent aus **und** Schalter «Batterie» auf live (`/ems/toggle` mit `target: 'battery'`).
+- **Nur ein System pro Batterie:** vor live die Batterie-Steuerung im anderen Energiemanagement und eigene Batterie-Flows ausschalten.
+- Offen: Vorlagen für andere Batterien (oder freie Karten-Auswahl je Modus).
