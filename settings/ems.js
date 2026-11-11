@@ -98,11 +98,11 @@
       save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       modeNames: { disabled: 'Aus', idle: 'Bereit', holding: 'Wartet auf Überschuss', solar_ev: 'Lädt mit Solarstrom', instant_ev: 'Lädt mit voller Leistung', battery_priority: 'Batterie hat Vorrang', error: 'Fehler' },
       otherEms: 'Steuert schon ein anderes Energiemanagement diese Wallbox, dort zuerst ausschalten. Sonst steuern zwei Systeme dieselbe Wallbox.',
-      cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das EMS von Andi tut. Gleich = beide wählen im selben Lauf denselben Modus.',
+      cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das andere Energiemanagement tut. Gleich = beide wählen im selben Lauf denselben Modus.',
       cmpOff: 'Das Energiemanagement ist ausgeschaltet, es kommen keine neuen Vergleichsdaten. Gezeigt werden die bisherigen. Zum Weitervergleichen im Reiter «Betrieb» einschalten (Testbetrieb, es wird nichts gesteuert).',
-      cmpSource: 'Vergleichsquelle', andiDev: 'EMS von Andi (optional, nur Vergleich)', batterySec: 'Batterie-Planer (nur Vergleich mit Andis EMS)',
+      cmpSource: 'Vergleichsquelle', cmpDev: 'Anderes Energiemanagement (optional, nur Vergleich)', batterySec: 'Batterie-Planer (nur Vergleich)',
       cmpBattery: 'Batterie', cmpCharger: 'Wallbox', overall: 'Gesamt gleich', perDay: 'Pro Tag', changes: 'Letzte Wechsel', time: 'Zeit', price: 'Preis', reason: 'Grund',
-      runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Andis EMS', none2: 'Noch keine Daten.', day: 'Tag', same: 'gleich', nowSec: 'Jetzt (Vergleich)',
+      runs: 'Läufe', compared: 'Vergleiche', mine: 'Dieses EMS', theirs: 'Anderes EMS', none2: 'Noch keine Daten.', day: 'Tag', same: 'gleich', nowSec: 'Jetzt (Vergleich)',
       targetSoc: 'Ziel-SoC (%)', reserve: 'Reserve (Stunden)', solarLimit: 'Solar-Schwelle (kWh)',
     },
     en: {
@@ -194,11 +194,11 @@
       save: 'Save energy management settings', saved: 'Saved', error: 'Error', toggleFailed: 'Could not set the switch',
       modeNames: { disabled: 'Off', idle: 'Idle', holding: 'Waiting for surplus', solar_ev: 'Charging from solar', instant_ev: 'Charging at full power', battery_priority: 'Battery first', error: 'Error' },
       otherEms: 'If another energy management already controls this charger, switch it off there first. Otherwise two systems control the same charger.',
-      cmpIntro: "What this energy management would do, compared with what Andi's EMS does. Same = both choose the same mode in the same run.",
+      cmpIntro: "What this energy management would do, compared with what the other energy management does. Same = both choose the same mode in the same run.",
       cmpOff: 'Energy management is switched off, so no new comparison data arrives. The previous data is shown. To keep comparing, switch it on in the "Operation" view (test mode, nothing is controlled).',
-      cmpSource: 'Comparison source', andiDev: "Andi's EMS (optional, comparison only)", batterySec: "Battery planner (comparison with Andi's EMS only)",
+      cmpSource: 'Comparison source', cmpDev: 'Other energy management (optional, comparison only)', batterySec: 'Battery planner (comparison only)',
       cmpBattery: 'Battery', cmpCharger: 'EV charger', overall: 'Overall same', perDay: 'Per day', changes: 'Recent changes', time: 'Time', price: 'Price', reason: 'Reason',
-      runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: "Andi's EMS", none2: 'No data yet.', day: 'Day', same: 'same', nowSec: 'Now (comparison)',
+      runs: 'Runs', compared: 'Comparisons', mine: 'This EMS', theirs: 'Other EMS', none2: 'No data yet.', day: 'Day', same: 'same', nowSec: 'Now (comparison)',
       targetSoc: 'Target SoC (%)', reserve: 'Reserve (hours)', solarLimit: 'Solar threshold (kWh)',
     },
   };
@@ -1237,10 +1237,10 @@
     if (!data) return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.none2) + '</p></div>';
     var pct = data.overallAgreePct === null || data.overallAgreePct === undefined ? '-' : data.overallAgreePct + ' %';
     var days = (data.days || []).slice().reverse().map(function (d) {
-      return '<tr><td>' + esc(d.day) + '</td><td>' + esc(d.agreePct === null || d.agreePct === undefined ? '-' : d.agreePct + ' %') + '</td><td>' + esc(d.compared) + '/' + esc(d.ticks) + '</td><td>' + esc(counts(d.mine)) + '</td><td>' + esc(counts(d.andi)) + '</td></tr>';
+      return '<tr><td>' + esc(d.day) + '</td><td>' + esc(d.agreePct === null || d.agreePct === undefined ? '-' : d.agreePct + ' %') + '</td><td>' + esc(d.compared) + '/' + esc(d.ticks) + '</td><td>' + esc(counts(d.mine)) + '</td><td>' + esc(counts(d.other)) + '</td></tr>';
     }).join('');
     var ev = (data.events || []).slice(0, 25).map(function (e) {
-      return '<tr><td>' + esc(time(e.ts)) + '</td><td>' + esc(e.soc === null || e.soc === undefined ? '-' : e.soc + ' %') + '</td><td>' + esc(e.price === null || e.price === undefined ? '-' : e.price) + '</td><td>' + esc(modeLabel(e.mine)) + '</td><td>' + esc(modeLabel(e.andi)) + '</td><td>' + esc(e.reason) + '</td></tr>';
+      return '<tr><td>' + esc(time(e.ts)) + '</td><td>' + esc(e.soc === null || e.soc === undefined ? '-' : e.soc + ' %') + '</td><td>' + esc(e.price === null || e.price === undefined ? '-' : e.price) + '</td><td>' + esc(modeLabel(e.mine)) + '</td><td>' + esc(modeLabel(e.other)) + '</td><td>' + esc(e.reason) + '</td></tr>';
     }).join('');
     return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.overall) + ': <b>' + esc(pct) + '</b></p>'
       + (days ? '<h3>' + esc(S.perDay) + '</h3><table class="ems-t"><tr><th>' + esc(S.day) + '</th><th>' + esc(S.same) + '</th><th>' + esc(S.compared) + '/' + esc(S.runs) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th></tr>' + days + '</table>' : '<p class="sub">' + esc(S.none2) + '</p>')
@@ -1254,17 +1254,17 @@
     var cur = sh.current;
     if (ch) {
       cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(ch.mine.mode) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(ch.andi ? ch.andi.mode : '-') + '</div><div class="ems-s">' + esc(ch.andi ? ch.andi.reason : '') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(ch.other ? ch.other.mode : '-') + '</div><div class="ems-s">' + esc(ch.other ? ch.other.reason : '') + '</div></div>');
     }
     if (cur) {
       cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(modeLabel(cur.mine.mode)) + '</div><div class="ems-s">' + esc(cur.soc === null ? '' : Math.round(cur.soc) + ' %') + '</div></div>');
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(modeLabel(cur.andi && cur.andi.mode)) + '</div><div class="ems-s">' + esc(cur.andi ? cur.andi.reason : '') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(modeLabel(cur.other && cur.other.mode)) + '</div><div class="ems-s">' + esc(cur.other ? cur.other.reason : '') + '</div></div>');
     }
     return cards.length ? '<div class="card"><h2>' + esc(S.nowSec) + '</h2><div class="ems-cards">' + cards.join('') + '</div></div>' : '';
   }
   function compareSettingsHtml() {
     var c = state.cfg;
-    return '<div class="card"><h2>' + esc(S.cmpSource) + '</h2><div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.andiDev) + '</span><select id="ems-d-andi">' + deviceOptions(c.devices.andiEms, hasCap(/^ems_mode$/), S.none) + '</select></label></div></div>'
+    return '<div class="card"><h2>' + esc(S.cmpSource) + '</h2><div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.cmpDev) + '</span><select id="ems-d-cmp">' + deviceOptions(c.devices.compareEms, hasCap(/^ems_mode$/), S.none) + '</select></label></div></div>'
       + '<details class="card sec"><summary><h2>' + esc(S.batterySec) + '</h2></summary><div class="ems-row">'
       + field(S.targetSoc, 'ems-b-target', c.battery.targetSoc) + field(S.reserve, 'ems-b-reserve', c.battery.reserveHours) + field(S.solarLimit, 'ems-b-solar', c.battery.solarLimitKwh)
       + '</div></details><p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-cmp">' + esc(state.msg) + '</span></p>';
@@ -1364,8 +1364,8 @@
       }
     });
     if (state.cmpBuilt) {
-      var andi = $('ems-d-andi');
-      if (andi && andi.value !== undefined) state.cfg.devices.andiEms = andi.value;
+      var other = $('ems-d-cmp');
+      if (other && other.value !== undefined) state.cfg.devices.compareEms = other.value;
       if ($('ems-b-target')) {
         state.cfg.battery.targetSoc = num('ems-b-target', state.cfg.battery.targetSoc);
         state.cfg.battery.reserveHours = num('ems-b-reserve', state.cfg.battery.reserveHours);
@@ -1390,7 +1390,7 @@
       };
     });
     var ems = {
-      devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, andiEms: c.devices.andiEms },
+      devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
         deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw,
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10 },

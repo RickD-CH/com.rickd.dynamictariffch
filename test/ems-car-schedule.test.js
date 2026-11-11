@@ -111,7 +111,7 @@ function runner({ soc = 40, connected = true, gridCharge = true } = {}) {
     enabled: true, devices: { meter: { id: 'm' } }, charger: { id: 'wb' },
     car: { deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), gridCharge } },
   });
-  const i = { gridW: 300, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: true, chargerConnected: connected, chargerPowerW: 0, chargerPhases: 3, carSoc: soc, andi: null };
+  const i = { gridW: 300, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: true, chargerConnected: connected, chargerPowerW: 0, chargerPhases: 3, carSoc: soc, other: null };
   const r = new EmsRunner({
     getConfig: () => config, prices: new PriceFeed(() => ({ priceStore })), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
     inputs: { chargerInputs: async () => i, consumerStates: async () => new Map() },

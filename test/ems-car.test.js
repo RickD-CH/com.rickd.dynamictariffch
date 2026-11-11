@@ -172,3 +172,16 @@ test('Anzeige: ohne E-Auto kein Ziel-Ladestand, aber Energie in kWh geht, und Vo
     assert.match(ui.plan(), /Läuft von|in \d+ Viertelstunden/);
   } finally { ui.restore(); }
 });
+
+test('Inputs.chargerInputs: Ladestand mit Bereich 0 bis 1 (0.4) wird zu 40 %', async () => {
+  const devices = {
+    em: { available: true, capabilitiesObj: { measure_power: { value: 0 } } },
+    wb: { available: true, capabilitiesObj: { evcharger_charging_state: { value: 'plugged_in' }, measure_power: { value: 0 } } },
+    car: { available: true, capabilitiesObj: { soc_fraction: { value: 0.4, max: 1 }, measure_battery: { value: 40, max: 100 } } },
+  };
+  const inputs = new Inputs({}, () => {});
+  inputs._api = async () => ({ devices: { getDevice: async ({ id }) => devices[id] } });
+  const base = { devices: { meter: { id: 'em' }, house: { id: 'em' } }, charger: { id: 'wb' } };
+  assert.equal((await inputs.chargerInputs(normalizeConfig({ ...base, car: { deviceId: 'car', socCapability: 'soc_fraction' } }))).carSoc, 40);
+  assert.equal((await inputs.chargerInputs(normalizeConfig({ ...base, car: { deviceId: 'car', socCapability: 'measure_battery' } }))).carSoc, 40);
+});

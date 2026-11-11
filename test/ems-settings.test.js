@@ -40,17 +40,17 @@ const cfg = normalizeConfig({ enabled: true, compare: true, consumers: [{ id: 'd
 const shadow = {
   enabled: true, shadow: true, config: cfg,
   overallAgreePct: 92,
-  days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30, normal: 10 }, andi: { hold: 33, normal: 7 } }],
-  events: [{ ts: 1800000000000, soc: 99, price: 29.1, mine: 'hold', andi: 'hold', reason: 'Kapazität reserviert' }],
-  current: { soc: 99, mine: { mode: 'hold' }, andi: { mode: 'hold' }, errors: [] },
+  days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30, normal: 10 }, other: { hold: 33, normal: 7 } }],
+  events: [{ ts: 1800000000000, soc: 99, price: 29.1, mine: 'hold', other: 'hold', reason: 'Kapazität reserviert' }],
+  current: { soc: 99, mine: { mode: 'hold' }, other: { mode: 'hold' }, errors: [] },
   charger: {
     current: {
-      live: false, mine: { mode: 'idle', reason: '270 W Überschuss' }, andi: { mode: 'idle', reason: 'x' },
+      live: false, mine: { mode: 'idle', reason: '270 W Überschuss' }, other: { mode: 'idle', reason: 'x' },
       gridW: -270, pvW: 901, gate: { blocked: false, remainingKwh: 2.6, thresholdKwh: 0 }, warning: null,
     },
     overallAgreePct: 100,
-    days: [{ day: '2026-11-10', ticks: 12, compared: 12, agree: 12, agreePct: 100, mine: { idle: 12 }, andi: { idle: 12 } }],
-    events: [{ ts: 1800000000000, soc: 100, price: null, mine: 'idle', andi: 'idle', reason: 'kein Überschuss' }],
+    days: [{ day: '2026-11-10', ticks: 12, compared: 12, agree: 12, agreePct: 100, mine: { idle: 12 }, other: { idle: 12 } }],
+    events: [{ ts: 1800000000000, soc: 100, price: null, mine: 'idle', other: 'idle', reason: 'kein Überschuss' }],
   },
 };
 const responses = {
@@ -80,7 +80,7 @@ test('Vergleichs-Reiter: Tab und Panel vorhanden, Batterie und Wallbox mit Tagen
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
   const html = env.els.get('ems-cmp-data').innerHTML;
-  assert.match(html, /Andis EMS/);
+  assert.match(html, /Anderes EMS/);
   assert.match(html, /Gesamt gleich: <b>92 %<\/b>/);
   assert.match(html, /Gesamt gleich: <b>100 %<\/b>/);
   assert.match(html, /2026-11-10/);
@@ -100,17 +100,17 @@ test('EmsUi: Fehler vom Server wird angezeigt', async () => {
 test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', async () => {
   const env = makeEnv(responses);
   await env.ctx.window.EmsUi.init(env.api, 'de');
-  const banned = /Andi|Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom/i;
+  const banned = /Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom/i;
   const ems = env.els.get('ems-view-main').innerHTML + env.els.get('ems-view-devices').innerHTML;
   assert.doesNotMatch(ems, banned, 'EMS-Reiter und Geräte-Setup (de)');
   const en = makeEnv(responses);
   await en.ctx.window.EmsUi.init(en.api, 'en');
   assert.doesNotMatch(en.els.get('ems-view-main').innerHTML + en.els.get('ems-view-devices').innerHTML, banned, 'EMS-Reiter und Geräte-Setup (en)');
   // Im Vergleich dürfen sie vorkommen
-  assert.match(env.els.get('ems-cmp-data').innerHTML, /Andis EMS/);
+  assert.match(env.els.get('ems-cmp-data').innerHTML, /Anderes EMS/);
   // Die Vergleichsquelle liegt im Vergleichs-Reiter, nicht mehr in der Geräte-Karte
-  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-andi"/);
-  assert.doesNotMatch(ems, /ems-d-andi/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-cmp"/);
+  assert.doesNotMatch(ems, /ems-d-cmp/);
   assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
   assert.doesNotMatch(ems, /ems-b-target/);
 });
@@ -294,6 +294,6 @@ test('SetupNav: Allgemein, Preis-App, EMS und Vergleich schalten um, Texte in vi
     ctx.window.SetupNav.init(lang);
     assert.equal(JSON.stringify([el('setup-sub-general').textContent, el('setup-sub-price').textContent, el('setup-sub-ems').textContent, el('setup-sub-cmp').textContent]), JSON.stringify(labels));
   }
-  assert.doesNotMatch(src, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
+  assert.doesNotMatch(src, /Huawei|FusionSolar|go-e|EMMA/i);
 });
 

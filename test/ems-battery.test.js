@@ -81,7 +81,7 @@ test('weicher Solar-Tor: Ziel sinkt linear zwischen min und Schwelle', () => {
   assert.equal(effectiveTarget(c, 10).target, 70);
   assert.equal(effectiveTarget(c, 15.9).target, 50);
   assert.equal(effectiveTarget(c, 16).blocked, true);
-  // ohne solarMinKwh: wie Andi, kein Übergang
+  // ohne solarMinKwh: harter Solar-Tor, kein Übergang
   assert.equal(effectiveTarget({ ...c, solarMinKwh: 0 }, 10).target, 90);
 });
 

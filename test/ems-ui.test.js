@@ -56,7 +56,7 @@ function scenario({ cfg = {}, meters = {}, shadow = {}, status = {} } = {}) {
   const sh = {
     enabled: config.enabled, deviceExists: true, shadow: true, config,
     pv: { source: null, factor: 1, externalAt: null, stale: true, slots: 0 },
-    current: { soc: 97, mine: { mode: 'hold' }, andi: { mode: 'hold' }, errors: [] },
+    current: { soc: 97, mine: { mode: 'hold' }, other: { mode: 'hold' }, errors: [] },
     charger: { current: { live: false, mine: { mode: 'idle', reason: 'kein Überschuss' }, gridW: 18, pvW: 514, batterySoc: 97, connected: false, warning: null } },
     ...shadow,
   };
@@ -374,7 +374,7 @@ test('Ohne EMS-Gerät: «Heute» bleibt leer, die Einladung steht nur im Setup',
 // ---------------------------------------------------------------- Allgemein
 
 test('Neutral: keine Hersteller- oder Personennamen in Betrieb und Setup (de und en)', async () => {
-  const banned = /Andi|Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom|Solcast/i;
+  const banned = /Huawei|FusionSolar|go-e|LUNA|EMMA|Innostrom|Solcast/i;
   for (const lang of ['de', 'en']) {
     const env = await start(scenario({ cfg: fullCfg, meters: fullMeters }), lang);
     for (const id of ['grid', 'pv', 'house', 'bat', 'fc', 'price']) click(env, 'ems-view-devices', { 'data-ems-open': 'src-' + id });
@@ -384,13 +384,13 @@ test('Neutral: keine Hersteller- oder Personennamen in Betrieb und Setup (de und
 });
 
 test('Vergleich: zeigt weiter die Daten, Quelle und Batterie-Planer liegen dort', async () => {
-  const env = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, andi: { hold: 33 } }], events: [] } }));
+  const env = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, other: { hold: 33 } }], events: [] } }));
   const data = env.els.get('ems-cmp-data').innerHTML;
   assert.match(data, /Gesamt gleich: <b>92 %<\/b>/);
-  assert.match(data, /Andis EMS/);
-  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-andi"/);
+  assert.match(data, /Anderes EMS/);
+  assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-cmp"/);
   assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
-  assert.doesNotMatch(setup(env) + main(env), /ems-d-andi|ems-b-target/);
+  assert.doesNotMatch(setup(env) + main(env), /ems-d-cmp|ems-b-target/);
 });
 
 test('Gerätewechsel wird beim Auffrischen nicht überschrieben', async () => {

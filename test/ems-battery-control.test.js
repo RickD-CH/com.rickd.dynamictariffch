@@ -108,7 +108,7 @@ function setup({ silent = true, live = false, enabled = true, soc = 20, charging
   actuators._runCard = async (id, args) => { sent.push([id, args]); };
   const runner = new EmsRunner({
     getConfig: () => config, prices: prices(), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
-    inputs: { battery: async () => ({ soc, capacityKwh: 10 }), andiBatteryPlan: async () => null },
+    inputs: { battery: async () => ({ soc, capacityKwh: 10 }), compareBatteryPlan: async () => null },
     actuators, shadowLog: new ShadowLog(mem()), store: mem(),
   });
   runner.chargerCurrent = { chargerPowerW: charging };

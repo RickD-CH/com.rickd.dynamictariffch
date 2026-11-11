@@ -26,16 +26,16 @@ test('ShadowLog: speichert sofort bei einem Wechsel, sonst höchstens alle 5 Min
   const store = countingStore();
   const log = new ShadowLog(store, 'Europe/Zurich', 'charger');
   // eine Stunde lang alle 15 s derselbe Zustand
-  for (let s = 0; s < 240; s++) log.record({ nowMs: T0 + s * 15000, soc: 60, price: null, mine: { mode: 'idle', reason: 'x' }, andi: null });
+  for (let s = 0; s < 240; s++) log.record({ nowMs: T0 + s * 15000, soc: 60, price: null, mine: { mode: 'idle', reason: 'x' }, other: null });
   const perHour = store.sets() / 2; // je Speichern zwei Schlüssel (Ereignisse, Tage)
   assert.ok(perHour <= 13, 'höchstens ca. 12 Speichervorgänge pro Stunde statt 240: ' + perHour);
   assert.ok(perHour >= 10, 'aber regelmässig: ' + perHour);
   // ein Wechsel wird sofort gespeichert
   const before = store.sets();
-  log.record({ nowMs: T0 + 3600000 + 1000, soc: 60, price: null, mine: { mode: 'solar_ev', reason: 'y' }, andi: null });
+  log.record({ nowMs: T0 + 3600000 + 1000, soc: 60, price: null, mine: { mode: 'solar_ev', reason: 'y' }, other: null });
   assert.equal(store.sets(), before + 2);
   // die Tageszähler stimmen trotzdem (nach flush gespeichert)
-  log.record({ nowMs: T0 + 3600000 + 16000, soc: 60, price: null, mine: { mode: 'solar_ev', reason: 'y' }, andi: null });
+  log.record({ nowMs: T0 + 3600000 + 16000, soc: 60, price: null, mine: { mode: 'solar_ev', reason: 'y' }, other: null });
   log.flush(T0 + 3600000 + 17000);
   const days = store.get('shadowDays_charger');
   const day = Object.values(days)[0];
@@ -70,11 +70,11 @@ test('failSafe: greift nur bei selbst gestartetem Laden, nach 60 s Mindeststrom,
 
 function liveRunner() {
   const calls = [];
-  const state = { i: { gridW: -9000, houseW: 500, pvW: 10000, batterySoc: 99, batteryW: 0, batteryCapacityKwh: 10, chargerRead: true, chargerConnected: true, chargerState: 'plugged_in_charging', chargerPowerW: 0, chargerPhases: 3, chargeNow: false, andi: null } };
+  const state = { i: { gridW: -9000, houseW: 500, pvW: 10000, batterySoc: 99, batteryW: 0, batteryCapacityKwh: 10, chargerRead: true, chargerConnected: true, chargerState: 'plugged_in_charging', chargerPowerW: 0, chargerPhases: 3, chargeNow: false, other: null } };
   const config = normalizeConfig({ enabled: true, silent: false, devices: { meter: { id: 'm' }, inverter: { id: 'inv' } }, battery: { deviceId: 'bat' }, charger: { id: 'wb', live: true } });
   const runner = new EmsRunner({
     getConfig: () => config, prices: new PriceFeed(() => null), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
-    inputs: { chargerInputs: async () => state.i, consumerStates: async () => new Map(), battery: async () => ({ soc: 99, capacityKwh: 10 }), andiBatteryPlan: async () => null },
+    inputs: { chargerInputs: async () => state.i, consumerStates: async () => new Map(), battery: async () => ({ soc: 99, capacityKwh: 10 }), compareBatteryPlan: async () => null },
     actuators: { charger: async (id, cmd) => { calls.push(cmd); return { cmd: cmd.type }; }, consumer: async () => ({}) },
     shadowLog: new ShadowLog(countingStore()), store: null,
   });
@@ -153,19 +153,19 @@ test('Verbraucher-Grenze: 8 gesteuerte Verbraucher, die Oberfläche lehnt mehr m
 test('Config: Vergleich ist standardmässig aus, bleibt an, wo schon eine Vergleichsquelle gewählt war', () => {
   assert.equal(normalizeConfig({}).compare, false);
   assert.equal(normalizeConfig({ compare: true }).compare, true);
-  assert.equal(normalizeConfig({ devices: { andiEms: 'abc' } }).compare, true, 'bestehende Einrichtung läuft weiter');
-  assert.equal(normalizeConfig({ compare: false, devices: { andiEms: 'abc' } }).compare, false, 'ausdrücklich aus');
+  assert.equal(normalizeConfig({ devices: { compareEms: 'abc' } }).compare, true, 'bestehende Einrichtung läuft weiter');
+  assert.equal(normalizeConfig({ compare: false, devices: { compareEms: 'abc' } }).compare, false, 'ausdrücklich aus');
 });
 
 function compareRunner(compare) {
   const asked = { plan: 0, device: [] };
-  const config = normalizeConfig({ enabled: true, compare, devices: { meter: { id: 'm' }, andiEms: compare ? 'x' : '' }, battery: { deviceId: 'bat' }, charger: { id: 'wb' } });
+  const config = normalizeConfig({ enabled: true, compare, devices: { meter: { id: 'm' }, compareEms: compare ? 'x' : '' }, battery: { deviceId: 'bat' }, charger: { id: 'wb' } });
   const runner = new EmsRunner({
     getConfig: () => config, prices: new PriceFeed(() => null), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
     inputs: {
       battery: async () => ({ soc: 50, capacityKwh: 10 }),
-      andiBatteryPlan: async () => { asked.plan += 1; return { mode: 'hold', reason: '' }; },
-      chargerInputs: async () => ({ gridW: 0, chargerRead: true, chargerConnected: false, andi: null }),
+      compareBatteryPlan: async () => { asked.plan += 1; return { mode: 'hold', reason: '' }; },
+      chargerInputs: async () => ({ gridW: 0, chargerRead: true, chargerConnected: false, other: null }),
       consumerStates: async () => new Map(),
     },
     shadowLog: new ShadowLog(countingStore()), store: null,
@@ -177,11 +177,11 @@ test('Ohne Vergleich liest das EMS keine fremde App; mit Vergleich schon', async
   const off = compareRunner(false);
   await off.runner.tick(T0);
   assert.equal(off.asked.plan, 0, 'kein Aufruf der fremden App');
-  assert.equal(off.runner.current.andi, null);
+  assert.equal(off.runner.current.other, null);
   const on = compareRunner(true);
   await on.runner.tick(T0);
   assert.equal(on.asked.plan, 1);
-  assert.equal(on.runner.current.andi.mode, 'hold');
+  assert.equal(on.runner.current.other.mode, 'hold');
 });
 
 test('Inputs.chargerInputs: das Vergleichs-Gerät wird nur mit Vergleich gelesen', async () => {
@@ -189,10 +189,10 @@ test('Inputs.chargerInputs: das Vergleichs-Gerät wird nur mit Vergleich gelesen
   const inputs = new Inputs({}, () => {});
   const read = [];
   inputs._api = async () => ({ devices: { getDevice: async ({ id }) => { read.push(id); return { available: true, capabilitiesObj: {} }; } } });
-  await inputs.chargerInputs(normalizeConfig({ compare: false, devices: { meter: { id: 'em' }, andiEms: 'other' }, charger: { id: 'wb' } }));
+  await inputs.chargerInputs(normalizeConfig({ compare: false, devices: { meter: { id: 'em' }, compareEms: 'other' }, charger: { id: 'wb' } }));
   assert.ok(!read.includes('other'));
   read.length = 0;
-  await inputs.chargerInputs(normalizeConfig({ compare: true, devices: { meter: { id: 'em' }, andiEms: 'other' }, charger: { id: 'wb' } }));
+  await inputs.chargerInputs(normalizeConfig({ compare: true, devices: { meter: { id: 'em' }, compareEms: 'other' }, charger: { id: 'wb' } }));
   assert.ok(read.includes('other'));
 });
 
@@ -228,7 +228,7 @@ test('Protokoll unter «Heute»: Schaltungen und Moduswechsel mit Grund, ohne Fr
   assert.match(html, /Wallbox: Lädt mit Solarstrom \(Test\)/);
   assert.match(html, /Überschuss 2\.5 kW/);
   assert.ok(html.indexOf('Wallbox: Lädt') < html.indexOf('Entfeuchter: ein'), 'jüngster Eintrag zuerst');
-  assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/g, ''), /Andi|Huawei|FusionSolar|EMMA/i);
+  assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/g, ''), /Huawei|FusionSolar|EMMA/i);
   const empty = uiEnv();
   await empty.init();
   assert.match(empty.els.get('ems-view-main').innerHTML, /Noch keine Einträge/);
@@ -241,7 +241,7 @@ test('Vergleichs-Ansicht: Schalter, ausgeschaltet nur der Schalter und der Hinwe
   assert.match(html, /Vergleich aktiv/);
   assert.match(html, /greift sie auf keine andere App zu/);
   assert.match(html, /data-ems-compare="1"/);
-  assert.doesNotMatch(off.els.get('ems-cmp-data').innerHTML, /Gesamt gleich|Andis EMS/);
+  assert.doesNotMatch(off.els.get('ems-cmp-data').innerHTML, /Gesamt gleich|Anderes EMS/);
   assert.equal(off.els.get('ems-cmp-settings').hidden, true);
   off.handlers['ems-view-cmp:change']({ target: { getAttribute: (n) => (n === 'data-ems-compare' ? '1' : null), checked: true, parentNode: null } });
   await new Promise((r) => setTimeout(r, 15));
@@ -251,4 +251,15 @@ test('Vergleichs-Ansicht: Schalter, ausgeschaltet nur der Schalter und der Hinwe
   await on.init();
   assert.match(on.els.get('ems-cmp-data').innerHTML, /checked/);
   assert.equal(on.els.get('ems-cmp-settings').hidden, false);
+});
+
+test('ShadowLog: Daten früherer Versionen (anderer Feldname für den Vergleichswert) werden übernommen', () => {
+  const store = countingStore();
+  store.m.set('shadowEvents', [{ ts: 1, soc: 50, price: 20, mine: 'hold', reason: 'x', alt: 'charge' }]);
+  store.m.set('shadowDays', { '2026-11-10': { ticks: 3, compared: 3, agree: 2, mine: { hold: 3 }, alt: { hold: 2, charge: 1 } } });
+  const log = new ShadowLog(store);
+  assert.equal(log.events[0].other, 'charge');
+  assert.equal('alt' in log.events[0], false);
+  assert.deepEqual(log.days['2026-11-10'].other, { hold: 2, charge: 1 });
+  assert.equal(log.summary(Date.UTC(2026, 10, 10, 12)).days[0].agreePct, 67);
 });

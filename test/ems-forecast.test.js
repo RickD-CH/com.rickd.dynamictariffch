@@ -100,8 +100,8 @@ function runnerWith(pvCfg, { daily = { todayKwh: 20, tomorrowKwh: 10, source: 'h
   const inputs = {
     solarForecast: async () => { calls.daily += 1; return daily; },
     battery: async () => ({ soc: 50, capacityKwh: 10, error: null }),
-    andiBatteryPlan: async () => null,
-    chargerInputs: async () => ({ gridW: 0, houseW: 0, pvW: 0, batterySoc: 50, batteryW: 0, chargerRead: true, chargerConnected: false, chargerPowerW: 0, chargerPhases: 3, andi: null }),
+    compareBatteryPlan: async () => null,
+    chargerInputs: async () => ({ gridW: 0, houseW: 0, pvW: 0, batterySoc: 50, batteryW: 0, chargerRead: true, chargerConnected: false, chargerPowerW: 0, chargerPhases: 3, other: null }),
     consumerStates: async () => new Map(),
   };
   const runner = new EmsRunner({

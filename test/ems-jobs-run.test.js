@@ -88,11 +88,11 @@ function fakeStore() {
 function setup({ jobs = [], consumers = [{ id: 'dry', name: 'Entfeuchter', mode: 'full', live: false }], charger = {}, inputs = {} } = {}) {
   const prices = new PriceFeed(() => ({ priceStore: fakeStore() }));
   const pv = new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) });
-  const state = { consumersOn: new Map(), i: { gridW: 300, houseW: 500, pvW: 0, batterySoc: 50, batteryW: 0, batteryCapacityKwh: 10, chargerRead: true, chargerConnected: true, chargerState: 'plugged_in', chargerPowerW: 0, chargerPhases: 3, chargeNow: false, andi: null, ...inputs } };
+  const state = { consumersOn: new Map(), i: { gridW: 300, houseW: 500, pvW: 0, batterySoc: 50, batteryW: 0, batteryCapacityKwh: 10, chargerRead: true, chargerConnected: true, chargerState: 'plugged_in', chargerPowerW: 0, chargerPhases: 3, chargeNow: false, other: null, ...inputs } };
   const calls = { charger: [], consumer: [] };
   const fakeInputs = {
     battery: async () => ({ soc: 50, capacityKwh: 10, error: null }),
-    andiBatteryPlan: async () => null,
+    compareBatteryPlan: async () => null,
     chargerInputs: async () => state.i,
     consumerStates: async (ids) => new Map(ids.map((id) => [id, { actualOn: state.consumersOn.get(id) || false, powerW: 0, available: true }])),
   };

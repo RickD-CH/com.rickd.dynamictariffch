@@ -41,13 +41,13 @@ function setup({ cfg = {}, inputs = {}, pvSum = 3 } = {}) {
   const base = {
     gridW: -5000, houseW: 1500, pvW: 6500, batterySoc: 99, batteryW: 0, batteryCapacityKwh: 13.8,
     chargerRead: true, chargerConnected: true, chargerState: 'plugged_in_charging', chargerPowerW: 0,
-    chargerPhases: 3, chargeNow: false, andi: { mode: 'idle', reason: '' },
+    chargerPhases: 3, chargeNow: false, other: { mode: 'idle', reason: '' },
   };
   const calls = { charger: [], consumer: [] };
   const state = { consumers: new Map(), i: { ...base, ...inputs } };
   const fakeInputs = {
     battery: async () => ({ soc: state.i.batterySoc, capacityKwh: 13.8, error: null }),
-    andiBatteryPlan: async () => ({ mode: 'hold', reason: '' }),
+    compareBatteryPlan: async () => ({ mode: 'hold', reason: '' }),
     chargerInputs: async () => state.i,
     consumerStates: async (ids) => new Map(ids.map((id) => [id, state.consumers.get(id) || { actualOn: false, powerW: 0, available: true }])),
   };
@@ -121,10 +121,10 @@ test('Wallbox live: fehlender Netzzähler sendet nichts', async () => {
 
 test('Wallbox live: Warnung, wenn ein anderes Energiemanagement die Wallbox auch steuert', async () => {
   const { runner, state } = setup({ cfg: { charger: { live: true } } });
-  state.i.andi = { mode: 'solar_ev', reason: '' };
+  state.i.other = { mode: 'solar_ev', reason: '' };
   await runner.tickCharger(at(12));
   assert.match(runner.chargerCurrent.warning, /anderes Energiemanagement/);
-  assert.doesNotMatch(runner.chargerCurrent.warning, /Andi|Huawei/i);
+  assert.doesNotMatch(runner.chargerCurrent.warning, /Huawei/i);
 });
 
 test('Eigenes Sofortladen: live zählt nur der eigene Schalter', async () => {
@@ -212,7 +212,7 @@ test('Konfiguration enthält keine Geräte-IDs als Vorgabe', () => {
   assert.equal(c.devices.meter.id, '');
   assert.equal(c.charger.id, '');
   assert.equal(c.battery.deviceId, '');
-  assert.equal(c.devices.andiEms, '');
+  assert.equal(c.devices.compareEms, '');
 });
 
 test('Konfiguration: EMS standardmässig aus, Live-Schalter aus', () => {

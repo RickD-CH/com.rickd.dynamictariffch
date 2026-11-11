@@ -210,10 +210,10 @@ test('MetersUi: Status wird angezeigt (zuletzt gelesen und Fehler)', async () =>
 test('MetersUi: neutral, keine Hersteller- oder Personennamen', async () => {
   const env = makeUi(baseResponses);
   await env.ctx.window.MetersUi.init(env.api, 'de');
-  assert.doesNotMatch(env.els.get('meters-auto').innerHTML, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
+  assert.doesNotMatch(env.els.get('meters-auto').innerHTML, /Huawei|FusionSolar|go-e|EMMA/i);
   const en = makeUi(baseResponses);
   await en.ctx.window.MetersUi.init(en.api, 'en');
-  assert.doesNotMatch(en.els.get('meters-auto').innerHTML, /Andi|Huawei|FusionSolar|go-e|EMMA/i);
+  assert.doesNotMatch(en.els.get('meters-auto').innerHTML, /Huawei|FusionSolar|go-e|EMMA/i);
 });
 
 test('Grenze für Verbraucher: Oberfläche und Kostenrechnung stimmen überein (12)', () => {

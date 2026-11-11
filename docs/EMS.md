@@ -8,8 +8,8 @@ standardmässig **aus**: ohne Häkchen unter Einstellungen → "Energiemanagemen
 | Bereich | Verhalten | Steuerung |
 |---|---|---|
 | **Wallbox (go-e)** | Solar-Überschuss laden in Ampere-Stufen (6-16 A), Phasenumschaltung, Haltezeiten, Schutz vor Netzbezug, Batterie-Schutz (Rampe 50-80 %), "Akku voll"-Regel, Prognose-Sperre, Sofortladen, Hauptsicherungsgrenze | live (`charger.live`) oder Trockenlauf |
-| **Verbraucher** (z. B. Luftentfeuchter, bis 8) | Einschalten bei voller Batterie, ab gewähltem SoC oder bei Überschuss (wie Andis EMS); Mindestlaufzeit, Mindest-Pause, Schutz-SoC, Prognose-Sperre | live (je Verbraucher `live`) oder Trockenlauf |
-| **Batterie** | Planer für Laden/Halten/Normal auf 15-Minuten-Slots, nur zum Vergleich mit Andis EMS | nur Schattenmodus (Andis EMS steuert die Batterie weiter) |
+| **Verbraucher** (z. B. Luftentfeuchter, bis 8) | Einschalten bei voller Batterie, ab gewähltem SoC oder bei Überschuss; Mindestlaufzeit, Mindest-Pause, Schutz-SoC, Prognose-Sperre | live (je Verbraucher `live`) oder Trockenlauf |
+| **Batterie** | Planer für Laden/Halten/Normal auf 15-Minuten-Slots; Steuerung über die Karten des Batterie-Geräts (siehe unten) | Silent-Modus oder live |
 
 Trockenlauf = es wird gerechnet und protokolliert, **kein Gerät wird geschaltet**.
 
@@ -21,29 +21,27 @@ lib/ems/
     slots.js battery.js charger.js consumer.js forecastGate.js
   Config.js       Standardwerte (Richards Haus) + Prüfung der Konfiguration
   PriceFeed.js    15-min-Preise aus dem eigenen PriceStore
-  PvFeed.js       PV-Prognose (zurzeit von Andis EMS, GET /ems/pv-forecast)
-  Inputs.js       Messwerte lesen (homey-api); Andis EMS nur zum Vergleich
+  PvFeed.js       PV-Prognose (Homey, Gerät oder eingeliefert)
+  Inputs.js       Messwerte lesen (homey-api); ein anderes EMS nur zum Vergleich
   Actuators.js    EINZIGE Stelle, die Geräte schaltet (go-e Flow-Karten, onoff)
   EmsRunner.js    ein Durchlauf: lesen -> entscheiden -> protokollieren -> (live) senden
   EmsController.js  Zeitplanung, Konfiguration, Anbindung an App und API
-  ShadowLog.js    Protokoll und Vergleich mit Andis EMS
+  ShadowLog.js    Protokoll und Vergleich mit einem anderen EMS
 settings/ems.js  Reiter "Energiemanagement"
 ```
 
-Wallbox-Befehle sind dieselben Flow-Karten, die Andis EMS über Richards Flows auslöste:
+Wallbox-Befehle sind die Flow-Karten der Wallbox:
 `evcharger_charging_start` und `target_power_set` (Watt = A × Phasen × 230, Stopp = 0 W).
 
 ## Regeln
 
-- **Nie zwei Steuerungen auf demselben Gerät.** Vor `charger.live`: in Andis EMS die Wallbox ausschalten
-  (Schalter "EMS steuert dieses Gerät"). Der Reiter warnt, wenn Andis EMS die Wallbox trotzdem steuert.
+- **Nie zwei Steuerungen auf demselben Gerät.** Vor `charger.live`: in einem anderen EMS die Wallbox ausschalten.
+  Der Reiter warnt, wenn ein anderes EMS die Wallbox trotzdem steuert.
 - Erster Lauf nach dem Start oder Umschalten auf live: nur beobachten, nichts senden.
 - Fehlt der Netzzähler oder die Wallbox ist nicht lesbar: nichts senden.
 - Fremdgesteuerte Verbraucher (von Hand eingeschaltet) werden nicht angefasst.
 - Die Berechtigung `homey:manager:api` ist nötig (Messwerte und Schalten fremder Geräte). Im Store bedeutet
   das eine strengere Prüfung. Offen: ob eine Store-Version ohne sie auskommt.
-- Andis MIT-Code (Algorithmen) ist in den Dateiköpfen genannt. Vor einer Veröffentlichung die Lizenz klären
-  (sein Repo hat keine LICENSE-Datei).
 
 ## Add-ons (nach dem Basistest)
 

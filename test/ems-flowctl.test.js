@@ -97,10 +97,10 @@ function setup({ consumer = {}, inputs = {}, jobs = [] } = {}) {
   const pv = new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) });
   const asked = [];
   const calls = [];
-  const state = { i: { gridW: -2000, houseW: 500, pvW: 3000, batterySoc: 60, batteryW: 0, chargerRead: true, chargerConnected: false, chargerPowerW: 0, chargerPhases: 3, andi: null, ...inputs } };
+  const state = { i: { gridW: -2000, houseW: 500, pvW: 3000, batterySoc: 60, batteryW: 0, chargerRead: true, chargerConnected: false, chargerPowerW: 0, chargerPhases: 3, other: null, ...inputs } };
   const fakeInputs = {
     battery: async () => ({ soc: 60, capacityKwh: 10, error: null }),
-    andiBatteryPlan: async () => null,
+    compareBatteryPlan: async () => null,
     chargerInputs: async () => state.i,
     consumerStates: async (ids) => { asked.push(ids); return new Map(ids.map((id) => [id, { actualOn: false, powerW: 0, available: true }])); },
   };
