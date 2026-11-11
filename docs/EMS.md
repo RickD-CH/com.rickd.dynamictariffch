@@ -198,3 +198,20 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Anzeige: kurze Auto-Zeile unter «Heute»; unter «Ausblick» die Auto-Karte (Ladestand, nächstes Ziel, Status, «Heute oder morgen anders», einklappbare Wochenvorlage Mo bis So mit eigenem Ziel je Tag, Ferien, «Netz nachladen»), Zeile «E-Auto» im Plan.
 - Einrichten → EMS → E-Auto: Gerät, Ladestand-Wert, Batteriegrösse.
 - Offen: Solar-Vorrang in der Planung (Viertelstunden mit erwartetem Überschuss bevorzugen), Flow-Karte «Ziel setzen».
+
+## Flow-Karten des Energiemanagements, Sofortladen, Solar fürs Auto (11.11.2026)
+
+- Auslöser **«Ein Fehler ist aufgetreten»** (`ems_error`, Tokens Bereich `charger|battery|data` und Meldung): je neues
+  Problem einmal. «Geräte noch nicht gewählt» zählt nicht, Zusätze wie « - Mindeststrom» ergeben kein neues Problem.
+- Auslöser **«Das E-Auto hat sein Ziel erreicht»** (`ems_car_target_reached`, Ladestand und Ziel): beim Wechsel auf
+  «erreicht», nicht beim Start der App.
+- Aktionen **«Silent-Modus setzen»** (`ems_set_silent`), **«Ziel des E-Autos für heute oder morgen setzen»**
+  (`ems_car_set_target`, übersteuert die Vorlage an diesem Tag), **«E-Auto: Wochenvorlage gilt wieder»**
+  (`ems_car_clear_target`); Bedingung **«Silent-Modus ist an»** (`ems_silent_is_on`).
+- **Sofort laden** geht aus, wenn das Auto abgesteckt wird (`charger.chargeNowAutoOff`, Standard an, Einrichten →
+  Wallbox → Erweitert). Nur nach einem gesehenen Wechsel angesteckt → abgesteckt, nicht nach einem Neustart.
+- **E-Auto: Solarstrom bevorzugen.** Viertelstunden, in denen die frische PV-Prognose minus 0.5 kW Grundlast mindestens
+  1.4 kW übrig lässt, zählen bei der Auswahl als kostenlos (`solarAdjusted`). Ohne frische Prognose wie bisher nur Preise.
+- **Ferien mit Enddatum** (`schedule.holidayUntil`, bis und mit; leer = bis ausgeschaltet).
+- Plan-Sicht: die Batterie-Zeile sagt, ob sie nur **Empfehlung** ist (keine Steuerung eingerichtet), **Test** (Silent
+  oder nicht live) oder **gesteuert**.

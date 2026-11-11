@@ -1,0 +1,88 @@
+{
+  "title": {
+    "en": "Set the EV target for today or tomorrow",
+    "de": "Ziel des E-Autos für heute oder morgen setzen"
+  },
+  "titleFormatted": {
+    "en": "EV: [[day]] [[soc]] % by [[time]], charge [[charge]]",
+    "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]"
+  },
+  "hint": {
+    "en": "Overrides the weekly template on that day.",
+    "de": "Übersteuert die Wochenvorlage an diesem Tag."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "day",
+      "title": {
+        "en": "Day",
+        "de": "Tag"
+      },
+      "values": [
+        {
+          "id": "today",
+          "title": {
+            "en": "today",
+            "de": "heute"
+          }
+        },
+        {
+          "id": "tomorrow",
+          "title": {
+            "en": "tomorrow",
+            "de": "morgen"
+          }
+        }
+      ]
+    },
+    {
+      "type": "number",
+      "name": "soc",
+      "title": {
+        "en": "Target (%)",
+        "de": "Ziel (%)"
+      },
+      "min": 10,
+      "max": 100,
+      "step": 5
+    },
+    {
+      "type": "time",
+      "name": "time",
+      "title": {
+        "en": "Departure",
+        "de": "Abfahrt"
+      }
+    },
+    {
+      "type": "dropdown",
+      "name": "charge",
+      "title": {
+        "en": "Charge",
+        "de": "Laden"
+      },
+      "values": [
+        {
+          "id": "yes",
+          "title": {
+            "en": "yes",
+            "de": "ja"
+          }
+        },
+        {
+          "id": "no",
+          "title": {
+            "en": "no",
+            "de": "nein"
+          }
+        }
+      ]
+    }
+  ]
+}

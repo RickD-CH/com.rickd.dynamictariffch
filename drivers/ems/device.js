@@ -88,6 +88,20 @@ class EmsDevice extends Homey.Device {
     }
   }
 
+  /** Ein neues Problem (einmal je Problem). */
+  fireError(area, message) {
+    this.homey.flow.getDeviceTriggerCard('ems_error')
+      .trigger(this, { area: String(area || ''), message: String(message || '') })
+      .catch((err) => this.error('Trigger ems_error:', err && err.message));
+  }
+
+  /** Das E-Auto hat sein Ziel erreicht. */
+  fireCarTargetReached(soc, target) {
+    this.homey.flow.getDeviceTriggerCard('ems_car_target_reached')
+      .trigger(this, { soc: Number(soc) || 0, target: Number(target) || 0 })
+      .catch((err) => this.error('Trigger ems_car_target_reached:', err && err.message));
+  }
+
   /** Ein Verbraucher wurde (im Testbetrieb oder live) ein- oder ausgeschaltet. */
   fireConsumerSwitched(e) {
     this.homey.flow.getDeviceTriggerCard('ems_consumer_switched')

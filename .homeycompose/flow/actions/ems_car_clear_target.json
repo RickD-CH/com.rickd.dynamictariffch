@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "EV: use the weekly template again",
+    "de": "E-Auto: Wochenvorlage gilt wieder"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ]
+}

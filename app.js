@@ -94,9 +94,30 @@ class DynamicTariffApp extends Homey.App {
     // Energiemanagement (Gerät "Energiemanagement"): Bedingung auf den aktuellen Modus.
     // Sofortladen und Ein/Aus sind Capabilities des Geräts, ihre Flow-Karten erzeugt Homey selbst.
     this.homey.flow.getActionCard('ems_set_pv_forecast')
-      .registerRunListener(async (args) => { this.ems.setPvForecast(args.data); return true; });
+      .registerRunListener(async (args) => {
+        this.ems.setPvForecast(args.data); return true;
+      });
     this.homey.flow.getActionCard('ems_set_pv_factor')
-      .registerRunListener(async (args) => { this.ems.setPvFactor(args.factor); return true; });
+      .registerRunListener(async (args) => {
+        this.ems.setPvFactor(args.factor); return true;
+      });
+
+    this.homey.flow.getActionCard('ems_set_silent')
+      .registerRunListener(async (args) => {
+        this.ems.setSilent(args.mode === 'on'); return true;
+      });
+    this.homey.flow.getActionCard('ems_car_set_target')
+      .registerRunListener(async (args) => {
+        this.ems.setCarTarget({
+          day: args.day, soc: args.soc, time: args.time, charge: args.charge !== 'no',
+        }); return true;
+      });
+    this.homey.flow.getActionCard('ems_car_clear_target')
+      .registerRunListener(async () => {
+        this.ems.clearCarTarget(); return true;
+      });
+    this.homey.flow.getConditionCard('ems_silent_is_on')
+      .registerRunListener(async () => this.ems.getConfig().silent === true);
 
     this.homey.flow.getConditionCard('ems_mode_is')
       .registerRunListener(async (args) => args.device.getCapabilityValue('ems_mode') === args.mode);

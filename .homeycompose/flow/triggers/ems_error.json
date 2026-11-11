@@ -1,0 +1,37 @@
+{
+  "title": {
+    "en": "An error occurred",
+    "de": "Ein Fehler ist aufgetreten"
+  },
+  "hint": {
+    "en": "Fires once when a new problem appears (meter or charger not readable, battery command failed, prices or forecast missing).",
+    "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen)."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "area",
+      "type": "string",
+      "title": {
+        "en": "Area",
+        "de": "Bereich"
+      },
+      "example": "charger"
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "de": "Meldung"
+      },
+      "example": "Netzzähler nicht lesbar"
+    }
+  ]
+}
