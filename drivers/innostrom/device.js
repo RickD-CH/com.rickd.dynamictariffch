@@ -1067,7 +1067,7 @@ class InnostromDevice extends Homey.Device {
 
   _settingsSnapshot() {
     const out = {};
-    for (const k of ['ref_periods', 'vat_percent', 'battery_params', 'feed_in_mode', 'hourly_output']) {
+    for (const k of ['ref_periods', 'vat_percent', 'battery_params', 'feed_in_mode', 'hourly_output', 'ems.config', 'meters.config']) {
       const v = this.homey.settings.get(k);
       if (v !== null && v !== undefined) out[k] = v;
     }
