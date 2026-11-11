@@ -1,22 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960">
-  <!-- Energiemanagement: Haus isometrisch, Solarpanel auf dem Dach, Blitz an der Front -->
-  <g transform="translate(480 480) scale(1.25) translate(-480 -492)">
-    <g fill="none" stroke="#000" stroke-width="40" stroke-linejoin="round" stroke-linecap="round">
-      <!-- Wände: linke Front und rechte Giebelseite -->
-      <path d="M220 670 480 820 740 670V410L480 560 220 410Z"/>
-      <path d="M480 560V820"/>
-      <!-- Dach: vordere Fläche und Giebel -->
-      <path d="M220 410 350 165 610 315 480 560"/>
-      <path d="M610 315 740 410"/>
-      <!-- Tür auf der Giebelseite -->
-      <path d="M571 767V638L636 600V730" stroke-width="32"/>
-    </g>
-    <!-- Solarpanel auf der vorderen Dachfläche -->
-    <g fill="none" stroke="#000" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M460 469 304 379 376 244 532 334Z" stroke-width="30"/>
-      <path d="M382 424 454 289M496 401 340 311" stroke-width="22"/>
-    </g>
-    <!-- Blitz auf der Front, in der Ebene der Wand -->
-    <path d="M381 503 293 594 350 627 324 722 412 625 355 593Z" fill="#000" stroke="#000" stroke-width="12" stroke-linejoin="round"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Energiemanagement: Blitz in einem Regelkreis aus drei Pfeil-Bögen -->
+  <path d="M60.94 19.93A32 32 0 0 1 81.51 55.56"/>
+  <path d="M87.07 49.94 81.51 55.56 78.21 48.38"/>
+  <path d="M70.57 74.51A32 32 0 0 1 29.43 74.51"/>
+  <path d="M31.52 82.14 29.43 74.51 37.3 75.24"/>
+  <path d="M18.49 55.56A32 32 0 0 1 39.06 19.93"/>
+  <path d="M31.41 17.92 39.06 19.93 34.49 26.38"/>
+  <path d="M51.6 34 37.2 53.2H48.4L46.8 66 62.8 46.8H51.6Z"/>
 </svg>
