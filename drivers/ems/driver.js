@@ -20,10 +20,14 @@ const NEEDS_PRICE_DEVICE = {
 class EmsDriver extends Homey.Driver {
   async onPairListDevices() {
     let lang = 'en';
-    try { lang = this.homey.i18n.getLanguage(); } catch (err) { /* Standard */ }
+    try {
+      lang = this.homey.i18n.getLanguage();
+    } catch (err) { /* Standard */ }
     // Voraussetzung: das Preis-Gerät (Innostrom) ist gekoppelt.
     let priceDevices = [];
-    try { priceDevices = this.homey.drivers.getDriver('innostrom').getDevices(); } catch (err) { /* Treiber fehlt: gilt als nicht gekoppelt */ }
+    try {
+      priceDevices = this.homey.drivers.getDriver('innostrom').getDevices();
+    } catch (err) { /* Treiber fehlt: gilt als nicht gekoppelt */ }
     if (!priceDevices.length) throw new Error(NEEDS_PRICE_DEVICE[lang] || NEEDS_PRICE_DEVICE.en);
     if (this.getDevices().length) return []; // schon eingerichtet
     return [{ name: NAMES[lang] || NAMES.en, data: { id: 'ems' } }];

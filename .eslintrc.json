@@ -2,9 +2,19 @@
   "extends": "athom/homey-app",
   "overrides": [
     {
-      "files": ["lib/InnostromClient.js"],
+      "files": [
+        "lib/InnostromClient.js"
+      ],
       "rules": {
         "max-classes-per-file": "off"
+      }
+    },
+    {
+      "files": [
+        "lib/ems/**/*.js"
+      ],
+      "rules": {
+        "no-nested-ternary": "off"
       }
     }
   ]

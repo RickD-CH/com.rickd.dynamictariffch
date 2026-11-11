@@ -32,17 +32,21 @@ class EmsDevice extends Homey.Device {
   }
 
   _ems() {
-    const app = this.homey.app;
+    const { app } = this.homey;
     if (!app || !app.ems) throw new Error('Energiemanagement nicht bereit');
     return app.ems;
   }
 
   async onDeleted() {
-    try { this._ems().detachDevice(this); } catch (err) { /* App wird gerade beendet */ }
+    try {
+      this._ems().detachDevice(this);
+    } catch (err) { /* App wird gerade beendet */ }
   }
 
   async onUninit() {
-    try { this._ems().detachDevice(this); } catch (err) { /* App wird gerade beendet */ }
+    try {
+      this._ems().detachDevice(this);
+    } catch (err) { /* App wird gerade beendet */ }
   }
 
   async _set(cap, value) {
@@ -61,9 +65,15 @@ class EmsDevice extends Homey.Device {
     await this._set('ems_charge_now', s.chargeNow);
     // Messwerte und Prognose: nur setzen, was gerade vorliegt
     const values = {
-      ems_released: s.releasedW, ems_pv_power: s.pvW, ems_house_power: s.houseW, ems_grid_power: s.gridW,
-      ems_battery_power: s.batteryW, ems_price: s.priceRp, ems_pv_today: s.pvTodayKwh,
-      ems_pv_tomorrow: s.pvTomorrowKwh, ems_pv_now: s.pvNowKw,
+      ems_released: s.releasedW,
+      ems_pv_power: s.pvW,
+      ems_house_power: s.houseW,
+      ems_grid_power: s.gridW,
+      ems_battery_power: s.batteryW,
+      ems_price: s.priceRp,
+      ems_pv_today: s.pvTodayKwh,
+      ems_pv_tomorrow: s.pvTomorrowKwh,
+      ems_pv_now: s.pvNowKw,
     };
     for (const [cap, v] of Object.entries(values)) {
       if (v !== null && v !== undefined) await this._set(cap, v);
@@ -81,7 +91,9 @@ class EmsDevice extends Homey.Device {
   /** Ein Verbraucher wurde (im Testbetrieb oder live) ein- oder ausgeschaltet. */
   fireConsumerSwitched(e) {
     this.homey.flow.getDeviceTriggerCard('ems_consumer_switched')
-      .trigger(this, { name: e.name, state: e.cmd === 'on' ? 'on' : 'off', live: e.live === true, reason: e.reason || '' })
+      .trigger(this, {
+        name: e.name, state: e.cmd === 'on' ? 'on' : 'off', live: e.live === true, reason: e.reason || '',
+      })
       .catch((err) => this.error('Trigger ems_consumer_switched:', err && err.message));
   }
 }
