@@ -107,6 +107,7 @@
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
+      iconLbl: 'Symbol', iconNames: { plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', flame: 'Flamme', boiler: 'Boiler', washer: 'Waschmaschine', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
       accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
@@ -220,6 +221,7 @@
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
+      iconLbl: 'Icon', iconNames: { plug: 'Socket', bike: 'Bike', drop: 'Drop', flame: 'Flame', boiler: 'Water heater', washer: 'Washing machine', fan: 'Fan', heatpump: 'Heat pump' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
       accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
@@ -249,6 +251,12 @@
     charger: 'M8 3v5M16 3v5M6 8h12v4a6 6 0 0 1-12 0zM12 18v3',
     drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
     plug: 'M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0zM12 16v5',
+    bike: 'M2 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM15 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM5.5 16.5 9 9h6l3.5 7.5M12 16.5 9 9M8 6.5h3M15 9l-1-3h2.5',
+    flame: 'M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 0 2 1 3.5 2.5 3.5 0-3.5-1-5.5 0-8.5z',
+    boiler: 'M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM6 8h12M12 11.5s2.5 2.3 2.5 4a2.5 2.5 0 0 1-5 0c0-1.7 2.5-4 2.5-4z',
+    washer: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7.5h16M7.5 5.2h1.5M8.5 14a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0z',
+    fan: 'M10.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM12 10.5C11 6 12 3 14.5 3c2 0 2.5 3-1 7M13.5 12c4.5-1 7.5 0 7.5 2.5 0 2-3 2.5-7-1M12 13.5c1 4.5 0 7.5-2.5 7.5-2 0-2.5-3 1-7M10.5 12C6 13 3 12 3 9.5c0-2 3-2.5 7 1',
+    heatpump: 'M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM10 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0zM14 8.5v7M10.5 12h7M5.5 9v6',
     plus: 'M12 5v14M5 12h14',
     clock: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
     chevron: 'M6 9l6 6 6-6',
@@ -625,7 +633,12 @@
     var m = { full: S.modeFull, soc: S.modeSoc, surplus: S.modeSurplus }[r.mode] || r.mode;
     return m + ' - ' + (r.live ? S.modeLiveTag : S.modeTest);
   }
-  function rowIcon(r) { return r.kind === 'charger' ? 'charger' : (r.type === 'dehumidifier' ? 'drop' : 'plug'); }
+  var CONSUMER_ICONS = ['plug', 'bike', 'drop', 'flame', 'boiler', 'washer', 'fan', 'heatpump'];
+  function rowIcon(r) { return r.kind === 'charger' ? 'charger' : (r.icon && ICONS[r.icon] ? r.icon : (r.type === 'dehumidifier' ? 'drop' : 'plug')); }
+  function consumerIconById(id, name) {
+    var c = ((state.cfg && state.cfg.consumers) || []).filter(function (x) { return x.id === id || x.name === name; })[0];
+    return c ? rowIcon(c) : 'plug';
+  }
   function rowColor(r) { return r.kind === 'charger' ? COLORS.charger : (r.type === 'dehumidifier' ? COLORS.dehumidifier : COLORS.generic); }
 
   function flowOptions(current) {
@@ -703,6 +716,9 @@
     }
     return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
       + field(S.name, p + 'name', r.name, 'text') + '</div>'
+      + '<div class="ems-row" style="gap:6px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
+        return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
+      }).join('') + '</div>'
       + ctrl + ctrlBody + meterRow + lastTxt
       + '<div class="ems-row"><button class="btn" data-ems-remove="' + i + '">' + esc(S.remove) + '</button></div>';
   }
@@ -897,7 +913,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -1042,9 +1058,10 @@
   function protocolHtml() {
     var rows = [];
     var silentNow = !state.cfg || state.cfg.silent !== false;
+    var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
     var tag = function (live) { return live || silentNow ? '' : ' (' + S.logTestTag + ')'; };
     (state.events || []).forEach(function (e) {
-      rows.push({ kind: 'cons', icon: 'plug', dev: e.name, cmd: true, ts: e.ts, text: e.name + ' ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
+      rows.push({ kind: 'cons', icon: consumerIconById(e.id, e.name), dev: e.name, cmd: true, ts: e.ts, text: e.name + ' ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
     });
     var prevBat = null;
     (state.batteryEvents || []).slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
@@ -1070,11 +1087,10 @@
         if (e.mine === prevMode) return;
         prevMode = e.mine;
         var now = charging(e.mine);
-        rows.push({ kind: 'car', icon: 'charger', cmd: prev === null ? now : now !== prev, ts: e.ts, text: modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
+        rows.push({ kind: 'car', icon: hasCar ? 'car' : 'charger', cmd: prev === null ? now : now !== prev, ts: e.ts, text: modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
         prev = now;
       });
     }
-    var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
     var kinds = [['all', S.logAll], ['car', hasCar ? S.logCar : S.logWallbox], ['bat', S.logBat], ['cons', S.logCons], ['fuse', S.logFuse]]
       .filter(function (k) {
         var c = state.cfg || {};
@@ -1740,7 +1756,7 @@
         controlKind: r.controlKind === 'flow' ? 'flow' : 'device', flowOn: r.flowOn, flowOff: r.flowOff, assumedW: r.assumedW || 0,
         id: r.deviceId, name: r.name || 'Verbraucher', enabled: true, live: r.live === true, type: r.type, mode: r.mode,
         fullSoc: r.fullSoc, socOn: r.socOn, hysteresis: r.hysteresis, minSurplusW: r.minSurplusW, startSustainS: r.startSustainS, stopGraceS: r.stopGraceS,
-        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, batteryFirstSoc: r.batteryFirstSoc === undefined ? null : r.batteryFirstSoc, humidity: r.humidity, accu: r.accu,
+        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, icon: r.icon || '', batteryFirstSoc: r.batteryFirstSoc === undefined ? null : r.batteryFirstSoc, humidity: r.humidity, accu: r.accu,
       };
     });
     var ems = {
@@ -1890,6 +1906,14 @@
     if (carBtn === 'resetcal') { state.carCal = null; renderMain(); return; }
     if (carBtn) { saveCarOverride(carBtn === 'clear'); return; }
     if (up(t, 'data-ems-carcalopen')) { state.carCalOpen = !state.carCalOpen; return; }
+    var icPick = up(t, 'data-ems-icon');
+    if (icPick) {
+      sync();
+      var ip = icPick.split(':');
+      if (state.rows[Number(ip[0])]) state.rows[Number(ip[0])].icon = ip[1];
+      renderSetup();
+      return;
+    }
     var fuseAdd = up(t, 'data-ems-fuseadd');
     var fuseDel = up(t, 'data-ems-fusedel');
     var fuseUp = up(t, 'data-ems-fuseup');

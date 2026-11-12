@@ -203,3 +203,21 @@ test('Protokoll: Wechsel nur des Vergleichs-EMS erzeugen keine Wallbox-Einträge
   u.click('data-ems-logf', 'car');
   assert.equal((u.main().match(/class="pl-time"/g) || []).length, 2, 'nur die zwei eigenen Wechsel');
 });
+
+test('Verbraucher-Symbol: in der Config geprüft, im Protokoll verwendet; Wallbox mit Auto-Symbol, wenn ein Auto eingerichtet ist', async () => {
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p', icon: 'bike' }] }).consumers[0].icon, 'bike');
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p', icon: 'unsinn' }] }).consumers[0].icon, '');
+  const now = Date.now();
+  const u = uiEnv({
+    cfg: { car: { deviceId: 'car', capacityKwh: 60 }, consumers: [{ id: 'dry', name: 'Entfeuchter' }, { id: 'boil', name: 'eBike', icon: 'bike' }] },
+    events: [{ ts: now - 5000, id: 'boil', name: 'eBike', cmd: 'on', live: false, reason: 'x' }],
+    chargerEvents: [{ ts: now - 9000, mine: 'idle', reason: 'a' }],
+  });
+  await u.init();
+  const html = u.main();
+  const bike = 'M2 16.5a3.5';
+  const car = 'M5 17H3v-5l2-5h14';
+  const logPart = html.slice(html.indexOf('id="ems-log"'));
+  assert.ok(logPart.indexOf(bike) > 0, 'eBike-Eintrag mit Velo-Symbol');
+  assert.ok(logPart.indexOf(car) > 0, 'Wallbox-Eintrag mit Auto-Symbol');
+});
