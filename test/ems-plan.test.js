@@ -318,3 +318,22 @@ test('Anzeige: Tabelle ohne Preisdaten sagt es', async () => {
   const env = await startUi({ ...buildPlan({ nowMs: NOW, tz: TZ, priceSlots: [], log: [], consumers: [] }), dryRun: {} });
   assert.match(env.els.get('ems-view-plan').innerHTML, /Für diesen Tag sind noch keine Preise da/);
 });
+
+test('PlanView: geplante Ladezeiten des E-Autos stehen in der Wallbox-Zeile (gestrichelt), keine eigene Zeile', () => {
+  const { buildPlan: bp } = require('../lib/ems/PlanView'); // eslint-disable-line global-require
+  const tz = 'Europe/Zurich';
+  const now = Date.UTC(2026, 10, 12, 10, 0, 0);
+  const slots = [];
+  for (let t = now - 10 * 3600000; t < now + 30 * 3600000; t += 900000) slots.push({ start: t, end: t + 900000, price: 20 });
+  const carStarts = [now + 12 * 3600000, now + 12 * 3600000 + 900000];
+  const plan = bp({
+    nowMs: now, tz, priceSlots: slots, log: [], chargerEnabled: true, consumers: [], jobs: [{ id: 'car', name: 'E-Auto', starts: carStarts, ran: [], preview: false }],
+  });
+  const rows = plan.days.flatMap((d) => d.rows);
+  assert.equal(rows.filter((r) => r.kind === 'job').length, 0, 'keine eigene E-Auto-Zeile');
+  const ch = rows.filter((r) => r.kind === 'charger');
+  assert.ok(ch.every((r) => r.carPlan));
+  const planned = ch.flatMap((r) => r.cells).filter((c) => c.planned);
+  assert.equal(planned.length, 2);
+  assert.ok(planned.every((c) => c.state === 'instant_ev'));
+});

@@ -20,7 +20,7 @@
       noConsumers: 'Noch kein Verbraucher eingetragen.',
       plan: 'PLAN', planToday: 'Heute', planTomorrow: 'Morgen', planPrice: 'Preis in Rp./kWh', planPv: 'Solar-Prognose', planNow: 'jetzt',
       planBlock: 'Günstigster Block (2 h)', planPvKwh: 'Solar erwartet', planPriceRange: 'Preis min bis max', planNoPrices: 'Für diesen Tag sind noch keine Preise da.',
-      planBat: 'Batterie (Plan)', planBatAdvice: 'Empfehlung, wird nicht gesteuert', planBatLive: 'gesteuert', planWallbox: 'Wallbox (Verlauf)', planTest: 'simuliert', planPlanned: 'geplant',
+      planBat: 'Batterie (Plan)', planBatAdvice: 'Empfehlung, wird nicht gesteuert', planBatLive: 'gesteuert', planWallbox: 'Wallbox (Verlauf)', planWallboxCar: 'Wallbox und E-Auto (Verlauf und Plan)', planChError: 'Fehler', planTo: 'bis', planPeak: 'Spitze', planTest: 'simuliert', planPlanned: 'geplant',
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Silent-Modus ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
@@ -135,7 +135,7 @@
       noConsumers: 'No consumer yet.',
       plan: 'PLAN', planToday: 'Today', planTomorrow: 'Tomorrow', planPrice: 'Price in Rp./kWh', planPv: 'Solar forecast', planNow: 'now',
       planBlock: 'Cheapest block (2 h)', planPvKwh: 'Solar expected', planPriceRange: 'Price min to max', planNoPrices: 'No prices for this day yet.',
-      planBat: 'Battery (plan)', planBatAdvice: 'recommendation, not controlled', planBatLive: 'controlled', planWallbox: 'EV charger (history)', planTest: 'simulated', planPlanned: 'planned',
+      planBat: 'Battery (plan)', planBatAdvice: 'recommendation, not controlled', planBatLive: 'controlled', planWallbox: 'EV charger (history)', planWallboxCar: 'EV charger and EV (history and plan)', planChError: 'error', planTo: 'to', planPeak: 'peak', planTest: 'simulated', planPlanned: 'planned',
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
@@ -1237,7 +1237,7 @@
 
   var PLAN_COLORS = {
     charge: '#3b9d4a', hold: '#d98a1a', normal: '#9aa0a6',
-    instant_ev: '#5b52c8', solar_ev: '#9a93e8', holding: '#d4d1f3', battery_priority: '#d4d1f3', error: '#d32f2f',
+    instant_ev: '#5b52c8', solar_ev: '#9a93e8', error: '#d32f2f',
   };
   var PLAN_STEP = 10;
   var MAX_CTRL = 8; // gleiche Grenze wie lib/ems/Config.js (MAX_CONSUMERS)
@@ -1309,9 +1309,9 @@
       var h = Math.max(1, Math.abs(s.price) * scale);
       var y = s.price >= 0 ? zero - h : zero;
       var cls = 'pl-' + (s.level === 'cheap' ? 'c' : (s.level === 'expensive' ? 'e' : 'n')) + (s.t + 900000 <= nowMs ? ' pl-past' : '');
-      parts.push('<rect class="' + cls + '" x="' + (i * PLAN_STEP) + '" y="' + y.toFixed(1) + '" width="' + (PLAN_STEP - 1) + '" height="' + h.toFixed(1) + '"><title>' + esc(hm(s.t) + ': ' + s.price + ' Rp./kWh') + '</title></rect>');
+      parts.push('<rect class="' + cls + '" x="' + (i * PLAN_STEP) + '" y="' + y.toFixed(1) + '" width="' + PLAN_STEP + '" height="' + h.toFixed(1) + '"><title>' + esc(hm(s.t) + ': ' + s.price + ' Rp./kWh') + '</title></rect>');
     });
-    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
+    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" shape-rendering="crispEdges" style="height:' + H + 'px">' + parts.join('') + '</svg>';
   }
 
   function planPvSvg(day) {
@@ -1337,13 +1337,17 @@
   }
 
   /** Legende gleich unter der jeweiligen Grafik. */
-  function legendFor(kind) {
+  function legendFor(kind, row) {
     var sq = function (bg, text, extra) { return '<span><i style="background:' + bg + ';' + (extra || '') + '"></i>' + esc(text) + '</span>'; };
     var items = '';
     if (kind === 'price') items = '<span><i class="pl-c"></i>' + esc(S.planCheap) + '</span><span><i class="pl-n"></i>' + esc(S.planNormal) + '</span><span><i class="pl-e"></i>' + esc(S.planExp) + '</span>' + sq('rgba(2,119,189,.25)', S.planBlock);
     else if (kind === 'pv') items = sq('var(--st-muted)', S.pvForecastLeg, 'opacity:.5') + '<span><i style="background:#e08a1e;height:3px;margin-top:3px"></i>' + esc(S.pvReached) + '</span>';
     else if (kind === 'battery') items = sq(PLAN_COLORS.charge, S.planBatCharge) + sq(PLAN_COLORS.hold, S.planBatHold) + sq(PLAN_COLORS.normal, S.planBatNormal) + sq('transparent', S.planTag, 'border:1px dashed var(--st-muted)');
-    else if (kind === 'charger') items = sq(PLAN_COLORS.solar_ev, S.planChSolar) + sq(PLAN_COLORS.instant_ev, S.planChFull);
+    else if (kind === 'charger') {
+      items = sq(PLAN_COLORS.solar_ev, S.planChSolar) + sq(PLAN_COLORS.instant_ev, S.planChFull);
+      if (row && row.carPlan) items += sq('transparent', S.planTag, 'border:1px dashed ' + PLAN_COLORS.instant_ev);
+      if (row && row.cells.some(function (c) { return c.state === 'error'; })) items += sq(PLAN_COLORS.error, S.planChError);
+    }
     else if (kind === 'consumer') items = sq(COLORS.dehumidifier, S.planOn);
     else if (kind === 'job') items = sq('#0277bd', S.planOn) + sq('transparent', S.planTag, 'border:1px dashed #0277bd');
     return items ? '<div class="pl-leg">' + items + '</div>' : '';
@@ -1444,18 +1448,18 @@
       body = '<p class="sub">' + esc(S.planNoPrices) + '</p>';
     } else {
       body += '<div class="pl-w">' + nowLine;
-      body += '<div class="pl-lbl">' + esc(S.planPrice) + '</div>' + planPriceSvg(day, p.nowMs) + legendFor('price');
-      if (day.slots.some(function (s) { return s.pvKw !== null || (s.pvActualKw !== null && s.pvActualKw !== undefined); })) body += '<div class="pl-lbl">' + esc(S.planPv) + '</div>' + planPvSvg(day) + legendFor('pv');
+      body += '<div class="pl-lbl">' + esc(S.planPrice) + ' <span class="ems-muted">' + esc(day.stats.min + ' ' + S.planTo + ' ' + day.stats.max) + '</span></div>' + planPriceSvg(day, p.nowMs) + legendFor('price');
+      if (day.slots.some(function (s) { return s.pvKw !== null || (s.pvActualKw !== null && s.pvActualKw !== undefined); })) body += '<div class="pl-lbl">' + esc(S.planPv) + ' <span class="ems-muted">' + esc(S.planPeak + ' ' + Math.max.apply(null, day.slots.map(function (x) { return x.pvKw || 0; })).toFixed(1) + ' kW') + '</span></div>' + planPvSvg(day) + legendFor('pv');
       day.rows.forEach(function (row) {
         var label;
         if (row.kind === 'battery') {
           var bc = state.cfg && state.cfg.battery && state.cfg.battery.control;
           label = S.planBat + ' - ' + (!batteryControlled() ? S.planBatAdvice : (bc.live === true && state.cfg.silent === false ? S.planBatLive : S.planTest));
         }
-        else if (row.kind === 'charger') label = S.planWallbox + (test.charger ? ' - ' + S.planTest : '');
+        else if (row.kind === 'charger') label = (row.carPlan ? S.planWallboxCar : S.planWallbox) + (test.charger ? ' - ' + S.planTest : '');
         else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord);
         else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
-        body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day) + legendFor(row.kind);
+        body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day) + legendFor(row.kind, row);
       });
       body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
       body += '</div>';
