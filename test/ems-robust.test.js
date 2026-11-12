@@ -223,11 +223,11 @@ test('Protokoll unter «Heute»: Schaltungen und Moduswechsel mit Grund, ohne Fr
   await env.init();
   const html = env.els.get('ems-view-main').innerHTML;
   assert.match(html, /PROTOKOLL/);
-  assert.match(html, /Entfeuchter: ein \(simuliert\)/);
+  assert.match(html, /Entfeuchter ein <span/);
   assert.match(html, /SoC 99% &gt;= 98%/);
-  assert.match(html, /Wallbox: Lädt mit Solarstrom \(simuliert\)/);
+  assert.match(html, /Lädt mit Solarstrom <span/);
   assert.match(html, /Überschuss 2\.5 kW/);
-  assert.ok(html.indexOf('Wallbox: Lädt') < html.indexOf('Entfeuchter: ein'), 'jüngster Eintrag zuerst');
+  assert.ok(html.indexOf('Lädt mit Solarstrom <span') < html.indexOf('Entfeuchter ein'), 'jüngster Eintrag zuerst');
   assert.doesNotMatch(html.replace(/<style>[\s\S]*?<\/style>/g, ''), /Huawei|FusionSolar|EMMA/i);
   const empty = uiEnv();
   await empty.init();
@@ -259,7 +259,7 @@ test('Protokoll: Filter nach Bereich, Tage als Zwischenzeilen, 12 Einträge und 
   click('data-ems-logf', 'car');
   assert.equal((main().match(/class="pl-time"/g) || []).length, 1);
   assert.match(main(), /log-chip on" data-ems-logf="car"/);
-  assert.doesNotMatch(main().replace(/<style>[\s\S]*?<\/style>/g, ''), /Entfeuchter: /);
+  assert.doesNotMatch(main().replace(/<style>[\s\S]*?<\/style>/g, ''), /Entfeuchter ein/);
 });
 
 test('Vergleichs-Ansicht: Schalter, ausgeschaltet nur der Schalter und der Hinweis; Einschalten speichert', async () => {

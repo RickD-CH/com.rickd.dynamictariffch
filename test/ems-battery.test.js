@@ -65,7 +65,7 @@ test('Solar-Tor hart: Prognose >= Schwelle blockiert das Netzladen', () => {
   const slots = [...dayPrices(), ...dayPrices(day0 + 96 * Q)];
   const r = decideBattery({ cfg, soc: 40, slots, solarKwh: 16.1, nowMs: at(3) });
   assert.notEqual(r.mode, 'charge');
-  assert.match(r.reason, /pausiert/);
+  assert.match(r.reason, /kein Netzladen/);
 });
 
 test('Solar-Tor veraltet (null): bleibt offen', () => {

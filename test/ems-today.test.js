@@ -173,7 +173,7 @@ test('Protokoll: «nur Schaltungen» blendet Warte-Wechsel der Wallbox aus; Verb
   assert.match(u.main(), /data-ems-logdev="Boiler">Boiler/);
   u.click('data-ems-logdev', 'Boiler');
   assert.equal(count(), 1);
-  assert.match(u.main(), /Boiler: ein/);
+  assert.match(u.main(), /Boiler ein/);
   u.click('data-ems-logdev', '*');
   assert.equal(count(), 2);
 });

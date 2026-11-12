@@ -44,7 +44,7 @@
       secCar: 'E-AUTO', secWallbox: 'WALLBOX', secBat: 'HAUSBATTERIE',
       carWaiting: 'Daten folgen mit dem nächsten Lauf', autoCharge: 'Automatisch laden', autoChargeOff: 'Aus: die Wallbox läuft wie bisher (eigene App oder Flows)', autoChargeNoCar: 'Kein Auto angesteckt',
       cnLimit: 'Grenze', cnNone: 'bis zum Abstecken', cnNoneManual: 'bis ausgeschaltet', cnSoc: 'bis Ladestand (%)', cnKwh: 'bis Energie (kWh)', cnUntil: 'bis', cnNow: 'jetzt', cnLoaded: 'geladen', cnHint: 'Sofort laden lädt mit voller Leistung, egal zu welchem Preis, und geht bei der Grenze von selbst aus.',
-      logCmdOnly: 'nur Schaltungen', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
+      logCmdOnly: 'nur Schaltungen', logAllSim: 'Silent-Modus: alle Einträge sind simuliert.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
@@ -157,7 +157,7 @@
       secCar: 'EV', secWallbox: 'EV CHARGER', secBat: 'HOME BATTERY',
       carWaiting: 'Data follows with the next run', autoCharge: 'Charge automatically', autoChargeOff: 'Off: the charger works as before (own app or flows)', autoChargeNoCar: 'No car plugged in',
       cnLimit: 'Limit', cnNone: 'until unplugged', cnNoneManual: 'until switched off', cnSoc: 'up to charge level (%)', cnKwh: 'up to energy (kWh)', cnUntil: 'up to', cnNow: 'now', cnLoaded: 'charged', cnHint: 'Charge now charges at full power regardless of the price and switches itself off at the limit.',
-      logCmdOnly: 'switching only', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
+      logCmdOnly: 'switching only', logAllSim: 'Silent mode: all entries are simulated.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
@@ -897,7 +897,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -1041,16 +1041,22 @@
   /** Protokoll: Filter nach Bereich, nach Tagen gruppiert, 12 Einträge oder mehr. */
   function protocolHtml() {
     var rows = [];
-    var tag = function (live) { return live ? '' : ' (' + S.logTestTag + ')'; };
+    var silentNow = !state.cfg || state.cfg.silent !== false;
+    var tag = function (live) { return live || silentNow ? '' : ' (' + S.logTestTag + ')'; };
     (state.events || []).forEach(function (e) {
-      rows.push({ kind: 'cons', dev: e.name, cmd: true, ts: e.ts, text: e.name + ': ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
+      rows.push({ kind: 'cons', icon: 'plug', dev: e.name, cmd: true, ts: e.ts, text: e.name + ' ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
     });
-    (state.batteryEvents || []).forEach(function (e) {
-      rows.push({ kind: 'bat', cmd: true, ts: e.ts, text: S.batRow + ': ' + batModeLabel(e.mode) + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.reason });
+    var prevBat = null;
+    (state.batteryEvents || []).slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
+      // Wiederholungen (alle 10 min) und Neustarts melden denselben Modus nochmals: nur Wechsel zeigen, Fehler immer
+      var key = e.mode + '|' + !!e.live;
+      if (key === prevBat && !e.error) return;
+      prevBat = key;
+      rows.push({ kind: 'bat', icon: 'battery', cmd: true, ts: e.ts, text: batModeLabel(e.mode) + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.reason });
     });
     (state.fuseEvents || []).forEach(function (e) {
       var what = e.action === 'over' ? S.fuseEvOver : (e.action === 'shed' ? (e.name + ' ' + S.fuseEvShed) : (e.action === 'throttle' ? S.fuseEvThrottle + ' ' + e.capAmps + ' A' : (e.action === 'throttle_end' ? S.fuseEvThrottleEnd : S.fuseEvRelease)));
-      rows.push({ kind: 'fuse', cmd: e.action !== 'over', ts: e.ts, text: S.fuseNow + ': ' + what + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
+      rows.push({ kind: 'fuse', icon: 'bolt', cmd: e.action !== 'over', ts: e.ts, text: what + tag(e.live) + (e.error ? ' - ' + S.error : ''), reason: e.maxA !== null && e.maxA !== undefined ? S.fusePhase + ' ' + e.phase + ': ' + e.maxA + ' A' : '' });
     });
     var chargerLive = state.cfg && state.cfg.charger && state.cfg.charger.live === true && state.cfg.silent === false;
     var ce = (state.shadow && state.shadow.charger && state.shadow.charger.events) || [];
@@ -1064,7 +1070,7 @@
         if (e.mine === prevMode) return;
         prevMode = e.mine;
         var now = charging(e.mine);
-        rows.push({ kind: 'car', cmd: prev === null ? now : now !== prev, ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
+        rows.push({ kind: 'car', icon: 'charger', cmd: prev === null ? now : now !== prev, ts: e.ts, text: modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
         prev = now;
       });
     }
@@ -1100,11 +1106,11 @@
         var d = dayLabel(x.ts);
         var headRow = d !== lastDay ? '<tr class="log-day"><td colspan="2">' + esc(d) + '</td></tr>' : '';
         lastDay = d;
-        return headRow + '<tr><td class="pl-time">' + esc(hm(x.ts)) + '</td><td class="pl-what" title="' + esc(x.text + ' - ' + (x.reason || '')) + '">' + esc(x.text) + ' <span class="ems-muted">' + esc(x.reason || '') + '</span></td></tr>';
+        return headRow + '<tr><td class="pl-time">' + esc(hm(x.ts)) + '</td><td class="pl-what" title="' + esc(x.text + ' - ' + (x.reason || '')) + '">' + (x.icon ? '<span class="log-ic">' + icon(x.icon, 13) + '</span>' : '') + esc(x.text) + ' <span class="ems-muted">' + esc(x.reason || '') + '</span></td></tr>';
       }).join('') + '</tbody></table>';
       if (shown.length > 12) body += '<p style="margin:6px 0 0"><button class="btn" data-ems-logmore="1">' + esc(state.logMore ? S.logLess : S.logMore) + ' (' + Math.min(shown.length, 60) + ')</button></p>';
     }
-    return '<p class="lbl">' + esc(S.logTitle) + '</p><div class="card" id="ems-log">' + chips + body + '</div>';
+    return '<p class="lbl">' + esc(S.logTitle) + '</p><div class="card" id="ems-log">' + chips + (silentNow && shown.length ? '<p class="ems-why" style="margin:0 0 4px">' + esc(S.logAllSim) + '</p>' : '') + body + '</div>';
   }
 
 
