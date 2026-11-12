@@ -192,3 +192,34 @@ test('Vorschau «ohne Energiemanagement»: mit Gerät und Konfiguration sieht di
   assert.equal(store.has('dtc.previewNoEms'), false);
   assert.match(view('ems-view-main'), /PROTOKOLL/, 'zurück in der normalen Ansicht');
 });
+
+test('Ausblick verwendet die Preisgrafik von «Heute» (ohne Referenz), PV-Prognose mit Skala', async () => {
+  const now = Date.now();
+  const d0 = startOfLocalDay(new Date(now), 'Europe/Zurich').getTime();
+  const d2 = addLocalDays(new Date(now), 2, 'Europe/Zurich').getTime();
+  const slots = [];
+  for (let t = d0; t < d2; t += 900000) slots.push({ start: t, end: t + 900000, price: ((t - d0) / 3600000) % 24 < 6 ? 10 : 30 });
+  const pvSlots = [];
+  for (let t = d0; t < d2; t += 900000) { const h = ((t - d0) / 3600000) % 24; pvSlots.push({ end: t + 900000, kw: h > 8 && h < 16 ? 2.4 : 0, h: 0.25 }); }
+  const plan = { ...buildPlan({ nowMs: now, tz: 'Europe/Zurich', priceSlots: slots, pvSlots, log: [], consumers: [] }), active: true, dryRun: {} };
+  const seen = [];
+  const els = new Map();
+  const el = (id) => { if (!els.has(id)) els.set(id, { id, innerHTML: '', textContent: '', value: '', classList: { contains: () => true, toggle() {} }, addEventListener() {} }); return els.get(id); };
+  const window = { DtcChart: { html: (cs, kwh) => { seen.push({ n: cs.length, kwh, ref: cs.some((x) => 'ref' in x), now: cs.filter((x) => x.isNow).length }); return '<div class="chart">HEUTE-GRAFIK</div>'; } } };
+  const ctx = { document: { getElementById: el }, window, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  vm.createContext(ctx);
+  vm.runInContext(emsJs, ctx);
+  const res = {
+    'GET /ems/shadow': { enabled: true, deviceExists: true, priceDevice: true, shadow: true, config: normalizeConfig({ enabled: true }), charger: { current: null } },
+    'GET /ems/consumers': { current: [], events: [] }, 'GET /ems/devices': { devices: [] }, 'GET /ems/flows': { flows: [] }, 'GET /meters': null,
+    'GET /ems/plan': plan, 'GET /ems/jobs': { jobs: [] },
+  };
+  await ctx.window.EmsUi.init((m, p) => Promise.resolve(res[`${m} ${p}`]), 'de');
+  const html = els.get('ems-view-plan').innerHTML;
+  assert.match(html, /HEUTE-GRAFIK/);
+  assert.equal(seen[0].kwh, false);
+  assert.equal(seen[0].ref, false, 'ohne Referenzpreis');
+  assert.equal(seen[0].now, 1, 'aktuelle Viertelstunde markiert');
+  assert.doesNotMatch(html, /<i class="pl-c"><\/i>günstig/, 'keine Stufen-Legende mehr');
+  assert.match(html, /class="pl-scale"><span>2\.4 kW<\/span><span>0<\/span>/, 'PV mit Skala');
+});

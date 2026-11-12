@@ -924,7 +924,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.pl-pricechart .chart{margin-top:0;padding-left:0;padding-right:0;height:110px}.pl-pricechart .chart-labels{display:none}.pl-pvwrap{position:relative}.pl-scale{position:absolute;left:6px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--st-muted);pointer-events:none}.pl-scale span{background:var(--st-chip-bg);padding:0 3px;border-radius:3px;opacity:.88}.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -1317,7 +1317,7 @@
   function planPvSvg(day) {
     var n = day.slots.length;
     var W = n * PLAN_STEP;
-    var H = 34;
+    var H = 90;
     var max = Math.max.apply(null, day.slots.map(function (s) { return Math.max(s.pvKw || 0, s.pvActualKw || 0); }).concat([0.1]));
     var parts = ['<rect class="pl-trk" x="0" y="0" width="' + W + '" height="' + H + '" rx="3"/>'];
     day.slots.forEach(function (s, i) {
@@ -1333,7 +1333,8 @@
     });
     if (pts.length > 1) parts.push('<polyline class="pl-pva" fill="none" vector-effect="non-scaling-stroke" points="' + pts.map(function (q) { return q.x + ',' + q.y.toFixed(1); }).join(' ') + '"/>');
     pts.forEach(function (q) { parts.push('<circle cx="' + q.x + '" cy="' + q.y.toFixed(1) + '" r="3" fill="transparent"><title>' + esc(hm(q.t) + ': ' + q.kw + ' kW ' + S.pvReached) + '</title></circle>'); });
-    return '<svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>';
+    var scale = '<div class="pl-scale"><span>' + esc((max >= 10 ? Math.round(max) : max.toFixed(1)) + ' kW') + '</span><span>0</span></div>';
+    return '<div class="pl-pvwrap"><svg class="pl-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="height:' + H + 'px">' + parts.join('') + '</svg>' + scale + '</div>';
   }
 
   /** Legende gleich unter der jeweiligen Grafik. */
@@ -1448,8 +1449,17 @@
       body = '<p class="sub">' + esc(S.planNoPrices) + '</p>';
     } else {
       body += '<div class="pl-w">' + nowLine;
-      body += '<div class="pl-lbl">' + esc(S.planPrice) + ' <span class="ems-muted">' + esc(day.stats.min + ' ' + S.planTo + ' ' + day.stats.max) + '</span></div>' + planPriceSvg(day, p.nowMs) + legendFor('price');
-      if (day.slots.some(function (s) { return s.pvKw !== null || (s.pvActualKw !== null && s.pvActualKw !== undefined); })) body += '<div class="pl-lbl">' + esc(S.planPv) + ' <span class="ems-muted">' + esc(S.planPeak + ' ' + Math.max.apply(null, day.slots.map(function (x) { return x.pvKw || 0; })).toFixed(1) + ' kW') + '</span></div>' + planPvSvg(day) + legendFor('pv');
+      var shared = typeof window !== 'undefined' && window.DtcChart && typeof window.DtcChart.html === 'function';
+      if (shared) {
+        // Gleiche Grafik wie unter «Heute» (Farbverlauf, höchster/tiefster Wert), ohne Referenzpreis und ohne eigene Zeitleiste
+        var cs = day.slots.map(function (x) {
+          return { price: x.price, time: hm(x.t), isNow: day.key === 'today' && x.t <= p.nowMs && p.nowMs < x.t + 900000, isPast: x.t + 900000 <= p.nowMs };
+        });
+        body += '<div class="pl-lbl">' + esc(S.planPrice) + '</div><div class="pl-pricechart">' + window.DtcChart.html(cs, false) + '</div>';
+      } else {
+        body += '<div class="pl-lbl">' + esc(S.planPrice) + ' <span class="ems-muted">' + esc(day.stats.min + ' ' + S.planTo + ' ' + day.stats.max) + '</span></div>' + planPriceSvg(day, p.nowMs) + legendFor('price');
+      }
+      if (day.slots.some(function (s) { return s.pvKw !== null || (s.pvActualKw !== null && s.pvActualKw !== undefined); })) body += '<div class="pl-lbl">' + esc(S.planPv) + '</div>' + planPvSvg(day) + legendFor('pv');
       day.rows.forEach(function (row) {
         var label;
         if (row.kind === 'battery') {

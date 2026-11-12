@@ -1090,6 +1090,9 @@
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
+    // Dieselbe Preisgrafik auch im Ausblick (settings/ems.js)
+    window.DtcChart = { html: chartHtml };
+
     // ----- overview: chart or table -----
     var liveView = 'chart';
     var tableDay = 'today';
