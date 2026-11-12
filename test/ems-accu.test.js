@@ -176,3 +176,34 @@ test('Anzeige: Akku-Block bei jedem Verbraucher, Felder erst nach dem Einschalte
   assert.equal(body.accu.capability, 'measure_battery.ebike_battery_so', 'unpassender Wert: erster Batterie-Wert des Geräts');
   assert.equal(body.accu.stopAt, 80);
 });
+
+// ---------------------------------------------------------------- Hausbatterie zuerst bis ... %
+
+test('Hausbatterie zuerst: ohne Angabe gilt die gemeinsame Regel, mit eigener Grenze zählt auch die Batterie-Ladung als Überschuss', () => {
+  const share = { socLow: 50, socHigh: 80 };
+  // Hausbatterie 30 %, lädt mit 800 W aus PV, kein Export
+  const e = {
+    soc: 30, gridW: 0, batteryW: 800, pvW: 1500, share, hasBattery: true, actualOn: null, powerW: null,
+  };
+  const base = {
+    mode: 'surplus', minSurplusW: 300, startSustainS: 0, stopGraceS: 120, minRunMin: 0, minOffMin: 0, protectSoc: 0, useForecastGate: false,
+  };
+  const shared = evaluateConsumer({
+    cfg: base, st: makeConsumerState(), env: e, now: T0,
+  });
+  assert.equal(shared.wantOn, false);
+  assert.match(shared.reason, /Hartstopp: SoC unter 50%/);
+  const first = evaluateConsumer({
+    cfg: { ...base, batteryFirstSoc: 0 }, st: makeConsumerState(), env: e, now: T0,
+  });
+  assert.equal(first.wantOn, true, 'eBike nimmt die 800 W, die sonst in die Hausbatterie gingen');
+  assert.match(first.reason, /Überschuss 800 W/);
+  const own40 = evaluateConsumer({
+    cfg: { ...base, batteryFirstSoc: 40 }, st: makeConsumerState(), env: e, now: T0,
+  });
+  assert.match(own40.reason, /Hartstopp: SoC unter 40%/, 'eigene Grenze');
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p' }] }).consumers[0].batteryFirstSoc, null);
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p', batteryFirstSoc: '' }] }).consumers[0].batteryFirstSoc, null);
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p', batteryFirstSoc: 0 }] }).consumers[0].batteryFirstSoc, 0);
+  assert.equal(normalizeConfig({ consumers: [{ id: 'p', batteryFirstSoc: 150 }] }).consumers[0].batteryFirstSoc, 100);
+});

@@ -266,3 +266,6 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Unter **chargeBelow** (20 %) wird auch ohne Überschuss geladen, bis chargeBelow + 10 %.
 - **maxRunMin** (240 min) am Stück: aus und gesperrt wie «voll» (Schutz bei ausfallendem Ladestand). Die Sperre endet
   unter resumeBelow, ohne lesbaren Ladestand nach 12 Stunden. 0 = ohne Höchstdauer.
+- **Hausbatterie zuerst bis … %** (`consumer.batteryFirstSoc`, nur Modus Überschuss): leer = gemeinsame Regel mit der
+  Wallbox (Hartstopp und Rampe). Eine Zahl = eigene Grenze; darüber zählt auch die Ladeleistung der Hausbatterie als
+  Überschuss, der Verbraucher kommt also vor der Batterie (sinnvoll für kleine Verbraucher wie das eBike, z. B. 0).
