@@ -1066,7 +1066,11 @@
     }
     var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
     var kinds = [['all', S.logAll], ['car', hasCar ? S.logCar : S.logWallbox], ['bat', S.logBat], ['cons', S.logCons], ['fuse', S.logFuse]]
-      .filter(function (k) { return k[0] === 'all' || rows.some(function (x) { return x.kind === k[0]; }); });
+      .filter(function (k) {
+        var c = state.cfg || {};
+        var configured = { car: !!(c.charger && c.charger.id), bat: batteryControlled(), cons: !!(c.consumers && c.consumers.length), fuse: !!(c.fuse && c.fuse.enabled) };
+        return k[0] === 'all' || configured[k[0]] || rows.some(function (x) { return x.kind === k[0]; });
+      });
     var f = state.logFilter || 'all';
     if (!kinds.some(function (k) { return k[0] === f; })) f = 'all';
     var devs = [];
@@ -1076,7 +1080,7 @@
       return (f === 'all' || x.kind === f) && (!state.logCmdOnly || x.cmd) && (!dv || x.dev === dv);
     }).sort(function (a, b) { return b.ts - a.ts; });
     var limit = state.logMore ? 60 : 12;
-    var chips = kinds.length > 2 ? '<div class="log-f">' + kinds.map(function (k) {
+    var chips = rows.length || kinds.length > 1 ? '<div class="log-f">' + kinds.map(function (k) {
       return '<button class="log-chip' + (k[0] === f ? ' on' : '') + '" data-ems-logf="' + k[0] + '">' + esc(k[1]) + '</button>';
     }).join('') + '<button class="log-chip' + (state.logCmdOnly ? ' on' : '') + '" data-ems-logcmd="1">' + esc(S.logCmdOnly) + '</button></div>' : '';
     if (f === 'cons' && devs.length > 1) {

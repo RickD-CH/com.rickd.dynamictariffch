@@ -177,3 +177,13 @@ test('Protokoll: «nur Schaltungen» blendet Warte-Wechsel der Wallbox aus; Verb
   u.click('data-ems-logdev', '*');
   assert.equal(count(), 2);
 });
+
+test('Protokoll: Filter erscheinen für eingerichtete Bereiche auch ohne Einträge, «nur Schaltungen» immer', async () => {
+  const u = uiEnv({ chargerEvents: [{ ts: Date.now() - 10000, mine: 'idle', reason: 'a' }] });
+  await u.init();
+  assert.match(u.main(), /data-ems-logf="car">Wallbox/);
+  assert.match(u.main(), /data-ems-logf="cons">Verbraucher/, 'Verbraucher eingerichtet, noch ohne Eintrag');
+  assert.match(u.main(), /data-ems-logcmd="1">nur Schaltungen/);
+  u.click('data-ems-logf', 'cons');
+  assert.match(u.main(), /Noch keine Einträge/);
+});
