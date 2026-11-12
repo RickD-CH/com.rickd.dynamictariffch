@@ -136,3 +136,59 @@ test('Preis-Karten bleiben vollständig erhalten (Auslöser, Bedingungen, Aktion
     assert.ok(dir('actions').includes(id), 'Aktion ' + id);
   }
 });
+
+test('Vorschau «ohne Energiemanagement»: mit Gerät und Konfiguration sieht die Seite aus wie ein reiner Preisbezug, mit Banner zum Beenden', async () => {
+  const now = Date.now();
+  const d0 = startOfLocalDay(new Date(now), 'Europe/Zurich').getTime();
+  const d2 = addLocalDays(new Date(now), 2, 'Europe/Zurich').getTime();
+  const slots = [];
+  for (let t = d0; t < d2; t += 900000) slots.push({ start: t, end: t + 900000, price: ((t - d0) / 3600000) % 24 < 6 ? 10 : 30 });
+  const config = normalizeConfig({
+    enabled: true, devices: { meter: { id: 'm' } }, charger: { id: 'wb' }, car: { deviceId: 'car', capacityKwh: 60 }, consumers: [{ id: 'dry', name: 'Entfeuchter' }],
+  });
+  const plan = {
+    ...buildPlan({
+      nowMs: now, tz: 'Europe/Zurich', priceSlots: slots, log: [], chargerEnabled: true, consumers: [{ id: 'dry', name: 'Entfeuchter' }],
+    }),
+    active: true,
+    dryRun: {},
+  };
+  const store = new Map();
+  const handlers = {};
+  const els = new Map();
+  const el = (id) => {
+    if (!els.has(id)) els.set(id, { id, innerHTML: '', textContent: '', value: '', classList: { contains: () => true, toggle() {} }, addEventListener: (t, f) => { handlers[`${id}:${t}`] = f; } });
+    return els.get(id);
+  };
+  const localStorage = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+  const ctx = { document: { getElementById: el }, window: { localStorage }, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  vm.createContext(ctx);
+  vm.runInContext(emsJs, ctx);
+  const res = {
+    'GET /ems/shadow': {
+      enabled: true, deviceExists: true, priceDevice: true, shadow: true, config, charger: { current: null }, car: { soc: 40, state: 'planned', starts: [], departure: null },
+    },
+    'GET /ems/consumers': { current: [], events: [] },
+    'GET /ems/devices': { devices: [] },
+    'GET /ems/flows': { flows: [] },
+    'GET /meters': null,
+    'GET /ems/plan': plan,
+    'GET /ems/jobs': { jobs: [] },
+  };
+  await ctx.window.EmsUi.init((m, p) => Promise.resolve(res[`${m} ${p}`]), 'de');
+  const noStyle = (h) => h.replace(/<style>[\s\S]*?<\/style>/g, '');
+  const view = (id) => noStyle(els.get(id).innerHTML);
+  assert.match(view('ems-view-plan'), /Wallbox|E-AUTO/, 'mit Gerät: EMS-Teile sichtbar');
+  assert.match(view('ems-view-devices'), /data-ems-previewon="1">Ansicht ohne Energiemanagement testen/);
+  handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n === 'data-ems-previewon' ? '1' : null), parentNode: null } });
+  assert.equal(store.get('dtc.previewNoEms'), '1', 'nur im Browser gemerkt');
+  assert.match(view('ems-view-main'), /Vorschau: so sieht die App ohne Energiemanagement aus/);
+  assert.doesNotMatch(view('ems-view-main'), /PROTOKOLL|E-AUTO/);
+  const p = view('ems-view-plan');
+  assert.match(p, /AB JETZT: PREISE/);
+  assert.doesNotMatch(p, /Wallbox|E-AUTO|Entfeuchter|AUFTRAG PLANEN/, 'keine EMS-Teile im Ausblick');
+  assert.match(view('ems-view-devices'), /Energiemanagement ist noch nicht eingerichtet/);
+  handlers['ems-view-main:click']({ target: { getAttribute: (n) => (n === 'data-ems-previewoff' ? '1' : null), parentNode: null } });
+  assert.equal(store.has('dtc.previewNoEms'), false);
+  assert.match(view('ems-view-main'), /PROTOKOLL/, 'zurück in der normalen Ansicht');
+});

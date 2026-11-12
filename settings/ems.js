@@ -11,6 +11,7 @@
   var STR = {
     de: {
       tab: 'Ausblick', subMain: 'Betrieb', cmpTab: 'Vergleich',
+      previewOn: 'Ansicht ohne Energiemanagement testen', previewBanner: 'Vorschau: so sieht die App ohne Energiemanagement aus (nur in diesem Browser, nichts wird geändert).', previewOff: 'Vorschau beenden',
       noDevice: 'Das Energiemanagement ist noch nicht eingerichtet. Füge in Homey unter «Geräte» → «+» → «Dynamischer Stromtarif CH» das Gerät «Energiemanagement» hinzu.',
       devicesSec: 'Energiemanagement einrichten', sources: 'DATENQUELLEN', consumers: 'VERBRAUCHER',
       stOff: 'Ausgeschaltet', stTest: 'Läuft, aber noch kein Gerät ist zum Steuern freigegeben', stLive: 'Läuft und steuert',
@@ -125,6 +126,7 @@
     },
     en: {
       tab: 'Outlook', subMain: 'Operation', cmpTab: 'Compare',
+      previewOn: 'Preview without energy management', previewBanner: 'Preview: this is how the app looks without energy management (only in this browser, nothing is changed).', previewOff: 'End preview',
       noDevice: 'Energy management is not set up yet. In Homey go to Devices → "+" → "Swiss Dynamic Electricity Tariff" and add the "Energy management" device.',
       devicesSec: 'Set up energy management', sources: 'DATA SOURCES', consumers: 'CONSUMERS',
       stOff: 'Switched off', stTest: 'Running, but no device is released for control yet', stLive: 'Running and controlling',
@@ -303,7 +305,16 @@
     try { return new Date(ms).toLocaleString(LANG === 'de' ? 'de-CH' : 'en-GB', { timeZone: 'Europe/Zurich', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return String(ms); }
   }
   function modeLabel(m) { return (S.modeNames && S.modeNames[m]) || m || '-'; }
-  function noDevice() { return !!(state.shadow && state.shadow.deviceExists === false); }
+  var PREVIEW_KEY = 'dtc.previewNoEms';
+  function readPreview() { try { return window.localStorage && window.localStorage.getItem(PREVIEW_KEY) === '1'; } catch (e) { return false; } }
+  function writePreview(on) { try { if (window.localStorage) { if (on) window.localStorage.setItem(PREVIEW_KEY, '1'); else window.localStorage.removeItem(PREVIEW_KEY); } } catch (e) { /* ohne Speicher nur bis zum Neuladen */ } }
+  /** Ohne Gerät (oder in der Vorschau «ohne Energiemanagement») bleibt die App ein reiner Preisbezug. */
+  function noDevice() { return !!state.previewNoEms || !!(state.shadow && state.shadow.deviceExists === false); }
+  function previewBannerHtml() {
+    if (!state.previewNoEms) return '';
+    return '<div class="ems-head ems-head-warn"><span class="ems-ic ems-ic-warn">' + icon('warn', 20) + '</span><div class="ems-head-t"><b>' + esc(S.previewBanner) + '</b>'
+      + '<p style="margin:6px 0 0"><button class="btn" data-ems-previewoff="1">' + esc(S.previewOff) + '</button></p></div></div>';
+  }
   function hasBattery() { return !!(state.cfg && state.cfg.battery && state.cfg.battery.deviceId); }
 
   // ---------------------------------------------------------------- Geräte und Capabilities
@@ -740,7 +751,7 @@
     var line = ok ? S.setupReady : S.setupMissing + ' ' + miss.join(', ');
     var sub = !hasBattery() && ok ? '<p class="ems-why">' + esc(S.setupNoBat) + '</p>' : '';
     return '<div class="ems-head ' + (ok ? 'ems-head-ok' : 'ems-head-warn') + '"><span class="ems-ic ' + (ok ? 'ems-ic-ok' : 'ems-ic-warn') + '">' + icon(ok ? 'check' : 'warn', 20) + '</span><div class="ems-head-t"><b>' + esc(line) + '</b>' + sub + '</div></div>'
-      + '<p class="ems-suggest"><button class="btn" data-ems-suggest="1">' + esc(S.suggest) + '</button> <span class="sub" id="ems-suggest-msg">' + esc(state.suggestMsg || '') + '</span></p>';
+      + '<p class="ems-suggest"><button class="btn" data-ems-suggest="1">' + esc(S.suggest) + '</button> <button class="btn" data-ems-previewon="1">' + esc(S.previewOn) + '</button> <span class="sub" id="ems-suggest-msg">' + esc(state.suggestMsg || '') + '</span></p>';
   }
 
   var FUSE_DEFAULT = { enabled: false, live: false, amps: 40, reservePct: 90, meterId: '', caps: ['measure_current.phase1', 'measure_current.phase2', 'measure_current.phase3'], throttle: true, holdS: 10, restoreMin: 5, shed: [{ kind: 'charger' }] };
@@ -852,7 +863,7 @@
     if (!host) return;
     var head = $('h2-emsdev');
     if (noDevice()) {
-      host.innerHTML = '<p class="warn">' + esc(S.noDevice) + '</p>';
+      host.innerHTML = previewBannerHtml() + '<p class="warn">' + esc(S.noDevice) + '</p>';
       if (head) head.innerHTML = '<span class="st-open"></span>' + esc(S.devicesSec);
       return;
     }
@@ -881,7 +892,7 @@
       + '.ems-head{display:flex;gap:10px;align-items:flex-start;margin:0 0 6px;padding:10px 12px;border-radius:12px}.ems-head-t{flex:1;font-size:14px}'
       + '.ems-head-ok{background:var(--st-lv-cheap-bg);color:var(--st-lv-cheap-fg)}.ems-head-ok .ems-why{color:var(--st-lv-cheap-fg)}.ems-head-warn{background:#fdf0d8;color:#7a4b00}'
       + '.ems-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}.ems-ic-ok{background:var(--st-switch-on)}.ems-ic-warn{background:#d98a1a}'
-      + '.lbl{font-size:11px;color:var(--st-muted);letter-spacing:.06em;margin:14px 2px 6px}'
+      + 'p.lbl{font-size:11px;color:var(--st-muted);letter-spacing:.06em;margin:14px 2px 6px}'
       + '.ems-list{border:1px solid var(--st-border);border-radius:12px;overflow:hidden;background:var(--st-bg)}'
       + '.ems-item{border-top:1px solid var(--st-border)}.ems-item:first-child{border-top:none}'
       + '.ems-item-h,.ems-add{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer}'
@@ -1380,6 +1391,18 @@
   function planHtml() {
     var p = state.preview && state.preview.days ? state.preview : state.plan;
     if (!p || !p.days || !p.days.length) return '';
+    var priceOnly = noDevice();
+    if (priceOnly) {
+      p = Object.assign({}, p, {
+        days: p.days.map(function (d) {
+          return Object.assign({}, d, {
+            rows: [],
+            slots: d.slots.map(function (x) { return Object.assign({}, x, { pvKw: null, pvActualKw: null }); }),
+            stats: Object.assign({}, d.stats, { pvKwh: null, pvActualKwh: null }),
+          });
+        }),
+      });
+    }
     var day = p.days.filter(function (d) { return d.key === state.planDay; })[0] || p.days[0];
     var n = day.slots.length;
     var tabs = '<div class="subtabs" style="max-width:240px" data-ems-plantabs="1">' + p.days.map(function (d) {
@@ -1419,7 +1442,7 @@
         + (day.stats.pvKwh !== null || day.stats.pvActualKwh !== null ? '<div class="ems-card"><div class="ems-k">' + esc(S.planPvKwh) + '</div><div class="ems-v">' + (day.stats.pvKwh !== null ? day.stats.pvKwh : '-') + ' kWh</div>' + (day.stats.pvActualKwh !== null ? '<div class="ems-s">' + esc(S.pvReachedSoFar) + ' ' + day.stats.pvActualKwh + ' kWh</div>' : '') + '</div>' : '')
         + '</div>';
     }
-    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(p) : '') + (day.rows.length ? '<p class="ems-why">' + esc(S.planNote) + '</p>' : '') + '</div>' + previewFormHtml();
+    return '<p class="lbl">' + esc(S.plan) + '</p><div class="card" id="ems-plan">' + tabs + body + cards + (hasPrices ? planTableHtml(p) : '') + (day.rows.length ? '<p class="ems-why">' + esc(S.planNote) + '</p>' : '') + '</div>' + (priceOnly ? '' : previewFormHtml());
   }
 
   // ---------------------------------------------------------------- Vorschau: Auftrag planen
@@ -1579,7 +1602,7 @@
   function renderPlan() {
     var host = $('ems-view-plan');
     if (!host || !state.cfg) return;
-    host.innerHTML = styleHtml() + carCardHtml() + planHtml();
+    host.innerHTML = styleHtml() + previewBannerHtml() + (noDevice() ? '' : carCardHtml()) + planHtml();
   }
 
   function renderMain() {
@@ -1588,7 +1611,7 @@
     if (!panel || !state.cfg) return;
     state.renderedNoDevice = noDevice();
     // Ohne Energiemanagement-Gerät bleibt «Heute» frei davon; die Einladung steht unter «Einrichten» → EMS.
-    panel.innerHTML = noDevice() ? '' : mainHtml();
+    panel.innerHTML = noDevice() ? previewBannerHtml() : mainHtml();
   }
 
   // ---------------------------------------------------------------- Vergleich (nur Testphase)
@@ -1906,6 +1929,8 @@
     if (carBtn === 'resetcal') { state.carCal = null; renderMain(); return; }
     if (carBtn) { saveCarOverride(carBtn === 'clear'); return; }
     if (up(t, 'data-ems-carcalopen')) { state.carCalOpen = !state.carCalOpen; return; }
+    if (up(t, 'data-ems-previewon')) { state.previewNoEms = true; writePreview(true); render(); return; }
+    if (up(t, 'data-ems-previewoff')) { state.previewNoEms = false; writePreview(false); render(); return; }
     var icPick = up(t, 'data-ems-icon');
     if (icPick) {
       sync();
@@ -2129,6 +2154,7 @@
     api = apiCall;
     LANG = lang === 'de' ? 'de' : 'en';
     S = STR[LANG];
+    state.previewNoEms = readPreview();
     var btn = $('t-ems');
     if (btn) btn.textContent = S.tab;
     var sm = $('ems-sub-main'); if (sm) sm.textContent = S.subMain;
