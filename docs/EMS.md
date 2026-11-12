@@ -269,3 +269,11 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Hausbatterie zuerst bis … %** (`consumer.batteryFirstSoc`, nur Modus Überschuss): leer = gemeinsame Regel mit der
   Wallbox (Hartstopp und Rampe). Eine Zahl = eigene Grenze; darüber zählt auch die Ladeleistung der Hausbatterie als
   Überschuss, der Verbraucher kommt also vor der Batterie (sinnvoll für kleine Verbraucher wie das eBike, z. B. 0).
+
+## Solarprognose: echter Verlauf von Homey (12.11.2026)
+
+- Quelle «Homey»: neben den Tagessummen (Flow-Tags) liest das EMS den Energie-Tagesbericht
+  (`energy.getReportDay`, Feld `solarForecastMeasurePower`, Watt je Viertelstunde) für heute und morgen.
+- Ist ein Verlauf da, wird er verwendet (mit Korrekturfaktor); sonst wie bisher die Tagessumme als Sonnenkurve.
+  Den Bericht für morgen legt Homey an, sobald die Prognose vorliegt; vorher gilt für morgen die Kurve.
+- `pv.daily.shape` sagt je Tag, ob der Verlauf von Homey (`homey`) oder die Kurve (`curve`) gilt.

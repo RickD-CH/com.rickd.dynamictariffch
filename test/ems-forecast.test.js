@@ -80,7 +80,7 @@ test('Inputs.solarForecast: Homey-Tags, Gerät, automatisch, Fehlerfälle', asyn
   };
   const pv = { device: { id: 'fs', today: 'meter_power.a', tomorrow: 'meter_power.b' } };
   const inputs = makeInputs(api);
-  assert.deepEqual(await inputs.solarForecast(pv, 'homey'), { todayKwh: 12.5, tomorrowKwh: 7.25, source: 'homey' });
+  assert.deepEqual(await inputs.solarForecast(pv, 'homey'), { todayKwh: 12.5, tomorrowKwh: 7.25, source: 'homey', todayCurve: null, tomorrowCurve: null });
   assert.deepEqual(await inputs.solarForecast(pv, 'device'), { todayKwh: 20, tomorrowKwh: 15, source: 'device' });
   assert.equal((await inputs.solarForecast(pv, 'auto')).source, 'homey');
   assert.equal(await inputs.solarForecast({ device: { id: '' } }, 'device'), null);
@@ -211,4 +211,60 @@ test('Anzeige: eingelieferte Prognose und fehlende Prognose werden benannt', asy
   assert.match(ext.setup(), /Quelle Flow-Aktion, zuletzt vor 60 min \(48 Einträge\)/);
   const none = await startUi({ source: null, factor: 1, externalAt: null, stale: true, slots: 0 });
   assert.match(none.setup(), /nicht eingeliefert/);
+});
+
+// ---------------------------------------------------------------- Verlauf aus Homeys Tagesbericht
+
+/** Homey-Tagesbericht: 96 Viertelstunden, Sonne 08-16 Uhr mit Zacken (Wolken). */
+function report(dayStart, peakW) {
+  const arr = [];
+  for (let i = 0; i < 96; i++) {
+    const h = i / 4;
+    const v = h >= 8 && h < 16 ? Math.round(peakW * Math.sin(((h - 8) / 8) * Math.PI) * (i % 3 === 0 ? 0.6 : 1)) : 0;
+    arr.push({ t: new Date(dayStart + i * 900000).toISOString(), v });
+  }
+  return { electricity: { solarForecastMeasurePower: arr, solarForecastTotalWh: 0 } };
+}
+
+test('Inputs.solarForecast: liest den Verlauf aus Homeys Tagesbericht für heute, für morgen erst wenn vorhanden', async () => {
+  const day0 = startOfLocalDay(new Date(NOW), TZ).getTime();
+  const asked = [];
+  const api = {
+    flowtoken: { getFlowTokenValue: async ({ id }) => ({ value: id.endsWith('TodayKwh') ? 12.5 : 7.25 }) },
+    energy: {
+      getReportDay: async ({ date }) => {
+        asked.push(date);
+        if (date === '2026-06-20') return report(day0, 2000);
+        throw new Error('Not Found: EnergyReportDay');
+      },
+    },
+  };
+  const r = await makeInputs(api).solarForecast({}, 'homey', { nowMs: NOW, tz: TZ });
+  assert.deepEqual(asked, ['2026-06-20', '2026-06-21'], 'lokale Daten heute und morgen');
+  assert.equal(r.todayCurve.length, 96);
+  assert.equal(r.todayCurve[0].start, day0);
+  assert.equal(r.tomorrowCurve, null, 'morgen noch kein Bericht');
+  assert.equal(r.todayKwh, 12.5);
+  const flat = { ...api, energy: { getReportDay: async () => ({ electricity: { solarForecastMeasurePower: [] } }) } };
+  assert.equal((await makeInputs(flat).solarForecast({}, 'homey', { nowMs: NOW, tz: TZ })).todayCurve, null, 'leer = Sonnenkurve');
+});
+
+test('PvFeed.setDaily: echter Verlauf von Homey statt Sonnenkurve; morgen ohne Verlauf weiter als Kurve; Faktor gilt', () => {
+  const day0 = startOfLocalDay(new Date(NOW), TZ).getTime();
+  const day1 = addLocalDays(new Date(NOW), 1, TZ).getTime();
+  const curve = report(day0, 2000).electricity.solarForecastMeasurePower.map((x) => ({ start: Date.parse(x.t), w: x.v }));
+  const pv = new PvFeed(null, () => {});
+  pv.configure({ factor: 0.5 });
+  assert.equal(pv.setDaily({
+    todayKwh: null, tomorrowKwh: 8, source: 'homey', todayCurve: curve, tomorrowCurve: null,
+  }, NOW, TZ), true);
+  assert.deepEqual(pv.daily.shape, { today: 'homey', tomorrow: 'curve' });
+  const slot = pv.slots.find((s) => s.end === day0 + 37 * 900000); // 09:00-09:15
+  assert.equal(slot.h, 0.25);
+  assert.equal(slot.kw, (curve[36].w / 1000) * 0.5, 'Wert der Viertelstunde mal Faktor');
+  const zig = pv.slots.find((s) => s.end === day0 + 49 * 900000); // 12:00, Zacke (i % 3 === 0)
+  const next = pv.slots.find((s) => s.end === day0 + 50 * 900000);
+  assert.ok(zig.kw < next.kw, 'Wolken-Zacken bleiben erhalten');
+  assert.ok(pv.daily.todayKwh > 0, 'ohne Tagessumme aus dem Verlauf gerechnet');
+  assert.ok(pv.slots.some((s) => s.end > day1), 'morgen als Sonnenkurve');
 });

@@ -204,7 +204,7 @@ test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel
   assert.match(plan, /<details class="ems-adv car-tpl"><summary data-ems-carcalopen="1">Wochenvorlage \(Mo bis So\) <span id="ems-carcal-st"/, 'eingeklappt');
   assert.doesNotMatch(plan, /Vorlage speichern|Verwerfen/, 'kein Speichern-Knopf mehr');
   for (const d of ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']) assert.match(plan, new RegExp('<td>' + d + '</td>'));
-  assert.match(plan, /Ferien: Vorlage pausiert/);
+  assert.match(plan, /Ferien: keine Ladeziele \(Solar lädt weiter\)/);
   assert.match(plan, /data-ems-carcal="grid" checked/, 'Netz nachladen standardmässig an');
   // Freitag: anderes Ziel, Samstag einschalten
   const change = (cc, value, checked) => u.handlers['ems-view-plan:change']({ target: { getAttribute: (n) => (n === 'data-ems-carcal' ? cc : null), value, checked, parentNode: null } });
