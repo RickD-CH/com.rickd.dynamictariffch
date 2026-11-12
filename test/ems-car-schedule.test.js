@@ -173,12 +173,12 @@ test('Anzeige: «Heute» zeigt eine kurze Auto-Zeile; «Ausblick» die Auto-Kart
   const today = u.els.get('ems-view-main').innerHTML;
   assert.match(today, /id="ems-car-line"/);
   assert.match(today, /<p class="lbl">E-AUTO<\/p><div class="ems-list"><div class="ems-item" id="ems-car-line">/, 'eigener Abschnitt E-Auto');
-  assert.match(today, /Auto 40 %<\/span>/, 'Name des Autos aus Homey neben dem Ladestand');
-  assert.match(today, /80 % bis .* - Geplant 00:00-00:30 \(nicht angesteckt\)/);
+  assert.match(today, /Auto 40 % <span class="car-badge"[^>]*>nicht angesteckt<\/span><\/span>/, 'Name, Ladestand und Zustand als Badge');
+  assert.match(today, /80 % bis .* - Geplant 00:00-00:30<\/span>/, 'Zustand nicht mehr im Text');
   assert.doesNotMatch(today, /data-ems-carf|Wochenvorlage/, 'kein Formular unter «Heute»');
   const plan = u.els.get('ems-view-plan').innerHTML;
   assert.match(plan, /E-AUTO/);
-  assert.match(plan, /<b>Auto 40 %<\/b>/, 'Name des Autos neben dem Ladestand');
+  assert.match(plan, /<b>Auto 40 %<\/b><span class="car-badge"[^>]*>nicht angesteckt<\/span>/, 'Name, Ladestand und Badge');
   assert.match(plan, /Nächstes Ziel: 80 % bis .*\(Vorlage\)/);
   assert.match(plan, /Geplant: 00:00 - 00:30 \(24 kWh\)/);
   assert.ok(plan.indexOf('Heute oder morgen anders') < plan.indexOf('Wochenvorlage (Mo bis So)'), '«Heute/Morgen» oben, Vorlage darunter');

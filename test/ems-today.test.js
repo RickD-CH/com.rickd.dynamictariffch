@@ -118,7 +118,7 @@ function uiEnv({
 test('Heute: Auto-Zeile vor dem ersten Lauf mit Hinweis statt «-»; Wallbox heisst «Automatisch laden»', async () => {
   const u = uiEnv({ cfg: { car: { deviceId: 'car', capacityKwh: 60 }, charger: { id: 'wb', live: true } }, shadow: { car: undefined } });
   await u.init();
-  assert.match(u.main(), /E-Auto<\/span><span class="ems-item-s ems-muted" style="white-space:normal">Daten folgen mit dem nächsten Lauf/);
+  assert.match(u.main(), /E-Auto <span class="car-badge"[^>]*>angesteckt<\/span><\/span><span class="ems-item-s ems-muted" style="white-space:normal">Daten folgen mit dem nächsten Lauf/);
   assert.doesNotMatch(u.main(), /E-Auto -/);
   assert.match(u.main(), /Automatisch laden<\/span><span class="ems-item-s ems-muted">Lädt mit Solarstrom - 10A\/3ph - Silent/);
   const off = uiEnv();
@@ -220,4 +220,17 @@ test('Verbraucher-Symbol: in der Config geprüft, im Protokoll verwendet; Wallbo
   const logPart = html.slice(html.indexOf('id="ems-log"'));
   assert.ok(logPart.indexOf(bike) > 0, 'eBike-Eintrag mit Velo-Symbol');
   assert.ok(logPart.indexOf(car) > 0, 'Wallbox-Eintrag mit Auto-Symbol');
+});
+
+test('E-Auto-Badge: nicht angesteckt, lädt, Ziel erreicht, angesteckt', async () => {
+  const badge = async (car, charger) => {
+    const u = uiEnv({ cfg: { car: { deviceId: 'car', capacityKwh: 60 } }, shadow: { car, charger } });
+    await u.init();
+    const m = u.main().match(/class="car-badge"[^>]*>([^<]+)</);
+    return m ? m[1] : null;
+  };
+  assert.equal(await badge({ soc: 40, state: 'planned', connected: false }, { connected: false }), 'nicht angesteckt');
+  assert.equal(await badge({ soc: 40, state: 'planned', connected: true }, { connected: true, chargerPowerW: 7000 }), 'lädt');
+  assert.equal(await badge({ soc: 80, state: 'reached', connected: true }, { connected: true, chargerPowerW: 0 }), 'Ziel erreicht');
+  assert.equal(await badge({ soc: 50, state: 'none', connected: true }, { connected: true, chargerPowerW: 0 }), 'angesteckt');
 });
