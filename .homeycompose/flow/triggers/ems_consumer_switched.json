@@ -4,16 +4,52 @@
     "de": "Ein Verbraucher wurde geschaltet"
   },
   "hint": {
-    "en": "Fires when the energy management switches a consumer on or off. In test mode (dry run) it fires too, with live = no.",
-    "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Im Testbetrieb (Trockenlauf) auch, dann mit live = nein."
+    "en": "Fires when the energy management switches a consumer on or off. Also in silent mode and for devices it does not control: then it is only simulated and \"really switched\" is no.",
+    "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein."
   },
   "args": [
-    { "type": "device", "name": "device", "filter": "driver_id=ems" }
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
   ],
   "tokens": [
-    { "name": "name", "type": "string", "title": { "en": "Name", "de": "Name" }, "example": "Dehumidifier" },
-    { "name": "state", "type": "string", "title": { "en": "State (on/off)", "de": "Zustand (on/off)" }, "example": "on" },
-    { "name": "live", "type": "boolean", "title": { "en": "Live", "de": "Live" }, "example": true },
-    { "name": "reason", "type": "string", "title": { "en": "Reason", "de": "Grund" }, "example": "SoC 99% >= 98%" }
+    {
+      "name": "name",
+      "type": "string",
+      "title": {
+        "en": "Name",
+        "de": "Name"
+      },
+      "example": "Dehumidifier"
+    },
+    {
+      "name": "state",
+      "type": "string",
+      "title": {
+        "en": "State (on/off)",
+        "de": "Zustand (on/off)"
+      },
+      "example": "on"
+    },
+    {
+      "name": "live",
+      "type": "boolean",
+      "title": {
+        "en": "Really switched",
+        "de": "Wirklich geschaltet"
+      },
+      "example": true
+    },
+    {
+      "name": "reason",
+      "type": "string",
+      "title": {
+        "en": "Reason",
+        "de": "Grund"
+      },
+      "example": "SoC 99% >= 98%"
+    }
   ]
 }

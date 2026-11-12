@@ -4,8 +4,8 @@
     "de": "Der Hausanschluss ist überlastet"
   },
   "hint": {
-    "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off (also in silent mode, then \"live\" is no).",
-    "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird (auch im Silent-Modus, dann ist «live» nein)."
+    "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off. Also in silent mode or while the protection is not live: then it is only simulated and \"really switched\" is no.",
+    "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein."
   },
   "args": [
     {
@@ -46,8 +46,8 @@
       "name": "live",
       "type": "boolean",
       "title": {
-        "en": "Live",
-        "de": "Live"
+        "en": "Really switched",
+        "de": "Wirklich geschaltet"
       },
       "example": false
     }
