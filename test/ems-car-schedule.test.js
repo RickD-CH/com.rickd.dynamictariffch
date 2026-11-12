@@ -151,7 +151,7 @@ async function ui(car, carState) {
   const els = new Map();
   const handlers = {};
   const el = (id) => { if (!els.has(id)) els.set(id, { id, innerHTML: '', textContent: '', value: '', checked: false, hidden: false, classList: { contains: () => true, toggle() {} }, addEventListener: (t, f) => { handlers[`${id}:${t}`] = f; } }); return els.get(id); };
-  const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, setTimeout, clearTimeout, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
   const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, charger: { id: 'wb' }, car });
@@ -173,12 +173,12 @@ test('Anzeige: «Heute» zeigt eine kurze Auto-Zeile; «Ausblick» die Auto-Kart
   const today = u.els.get('ems-view-main').innerHTML;
   assert.match(today, /id="ems-car-line"/);
   assert.match(today, /<p class="lbl">E-AUTO<\/p><div class="ems-list"><div class="ems-item" id="ems-car-line">/, 'eigener Abschnitt E-Auto');
-  assert.match(today, /E-Auto 40 %<\/span>/);
+  assert.match(today, /Auto 40 %<\/span>/, 'Name des Autos aus Homey neben dem Ladestand');
   assert.match(today, /80 % bis .* - Geplant 00:00-00:30 \(nicht angesteckt\)/);
   assert.doesNotMatch(today, /data-ems-carf|Wochenvorlage/, 'kein Formular unter «Heute»');
   const plan = u.els.get('ems-view-plan').innerHTML;
   assert.match(plan, /E-AUTO/);
-  assert.match(plan, /<b>40 %<\/b>/);
+  assert.match(plan, /<b>Auto 40 %<\/b>/, 'Name des Autos neben dem Ladestand');
   assert.match(plan, /Nächstes Ziel: 80 % bis .*\(Vorlage\)/);
   assert.match(plan, /Geplant: 00:00 - 00:30 \(24 kWh\)/);
   assert.ok(plan.indexOf('Heute oder morgen anders') < plan.indexOf('Wochenvorlage (Mo bis So)'), '«Heute/Morgen» oben, Vorlage darunter');
@@ -197,11 +197,12 @@ test('Anzeige: «Heute» zeigt eine kurze Auto-Zeile; «Ausblick» die Auto-Kart
   assert.equal(put[2].car.schedule.days.mon.on, true, 'Vorlage bleibt');
 });
 
-test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel; Entwurf bleibt beim Neuzeichnen; Speichern behält «Heute/Morgen»', async () => {
+test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel; jede Änderung wird sofort gespeichert und behält «Heute/Morgen»', async () => {
   const car = { deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), override: { date: '2026-11-11', on: true, time: '07:00', soc: 70 } } };
   const u = await ui(car, null);
   let plan = u.els.get('ems-view-plan').innerHTML;
-  assert.match(plan, /<details class="ems-adv car-tpl"><summary data-ems-carcalopen="1">Wochenvorlage \(Mo bis So\)<\/summary>/, 'eingeklappt');
+  assert.match(plan, /<details class="ems-adv car-tpl"><summary data-ems-carcalopen="1">Wochenvorlage \(Mo bis So\) <span id="ems-carcal-st"/, 'eingeklappt');
+  assert.doesNotMatch(plan, /Vorlage speichern|Verwerfen/, 'kein Speichern-Knopf mehr');
   for (const d of ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']) assert.match(plan, new RegExp('<td>' + d + '</td>'));
   assert.match(plan, /Ferien: Vorlage pausiert/);
   assert.match(plan, /data-ems-carcal="grid" checked/, 'Netz nachladen standardmässig an');
@@ -213,12 +214,12 @@ test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel
   change('sat:time', '09:00');
   u.ctx.window.EmsUi._render();
   plan = u.els.get('ems-view-plan').innerHTML;
-  assert.match(plan, /<details class="ems-adv car-tpl" open>/, 'mit Entwurf bleibt die Vorlage offen');
-  assert.match(plan, /data-ems-carcal="fri:soc" value="100"/, 'Entwurf übersteht das Neuzeichnen');
-  assert.match(plan, /Verwerfen/);
-  u.handlers['ems-view-plan:click']({ target: { getAttribute: (n) => (n === 'data-ems-car' ? 'savecal' : null), parentNode: null } });
-  await new Promise((r) => setTimeout(r, 20));
-  const put = u.calls.find((c) => c[0] === 'PUT' && c[1] === '/ems/config');
+  assert.match(plan, /data-ems-carcal="fri:soc" value="100"/, 'noch nicht gespeicherte Änderung übersteht das Neuzeichnen');
+  assert.equal(u.calls.filter((c) => c[0] === 'PUT').length, 0, 'mehrere schnelle Änderungen werden gebündelt');
+  await new Promise((r) => setTimeout(r, 650));
+  const puts = u.calls.filter((c) => c[0] === 'PUT' && c[1] === '/ems/config');
+  assert.equal(puts.length, 1, 'ein Speichern für vier Änderungen');
+  const put = puts[0];
   const sc = put[2].car.schedule;
   assert.deepEqual(JSON.parse(JSON.stringify(sc.days.fri)), { on: true, time: '05:30', soc: 100 });
   assert.deepEqual(JSON.parse(JSON.stringify(sc.days.sat)), { on: true, time: '09:00', soc: 80 });

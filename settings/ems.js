@@ -24,7 +24,7 @@
       planCheap: 'günstig', planNormal: 'normal', planExp: 'teuer', planBatCharge: 'Netzladen', planBatHold: 'Halten (Entladung gesperrt)', planBatNormal: 'Normal', planOn: 'ein',
       planNote: 'Die Batterie zeigt den Plan des Planers (alle 15 Minuten neu gerechnet, nur zum Vergleich). Wallbox und Verbraucher regeln nach dem aktuellen Überschuss: hier siehst du, was sie getan haben. Im Silent-Modus ist es die Simulation.',
       planDayTitle: 'Plan-Tag',
-      carCal: 'Wochenvorlage (Mo bis So)', carCalHint: 'Gilt jede Woche. Ein Eintrag für «Heute» oder «Morgen» oben übersteuert den Tag.', carCalSave: 'Vorlage speichern', carCalReset: 'Verwerfen', carSetupHint: 'Ziele, «Heute/Morgen» und die Wochenvorlage stellst du unter «Ausblick» ein.',
+      carCal: 'Wochenvorlage (Mo bis So)', carCalHint: 'Gilt jede Woche. Ein Eintrag für «Heute» oder «Morgen» oben übersteuert den Tag. Änderungen werden sofort gespeichert.', carCalSaving: 'speichert ...', carCalSaved: 'gespeichert', carCalSave: 'Vorlage speichern', carCalReset: 'Verwerfen', carSetupHint: 'Ziele, «Heute/Morgen» und die Wochenvorlage stellst du unter «Ausblick» ein.',
       carDays: { mon: 'Mo', tue: 'Di', wed: 'Mi', thu: 'Do', fri: 'Fr', sat: 'Sa', sun: 'So' }, carTime: 'Abfahrt', carSoc: 'Ziel %',
       carHoliday: 'Ferien: Vorlage pausiert', carHolidayUntil: 'bis und mit (leer = bis ausgeschaltet)', carGrid: 'Netz nachladen, wenn die Sonne bis zur Abfahrt nicht reicht', carGridHint: 'Ein: die App lädt in den günstigsten Viertelstunden bis zur Abfahrt. Aus: nur Solarstrom.',
       carCard: 'E-AUTO', carNext: 'Nächstes Ziel', carNone: 'kein Ziel geplant', carFromCal: 'Vorlage', carFromOverride: 'übersteuert',
@@ -139,7 +139,7 @@
       planCheap: 'cheap', planNormal: 'normal', planExp: 'expensive', planBatCharge: 'Grid charging', planBatHold: 'Hold (discharge blocked)', planBatNormal: 'Normal', planOn: 'on',
       planNote: 'The battery shows the planner\'s plan (recalculated every 15 minutes, comparison only). EV charger and consumers follow the current surplus: here you see what they did. In test mode it is the simulation.',
       planDayTitle: 'Plan day',
-      carCal: 'Weekly template (Mon to Sun)', carCalHint: 'Applies every week. An entry for "Today" or "Tomorrow" above overrides the day.', carCalSave: 'Save template', carCalReset: 'Discard', carSetupHint: 'Targets, "Today/Tomorrow" and the weekly template are set under "Outlook".',
+      carCal: 'Weekly template (Mon to Sun)', carCalHint: 'Applies every week. An entry for "Today" or "Tomorrow" above overrides the day. Changes are saved right away.', carCalSaving: 'saving ...', carCalSaved: 'saved', carCalSave: 'Save template', carCalReset: 'Discard', carSetupHint: 'Targets, "Today/Tomorrow" and the weekly template are set under "Outlook".',
       carDays: { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' }, carTime: 'Departure', carSoc: 'Target %',
       carHoliday: 'Holiday: template paused', carHolidayUntil: 'until and including (empty = until switched off)', carGrid: 'Charge from the grid if the sun is not enough by departure', carGridHint: 'On: the app charges in the cheapest quarter-hours before departure. Off: solar only.',
       carCard: 'EV', carNext: 'Next target', carNone: 'no target planned', carFromCal: 'template', carFromOverride: 'override',
@@ -555,13 +555,13 @@
         + '<td><input type="time" data-ems-carcal="' + d + ':time" value="' + esc(e.time) + '"></td><td><input type="number" min="10" max="100" step="5" data-ems-carcal="' + d + ':soc" value="' + esc(e.soc) + '" style="width:64px"></td></tr>';
     }).join('');
     var dirty = !!state.carCal;
-    return '<details class="ems-adv car-tpl"' + (state.carCalOpen || dirty ? ' open' : '') + '><summary data-ems-carcalopen="1">' + esc(S.carCal) + '</summary>'
+    var st = state.carCalStatus ? ' <span id="ems-carcal-st" class="ems-ok" style="font-size:12px">' + esc(state.carCalStatus) + '</span>' : ' <span id="ems-carcal-st" style="font-size:12px"></span>';
+    return '<details class="ems-adv car-tpl"' + (state.carCalOpen || dirty ? ' open' : '') + '><summary data-ems-carcalopen="1">' + esc(S.carCal) + st + '</summary>'
       + '<p class="ems-why">' + esc(S.carCalHint) + '</p>'
       + '<table class="ems-t car-cal"><thead><tr><th></th><th></th><th>' + esc(S.carTime) + '</th><th>' + esc(S.carSoc) + '</th></tr></thead><tbody>' + rows + '</tbody></table>'
       + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="holiday"' + (sc.holiday ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carHoliday) + '</span></label>'
       + (sc.holiday ? '<label class="ems-f" style="margin-left:44px"><span>' + esc(S.carHolidayUntil) + '</span><input type="date" data-ems-carcal="holidayUntil" value="' + esc(sc.holidayUntil || '') + '"></label>' : '')
-      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="grid"' + (sc.gridCharge ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carGrid) + '</span></label><p class="ems-why">' + esc(S.carGridHint) + '</p>'
-      + '<p style="margin:8px 0 0"><button class="btn primary" data-ems-car="savecal">' + esc(S.carCalSave) + '</button>' + (dirty ? ' <button class="btn" data-ems-car="resetcal">' + esc(S.carCalReset) + '</button>' : '') + '</p></details>';
+      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="grid"' + (sc.gridCharge ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carGrid) + '</span></label><p class="ems-why" style="margin-bottom:0">' + esc(S.carGridHint) + '</p></details>';
   }
 
   function srcBody(s) {
@@ -924,7 +924,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -980,7 +980,7 @@
     if (!c.deviceId) return '';
     var car = (state.shadow && state.shadow.car) || null;
     var soc = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '';
-    var parts = [(S.carSocLbl + ' ' + soc).trim()];
+    var parts = [((function () { var d = findDevice((state.cfg.car || {}).deviceId); return d && d.name ? d.name : S.carSocLbl; })() + ' ' + soc).trim()];
     if (!car) parts.push(S.carWaiting);
     if (car && car.departure) parts.push(car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at));
     if (car) {
@@ -1015,7 +1015,7 @@
       + '<label class="ems-f"><span>' + esc(S.carSoc) + '</span><input type="number" min="10" max="100" step="5" data-ems-carf="soc" value="' + esc(o.soc) + '" style="width:70px"></label></div>'
       + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carf="on"' + (o.on ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carCharge) + '</span></label>'
       + '<p style="margin:8px 0 0"><button class="btn primary" data-ems-car="save">' + esc(S.carApply) + '</button>' + (sc.override ? ' <button class="btn" data-ems-car="clear">' + esc(S.carClear) + '</button>' : '') + ' <span class="sub">' + esc(state.carMsg || '') + '</span></p>';
-    return '<p class="lbl">' + esc(S.carCard) + '</p><div class="card" id="ems-car"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span><b>' + esc(socTxt) + '</b></div>'
+    return '<p class="lbl">' + esc(S.carCard) + '</p><div class="card" id="ems-car"><div class="ems-st"><span class="ems-ic" style="background:' + COLORS.charger + '">' + icon('car', 17) + '</span><b>' + esc((function () { var d = findDevice((state.cfg.car || {}).deviceId); return d && d.name ? d.name : S.carSocLbl; })() + ' ' + socTxt) + '</b></div>'
       + lines.map(function (l) { return '<p class="ems-why" style="margin:4px 0">' + esc(l) + '</p>'; }).join('') + form + carCalendarHtml() + '</div>';
   }
 
@@ -1037,6 +1037,17 @@
     }).catch(function (e) { state.carMsg = S.error + ': ' + (e && e.message || e); renderMain(); });
   }
 
+  function carCalStatus(text, ok) {
+    state.carCalStatus = text;
+    var el = $('ems-carcal-st');
+    if (el) { el.textContent = text; el.className = ok === false ? 'ems-bad' : 'ems-ok'; }
+  }
+  /** Sofort speichern, kurz gebündelt (mehrere Änderungen in einer halben Sekunde = ein Speichern). */
+  function scheduleCarSave() {
+    carCalStatus(S.carCalSaving);
+    if (state.carSaveTimer) clearTimeout(state.carSaveTimer);
+    state.carSaveTimer = setTimeout(function () { state.carSaveTimer = null; saveCarTemplate(); }, 500);
+  }
   function saveCarTemplate() {
     var sc = carTemplate();
     sc.override = carSchedule().override; // ein Eintrag für heute/morgen bleibt
@@ -1044,9 +1055,9 @@
     return api('PUT', '/ems/config', { car: car }).then(function (cfg) {
       if (cfg && cfg.car) state.cfg.car = JSON.parse(JSON.stringify(cfg.car)); else state.cfg.car = car;
       state.carCal = null;
-      state.carMsg = S.carSaved;
+      carCalStatus(S.carCalSaved + ' ' + hm(Date.now()));
       return refreshStatus();
-    }).catch(function (e) { state.carMsg = S.error + ': ' + (e && e.message || e); renderMain(); });
+    }).catch(function (e) { carCalStatus(S.error + ': ' + (e && e.message || e), false); });
   }
 
   function batteryControlled() {
@@ -2027,6 +2038,7 @@
         else if (part[1] === 'time') tpl.days[part[0]].time = t.value;
         else if (part[1] === 'soc') tpl.days[part[0]].soc = Number(t.value) || tpl.days[part[0]].soc;
       }
+      scheduleCarSave();
       return;
     }
     var carf = g('data-ems-carf');
