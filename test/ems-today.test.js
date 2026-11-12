@@ -187,3 +187,19 @@ test('Protokoll: Filter erscheinen für eingerichtete Bereiche auch ohne Einträ
   u.click('data-ems-logf', 'cons');
   assert.match(u.main(), /Noch keine Einträge/);
 });
+
+test('Protokoll: Wechsel nur des Vergleichs-EMS erzeugen keine Wallbox-Einträge (gleicher eigener Modus)', async () => {
+  const now = Date.now();
+  const u = uiEnv({
+    chargerEvents: [
+      { ts: now - 50000, mine: 'battery_priority', other: 'idle', reason: '17% < 50%' },
+      { ts: now - 40000, mine: 'battery_priority', other: 'holding', reason: '17% < 50%' },
+      { ts: now - 30000, mine: 'battery_priority', other: 'idle', reason: '18% < 50%' },
+      { ts: now - 20000, mine: 'idle', other: 'idle', reason: 'kein Überschuss' },
+      { ts: now - 10000, mine: 'idle', other: 'holding', reason: 'kein Überschuss' },
+    ],
+  });
+  await u.init();
+  u.click('data-ems-logf', 'car');
+  assert.equal((u.main().match(/class="pl-time"/g) || []).length, 2, 'nur die zwei eigenen Wechsel');
+});

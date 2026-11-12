@@ -897,7 +897,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-chip{font:inherit;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--st-border);background:var(--st-bg);color:var(--st-text);cursor:pointer}.log-chip.on{background:var(--st-accent);border-color:var(--st-accent);color:#fff}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -1058,7 +1058,11 @@
       // Schaltung = Laden beginnt oder endet; Wechsel zwischen Warte-Zuständen sind nur Status
       var charging = function (m) { return m === 'solar_ev' || m === 'instant_ev' || m === 'price_ev'; };
       var prev = null;
+      var prevMode = null;
       ce.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
+        // Das Wallbox-Protokoll hält auch Wechsel des Vergleichs-EMS fest; hier zählt nur ein Wechsel des eigenen Modus
+        if (e.mine === prevMode) return;
+        prevMode = e.mine;
         var now = charging(e.mine);
         rows.push({ kind: 'car', cmd: prev === null ? now : now !== prev, ts: e.ts, text: S.wallbox + ': ' + modeLabel(e.mine) + tag(chargerLive), reason: e.reason });
         prev = now;
