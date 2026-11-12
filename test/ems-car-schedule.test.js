@@ -233,3 +233,17 @@ test('Anzeige: Wochenvorlage einklappbar unter «Ausblick», je Tag eigenes Ziel
   const none = await ui({}, null);
   assert.doesNotMatch(none.els.get('ems-view-main').innerHTML + none.els.get('ems-view-plan').innerHTML, /E-AUTO|ems-car-line/);
 });
+
+test('Anzeige: Ferien-Schalter sichtbar unter der eingeklappten Vorlage; aktive Ferien stehen auf der Karte und unter «Heute»', async () => {
+  const u = await ui({ deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), holiday: true, holidayUntil: '2099-11-20' } }, null);
+  const plan = u.els.get('ems-view-plan').innerHTML;
+  const detailsEnd = plan.indexOf('</details>', plan.indexOf('car-tpl'));
+  assert.ok(plan.indexOf('data-ems-carcal="holiday"') > detailsEnd, 'Ferien nicht mehr in der eingeklappten Vorlage');
+  assert.match(plan, /data-ems-carcal="holiday" checked/);
+  assert.match(plan, /Ferien bis 20\.11\./);
+  assert.match(u.els.get('ems-view-main').innerHTML, /Ferien bis 20\.11\./);
+  const open = await ui({ deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), holiday: true } }, null);
+  assert.match(open.els.get('ems-view-plan').innerHTML, /Ferien bis ausgeschaltet/);
+  const past = await ui({ deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), holiday: true, holidayUntil: '2020-01-01' } }, null);
+  assert.doesNotMatch(past.els.get('ems-view-plan').innerHTML, /Ferien bis/, 'abgelaufene Ferien zeigen nichts');
+});

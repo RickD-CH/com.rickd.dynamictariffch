@@ -26,7 +26,7 @@
       planDayTitle: 'Plan-Tag',
       carCal: 'Wochenvorlage (Mo bis So)', carCalHint: 'Gilt jede Woche. Ein Eintrag für «Heute» oder «Morgen» oben übersteuert den Tag. Änderungen werden sofort gespeichert.', carCalSaving: 'speichert ...', carCalSaved: 'gespeichert', carCalSave: 'Vorlage speichern', carCalReset: 'Verwerfen', carSetupHint: 'Ziele, «Heute/Morgen» und die Wochenvorlage stellst du unter «Ausblick» ein.',
       carDays: { mon: 'Mo', tue: 'Di', wed: 'Mi', thu: 'Do', fri: 'Fr', sat: 'Sa', sun: 'So' }, carTime: 'Abfahrt', carSoc: 'Ziel %',
-      carHoliday: 'Ferien: Vorlage pausiert', carHolidayUntil: 'bis und mit (leer = bis ausgeschaltet)', carGrid: 'Netz nachladen, wenn die Sonne bis zur Abfahrt nicht reicht', carGridHint: 'Ein: die App lädt in den günstigsten Viertelstunden bis zur Abfahrt. Aus: nur Solarstrom.',
+      carHoliday: 'Ferien: Vorlage pausiert', carHolidayOn: 'Ferien', carHolidayUntilShort: 'bis', carHolidayOpen: 'bis ausgeschaltet', carHolidayUntil: 'bis und mit (leer = bis ausgeschaltet)', carGrid: 'Netz nachladen, wenn die Sonne bis zur Abfahrt nicht reicht', carGridHint: 'Ein: die App lädt in den günstigsten Viertelstunden bis zur Abfahrt. Aus: nur Solarstrom.',
       carCard: 'E-AUTO', carNext: 'Nächstes Ziel', carNone: 'kein Ziel geplant', carFromCal: 'Vorlage', carFromOverride: 'übersteuert',
       carSt: { none: 'Kein Ziel', no_soc: 'Ladestand unbekannt', no_capacity: 'Batteriegrösse fehlt (Einrichten → E-Auto)', reached: 'Ziel erreicht', solar_only: 'Nur Solarstrom', planned: 'Geplant', short: 'Reicht nicht ganz bis zur Abfahrt' },
       carNotConnected: 'nicht angesteckt', carOverride: 'Heute oder morgen anders (übersteuert die Vorlage)', carToday: 'Heute', carTomorrow: 'Morgen', carCharge: 'laden',
@@ -141,7 +141,7 @@
       planDayTitle: 'Plan day',
       carCal: 'Weekly template (Mon to Sun)', carCalHint: 'Applies every week. An entry for "Today" or "Tomorrow" above overrides the day. Changes are saved right away.', carCalSaving: 'saving ...', carCalSaved: 'saved', carCalSave: 'Save template', carCalReset: 'Discard', carSetupHint: 'Targets, "Today/Tomorrow" and the weekly template are set under "Outlook".',
       carDays: { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' }, carTime: 'Departure', carSoc: 'Target %',
-      carHoliday: 'Holiday: template paused', carHolidayUntil: 'until and including (empty = until switched off)', carGrid: 'Charge from the grid if the sun is not enough by departure', carGridHint: 'On: the app charges in the cheapest quarter-hours before departure. Off: solar only.',
+      carHoliday: 'Holiday: template paused', carHolidayOn: 'Holiday', carHolidayUntilShort: 'until', carHolidayOpen: 'until switched off', carHolidayUntil: 'until and including (empty = until switched off)', carGrid: 'Charge from the grid if the sun is not enough by departure', carGridHint: 'On: the app charges in the cheapest quarter-hours before departure. Off: solar only.',
       carCard: 'EV', carNext: 'Next target', carNone: 'no target planned', carFromCal: 'template', carFromOverride: 'override',
       carSt: { none: 'No target', no_soc: 'Charge level unknown', no_capacity: 'Battery size missing (Set up → EV)', reached: 'Target reached', solar_only: 'Solar only', planned: 'Planned', short: 'Not quite enough before departure' },
       carNotConnected: 'not plugged in', carOverride: 'Different today or tomorrow (overrides the template)', carToday: 'Today', carTomorrow: 'Tomorrow', carCharge: 'charge',
@@ -559,9 +559,9 @@
     return '<details class="ems-adv car-tpl"' + (state.carCalOpen || dirty ? ' open' : '') + '><summary data-ems-carcalopen="1">' + esc(S.carCal) + st + '</summary>'
       + '<p class="ems-why">' + esc(S.carCalHint) + '</p>'
       + '<table class="ems-t car-cal"><thead><tr><th></th><th></th><th>' + esc(S.carTime) + '</th><th>' + esc(S.carSoc) + '</th></tr></thead><tbody>' + rows + '</tbody></table>'
-      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="holiday"' + (sc.holiday ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carHoliday) + '</span></label>'
-      + (sc.holiday ? '<label class="ems-f" style="margin-left:44px"><span>' + esc(S.carHolidayUntil) + '</span><input type="date" data-ems-carcal="holidayUntil" value="' + esc(sc.holidayUntil || '') + '"></label>' : '')
-      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="grid"' + (sc.gridCharge ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carGrid) + '</span></label><p class="ems-why" style="margin-bottom:0">' + esc(S.carGridHint) + '</p></details>';
+      + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="grid"' + (sc.gridCharge ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carGrid) + '</span></label><p class="ems-why" style="margin-bottom:0">' + esc(S.carGridHint) + '</p></details>'
+      + '<label class="ems-c" style="margin-top:6px"><span class="swt"><input class="sw" type="checkbox" data-ems-carcal="holiday"' + (sc.holiday ? ' checked' : '') + '><i></i></span> <span>' + esc(S.carHoliday) + '</span></label>'
+      + (sc.holiday ? '<label class="ems-f" style="margin-left:54px"><span>' + esc(S.carHolidayUntil) + '</span><input type="date" data-ems-carcal="holidayUntil" value="' + esc(sc.holidayUntil || '') + '"></label>' : '');
   }
 
   function srcBody(s) {
@@ -974,6 +974,20 @@
     return '<div class="card" id="ems-fuse-line"><div class="ems-st"><span class="ems-ic" style="background:' + (bad ? '#c0392b' : '#6b7280') + '">' + icon('bolt', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + (cur.live ? '' : ' <span class="ems-muted">(' + esc(S.logTestTag) + ')</span>') + '</span></div></div>';
   }
 
+  /** «Ferien bis 20.11.» oder «Ferien bis ausgeschaltet», wenn die Vorlage gerade pausiert; sonst ''. */
+  function carHolidayText() {
+    var sc = carSchedule();
+    if (!sc.holiday) return '';
+    var until = sc.holidayUntil;
+    if (until) {
+      var today = dayKey(Date.now()).split('.').reverse().join('-');
+      if (until < today) return '';
+      var p = until.split('-');
+      return S.carHolidayOn + ' ' + S.carHolidayUntilShort + ' ' + Number(p[2]) + '.' + Number(p[1]) + '.';
+    }
+    return S.carHolidayOn + ' ' + S.carHolidayOpen;
+  }
+
   /** Kurze Statuszeile für «Heute». */
   function carCompactHtml() {
     var c = state.cfg.car || {};
@@ -982,6 +996,7 @@
     var soc = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '';
     var parts = [((function () { var d = findDevice((state.cfg.car || {}).deviceId); return d && d.name ? d.name : S.carSocLbl; })() + ' ' + soc).trim()];
     if (!car) parts.push(S.carWaiting);
+    if (carHolidayText()) parts.push(carHolidayText());
     if (car && car.departure) parts.push(car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at));
     if (car) {
       var st = (S.carSt && S.carSt[car.state]) || car.state;
@@ -1003,6 +1018,7 @@
     if (car && car.departure) {
       lines.push(S.carNext + ': ' + car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at) + ' (' + (car.departure.source === 'override' ? S.carFromOverride : S.carFromCal) + ')');
     } else lines.push(S.carNext + ': ' + S.carNone);
+    if (carHolidayText()) lines.unshift(carHolidayText());
     if (car) {
       var st = (S.carSt && S.carSt[car.state]) || car.state;
       if (car.starts && car.starts.length) st += ': ' + hm(car.starts[0]) + ' - ' + hm(car.starts[car.starts.length - 1] + 900000) + (car.needKwh ? ' (' + car.needKwh + ' kWh)' : '');
