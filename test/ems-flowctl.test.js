@@ -366,3 +366,67 @@ test('Anzeige: ohne startbare Flows steht ein Hinweis, gespeicherter Flow-Verbra
   assert.equal(c.id, 'flow:abc');
   assert.equal(c.flowOn.id, 'f1');
 });
+
+test('Symbol-Wahl eines Verbrauchers speichert sofort (kein Speichern-Knopf nötig), aber nie eine Zeile ohne Gerät', async () => {
+  const els = new Map();
+  const handlers = {};
+  const el = (id) => {
+    if (!els.has(id)) {
+      els.set(id, {
+        id,
+        innerHTML: '',
+        textContent: '',
+        value: '',
+        checked: false,
+        hidden: false,
+        classList: { contains: () => true, toggle: () => {} },
+        addEventListener: (t, f) => {
+          handlers[`${id}:${t}`] = f;
+        },
+      });
+    }
+    return els.get(id);
+  };
+  const ctx = {
+    document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math,
+  };
+  vm.createContext(ctx);
+  vm.runInContext(emsJs, ctx);
+  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, consumers: [] });
+  const puts = [];
+  const res = {
+    'GET /ems/shadow': {
+      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null },
+    },
+    'GET /ems/consumers': { current: [], events: [] },
+    'GET /ems/devices': {
+      devices: [{
+        id: 'lamp', name: 'Lampe', cls: 'light', caps: ['onoff'],
+      }],
+    },
+    'GET /ems/flows': { flows: [] },
+    'GET /meters': null,
+  };
+  const api = (m, p, body) => {
+    if (m === 'PUT' && p === '/ems/config') {
+      puts.push(JSON.parse(JSON.stringify(body)));
+      return Promise.resolve(normalizeConfig(body));
+    }
+    return Promise.resolve(res[`${m} ${p}`]);
+  };
+  await ctx.window.EmsUi.init(api, 'de');
+  const click = (attrs) => handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
+  const set = (id, value) => {
+    el(id).value = value;
+  };
+
+  click({ 'data-ems-add': '1' }); // neue, noch leere Zeile (row1), automatisch geöffnet
+  click({ 'data-ems-icon': '1:washer' }); // Symbol wählen, bevor ein Gerät gewählt ist
+  assert.equal(puts.length, 0, 'ohne Gerät wird nicht gespeichert - die Zeile würde collect() sonst ganz verwerfen');
+
+  set('row1-dev', 'lamp');
+  click({ 'data-ems-icon': '1:washer' });
+  assert.equal(puts.length, 1, 'mit Gerät: Symbol-Klick speichert sofort');
+  assert.equal(puts[0].consumers[0].icon, 'washer');
+  await Promise.resolve().then(() => {}).then(() => {}).then(() => {}); // Promise-Kette von save() sauber auslaufen lassen
+});

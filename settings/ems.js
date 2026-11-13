@@ -2231,9 +2231,13 @@
     if (icPick) {
       sync();
       var ip = icPick.split(':');
-      if (state.rows[Number(ip[0])]) state.rows[Number(ip[0])].icon = ip[1];
+      var icRow = state.rows[Number(ip[0])];
+      if (icRow) icRow.icon = ip[1];
       renderSetup();
-      save(); // Symbol-Wahl ist ein einzelner Klick, kein Formular - direkt speichern statt den Button zu verlangen.
+      // Symbol-Wahl ist ein einzelner Klick, kein Formular - direkt speichern statt den Button zu verlangen. Aber
+      // nur für einen schon vollständigen Verbraucher (Gerät gewählt) - sonst fliegt die Zeile beim Speichern
+      // komplett raus (collect() verlangt ein Gerät) und die Auswahl geht dadurch sofort wieder verloren.
+      if (icRow && icRow.deviceId) save();
       return;
     }
     var fuseAdd = up(t, 'data-ems-fuseadd');
