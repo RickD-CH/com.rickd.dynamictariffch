@@ -1,0 +1,15 @@
+{
+  "name": {
+    "en": "Energy plan",
+    "de": "Energieplan",
+    "fr": "Plan énergétique",
+    "it": "Piano energetico"
+  },
+  "height": 250,
+  "api": {
+    "getPlan": {
+      "method": "GET",
+      "path": "/plan"
+    }
+  }
+}

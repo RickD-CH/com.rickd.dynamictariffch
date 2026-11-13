@@ -1,9 +1,9 @@
 {
   "name": {
-    "en": "Innostrom costs",
-    "de": "Innostrom-Kosten",
-    "fr": "Coûts Innostrom",
-    "it": "Costi Innostrom"
+    "en": "Electricity costs",
+    "de": "Stromkosten",
+    "fr": "Coûts d'électricité",
+    "it": "Costi elettricità"
   },
   "height": 260,
   "api": {

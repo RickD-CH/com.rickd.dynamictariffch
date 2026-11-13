@@ -55,9 +55,9 @@
     "avgRef": "Ø reference (Rp.)",
     "setupTitle": "Cost comparison not set up yet",
     "setupRef": "Enter your reference tariff",
-    "setupMeters": "Report meter readings from a Flow",
+    "setupMeters": "Choose your meters, the app reads them itself",
     "setupWait": "Values appear after the second reading",
-    "setupWhere": "App settings → tab \"Settings\" (guide included)",
+    "setupWhere": "App settings → Set up → Price app",
     "legendDyn": "Dynamic",
     "legendRef": "Reference",
     "curveTitle": "Net cost today"
@@ -82,5 +82,41 @@
     "updated": "Updated:",
     "legend": "Tap an hour for quarter-hours · green/red edge = cheap/peak block",
     "fromNowLine": "Cheapest 2 h from now"
+  },
+  "planWidget": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load the plan.",
+    "noEms": "Energy management is not set up. Add the \"Energy management\" device and set it up in the app settings under Set up → EMS.",
+    "noPrices": "No prices for the next hours yet.",
+    "now": "now",
+    "test": "Test mode",
+    "off": "EMS off",
+    "battery": "Battery",
+    "charger": "Wallbox",
+    "carNow": "charging now until {to}",
+    "carPlanned": "charging planned {from} to {to}",
+    "carNone": "no charging planned",
+    "carCharges": "Car charging",
+    "tomorrow": "tomorrow",
+    "tapHint": "Tap a bar for details",
+    "mode": {
+      "charge": "Charge",
+      "hold": "Hold",
+      "normal": "Normal"
+    }
+  },
+  "fuseWidget": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load the house connection.",
+    "noEms": "Energy management is not set up.",
+    "off": "Main fuse protection is off. Turn it on in the app settings under Set up → EMS → Main fuse protection.",
+    "wait": "Waiting for the first readings…",
+    "noPhases": "Phase currents not readable. Check the meter under Set up → EMS → Main fuse protection.",
+    "of": "of",
+    "peak": "Peak today {a} A at {time}",
+    "over": "Overload",
+    "throttled": "Wallbox limited to {a} A",
+    "shed": "Off:",
+    "test": "Test mode"
   }
 }

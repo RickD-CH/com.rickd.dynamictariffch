@@ -55,9 +55,9 @@
     "avgRef": "Ø Referenz (Rp.)",
     "setupTitle": "Kostenvergleich noch nicht eingerichtet",
     "setupRef": "Referenztarif eintragen",
-    "setupMeters": "Zählerstände per Flow melden",
+    "setupMeters": "Zähler wählen, die App liest sie selbst",
     "setupWait": "Werte erscheinen ab der zweiten Meldung",
-    "setupWhere": "App-Einstellungen → Tab «Einstellungen» (Anleitung enthalten)",
+    "setupWhere": "App-Einstellungen → Einrichten → Preis-App",
     "legendDyn": "Dynamisch",
     "legendRef": "Referenz",
     "curveTitle": "Nettokosten heute"
@@ -82,5 +82,41 @@
     "updated": "Aktualisiert:",
     "legend": "Stunde antippen für Viertelstunden · grüner/roter Rand = günstiger/teurer Block",
     "fromNowLine": "Günstigster 2-h-Block ab jetzt"
+  },
+  "planWidget": {
+    "loading": "Lädt…",
+    "loadFailed": "Plan konnte nicht geladen werden.",
+    "noEms": "Energiemanagement nicht eingerichtet. Gerät «Energiemanagement» hinzufügen und in den App-Einstellungen unter Einrichten → EMS einrichten.",
+    "noPrices": "Noch keine Preise für die nächsten Stunden.",
+    "now": "jetzt",
+    "test": "Testmodus",
+    "off": "EMS aus",
+    "battery": "Batterie",
+    "charger": "Wallbox",
+    "carNow": "lädt jetzt bis {to}",
+    "carPlanned": "Laden geplant {from} bis {to}",
+    "carNone": "kein Laden geplant",
+    "carCharges": "E-Auto lädt",
+    "tomorrow": "morgen",
+    "tapHint": "Balken antippen für Details",
+    "mode": {
+      "charge": "Laden",
+      "hold": "Halten",
+      "normal": "Normal"
+    }
+  },
+  "fuseWidget": {
+    "loading": "Lädt…",
+    "loadFailed": "Hausanschluss konnte nicht geladen werden.",
+    "noEms": "Energiemanagement nicht eingerichtet.",
+    "off": "Hausanschluss-Schutz ist aus. Einschalten in den App-Einstellungen unter Einrichten → EMS → Hausanschluss-Schutz.",
+    "wait": "Warte auf die ersten Messwerte…",
+    "noPhases": "Phasenströme nicht lesbar. Zähler unter Einrichten → EMS → Hausanschluss-Schutz prüfen.",
+    "of": "von",
+    "peak": "Spitze heute {a} A um {time}",
+    "over": "Überlast",
+    "throttled": "Wallbox auf {a} A gedrosselt",
+    "shed": "Aus:",
+    "test": "Testmodus"
   }
 }
