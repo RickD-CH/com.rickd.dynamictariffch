@@ -96,7 +96,7 @@ function uiEnv({
   });
   const res = {
     'GET /ems/shadow': {
-      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: { live: false, mine: { mode: 'solar_ev', reason: '10A/3ph' }, connected: true, ...(shadow.charger || {}) }, events: chargerEvents }, car: shadow.car,
+      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: { live: false, mine: { mode: 'solar_ev', reason: '10A/3ph' }, connected: true, ...(shadow.charger || {}) }, events: chargerEvents }, car: shadow.car, fuse: shadow.fuse,
     },
     'GET /ems/consumers': { current: [], events },
     'GET /ems/devices': { devices: [] },
@@ -233,4 +233,23 @@ test('E-Auto-Badge: nicht angesteckt, lädt, Ziel erreicht, angesteckt', async (
   assert.equal(await badge({ soc: 40, state: 'planned', connected: true }, { connected: true, chargerPowerW: 7000 }), 'lädt');
   assert.equal(await badge({ soc: 80, state: 'reached', connected: true }, { connected: true, chargerPowerW: 0 }), 'Ziel erreicht');
   assert.equal(await badge({ soc: 50, state: 'none', connected: true }, { connected: true, chargerPowerW: 0 }), 'angesteckt');
+});
+
+test('Hausanschluss-Zeile: Netzbezug oder Einspeisung in kW klein neben den Ampere', async () => {
+  const line = async (gridW) => {
+    const u = uiEnv({
+      cfg: { fuse: { enabled: true } },
+      shadow: {
+        fuse: {
+          limitA: 36, maxA: 2.5, phase: 1, over: false, capAmps: 16, shed: [], live: false, gridW,
+        },
+      },
+    });
+    await u.init();
+    const m = u.main().match(/id="ems-fuse-line"[\s\S]*?<\/div><\/div>/);
+    return m ? m[0] : '';
+  };
+  assert.match(await line(1689), /Hausanschluss 2\.5 A von 36 A <span class="ems-muted" style="font-size:12px">1\.7 kW Bezug<\/span>/);
+  assert.match(await line(-2300), /2\.3 kW Einspeisung/);
+  assert.doesNotMatch(await line(null), /kW/);
 });

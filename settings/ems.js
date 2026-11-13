@@ -98,7 +98,7 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
-      fuseNow: 'Hausanschluss', fuseOf: 'von', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
+      fuseNow: 'Hausanschluss', fuseOf: 'von', fuseImport: 'Bezug', fuseExport: 'Einspeisung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
       whyGrid: 'Der Netzzähler ist die Grundlage: Bezug positiv, Einspeisung negativ. Ohne ihn kann nichts geregelt werden.',
       whyPv: 'Verbessert die Berechnung des Überschusses (Erzeugung minus Verbrauch) und die Verteilung auf Batterie und Geräte.',
@@ -226,7 +226,7 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
-      fuseNow: 'House connection', fuseOf: 'of', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
+      fuseNow: 'House connection', fuseOf: 'of', fuseImport: 'import', fuseExport: 'export', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
       whyGrid: 'The grid meter is the basis: import positive, export negative. Nothing can be controlled without it.',
       whyPv: 'Improves the surplus calculation (generation minus consumption) and how it is split between battery and devices.',
@@ -1060,7 +1060,9 @@
     if (cur.capAmps !== null && cur.capAmps !== undefined && cur.capAmps < state.cfg.charger.maxAmps && state.cfg.charger.id) parts.push(S.fuseThrottled + ' ' + cur.capAmps + ' A');
     if (cur.shed && cur.shed.length) parts.push(S.fuseShedNow + ' ' + cur.shed.join(', '));
     var bad = cur.over || (cur.shed && cur.shed.length);
-    return '<div class="card" id="ems-fuse-line"><div class="ems-st"><span class="ems-ic" style="background:' + (bad ? '#c0392b' : '#6b7280') + '">' + icon('bolt', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts.join(' - ')) + (cur.live ? '' : ' <span class="ems-muted">(' + esc(S.logTestTag) + ')</span>') + '</span></div></div>';
+    var gw = Number.isFinite(cur.gridW) ? cur.gridW : null;
+    var kw = gw === null ? '' : ' <span class="ems-muted" style="font-size:12px">' + esc((Math.abs(gw) / 1000).toFixed(1) + ' kW ' + (gw >= 0 ? S.fuseImport : S.fuseExport)) + '</span>';
+    return '<div class="card" id="ems-fuse-line"><div class="ems-st"><span class="ems-ic" style="background:' + (bad ? '#c0392b' : '#6b7280') + '">' + icon('bolt', 17) + '</span><span style="flex:1;font-size:14px">' + esc(parts[0]) + kw + (parts.length > 1 ? esc(' - ' + parts.slice(1).join(' - ')) : '') + (cur.live ? '' : ' <span class="ems-muted">(' + esc(S.logTestTag) + ')</span>') + '</span></div></div>';
   }
 
   /** «Ferien bis 20.11.» oder «Ferien bis ausgeschaltet», wenn die Vorlage gerade pausiert; sonst ''. */
