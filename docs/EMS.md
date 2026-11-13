@@ -418,3 +418,32 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   starten» zusätzlich «Jetzt starten» und der Automatik-Schalter. Bewusst kein eigenes E-Auto-Widget (Homey
   erlaubt maximal 8 Widgets pro Dashboard).
 - Daten über `WidgetData.consumersWidget()`, API-Routen `getConsumers`/`postStart`/`postArm`.
+
+## Programm starten: Abkühlpause statt Tages-Limit (13.11.2026)
+
+- **Korrektur:** Richard will z. B. den Geschirrspüler auch mehrmals am Tag automatisch starten können - "heute
+  schon gestartet" als Tages-Sperre war falsch. `decideProgram` kennt jetzt statt des Tages-Limits eine
+  **Abkühlpause**: kein neuer automatischer Start, solange weniger als `durationH` seit dem letzten Start vergangen
+  sind (neuer `blocked: 'cooldown'`, Grund inkl. Uhrzeit "wieder ab HH:MM möglich"). Nach Ablauf der Pause läuft
+  die normale Logik (PV-Überschuss/Preisfenster) wie gewohnt wieder, beliebig oft am selben Tag.
+  `st.programStartedAt` ist jetzt "zuletzt gestartet", nicht mehr "heute schon gestartet", und wird beim
+  Tageswechsel nicht mehr zurückgesetzt (die Abkühlpause löst sich von selbst auf, braucht keinen Tagesbezug).
+- Reihenfolge angepasst: Status-/Fernbedienung-/Tür-Gates (echte, live geprüfte Voraussetzungen am Gerät) kommen
+  jetzt **vor** der Abkühlpause - eine konkrete Gerätemeldung ("läuft noch") ist informativer als unser eigener
+  Cooldown, wenn beides gleichzeitig zutrifft. `forceNow` (manueller Start) überspringt weiterhin nur die
+  Abkühlpause und die Automatik, nie die echten Geräte-Voraussetzungen.
+- Die generische "nicht erreichbar"-Sperre (Homey meldet ein Gerät als nicht verfügbar) greift bei `mode:'program'`
+  nicht mehr: Cloud-Geräte (z. B. ein per Hersteller-App gesteuerter Geschirrspüler) melden sich oft als "nicht
+  verfügbar", solange sie nicht aktiv senden - normal, kein Fehler. `decideProgram` behandelt fehlende
+  Capability-Werte ohnehin selbst als "unbekannt"; ohne diese Korrektur blieb die Automatik (und ihr Schalter im
+  Widget) unsichtbar/nicht schaltbar, sobald das Gerät gerade offline war.
+
+## Hausanschluss-Schutz: auch die Wallbox kann einen eigenen Aus-Flow bekommen (13.11.2026)
+
+- Die Wallbox hatte in der Abschalt-Liste bisher kein «Wie ausschalten?» - sie wird ja normalerweise direkt über
+  den Stopp-Befehl der Wallbox abgeschaltet, keine Capability-Erkennung nötig. Jetzt bekommt sie trotzdem dasselbe
+  aufklappbare Feld wie die übrigen Einträge: als Dokumentation («Automatisch: Ladevorgang wird gestoppt.») und als
+  Option für einen eigenen Aus-Flow, falls eine Wallbox das nicht sauber unterstützt oder Richard etwas Eigenes
+  braucht. `lib/ems/planner/fuse.js` (`normalizeShed`): `offFlow` jetzt auch bei `kind:'charger'` möglich;
+  `EmsRunner` löst ihn über `Actuators.shed(null, { offFlow })` aus (dieselbe Methode wie bei den Geräte-Einträgen,
+  ohne Geräte-Id, da die Wallbox über ihren Flow läuft, nicht über eine Capability).

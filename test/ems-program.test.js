@@ -36,7 +36,7 @@ test('Fernbedienung nicht aktiv: nie starten, auch nicht bei PV-Überschuss oder
   });
   assert.equal(r.start, false);
   assert.match(r.reason, /Fernbedienung/);
-  assert.equal(st.programStartedAt, null);
+  assert.ok(!st.programStartedAt);
 });
 
 test('Tür offen (wenn ein Türsensor gewählt ist): nicht starten', () => {
@@ -112,8 +112,8 @@ test('Frist erreicht (Fensterende): startet als Sicherheitsnetz, egal zu welchem
   assert.match(r.reason, /maximale Wartezeit/);
 });
 
-test('Nach dem Start: an diesem Tag nicht nochmals, auch nicht bei neuem PV-Überschuss', () => {
-  const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0 });
+test('Nach dem Start: Abkühlpause für die übliche Dauer (durationH), kein Takten bei neuem PV-Überschuss', () => {
+  const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0, durationH: 2 });
   const st = { programArmed: true };
   const first = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11), tz: TZ,
@@ -123,7 +123,24 @@ test('Nach dem Start: an diesem Tag nicht nochmals, auch nicht bei neuem PV-Übe
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11) + 60000, tz: TZ,
   });
   assert.equal(second.start, false);
-  assert.match(second.reason, /schon gestartet/);
+  assert.equal(second.blocked, 'cooldown');
+  assert.match(second.reason, /kürzlich gestartet.*13:00/);
+});
+
+test('Kein Tages-Limit: nach Ablauf der Abkühlpause (durationH) darf das Gerät am selben Tag erneut automatisch starten', () => {
+  const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0, durationH: 2 });
+  const st = { programArmed: true };
+  decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11), tz: TZ,
+  });
+  const stillCooling = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11) + 3600000, tz: TZ,
+  });
+  assert.equal(stillCooling.blocked, 'cooldown', 'nach 1 von 2 Stunden noch in der Abkühlpause');
+  const again = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11) + 2 * 3600000 + 1000, tz: TZ,
+  });
+  assert.equal(again.start, true, 'nach 2 Stunden (durationH) ist ein neuer automatischer Start erlaubt - Richard will mehrere Läufe pro Tag');
 });
 
 test('Neuer Tag setzt den Zähler zurück, aber auch die Automatik - die muss jeden Tag neu eingeschaltet werden', () => {
@@ -272,22 +289,28 @@ test('Runner: Tür offen - nicht starten', async () => {
 
 // ---------------------------------------------------------------- Status-Capability (frei wählbar je Gerät)
 
-test('Status-Capability: Gerät läuft schon (von Hand oder vom letzten Mal) - kein Start, den ganzen Tag gesperrt', () => {
+test('Status-Capability: blockiert nur, solange das Gerät wirklich läuft - keine Sperre für den Rest des Tages', () => {
   const p = normalizeProgram({
-    stateCapability: 'measure_applianceState', stateIdleValue: 'Idle', minSurplusW: 100, startSustainS: 0,
+    stateCapability: 'measure_applianceState', stateIdleValue: 'Idle', minSurplusW: 100, startSustainS: 0, durationH: 1,
   });
-  const st = {};
-  const r = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+  const st = { programArmed: true };
+  const first = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(10), tz: TZ,
   });
-  assert.equal(r.start, false);
-  assert.match(r.reason, /nicht bereit.*Running/);
-  assert.ok(st.programStartedAt, 'für den Rest des Tages gesperrt, damit kein zweiter Befehl kommt');
-  const later = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(19) + 3600000, tz: TZ,
+  assert.equal(first.start, true);
+  // Direkt danach meldet das Gerät "läuft" - die Status-Capability blockiert das unabhängig von der Abkühlpause.
+  const running = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(10) + 60000, tz: TZ,
   });
-  assert.equal(later.start, false, 'bleibt gesperrt, auch wenn es inzwischen wieder bereit ist');
-  assert.match(later.reason, /schon gestartet/);
+  assert.equal(running.start, false);
+  assert.equal(running.blocked, 'state');
+  assert.match(running.reason, /nicht bereit.*Running/);
+  // Nach Ablauf der üblichen Dauer (1h) und wieder "Idle": ein ganz normaler, neuer Start ist möglich - der
+  // Geschirrspüler darf am selben Tag mehrfach laufen, es gibt keine Tages-Sperre mehr.
+  const again = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(10) + 3600000 + 1000, tz: TZ,
+  });
+  assert.equal(again.start, true, 'mehrfacher Start am selben Tag ist erlaubt, sobald die Abkühlpause um ist');
 });
 
 test('Status-Capability: "bereit" erlaubt den normalen Ablauf, ohne Capability wird der Ist-Zustand nicht geprüft', () => {
@@ -336,7 +359,7 @@ test('forceNow: startet sofort, auch ausserhalb des Zeitfensters und ohne PV, ab
   assert.ok(st.programStartedAt);
 });
 
-test('forceNow: ignoriert "heute schon gestartet" - ein bewusster zweiter Klick zählt', () => {
+test('forceNow: ignoriert die Abkühlpause - ein bewusster zweiter Klick zählt', () => {
   const p = normalizeProgram({ minSurplusW: 100, startSustainS: 0 });
   const st = { programArmed: true };
   decideProgram({

@@ -38,7 +38,6 @@
     .chip { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--cw-test-bg); color: var(--cw-test); white-space: nowrap; }
     .btn { font: inherit; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 7px; border: none; background: var(--cw-accent); color: #fff; cursor: pointer; flex: 0 0 auto; }
     .btn:disabled { background: var(--cw-disabled); color: var(--cw-muted); cursor: default; }
-    .btn.done { background: var(--cw-chip); color: var(--cw-ok); }
     .car { padding-bottom: 10px; margin-bottom: 4px; border-bottom: 2px solid var(--cw-border); }
     .car .top { display: flex; align-items: baseline; gap: 8px; }
     .car .soc { font-size: 20px; font-weight: 700; }
@@ -67,6 +66,7 @@
       dishwasher: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7h16M7.5 5h1M11.5 5h1M7 11.5h10M7 15.5h10',
       boiler: 'M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM6 8h12M12 11.5s2.5 2.3 2.5 4a2.5 2.5 0 0 1-5 0c0-1.7 2.5-4 2.5-4z',
       washer: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7.5h16M7.5 5.2h1.5M8.5 14a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0z',
+      tumbler: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7h16M8 5h1.5M11.5 5h1.5M8.5 14.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM10 15.3c0-1 .9-1.8 1.9-1.8s1.9.8 1.9 1.8',
       fan: 'M10.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM12 10.5C11 6 12 3 14.5 3c2 0 2.5 3-1 7M13.5 12c4.5-1 7.5 0 7.5 2.5 0 2-3 2.5-7-1M12 13.5c1 4.5 0 7.5-2.5 7.5-2 0-2.5-3 1-7M10.5 12C6 13 3 12 3 9.5c0-2 3-2.5 7 1',
       heatpump: 'M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM10 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0zM14 8.5v7M10.5 12h7M5.5 9v6',
     };
@@ -113,12 +113,10 @@
       var btn = '';
       var auto = '';
       if (c.isProgram) {
-        if (c.startedAt) btn = '<button class="btn done" disabled>✓</button>';
-        else {
-          // 'armed' (Automatik aus) sperrt nur die automatische PV-/Preis-Logik, nie den bewussten manuellen Start.
-          var disabled = (!!c.blocked && c.blocked !== 'armed') || !c.live;
-          btn = '<button class="btn" data-id="' + esc(c.id) + '"' + (disabled ? ' disabled title="' + sub + '"' : '') + '>' + esc(Homey.__('consumersWidget.start')) + '</button>';
-        }
+        // 'armed' (Automatik aus) und 'cooldown' (Abkühlpause) sperren nur die automatische Logik, nie den
+        // bewussten manuellen Start (der darf auch mehrmals am Tag und mitten in der Abkühlpause ausgelöst werden).
+        var disabled = (!!c.blocked && c.blocked !== 'armed' && c.blocked !== 'cooldown') || !c.live;
+        btn = '<button class="btn" data-id="' + esc(c.id) + '"' + (disabled ? ' disabled title="' + sub + '"' : '') + '>' + esc(Homey.__('consumersWidget.start')) + '</button>';
         var autoTitle = esc(c.armed ? Homey.__('consumersWidget.autoOn') : Homey.__('consumersWidget.autoOff'));
         auto = '<label class="sw" title="' + autoTitle + '">'
           + '<input type="checkbox" data-arm="' + esc(c.id) + '"' + (c.armed ? ' checked' : '') + '>'
