@@ -96,6 +96,7 @@
       if (car.needKwh !== null) sub.push(esc(fill(Homey.__('consumersWidget.needKwh'), { kwh: car.needKwh })));
       var testChip = !car.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       return '<div class="car">'
+        + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('car') + '</span>' + esc(Homey.__('consumersWidget.car')) + '</div>'
         + '<div class="top"><span class="soc">' + (car.soc === null ? '–' : car.soc + '%') + '</span><span class="badge">' + badge + '</span></div>'
         + '<div class="sub" style="white-space:normal">' + esc(car.reason || '') + '</div>'
         + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')

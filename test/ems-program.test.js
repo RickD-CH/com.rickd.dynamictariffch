@@ -170,7 +170,7 @@ const { PvFeed } = require('../lib/ems/PvFeed');
 const { makeConsumerState } = require('../lib/ems/planner/consumer');
 
 function makeRunner({
-  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0, state = undefined, stateIdleValue = undefined, armed = true,
+  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0, state = undefined, stateIdleValue = undefined, armed = true, available = true,
 } = {}) {
   const config = normalizeConfig({
     enabled: true,
@@ -207,7 +207,7 @@ function makeRunner({
         gridW, houseW: 300, pvW: 3000, batterySoc: null, batteryW, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
       }),
       consumerStates: async (ids) => new Map(ids.map((id) => [id, {
-        actualOn: false, powerW: 0, available: true, values: {}, raw: { measure_remoteControl: remote, measure_doorState: door, measure_applianceState: state },
+        actualOn: false, powerW: 0, available, values: {}, raw: { measure_remoteControl: remote, measure_doorState: door, measure_applianceState: state },
       }])),
     },
     actuators: {
@@ -245,6 +245,22 @@ test('Runner: Fernbedienung an, Tür zu, genug Überschuss - startet live über 
   // Zweiter Lauf am selben Tag: nicht nochmals
   await runner.tickCharger(at(19) + 60000);
   assert.equal(started.length, 1, 'kein zweiter Start am selben Tag');
+});
+
+test('Runner: Gerät "nicht erreichbar" (z. B. Cloud-Gerät gerade offline) blockiert die Automatik nicht', async () => {
+  // Ein Geschirrspüler via Hersteller-App/Cloud meldet sich oft als "nicht verfügbar", solange er nicht aktiv
+  // sendet - das ist normal, kein Fehler. Die Automatik (Ein-/Ausschalten) und der Status müssen trotzdem
+  // funktionieren, sonst "hängt" das Widget scheinbar (Automatik-Schalter springt zurück, siehe Bugreport).
+  const { runner, started } = makeRunner({ available: false, armed: false });
+  await runner.tickCharger(at(19));
+  assert.equal(started.length, 0);
+  assert.notEqual(runner.consumerCurrent[0].reason, 'Gerät nicht erreichbar');
+  assert.equal(runner.consumerCurrent[0].blocked, 'armed');
+  assert.equal(runner.consumerCurrent[0].armed, false);
+  runner.setProgramArmed('gwa', true);
+  await runner.tickCharger(at(19) + 60000);
+  assert.equal(runner.consumerCurrent[0].armed, true, 'Automatik bleibt schaltbar, auch wenn das Gerät gerade nicht erreichbar ist');
+  assert.equal(started.length, 1, 'Fernbedienung/Tür kommen aus den letzten bekannten Werten, Start funktioniert trotzdem');
 });
 
 test('Runner: Tür offen - nicht starten', async () => {
