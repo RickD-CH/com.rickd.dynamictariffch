@@ -80,7 +80,7 @@ test('Anzeige: «Planung» unter Einrichten → Hausbatterie mit Spitzenstunden,
   const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
-  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, battery: { deviceId: 'bat', reserveHours: 6 } });
+  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, battery: { deviceId: 'bat', reserveHours: 6, reserveMode: 'fixed' } });
   const res = {
     'GET /ems/shadow': {
       enabled: true,

@@ -38,6 +38,11 @@
       batCtlMap: 'Zuordnung', batCtlMapAuto: 'erkannte Vorlage', batCtlMapCustom: 'eigene Zuordnung', batCtlAddStep: 'Karte hinzufügen', batCtlPick: '- Karte wählen -', batCtlDel: 'Entfernen',
       batCtlPh: 'In Zahlenfeldern gehen auch Platzhalter: {power} = Ladeleistung (W), {target_soc} = Ziel-Ladestand (%), {normal_discharge} = normale Entladeleistung (W).', batCtlEmpty: 'keine Karte (es wird nichts gesendet)', batCtlLoading: 'Karten der Batterie werden geprüft ...',
       batCtlWarn: 'Nur ein System darf die Batterie steuern. Schalte die Batteriesteuerung im anderen Energiemanagement und eigene Batterie-Flows aus, bevor du live schaltest.',
+      bpMode: 'Spitzenstunden', bpModeAuto: 'automatisch (Fahrplan)', bpModeFixed: 'feste Anzahl Stunden',
+      bpModeAutoHint: 'Der Fahrplan gibt die Ladung in die teuersten Viertelstunden bis zum nächsten Nachladen (nachts günstig aus dem Netz oder tagsüber von der Sonne) und lädt nur nach, wenn es sich trotz Verlust lohnt. Wie viele Stunden das sind, ergibt sich aus Ladung und Verbrauch.',
+      schText: 'Fahrplan: lädt {kwh} kWh um {from} bis {to} (Schnitt {cp} Rp.), gibt {dkwh} kWh in die teuersten Viertelstunden ab (Schnitt {dp} Rp.). Nutzen ca. {chf} CHF.', schNoCharge: 'Fahrplan: kein Netzladen nötig, die Ladung ({dkwh} kWh) geht in die teuersten Viertelstunden (Schnitt {dp} Rp.).', schNothing: 'Fahrplan: zurzeit nichts zu tun.',
+      ldTitle: 'KOSTEN DER ENTSCHEIDE (MODELL)', ldIntro: 'Was die Batterie-Entscheide gekostet hätten: zwei virtuelle Batterien mit dem echten Hausverbrauch, Solarstrom und den echten Preisen, eine nach diesem EMS, eine nach dem anderen. Jeder Tag startet beim echten Ladestand; übrige Ladung zählt zum Tagesdurchschnittspreis. Tiefer ist besser.',
+      ldMine: 'Dieses EMS', ldOther: 'Anderes EMS', ldNone: 'Ohne Batterie', ldDiff: 'Differenz', ldToday: 'heute bisher', ldTotal: 'Summe', ldNone2: 'Noch keine Daten, die Auswertung startet mit dem nächsten Batterie-Lauf.',
       bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
       bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
@@ -161,6 +166,11 @@
       batCtlMap: 'Mapping', batCtlMapAuto: 'detected template', batCtlMapCustom: 'own mapping', batCtlAddStep: 'Add card', batCtlPick: '- pick a card -', batCtlDel: 'Remove',
       batCtlPh: 'Number fields also accept placeholders: {power} = charge power (W), {target_soc} = target charge (%), {normal_discharge} = normal discharge power (W).', batCtlEmpty: 'no card (nothing is sent)', batCtlLoading: 'Checking the battery\'s cards ...',
       batCtlWarn: 'Only one system may control the battery. Switch off battery control in the other energy management and your own battery flows before going live.',
+      bpMode: 'Peak hours', bpModeAuto: 'automatic (schedule)', bpModeFixed: 'fixed number of hours',
+      bpModeAutoHint: 'The schedule puts the charge into the most expensive quarter-hours until the next recharge (cheap from the grid at night or from the sun during the day) and only charges from the grid when it pays off despite losses. How many hours that is follows from charge and consumption.',
+      schText: 'Schedule: charges {kwh} kWh at {from} to {to} (avg {cp} Rp.), delivers {dkwh} kWh in the most expensive quarter-hours (avg {dp} Rp.). Benefit approx. {chf} CHF.', schNoCharge: 'Schedule: no grid charging needed, the charge ({dkwh} kWh) goes into the most expensive quarter-hours (avg {dp} Rp.).', schNothing: 'Schedule: nothing to do at the moment.',
+      ldTitle: 'COST OF THE DECISIONS (MODEL)', ldIntro: 'What the battery decisions would have cost: two virtual batteries with the real house consumption, solar power and real prices, one following this EMS, one the other. Each day starts at the real charge level; remaining charge counts at the daily average price. Lower is better.',
+      ldMine: 'This EMS', ldOther: 'Other EMS', ldNone: 'Without battery', ldDiff: 'Difference', ldToday: 'today so far', ldTotal: 'Total', ldNone2: 'No data yet, the evaluation starts with the next battery run.',
       bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
       bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
@@ -483,28 +493,45 @@
     return S.brTitle + ': ' + t;
   }
 
+  /** Was der Fahrplan vorhat (letzter Batterie-Lauf, reserveMode auto); '' wenn nicht aktiv. */
+  function scheduleText() {
+    var mine = state.shadow && state.shadow.current && state.shadow.current.mine;
+    var sc = mine && mine.schedule;
+    if (!sc) return '';
+    var o = {
+      kwh: sc.chargeKwh, from: sc.chargeFrom ? hm(sc.chargeFrom) : '-', to: sc.chargeTo ? hm(sc.chargeTo) : '-', cp: sc.chargeAvg, dkwh: sc.dischargeKwh, dp: sc.dischargeAvg, chf: sc.valueChf !== null && sc.valueChf !== undefined ? sc.valueChf.toFixed(2) : '-',
+    };
+    if (sc.chargeKwh > 0) return fill(S.schText, o);
+    if (sc.dischargeKwh > 0) return fill(S.schNoCharge, o);
+    return S.schNothing;
+  }
+
   /** Batterie-Planer: wie die Batterie über den Tag eingesetzt wird (gilt für Plan, Simulation und Steuerung). */
   function batteryPlanHtml() {
     var b = state.cfg.battery;
+    var fixedMode = b.reserveMode === 'fixed';
     return '<div class="ems-box"><b>' + esc(S.bpTitle) + '</b>'
-      + '<div class="ems-row">' + field(S.bpReserve, 'ems-bp-reserve', b.reserveHours, 'number', ' step="1" min="0" max="24"') + field(S.batCtlTarget, 'ems-bp-target', b.targetSoc, 'number', ' step="5" min="10" max="100"') + field(S.batCtlPower, 'ems-bp-power', b.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + '</div>'
-      + '<p class="ems-why">' + esc(S.bpReserveHint) + '</p>'
-      + '<div class="ems-row">' + field(S.bpSolar, 'ems-bp-solar', b.solarLimitKwh, 'number', ' step="1" min="0"') + '</div><p class="ems-why">' + esc(S.bpSolarHint) + '</p>'
-      + '<div class="ems-row">' + check(S.bpBridge, 'ems-bp-bridge', b.bridge !== false) + '</div>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.bpMode) + '</span><select id="ems-bp-mode" data-ems-bpmode="1">'
+      + '<option value="auto"' + (fixedMode ? '' : ' selected') + '>' + esc(S.bpModeAuto) + '</option><option value="fixed"' + (fixedMode ? ' selected' : '') + '>' + esc(S.bpModeFixed) + '</option></select></label>'
+      + (fixedMode ? field(S.bpReserve, 'ems-bp-reserve', b.reserveHours, 'number', ' step="1" min="0" max="24"') : '') + '</div>'
+      + '<p class="ems-why">' + esc(fixedMode ? S.bpReserveHint : S.bpModeAutoHint) + '</p>'
+      + '<div class="ems-row">' + field(S.batCtlTarget, 'ems-bp-target', b.targetSoc, 'number', ' step="5" min="10" max="100"') + field(S.batCtlPower, 'ems-bp-power', b.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + '</div>'
+      + (fixedMode ? '<div class="ems-row">' + field(S.bpSolar, 'ems-bp-solar', b.solarLimitKwh, 'number', ' step="1" min="0"') + '</div><p class="ems-why">' + esc(S.bpSolarHint) + '</p>'
+        + '<div class="ems-row">' + check(S.bpBridge, 'ems-bp-bridge', b.bridge !== false) + '</div>' : '')
       + (function () {
         var auto = b.bridgeLoadMode !== 'fixed';
         var load = state.shadow && state.shadow.load;
         var learned = load && load.days > 0 && load.morningKw !== null && load.morningKw !== undefined;
         var fixedKw = b.bridgeLoadKw !== undefined ? b.bridgeLoadKw : 1;
         var info = auto ? (learned ? fill(S.bpLearned, { kw: load.morningKw.toFixed(1), days: load.days }) : fill(S.bpLearning, { kw: fixedKw })) : '';
-        var preview = bridgeText(true);
+        var preview = fixedMode ? bridgeText(true) : scheduleText();
         return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.bpLoad) + '</span><select id="ems-bp-loadmode" data-ems-bploadmode="1">'
           + '<option value="auto"' + (auto ? ' selected' : '') + '>' + esc(S.bpLoadAuto + (learned ? ': ' + load.morningKw.toFixed(1) + ' kW' : '')) + '</option>'
           + '<option value="fixed"' + (auto ? '' : ' selected') + '>' + esc(S.bpLoadFixed) + '</option></select></label>'
           + (auto ? '' : field(S.bpLoadFixed, 'ems-bp-load', fixedKw, 'number', ' step="0.1" min="0.1" max="10"'))
           + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
           + (info ? '<p class="ems-why">' + esc(info) + '</p>' : '')
-          + '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>'
+          + (fixedMode ? '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>' : '')
           + (preview ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(preview) + '</b></p>' : '');
       }()) + '</div>';
   }
@@ -1547,7 +1574,8 @@
         else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord);
         else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
         body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day) + legendFor(row.kind, row);
-        if (row.kind === 'battery' && day.key === 'today' && bridgeText(false)) body += '<p class="ems-why" style="margin:4px 0 0">' + esc(bridgeText(false)) + '</p>';
+        var batNote = row.kind === 'battery' && day.key === 'today' ? (state.cfg.battery.reserveMode === 'fixed' ? bridgeText(false) : scheduleText()) : '';
+        if (batNote) body += '<p class="ems-why" style="margin:4px 0 0">' + esc(batNote) + '</p>';
       });
       body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
       body += '</div>';
@@ -1773,6 +1801,25 @@
     return '<div class="card"><h2>' + esc(S.cmpSource) + '</h2><div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.cmpDev) + '</span><select id="ems-d-cmp">' + deviceOptions(c.devices.compareEms, hasCap(/^ems_mode$/), S.none) + '</select></label></div></div>'
       + '<p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-cmp">' + esc(state.msg) + '</span></p>';
   }
+  /** Franken-Auswertung der Batterie-Entscheide je Tag (Modell). */
+  function ledgerHtml() {
+    var ld = state.shadow && state.shadow.ledger;
+    var rows = [];
+    var fmt = function (v) { return v === null || v === undefined ? '-' : v.toFixed(2); };
+    var diff = function (d) { return d.mine !== null && d.other !== null && d.mine !== undefined && d.other !== undefined ? (d.mine - d.other) : null; };
+    var line = function (label, d, cls) {
+      var df = diff(d);
+      return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + esc(label) + '</td><td>' + fmt(d.mine) + '</td><td>' + fmt(d.other) + '</td><td>' + fmt(d.none) + '</td><td class="' + (df === null ? '' : (df <= 0 ? 'ems-ok' : 'ems-bad')) + '">' + (df === null ? '-' : (df > 0 ? '+' : '') + df.toFixed(2)) + '</td></tr>';
+    };
+    if (ld && ld.today) rows.push(line(S.ldToday, ld.today, 'pl-cur'));
+    (ld && ld.days ? ld.days : []).slice(0, 14).forEach(function (d) { rows.push(line(d.day.slice(8, 10) + '.' + d.day.slice(5, 7) + '.', d)); });
+    if (ld && ld.total && ld.total.days) rows.push(line(S.ldTotal + ' (' + ld.total.days + ')', ld.total));
+    var body = rows.length
+      ? '<table class="ems-t"><thead><tr><th></th><th>' + esc(S.ldMine) + '</th><th>' + esc(S.ldOther) + '</th><th>' + esc(S.ldNone) + '</th><th>' + esc(S.ldDiff) + '</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>'
+      : '<p class="sub">' + esc(S.ldNone2) + '</p>';
+    return '<p class="lbl">' + esc(S.ldTitle) + '</p><div class="card"><p class="ems-why" style="margin-top:0">' + esc(S.ldIntro) + '</p>' + body + '</div>';
+  }
+
   function renderCompare() {
     var panel = $('ems-view-cmp');
     if (!panel) return;
@@ -1793,6 +1840,7 @@
       + '<div class="card"><p class="sub">' + esc(S.cmpIntro) + '</p></div>'
       + (sh.enabled ? '' : '<div class="card"><p class="warn">' + esc(S.cmpOff) + '</p></div>')
       + compareNowHtml()
+      + ledgerHtml()
       + cmpSection(S.cmpBattery, { overallAgreePct: sh.overallAgreePct, days: sh.days, events: sh.events })
       + cmpSection(S.cmpCharger, sh.charger ? { overallAgreePct: sh.charger.overallAgreePct, days: sh.charger.days, events: sh.charger.events } : null);
   }
@@ -1810,13 +1858,14 @@
     syncFuse();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
-      if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-reserve')) {
+      if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-target')) {
         var bb = state.cfg.battery;
-        bb.reserveHours = num('ems-bp-reserve', bb.reserveHours);
+        if ($('ems-bp-mode')) bb.reserveMode = String($('ems-bp-mode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
+        if ($('ems-bp-reserve')) bb.reserveHours = num('ems-bp-reserve', bb.reserveHours);
         bb.targetSoc = num('ems-bp-target', bb.targetSoc);
         bb.chargePowerKw = num('ems-bp-power', bb.chargePowerKw);
-        bb.solarLimitKwh = num('ems-bp-solar', bb.solarLimitKwh);
-        bb.bridge = chk('ems-bp-bridge');
+        if ($('ems-bp-solar')) bb.solarLimitKwh = num('ems-bp-solar', bb.solarLimitKwh);
+        if ($('ems-bp-bridge')) bb.bridge = chk('ems-bp-bridge');
         if ($('ems-bp-loadmode')) bb.bridgeLoadMode = String($('ems-bp-loadmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
         if (bb.bridgeLoadMode === 'fixed' && $('ems-bp-load')) bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
         bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
@@ -1906,7 +1955,7 @@
     var ems = {
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
-        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', floorSoc: c.battery.floorSoc,
+        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', reserveMode: c.battery.reserveMode === 'fixed' ? 'fixed' : 'auto', floorSoc: c.battery.floorSoc,
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
@@ -2199,7 +2248,7 @@
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
     if (t.id && /accuEnable$/.test(t.id)) { sync(); renderSetup(); return; }
-    if (g('data-ems-bploadmode') !== null) { sync(); renderSetup(); return; }
+    if (g('data-ems-bploadmode') !== null || g('data-ems-bpmode') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
     if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {

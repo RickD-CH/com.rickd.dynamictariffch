@@ -297,3 +297,18 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Vorschau:** der Planer liefert `bridgeInfo` (Status charge/enough/unprofitable/nogap/nosun, Bedarf, vorhanden,
   Nachladen, Zeiten, verwendeter Verbrauch). Angezeigt unter Einrichten → Hausbatterie → Planung und im Ausblick unter
   der Batterie-Zeile.
+
+## Batterie-Fahrplan und Franken-Auswertung (13.11.2026)
+
+- **Fahrplan** (`lib/ems/planner/batterySchedule.js`, `battery.reserveMode = 'auto'`, neuer Standard): Ladung in die
+  teuersten Viertelstunden bis zum nächsten Nachladen statt einer festen Anzahl Spitzenstunden. Bedarf je Viertelstunde
+  = gelernter Hausverbrauch minus PV-Prognose (bis 36 h). Teure Viertelstunden der Reihe nach decken: zuerst Ladung und
+  Solarüberschuss, sonst günstig aus dem Netz laden vor dem Zeitpunkt, an dem die Ladung ausgeht, wenn
+  Ladepreis / Wirkungsgrad + verdrängter Solarstrom + Mindestspanne (3 Rp.) unter dem Preis liegt. Untergrenze `floorSoc`,
+  Netzladen bis `targetSoc`, Leistung `chargePowerKw` je Viertelstunde; überflüssiges Netzladen wird gestrichen.
+- Anlass (Wochentest 12./13.11.): «Halten» am Abend zu 35 Rp. für den Morgen zu 43 Rp., obwohl dazwischen zu 11.9 Rp.
+  nachgeladen werden konnte. Der Fahrplan entlädt am Abend, lädt um 04:00 nach und deckt den Morgen.
+- `reserveMode = 'fixed'`: bisheriger Planer (feste Spitzenstunden, Solar-Grenze, Morgen überbrücken).
+- **Franken-Auswertung** (`lib/ems/DecisionLedger.js`): zwei virtuelle Batterien (dieses EMS, anderes EMS) und ein Haus
+  ohne Batterie, mit echtem Hausverbrauch, Solarstrom, Preisen und Einspeisepreis; jeder Tag startet beim echten
+  Ladestand, übrige Ladung zählt zum Tagesdurchschnitt. Anzeige in der Vergleichsansicht («Kosten der Entscheide»).
