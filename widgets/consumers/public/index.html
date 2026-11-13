@@ -38,6 +38,10 @@
     .chip { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--cw-test-bg); color: var(--cw-test); white-space: nowrap; }
     .btn { font: inherit; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 7px; border: none; background: var(--cw-accent); color: #fff; cursor: pointer; flex: 0 0 auto; }
     .btn:disabled { background: var(--cw-disabled); color: var(--cw-muted); cursor: default; }
+    .item.citem { display: block; }
+    .citem .ctop { display: flex; align-items: center; gap: 8px; }
+    .citem .sub { white-space: normal; }
+    .citem .cctrl { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 6px; }
     .car { padding-bottom: 10px; margin-bottom: 4px; border-bottom: 2px solid var(--cw-border); }
     .car .top { display: flex; align-items: baseline; gap: 8px; }
     .car .soc { font-size: 20px; font-weight: 700; }
@@ -123,10 +127,18 @@
           + '<span class="slider"></span></label>';
       }
       var testChip = !c.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
+      var subHtml = '<span class="sub">' + sub + (extra.length ? ' · ' + extra.join(' · ') : '') + '</span>';
+      if (c.isProgram) {
+        // Eigene Reihe, statt wie bei den übrigen Verbrauchern neben dem Namen: Automatik-Schalter und
+        // Starten-Knopf brauchen hier Platz und sollen nicht mit dem (oft längeren) Status-Text um die Breite
+        // konkurrieren.
+        return '<div class="item citem"><div class="ctop"><span class="ic">' + icon(c.icon) + '</span>'
+          + '<span class="name">' + esc(c.name) + testChip + '</span></div>'
+          + subHtml
+          + '<div class="cctrl">' + auto + btn + '</div></div>';
+      }
       return '<div class="item"><span class="ic">' + icon(c.icon) + '</span>'
-        + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>'
-        + '<span class="sub">' + sub + (extra.length ? ' · ' + extra.join(' · ') : '') + '</span></span>'
-        + auto + btn + '</div>';
+        + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>' + subHtml + '</span></div>';
     }
 
     function render(Homey, d) {

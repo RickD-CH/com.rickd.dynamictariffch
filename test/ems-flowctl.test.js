@@ -43,6 +43,17 @@ test('Config: Verbraucher kennt Schaltart und zwei Flows, ungültiges wird berei
   assert.equal(c[2].assumedW, 0);
 });
 
+test('Config: Verbraucher-Symbol - jedes im Setup wählbare Icon wird auch gespeichert, unbekannte fallen weg', () => {
+  // Deckt genau den Bug ab, bei dem diese Liste nicht mit settings/ems.js Schritt gehalten hat (z. B. 'dishwasher'
+  // fehlte hier, obwohl im Setup wählbar - die Auswahl wurde beim Speichern dann stillschweigend verworfen).
+  const icons = ['plug', 'bike', 'drop', 'dishwasher', 'boiler', 'washer', 'tumbler', 'fan', 'heatpump'];
+  icons.forEach((icon) => {
+    const c = normalizeConfig({ consumers: [{ id: icon, name: icon, icon }] }).consumers;
+    assert.equal(c[0].icon, icon, `Icon "${icon}" muss erhalten bleiben`);
+  });
+  assert.equal(normalizeConfig({ consumers: [{ id: 'x', icon: 'flame' }] }).consumers[0].icon, '', 'unbekanntes/entferntes Icon fällt weg');
+});
+
 // ---------------------------------------------------------------- Ausgang
 
 function fakeActuators() {
