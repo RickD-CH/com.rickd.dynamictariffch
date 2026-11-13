@@ -183,12 +183,14 @@
     /* Manche Homey-WebViews malen Text/Zahl/Zeit-Felder mit dem nativen Eingabefeld statt mit unserer Farbe
        (im Dunkelmodus dann schwarzer Text auf dunklem Grund). appearance:none lässt uns die Farbe selbst setzen. */
     input[type="text"], input[type="number"], input[type="time"] { -webkit-appearance: none; appearance: none; }
-    /* Dieselbe Farbe, aber schon hier im ersten, statischen Stil der Seite (nicht erst in einem Stil, den eine
-       Lasche erst bei ihrem ersten Öffnen per innerHTML nachreicht) - sonst zählt sie für Chromes eigene Prüfung
-       "kennt diese Seite Dunkelmodus selbst?" nicht, und Chrome malt die Eingabefelder trotzdem noch selbst ein. */
+    /* Gefundene, echte Ursache (per DevTools bestätigt, nicht mehr geraten): Homeys eigenes _base.css setzt für
+       input[type=text|password|email] eine eigene Farbe (schwarz) und Schriftgrösse (16px, die übliche
+       Browser-Konvention gegen Auto-Zoom auf dem Handy). Das betrifft nur Text-Felder, nicht Zahl/Zeit/Auswahl -
+       genau das Muster, das wir gesehen haben. Nur !important gewinnt dagegen. */
     input[type="text"], input[type="number"], input[type="time"], input[type="date"], select, textarea {
       color: var(--st-text) !important;
       background-color: var(--st-bg);
+      font-size: 13px !important;
     }
     /* Chrome erzwingt bei einem automatisch ausgefüllten Feld eine eigene Textfarbe (meist schwarz) und einen
        hellen Hintergrund, die normale CSS-Regeln nicht übersteuern - nur mit !important geht das. Das war die
