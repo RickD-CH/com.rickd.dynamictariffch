@@ -312,3 +312,6 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Franken-Auswertung** (`lib/ems/DecisionLedger.js`): zwei virtuelle Batterien (dieses EMS, anderes EMS) und ein Haus
   ohne Batterie, mit echtem Hausverbrauch, Solarstrom, Preisen und Einspeisepreis; jeder Tag startet beim echten
   Ladestand, übrige Ladung zählt zum Tagesdurchschnitt. Anzeige in der Vergleichsansicht («Kosten der Entscheide»).
+- **Kosten → Batterie-Potenzial** hat mit Energiemanagement die Spalte **«Fahrplan»** (`lib/ShadowPlan.js`): Kosten des
+  Fahrplans je Tag aus der Franken-Auswertung und wie viel des möglichen Nutzens er erreicht hätte. So bleibt die
+  Auswertung erhalten, wenn die Vergleichsansicht vor der Veröffentlichung entfernt wird. Ohne EMS-Gerät keine Spalte.

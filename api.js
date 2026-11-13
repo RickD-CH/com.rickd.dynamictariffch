@@ -1,6 +1,7 @@
 'use strict';
 
 const { sanitizeRefPeriods } = require('./lib/CostTracker');
+const { addPlan } = require('./lib/ShadowPlan');
 const { normalizeHourlyOutput, parseHourlyOutput } = require('./lib/HourlyOutput');
 const { normalizeHours, GRID_KINDS } = require('./lib/StatusRules');
 
@@ -167,7 +168,10 @@ module.exports = {
   async getShadow({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };
-    return { paired: true, ...device.getShadow() };
+    // Mit Energiemanagement: Spalte «Fahrplan (Modell)» aus der Franken-Auswertung
+    const { ems } = homey.app;
+    const ledger = ems && ems.runner && ems.runner.ledger ? ems.runner.ledger.days : null;
+    return { paired: true, ...addPlan(device.getShadow(), ems && ems.hasDevice && ems.hasDevice() ? ledger : null) };
   },
 
   async putCostConfig({ homey, body }) {
