@@ -186,6 +186,10 @@
       "method": "post",
       "path": "/ems/run"
     },
+    "postEmsResetData": {
+      "method": "post",
+      "path": "/ems/reset-data"
+    },
     "getEmsConfig": {
       "method": "get",
       "path": "/ems/config"

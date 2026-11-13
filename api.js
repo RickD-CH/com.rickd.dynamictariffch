@@ -60,6 +60,10 @@ module.exports = {
     return homey.app.ems.previewPlan(body);
   },
 
+  async postEmsResetData({ homey }) {
+    return homey.app.ems.resetData();
+  },
+
   async postEmsRun({ homey }) {
     await homey.app.ems.runNow();
     return homey.app.ems.getShadow();

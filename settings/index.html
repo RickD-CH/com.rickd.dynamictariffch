@@ -563,6 +563,10 @@
           <span class="legend" id="p-reset-hint"></span>
           <button class="btn danger" id="btn-reset"></button>
         </div>
+        <div class="manage-row">
+          <span class="legend" id="p-emsreset-hint"></span>
+          <button class="btn danger" id="btn-emsreset"></button>
+        </div>
         <div class="manage-row" style="display:block">
           <h3 id="h3-backup" style="font-size:14px;margin:0 0 6px"></h3>
           <p class="legend" id="p-backup-status" style="margin-top:0"></p>
@@ -745,6 +749,8 @@
       baselineHint: 'Zählerbasis zurücksetzen, zum Beispiel nach einem Zählerwechsel. Gesammelte Daten bleiben, die nächste Meldung setzt nur die Basis.',
       baselineButton: 'Zählerbasis zurücksetzen',
       resetHint: 'Löscht alle gesammelten Kostendaten, Verbraucher und Zählerbasiswerte.',
+      emsResetHint: 'Energiemanagement: löscht Vergleich, Kosten der Entscheide, Protokoll und Plan-Verlauf, zum Beispiel beim Wechsel vom Test in den echten Betrieb. Der gelernte Hausverbrauch, die Einstellungen und Aufträge bleiben.',
+      emsResetButton: 'EMS-Protokolle und Auswertungen löschen',
       resetButton: 'Alle Kostendaten löschen', confirm: 'Wirklich? Nochmals klicken', manageDone: 'Erledigt', manageDays: 'Gelöschte Tage:',
       invalidTime: 'Ungültige Uhrzeit (Format HH:MM).',
     };
@@ -878,6 +884,8 @@
       baselineHint: 'Reset the meter baselines, for example after replacing a meter. Collected data stays, the next report only sets the baseline.',
       baselineButton: 'Reset meter baselines',
       resetHint: 'Deletes all collected cost data, consumers and meter baselines.',
+      emsResetHint: 'Energy management: deletes comparison, cost of the decisions, log and plan history, e.g. when switching from test to real operation. The learned house consumption, settings and jobs are kept.',
+      emsResetButton: 'Delete EMS logs and evaluations',
       resetButton: 'Delete all cost data', confirm: 'Really? Click again', manageDone: 'Done', manageDays: 'Deleted days:',
       invalidTime: 'Invalid time (format HH:MM).',
     };
@@ -1010,6 +1018,7 @@
       $('btn-baselines').textContent = T.baselineButton;
       $('p-reset-hint').textContent = T.resetHint;
       $('btn-reset').textContent = T.resetButton;
+      if ($('btn-emsreset')) { $('btn-emsreset').textContent = T.emsResetButton || 'Reset EMS data'; $('p-emsreset-hint').textContent = T.emsResetHint || ''; }
       $('hint-forum').textContent = T.forumHint;
       $('btn-forum').textContent = T.forumButton;
     }
@@ -2155,6 +2164,9 @@
       });
       armed('btn-reset', function () { return T.resetButton; }, function () {
         return apiCall('POST', '/cost/reset');
+      });
+      armed('btn-emsreset', function () { return T.emsResetButton || 'Reset EMS data'; }, function () {
+        return apiCall('POST', '/ems/reset-data');
       });
 
       // Homey.ready() is called only after the first load settles (success or failure).

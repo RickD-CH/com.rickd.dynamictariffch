@@ -73,3 +73,48 @@ test('Laden aus dem Netz: günstig laden kostet heute, die Ladung zählt am Tage
   assert.equal(s.summary().today.mine, s.summary().today.other, 'bei Überschuss gleich: beide laden aus der Sonne');
   assert.ok(s.summary().today.none < 0, 'ohne Batterie wird eingespeist und vergütet');
 });
+
+test('EMS-Daten löschen (Go-live): Vergleich, Franken-Auswertung, Protokoll und Plan-Verlauf weg, gelernter Verbrauch bleibt', () => {
+  const { EmsController } = require('../lib/ems/EmsController'); // eslint-disable-line global-require
+  const { ShadowLog } = require('../lib/ems/ShadowLog'); // eslint-disable-line global-require
+  const { PlanLog } = require('../lib/ems/PlanLog'); // eslint-disable-line global-require
+  const { LoadProfile } = require('../lib/ems/LoadProfile'); // eslint-disable-line global-require
+  const store = mem();
+  const homey = {
+    settings: store, clock: { getTimezone: () => 'Europe/Zurich' }, drivers: { getDriver: () => ({ getDevices: () => [] }) }, setTimeout: () => 1, clearTimeout: () => {},
+  };
+  const ctrl = new EmsController({ homey, log() {}, error() {} });
+  ctrl.shadowLog = new ShadowLog(store);
+  ctrl.chargerLog = new ShadowLog(store, 'Europe/Zurich', 'charger');
+  ctrl.planLog = new PlanLog(store);
+  ctrl.shadowLog.record({
+    nowMs: at(13, 12), soc: 50, price: 30, mine: { mode: 'hold', reason: 'x' }, other: { mode: 'normal' },
+  });
+  ctrl.planLog.record({ nowMs: at(13, 12), battery: 'hold' });
+  const ledger = new DecisionLedger(store, 'Europe/Zurich');
+  ledger.step({
+    nowMs: at(13, 12), mine: 'hold', other: 'hold', price: 30, houseW: 800, pvW: 0, socPct: 50, p: P,
+  });
+  ledger.step({
+    nowMs: at(13, 12, 5), mine: 'hold', other: 'hold', price: 30, houseW: 800, pvW: 0, socPct: 50, p: P,
+  });
+  const load = new LoadProfile(store, 'Europe/Zurich');
+  for (let k = 0; k < 4; k++) load.record(at(13, 7, k * 3), 1500);
+  load.flush(at(13, 8));
+  const saved = [];
+  ctrl.runner = {
+    ledger, loadProfile: load, consumerEvents: [{ ts: 1 }], batteryEvents: [{ ts: 2 }], fuseEvents: [{ ts: 3 }], _save: (k, v) => saved.push([k, v]),
+  };
+  ctrl.resetData();
+  assert.deepEqual(ctrl.shadowLog.summary().days, []);
+  assert.deepEqual(ctrl.shadowLog.summary().events, []);
+  assert.deepEqual(ctrl.planLog.entries, []);
+  assert.equal(ledger.summary().today, null);
+  assert.deepEqual(ledger.summary().days, []);
+  assert.deepEqual(ctrl.runner.consumerEvents, []);
+  assert.deepEqual(ctrl.runner.batteryEvents, []);
+  assert.deepEqual(ctrl.runner.fuseEvents, []);
+  assert.deepEqual(saved.map((x) => x[0]).sort(), ['batteryEvents', 'consumerEvents', 'fuseEvents']);
+  assert.equal(load.kwAt(at(14, 7)), 1.5, 'gelernter Verbrauch bleibt');
+  assert.deepEqual(new DecisionLedger(store, 'Europe/Zurich').summary().days, [], 'auch nach Neustart leer');
+});

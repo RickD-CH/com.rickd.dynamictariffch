@@ -315,3 +315,7 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Kosten → Batterie-Potenzial** hat mit Energiemanagement die Spalte **«Fahrplan»** (`lib/ShadowPlan.js`): Kosten des
   Fahrplans je Tag aus der Franken-Auswertung und wie viel des möglichen Nutzens er erreicht hätte. So bleibt die
   Auswertung erhalten, wenn die Vergleichsansicht vor der Veröffentlichung entfernt wird. Ohne EMS-Gerät keine Spalte.
+- **Einrichten → Allgemein → Daten verwalten → «EMS-Protokolle und Auswertungen löschen»** (`POST /ems/reset-data`):
+  löscht Vergleich (Batterie und Wallbox), Franken-Auswertung, Protokoll (Verbraucher, Batterie, Hausanschluss) und
+  Plan-Verlauf, z. B. beim Go-live. Gelernter Hausverbrauch, Einstellungen und Aufträge bleiben. Kostendaten werden
+  separat gelöscht (Tage im Zeitraum, Verbraucher, alles).
