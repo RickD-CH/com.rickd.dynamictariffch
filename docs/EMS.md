@@ -341,3 +341,26 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   zu ersetzen).
 - Geht über dieselbe Ausführung wie jeder andere Batterie-Modus (`_controlBattery`): live nur, wenn Silent-Modus aus
   und die Batteriesteuerung auf live steht; sonst nur simuliert und im Protokoll sichtbar.
+
+## Verbraucher-Typ «Programm starten» (13.11.2026)
+
+- **Für Geräte, die ihr Programm nach dem Start selbst zu Ende fahren** (Geschirrspüler, Waschmaschine, Tumbler) -
+  ein einziger Start-Befehl statt Dauerschalten. `mode === 'program'`, reine Logik in
+  `lib/ems/planner/program.js` (`decideProgram`), läuft in `EmsRunner._runProgram` statt `evaluateConsumer`
+  (kein Ein/Aus, kein Akku-/Feuchte-Block).
+- **Ablauf pro Tag:** genug PV-Überschuss (`minSurplusW`, `startSustainS` am Stück) startet sofort. Sonst gilt ab
+  `windowFrom` ein Zeitfenster von `maxWaitH` Stunden: darin wird die günstigste bekannte Viertelstunde gewählt,
+  am Fensterende wird notfalls gestartet (Preis-Sicherheitsnetz, egal zu welchem Preis). Höchstens einmal pro Tag
+  (`st.programDay`/`st.programStartedAt`, übersteht einen Neustart der App). `durationH` ist nur Information
+  (keine Mehrfach-Fenster-Planung wie bei Aufträgen - das Gerät managt seine Laufzeit selbst).
+- **Fernbedienung-Capability (`remoteCapability`/`remoteOkValue`):** zwingende Voraussetzung bei manchen Geräten
+  (z. B. Electrolux Geschirrspüler: ohne «Fernbedienung» auf `Enabled` kommt gar kein Befehl an). Blockiert den
+  Start unabhängig von allem anderen, wenn gesetzt und nicht erfüllt. Ohne Auswahl keine Prüfung (Warnung in der
+  Oberfläche).
+- **Tür-Capability (optional):** gleiche Idee, offene Tür blockiert den Start.
+- **Start-Capability/-Wert:** meist eine Enum-Capability (z. B. `dishwasher_execute_command` = `START`), gesetzt
+  über `Actuators.program()` (einmaliger `setCapabilityValue`, kein Flow-Card-Aufruf nötig).
+- Ersetzt den Advanced Flow «GWA an bei PV-Überschuss» (Geschirrspüler): PV-Überschuss-Trigger, Fernbedienung- und
+  Türsicherung sowie der Preis-Fallback mit unseren eigenen «günstigster Block»-Karten waren dort schon vorhanden;
+  neu ist, dass alles an einem Ort konfiguriert ist (feste Werte statt Push-Rückfragen für Programmdauer/Wartezeit,
+  auf Wunsch).

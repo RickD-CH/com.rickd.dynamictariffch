@@ -62,7 +62,7 @@
       secCar: 'E-AUTO', secWallbox: 'WALLBOX', secBat: 'HAUSBATTERIE',
       carWaiting: 'Daten folgen mit dem nächsten Lauf', autoCharge: 'Automatisch laden', autoChargeOff: 'Aus: die Wallbox läuft wie bisher (eigene App oder Flows)', autoChargeNoCar: 'Kein Auto angesteckt',
       cnLimit: 'Grenze', cnNone: 'bis zum Abstecken', cnNoneManual: 'bis ausgeschaltet', cnSoc: 'bis Ladestand (%)', cnKwh: 'bis Energie (kWh)', cnUntil: 'bis', cnNow: 'jetzt', cnLoaded: 'geladen', cnHint: 'Sofort laden lädt mit voller Leistung, egal zu welchem Preis, und geht bei der Grenze von selbst aus.',
-      logCmdOnly: 'nur Schaltungen', logAllSim: 'Silent-Modus: alle Einträge sind simuliert.', logOnWord: 'ein', logOffWord: 'aus', logTestTag: 'simuliert',
+      logCmdOnly: 'nur Schaltungen', logAllSim: 'Silent-Modus: alle Einträge sind simuliert.', logOnWord: 'ein', logOffWord: 'aus', logStartWord: 'gestartet', logTestTag: 'simuliert',
       cmpSwitch: 'Vergleich aktiv', cmpSwitchHint: 'Nur für die Testphase. Eingeschaltet liest die App ein zweites Energiemanagement mit, um die Entscheide zu vergleichen. Ausgeschaltet greift sie auf keine andere App zu.',
       maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
@@ -119,7 +119,12 @@
       wallbox: 'Wallbox', chargeNow: 'Sofort laden (volle Leistung)', addConsumer: 'Verbraucher hinzufügen', remove: 'Entfernen',
       name: 'Name', type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter',
       ctrlDevice: 'Gerät zum Schalten', meterDevice: 'Zähler für die Kosten (kWh)', mode: 'Einschalten',
-      modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss', noCtrl: 'nur Kostenzähler',
+      modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss', modeProgram: 'Programm starten', noCtrl: 'nur Kostenzähler',
+      programTitle: 'Programm starten', programWindow: 'Zeitfenster ab', programMaxWait: 'Max. Wartezeit (h)', programDuration: 'Programmdauer (h, nur Info)',
+      programHint: 'Startet sofort bei genug PV-Überschuss. Sonst wird im Zeitfenster der günstigste Moment gewählt, spätestens am Ende gestartet (Preis-Sicherheitsnetz). Höchstens einmal pro Tag.',
+      programStartCap: 'Start-Capability', programStartVal: 'Start-Wert', programRemoteCap: 'Fernbedienung-Capability', programRemoteVal: 'Fernbedienung-Wert (wenn aktiv)',
+      programRemoteWarn: 'Ohne Fernbedienung-Capability wird nicht geprüft, ob das Gerät überhaupt geschaltet werden kann - bei manchen Geräten (z. B. Electrolux) zwingend nötig.',
+      programDoorCap: 'Tür-Capability (optional)', programDoorVal: 'Tür-Wert «zu» (wenn gewählt)',
       fullSoc: 'Voll ab SoC (%)', socOn: 'Ein ab SoC (%)', hysteresis: 'Aus unter (Prozentpunkte darunter)',
       batFirst: 'Hausbatterie zuerst bis (%)', batFirstPh: 'wie Wallbox', batFirstHint: 'Leer: wie die Wallbox (Hausbatterie hat Vorrang bis zur gemeinsamen Grenze). Eine Zahl: eigene Grenze; darüber nimmt der Verbraucher auch den Strom, der gerade in die Hausbatterie fliesst. Für kleine Verbraucher (eBike) z. B. 0.',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
@@ -194,7 +199,7 @@
       secCar: 'EV', secWallbox: 'EV CHARGER', secBat: 'HOME BATTERY',
       carWaiting: 'Data follows with the next run', autoCharge: 'Charge automatically', autoChargeOff: 'Off: the charger works as before (own app or flows)', autoChargeNoCar: 'No car plugged in',
       cnLimit: 'Limit', cnNone: 'until unplugged', cnNoneManual: 'until switched off', cnSoc: 'up to charge level (%)', cnKwh: 'up to energy (kWh)', cnUntil: 'up to', cnNow: 'now', cnLoaded: 'charged', cnHint: 'Charge now charges at full power regardless of the price and switches itself off at the limit.',
-      logCmdOnly: 'switching only', logAllSim: 'Silent mode: all entries are simulated.', logOnWord: 'on', logOffWord: 'off', logTestTag: 'simulated',
+      logCmdOnly: 'switching only', logAllSim: 'Silent mode: all entries are simulated.', logOnWord: 'on', logOffWord: 'off', logStartWord: 'started', logTestTag: 'simulated',
       cmpSwitch: 'Comparison active', cmpSwitchHint: 'For the test phase only. When on, the app also reads a second energy management to compare decisions. When off it does not access any other app.',
       maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
@@ -251,7 +256,12 @@
       wallbox: 'EV charger', chargeNow: 'Charge now (full power)', addConsumer: 'Add consumer', remove: 'Remove',
       name: 'Name', type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier',
       ctrlDevice: 'Device to switch', meterDevice: 'Meter for costs (kWh)', mode: 'Switch on',
-      modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus', noCtrl: 'cost meter only',
+      modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus', modeProgram: 'Start a program', noCtrl: 'cost meter only',
+      programTitle: 'Start a program', programWindow: 'Time window from', programMaxWait: 'Max. wait (h)', programDuration: 'Program duration (h, info only)',
+      programHint: 'Starts right away with enough PV surplus. Otherwise picks the cheapest moment within the window, starting at the latest by its end (price safety net). At most once a day.',
+      programStartCap: 'Start capability', programStartVal: 'Start value', programRemoteCap: 'Remote-control capability', programRemoteVal: 'Remote value (when enabled)',
+      programRemoteWarn: 'Without a remote-control capability, the app never checks whether the device can even be switched - required for some appliances (e.g. Electrolux).',
+      programDoorCap: 'Door capability (optional)', programDoorVal: 'Door value "closed" (when chosen)',
       fullSoc: 'Full from SoC (%)', socOn: 'On from SoC (%)', hysteresis: 'Off below (points under that)',
       batFirst: 'Home battery first up to (%)', batFirstPh: 'like charger', batFirstHint: 'Empty: like the EV charger (home battery first up to the shared limit). A number: own limit; above it the device also takes the power currently flowing into the home battery. For small devices (e-bike) e.g. 0.',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
@@ -724,6 +734,9 @@
       minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false,
       humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
       accu: { enabled: false, sensorId: '', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 240 },
+      program: {
+        minSurplusW: 2000, startSustainS: 300, windowFrom: '18:00', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', startCapability: 'dishwasher_execute_command', startValue: 'START',
+      },
       meterDeviceId: '', meterCap: '',
       controlKind: 'device', flowOn: { id: '', advanced: false, name: '' }, flowOff: { id: '', advanced: false, name: '' }, assumedW: 0,
     };
@@ -749,6 +762,7 @@
       var r = Object.assign(newConsumerRow(), x, { kind: 'consumer', control: true, deviceId: x.id, meterDeviceId: m ? m.deviceId : '', meterCap: m ? m.capability : '' });
       r.humidity = Object.assign({}, newConsumerRow().humidity, x.humidity || {});
       r.accu = Object.assign({}, newConsumerRow().accu, x.accu || {});
+      r.program = Object.assign({}, newConsumerRow().program, x.program || {});
       r.flowOn = Object.assign({ id: '', advanced: false, name: '' }, x.flowOn || {});
       r.flowOff = Object.assign({ id: '', advanced: false, name: '' }, x.flowOff || {});
       rows.push(r);
@@ -806,7 +820,7 @@
         + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
         + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label></details>';
     }
-    var modes = [['surplus', S.modeSurplus]].concat(hasBattery() ? [['full', S.modeFull], ['soc', S.modeSoc]] : []);
+    var modes = [['surplus', S.modeSurplus], ['program', S.modeProgram]].concat(hasBattery() ? [['full', S.modeFull], ['soc', S.modeSoc]] : []);
     if (!hasBattery() && (r.mode === 'full' || r.mode === 'soc')) modes.push([r.mode, r.mode === 'full' ? S.modeFull : S.modeSoc]);
     var modeOpts = modes.map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === r.mode ? ' selected' : '') + '>' + esc(m[1]) + '</option>'; }).join('');
     var typeOpts = [['generic', S.typeGeneric], ['dehumidifier', S.typeDehum]].map(function (t) {
@@ -843,12 +857,25 @@
           + '<div class="ems-row">' + field(S.accuStop, p + 'accuStop', ac.stopAt) + field(S.accuResume, p + 'accuResume', ac.resumeBelow) + field(S.accuLow, p + 'accuLow', ac.chargeBelow) + field(S.accuMax, p + 'accuMax', ac.maxRunMin) + '</div>'
           + '<p class="ems-why">' + esc(S.accuHint) + '</p>' : '')
         + '</div>';
+      var pg = r.program || newConsumerRow().program;
+      var program = '<div class="ems-box"><b>' + esc(S.programTitle) + '</b>'
+        + '<div class="ems-row">' + field(S.minSurplus, p + 'pgSurplus', pg.minSurplusW) + field(S.startSustain, p + 'pgSustain', pg.startSustainS) + '</div>'
+        + '<div class="ems-row">' + field(S.programWindow, p + 'pgFrom', pg.windowFrom, 'time') + field(S.programMaxWait, p + 'pgWait', pg.maxWaitH, 'number', ' step="1" min="1" max="12"') + field(S.programDuration, p + 'pgDuration', pg.durationH, 'number', ' step="0.5" min="0.5" max="8"') + '</div>'
+        + '<p class="ems-why">' + esc(S.programHint) + '</p>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStartCap) + '</span><select id="' + p + 'pgStartCap" data-ems-mode="' + i + '">' + capOptions(r.deviceId, /.*/, pg.startCapability) + '</select></label>'
+        + field(S.programStartVal, p + 'pgStartVal', pg.startValue, 'text') + '</div>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programRemoteCap) + '</span><select id="' + p + 'pgRemoteCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.remoteCapability) + '</select></label>'
+        + field(S.programRemoteVal, p + 'pgRemoteVal', pg.remoteOkValue, 'text') + '</div>'
+        + (pg.remoteCapability ? '' : '<p class="warn">' + esc(S.programRemoteWarn) + '</p>')
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programDoorCap) + '</span><select id="' + p + 'pgDoorCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.doorCapability) + '</select></label>'
+        + field(S.programDoorVal, p + 'pgDoorVal', pg.doorOkValue, 'text') + '</div>'
+        + '</div>';
       ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label></div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
-        + '<div class="ems-row">' + params + '</div>' + (r.mode === 'surplus' && hasBattery() ? '<p class="ems-why">' + esc(S.batFirstHint) + '</p>' : '') + accu
-        + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
-        + field(S.minRun, p + 'minRunMin', r.minRunMin) + field(S.minOff, p + 'minOffMin', r.minOffMin) + field(S.protect, p + 'protectSoc', r.protectSoc) + '</div>'
-        + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>';
+        + (r.mode === 'program' ? program : ('<div class="ems-row">' + params + '</div>' + (r.mode === 'surplus' && hasBattery() ? '<p class="ems-why">' + esc(S.batFirstHint) + '</p>' : '') + accu
+          + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
+          + field(S.minRun, p + 'minRunMin', r.minRunMin) + field(S.minOff, p + 'minOffMin', r.minOffMin) + field(S.protect, p + 'protectSoc', r.protectSoc) + '</div>'
+          + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>'));
     }
     return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
       + field(S.name, p + 'name', r.name, 'text') + '</div>'
@@ -1256,7 +1283,7 @@
     var hasCar = !!(state.cfg && state.cfg.car && state.cfg.car.deviceId);
     var tag = function (live) { return live || silentNow ? '' : ' (' + S.logTestTag + ')'; };
     (state.events || []).forEach(function (e) {
-      rows.push({ kind: 'cons', icon: consumerIconById(e.id, e.name), dev: e.name, cmd: true, ts: e.ts, text: e.name + ' ' + (e.cmd === 'on' ? S.logOnWord : S.logOffWord) + tag(e.live), reason: e.reason });
+      rows.push({ kind: 'cons', icon: consumerIconById(e.id, e.name), dev: e.name, cmd: true, ts: e.ts, text: e.name + ' ' + (e.cmd === 'program' ? S.logStartWord : (e.cmd === 'on' ? S.logOnWord : S.logOffWord)) + tag(e.live), reason: e.reason });
     });
     var prevBat = null;
     (state.batteryEvents || []).slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (e) {
@@ -1992,6 +2019,12 @@
           onAbove: num(p + 'humOn', r.humidity.onAbove), offBelow: num(p + 'humOff', r.humidity.offBelow), runMin: num(p + 'humRun', r.humidity.runMin),
         };
       }
+      if ($(p + 'pgSurplus')) {
+        var pg0 = r.program || newConsumerRow().program;
+        r.program = {
+          minSurplusW: num(p + 'pgSurplus', pg0.minSurplusW), startSustainS: num(p + 'pgSustain', pg0.startSustainS), windowFrom: val(p + 'pgFrom', pg0.windowFrom), maxWaitH: num(p + 'pgWait', pg0.maxWaitH), durationH: num(p + 'pgDuration', pg0.durationH), startCapability: val(p + 'pgStartCap', pg0.startCapability), startValue: val(p + 'pgStartVal', pg0.startValue), remoteCapability: val(p + 'pgRemoteCap', pg0.remoteCapability), remoteOkValue: val(p + 'pgRemoteVal', pg0.remoteOkValue), doorCapability: val(p + 'pgDoorCap', pg0.doorCapability), doorOkValue: val(p + 'pgDoorVal', pg0.doorOkValue),
+        };
+      }
     });
     if (state.cmpBuilt) {
       var other = $('ems-d-cmp');
@@ -2011,7 +2044,7 @@
         controlKind: r.controlKind === 'flow' ? 'flow' : 'device', flowOn: r.flowOn, flowOff: r.flowOff, assumedW: r.assumedW || 0,
         id: r.deviceId, name: r.name || 'Verbraucher', enabled: true, live: r.live === true, type: r.type, mode: r.mode,
         fullSoc: r.fullSoc, socOn: r.socOn, hysteresis: r.hysteresis, minSurplusW: r.minSurplusW, startSustainS: r.startSustainS, stopGraceS: r.stopGraceS,
-        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, icon: r.icon || '', batteryFirstSoc: r.batteryFirstSoc === undefined ? null : r.batteryFirstSoc, humidity: r.humidity, accu: r.accu,
+        minRunMin: r.minRunMin, minOffMin: r.minOffMin, protectSoc: r.protectSoc, useForecastGate: r.useForecastGate, icon: r.icon || '', batteryFirstSoc: r.batteryFirstSoc === undefined ? null : r.batteryFirstSoc, humidity: r.humidity, accu: r.accu, program: r.program,
       };
     });
     var ems = {
