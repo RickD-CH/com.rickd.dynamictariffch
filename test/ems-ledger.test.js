@@ -118,3 +118,14 @@ test('EMS-Daten löschen (Go-live): Vergleich, Franken-Auswertung, Protokoll und
   assert.equal(load.kwAt(at(14, 7)), 1.5, 'gelernter Verbrauch bleibt');
   assert.deepEqual(new DecisionLedger(store, 'Europe/Zurich').summary().days, [], 'auch nach Neustart leer');
 });
+
+test('Echte Batterie leer: «Halten» zählt wie «Normal», das Modell kauft nicht teuer zu, wenn es noch Ladung hätte', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  const step = (m, socPct) => l.step({
+    nowMs: at(13, 8, m), mine: 'hold', other: 'normal', price: 43, houseW: 1000, pvW: 0, socPct, p: P,
+  });
+  step(0, 30); // Tagesstart: Modell bei 30 %
+  for (let m = 15; m <= 60; m += 15) step(m, 10); // echte Batterie an der Untergrenze
+  const t = l.summary().today;
+  assert.equal(t.mine, t.other, 'gleiche Kosten, weil «Halten» bei leerer Batterie nichts ändert');
+});

@@ -247,3 +247,18 @@ test('Anzeige: Ferien-Schalter sichtbar unter der eingeklappten Vorlage; aktive 
   const past = await ui({ deviceId: 'car', capacityKwh: 60, schedule: { ...weekdays(true), holiday: true, holidayUntil: '2020-01-01' } }, null);
   assert.doesNotMatch(past.els.get('ems-view-plan').innerHTML, /Ferien bis/, 'abgelaufene Ferien zeigen nichts');
 });
+
+test('carPlan: Abfahrt weit hinter den bekannten Preisen - nur den Anteil der bekannten Zeit belegen, Rest wenn neue Preise da sind', () => {
+  // Bekannt sind Di und Mi; Abfahrt erst Freitag 06:00 (nur Freitag aktiv)
+  const fri = { days: { fri: { on: true, time: '06:00', soc: 80 } } };
+  const known = slots().map((s) => ({ ...s, price: s.price === 10 ? 10 : 25 + ((s.start / Q) % 4) }));
+  const r = carPlan({ schedule: fri, nowMs: tue(8), tz: TZ, soc: 20, capacityKwh: 60, powerKw: 11, slots: known });
+  assert.equal(r.state, 'planned');
+  assert.ok(r.plan.patient);
+  assert.ok(r.starts.length > 0 && r.starts.length < Math.ceil((36 / 11) * 4), 'nicht alles im Voraus');
+  assert.ok(r.starts.every((t) => known.find((s) => s.start === t).price === 10), 'nur die günstigen Nachtstunden');
+  assert.match(r.reason, /Rest wenn neue Preise da sind/);
+  // Abfahrt morgen früh (Lücke unter 12 h): normale Planung wie bisher
+  const soon = carPlan({ schedule: weekdays(true), nowMs: tue(18), tz: TZ, soc: 40, capacityKwh: 60, powerKw: 11, slots: slots() });
+  assert.ok(!soon.plan.patient);
+});

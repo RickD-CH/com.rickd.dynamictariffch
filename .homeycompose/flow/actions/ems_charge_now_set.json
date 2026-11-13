@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "Turn charge now on or off",
+    "de": "Sofort laden ein- oder ausschalten"
+  },
+  "titleFormatted": {
+    "en": "Turn charge now [[mode]]",
+    "de": "Sofort laden [[mode]]"
+  },
+  "hint": {
+    "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar. Like the switch on the energy management device.",
+    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Mode",
+        "de": "Modus"
+      },
+      "values": [
+        { "id": "on", "title": { "en": "on", "de": "ein" } },
+        { "id": "off", "title": { "en": "off", "de": "aus" } }
+      ]
+    }
+  ]
+}

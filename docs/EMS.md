@@ -207,7 +207,10 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   «erreicht», nicht beim Start der App.
 - Aktionen **«Silent-Modus setzen»** (`ems_set_silent`), **«Ziel des E-Autos für heute oder morgen setzen»**
   (`ems_car_set_target`, übersteuert die Vorlage an diesem Tag), **«E-Auto: Wochenvorlage gilt wieder»**
-  (`ems_car_clear_target`); Bedingung **«Silent-Modus ist an»** (`ems_silent_is_on`).
+  (`ems_car_clear_target`), **«Sofort laden ein- oder ausschalten»** (`ems_charge_now_set`, wie der Schalter am Gerät);
+  Bedingungen **«Silent-Modus ist an»** (`ems_silent_is_on`), **«Sofort laden ist ein»** (`ems_charge_now_is_on`). Die
+  eigene Capability `ems_charge_now` bekommt von Homey keine automatischen Flow-Karten (nur Standard-Capabilities wie
+  `onoff` haben das), darum diese zwei eigenen Karten (13.11.2026).
 - **Sofort laden** geht aus, wenn das Auto abgesteckt wird (`charger.chargeNowAutoOff`, Standard an, Einrichten →
   Wallbox → Erweitert). Nur nach einem gesehenen Wechsel angesteckt → abgesteckt, nicht nach einem Neustart.
 - **E-Auto: Solarstrom bevorzugen.** Viertelstunden, in denen die frische PV-Prognose minus 0.5 kW Grundlast mindestens

@@ -184,12 +184,22 @@ test('Aktionen: Silent-Modus setzen, Auto-Ziel für heute/morgen setzen und wied
   assert.throws(() => ctrl.setCarTarget({ day: 'today' }), /Kein E-Auto/);
 });
 
+test('Aktion/Bedingung «Sofort laden»: schaltet den Schalter wie am Gerät, Lauf wird angestossen', async () => {
+  const { ctrl, settings } = makeCtrl();
+  settings.set('ems.config', normalizeConfig({ silent: true, devices: { meter: { id: 'm' } }, charger: { id: 'wb' } }));
+  assert.equal(ctrl.getConfig().charger.chargeNow, false);
+  await ctrl.setChargeNow(true);
+  assert.equal(ctrl.getConfig().charger.chargeNow, true);
+  await ctrl.setChargeNow(false);
+  assert.equal(ctrl.getConfig().charger.chargeNow, false);
+});
+
 // ---------------------------------------------------------------- Karten vorhanden und registriert
 
 test('Flow-Karten: Dateien vorhanden (de/en) und in app.js registriert', () => {
   const root = path.join(__dirname, '..');
   const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-  for (const [dir, id] of [['triggers', 'ems_error'], ['triggers', 'ems_car_target_reached'], ['actions', 'ems_set_silent'], ['actions', 'ems_car_set_target'], ['actions', 'ems_car_clear_target'], ['conditions', 'ems_silent_is_on']]) {
+  for (const [dir, id] of [['triggers', 'ems_error'], ['triggers', 'ems_car_target_reached'], ['actions', 'ems_set_silent'], ['actions', 'ems_car_set_target'], ['actions', 'ems_car_clear_target'], ['actions', 'ems_charge_now_set'], ['conditions', 'ems_silent_is_on'], ['conditions', 'ems_charge_now_is_on']]) {
     const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow', dir, `${id}.json`), 'utf8'));
     assert.ok(card.title.de && card.title.en, id);
     assert.ok(card.args.some((a) => a.type === 'device' && a.filter === 'driver_id=ems'), id);

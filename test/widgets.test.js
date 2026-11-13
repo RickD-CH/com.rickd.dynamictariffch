@@ -31,7 +31,9 @@ function makePlan() {
     nowMs: NOW,
     tz: TZ,
     priceSlots: slots,
-    batteryPlan: { mode: 'hold', reason: 'Ladung aufsparen', chargeSlots: charge, reserveSlots: [] },
+    batteryPlan: {
+      mode: 'hold', reason: 'Ladung aufsparen', chargeSlots: charge, reserveSlots: [],
+    },
     reserveHours: 2,
     hasBattery: true,
     chargerEnabled: true,
@@ -85,7 +87,9 @@ test('Widget «Hausanschluss»: höchste Phase, kW je Phase, Drosselung, Abgesch
   let peak = stepFusePeak(null, cur, TZ);
   assert.equal(peak.a, 12.3);
   assert.equal(stepFusePeak(peak, { ...cur, maxA: 12.6 }, TZ), peak, 'unter 0.5 A mehr: keine neue Spitze');
-  peak = stepFusePeak(peak, { ...cur, maxA: 20, phase: 2, at: NOW + 60000 }, TZ);
+  peak = stepFusePeak(peak, {
+    ...cur, maxA: 20, phase: 2, at: NOW + 60000,
+  }, TZ);
   assert.equal(peak.a, 20);
   const next = stepFusePeak(peak, { ...cur, maxA: 5, at: NOW + 24 * 3600 * 1000 }, TZ);
   assert.equal(next.a, 5, 'neuer Tag beginnt von vorn');
@@ -113,7 +117,11 @@ test('Widget «Hausanschluss»: Schutz aus, noch keine Messung, Drosselung nur u
   assert.equal(wait.error, 'wait');
   const full = fuseWidget({
     shadow: {
-      deviceExists: true, config: cfg, fuse: { at: NOW, limitA: 35, phasesA: [5, 5, 5], maxA: 5, capAmps: 16 },
+      deviceExists: true,
+      config: cfg,
+      fuse: {
+        at: NOW, limitA: 35, phasesA: [5, 5, 5], maxA: 5, capAmps: 16,
+      },
     },
     tz: TZ,
     nowMs: NOW,

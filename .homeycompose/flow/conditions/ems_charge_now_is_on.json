@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Charge now !{{is|is not}} on",
+    "de": "Sofort laden !{{ist|ist nicht}} ein"
+  },
+  "hint": {
+    "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar.",
+    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ]
+}
