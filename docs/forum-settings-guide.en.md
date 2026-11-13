@@ -72,11 +72,13 @@ VAT (default 8.1 %, added to the API prices, which are excluding VAT) is set onc
 
 Add them from the Homey dashboard editor.
 
-- **Innostrom price:** current price, level, next price, rank, low/average/high, the cheapest 2-hour block and today's and tomorrow's curve with the reference line. The **Grid import** button overlays the kWh you bought from the grid.
-- **Innostrom price list:** 24 hours as a grid with day tabs, cheapest and most expensive block, tap an hour for its quarter-hours.
-- **Innostrom costs:** accumulated cost with the dynamic tariff against the reference tariff.
+- **Electricity price:** current price, level, next price, rank, low/average/high, the cheapest 2-hour block and today's and tomorrow's curve with the reference line. The **Grid import** button overlays the kWh you bought from the grid.
+- **Price list:** 24 hours as a grid with day tabs, cheapest and most expensive block, tap an hour for its quarter-hours.
+- **Electricity costs:** accumulated cost with the dynamic tariff against the reference tariff.
+- **Energy plan** (needs the energy management device): the next 24 hours of prices with the solar forecast, the planned battery mode (charge, hold, normal) and the car charging windows. Tap a bar for that quarter-hour. Shows "Test mode" while the energy management only simulates.
+- **House connection** (needs main fuse protection): the highest phase against the limit, total kW, L1 to L3 with bars, today's peak, and whether the wallbox is limited or a device was switched off.
 
-[SCREENSHOT: the three widgets on a dashboard]
+[SCREENSHOT: the widgets on a dashboard]
 
 ## 6. Cost comparison: how the numbers get in
 

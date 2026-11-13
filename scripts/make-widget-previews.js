@@ -40,7 +40,7 @@ function planSvg(t) {
   const n = prices.length;
   const x0 = 160; const w = 704; const bw = w / n;
   const bars = prices.map((p, i) => {
-    const h = 30 + p * 120;
+    const h = 24 + p * 100;
     return `<rect x="${(x0 + i * bw + 2).toFixed(1)}" y="${(560 - h).toFixed(1)}" width="${(bw - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${priceColor(p)}"/>`;
   }).join('');
   const pv = [0, 0, 0, 0, 0.1, 0.35, 0.65, 0.85, 1, 0.95, 0.8, 0.55, 0.3, 0.1, 0, 0];
