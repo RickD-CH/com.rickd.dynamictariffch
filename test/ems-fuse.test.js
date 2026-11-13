@@ -308,7 +308,7 @@ test('Anzeige: Section Hausanschluss - einschalten, Sauna zur Liste, Reihenfolge
   };
   await ctx.window.EmsUi.init((m, p) => Promise.resolve(res[`${m} ${p}`]), 'de');
   const main = els.get('ems-view-main').innerHTML;
-  assert.match(main, /Hausanschluss 37.4 A von 36 A - Wallbox auf 9 A - aus: Wallbox/);
+  assert.match(main, /Hausanschluss 37.4 A von 36 A<\/span><span class="ems-item-s ems-muted">Wallbox auf 9 A · aus: Wallbox · simuliert/);
   assert.match(main, /Wallbox ausgeschaltet <span class="ems-muted">Phase 1: 37.4 A/);
   const click = (attr, value) => handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n === attr ? value : null), parentNode: null } });
   click('data-ems-open', 'fuse');

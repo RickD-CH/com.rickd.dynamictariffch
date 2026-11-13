@@ -235,21 +235,21 @@ test('E-Auto-Badge: nicht angesteckt, lädt, Ziel erreicht, angesteckt', async (
   assert.equal(await badge({ soc: 50, state: 'none', connected: true }, { connected: true, chargerPowerW: 0 }), 'angesteckt');
 });
 
-test('Hausanschluss-Zeile: Netzbezug oder Einspeisung in kW klein neben den Ampere', async () => {
-  const line = async (gridW) => {
-    const u = uiEnv({
-      cfg: { fuse: { enabled: true } },
-      shadow: {
-        fuse: {
-          limitA: 36, maxA: 2.5, phase: 1, over: false, capAmps: 16, shed: [], live: false, gridW,
-        },
+test('Hausanschluss-Zeile: höchste Phase in A, darunter klein kW gesamt, unten L1 bis L3 mit A, kW und Balken', async () => {
+  const u = uiEnv({
+    cfg: { fuse: { enabled: true } },
+    shadow: {
+      fuse: {
+        limitA: 36, maxA: 2.5, phasesA: [2.5, 1.8, 2.2], phase: 1, over: false, capAmps: 16, shed: [], live: false, gridW: -20,
       },
-    });
-    await u.init();
-    const m = u.main().match(/id="ems-fuse-line"[\s\S]*?<\/div><\/div>/);
-    return m ? m[0] : '';
-  };
-  assert.match(await line(1689), /Hausanschluss 2\.5 A von 36 A <span class="ems-muted" style="font-size:12px">1\.7 kW Bezug<\/span>/);
-  assert.match(await line(-2300), /2\.3 kW Einspeisung/);
-  assert.doesNotMatch(await line(null), /kW/);
+    },
+  });
+  await u.init();
+  const html = u.main();
+  assert.match(html, /<span class="ems-item-n">Hausanschluss 2\.5 A von 36 A<\/span><span class="ems-item-s ems-muted">1\.5 kW · simuliert<\/span>/);
+  assert.match(html, /<span class="ems-muted">L1<\/span> <b>2\.5 A<\/b><\/div><div class="fuse-bar"><i style="width:7%;[^"]*"><\/i><\/div><div class="ems-muted fuse-kw">0\.6 kW<\/div>/);
+  assert.match(html, /L2<\/span> <b>1\.8 A<\/b>[\s\S]*?fuse-kw">0\.4 kW/);
+  assert.match(html, /L3<\/span> <b>2\.2 A<\/b>[\s\S]*?fuse-kw">0\.5 kW/);
+  assert.equal((html.match(/class="fuse-bar"/g) || []).length, 3, 'ein Balken je Phase');
+  assert.doesNotMatch(html, /Einspeisung|Bezug/);
 });
