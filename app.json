@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.rickd.dynamictariffch",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -9,14 +9,14 @@
     "local"
   ],
   "name": {
-    "en": "Swiss Dynamic Electricity Tariff",
-    "de": "Dynamischer Stromtarif CH",
+    "en": "Swiss Dynamic Tariff & EMS",
+    "de": "Dynamischer Stromtarif CH & EMS",
     "fr": "Tarif électrique dynamique CH",
     "it": "Tariffa elettrica dinamica CH"
   },
   "description": {
-    "en": "Run your home when Swiss electricity is cheapest",
-    "de": "Dein Zuhause läuft, wenn der Strom am günstigsten ist",
+    "en": "Run your home on the cheapest Swiss electricity, with built-in energy management",
+    "de": "Dein Zuhause nutzt Strom, wenn er am günstigsten ist, mit eigenem Energiemanagement",
     "fr": "Faites tourner votre maison quand l'électricité suisse est la moins chère",
     "it": "Fai funzionare la tua casa quando l'elettricità svizzera costa meno"
   },
@@ -29,7 +29,10 @@
       "AEW",
       "Innostrom",
       "Swisspower",
-      "spot price"
+      "spot price",
+      "energy management",
+      "EMS",
+      "EV charger"
     ],
     "de": [
       "dynamischer Stromtarif",
@@ -39,7 +42,10 @@
       "AEW",
       "Innostrom",
       "Swisspower",
-      "Spotpreis"
+      "Spotpreis",
+      "Energiemanagement",
+      "EMS",
+      "Wallbox"
     ],
     "fr": [
       "tarif électrique dynamique",
@@ -64,7 +70,10 @@
   },
   "category": "energy",
   "brandColor": "#0277BD",
-  "permissions": [],
+  "permissions": [
+    "homey:manager:api",
+    "homey:app:com.huawei.fusionsolar"
+  ],
   "source": "https://github.com/RickD-CH/com.rickd.dynamictariffch",
   "bugs": {
     "url": "https://github.com/RickD-CH/com.rickd.dynamictariffch/issues"
@@ -149,6 +158,82 @@
     "testReportsMissing": {
       "method": "post",
       "path": "/test/reports"
+    },
+    "getEmsShadow": {
+      "method": "get",
+      "path": "/ems/shadow"
+    },
+    "getEmsPlan": {
+      "method": "get",
+      "path": "/ems/plan"
+    },
+    "getEmsJobs": {
+      "method": "get",
+      "path": "/ems/jobs"
+    },
+    "postEmsJob": {
+      "method": "post",
+      "path": "/ems/jobs"
+    },
+    "deleteEmsJob": {
+      "method": "delete",
+      "path": "/ems/jobs/:id"
+    },
+    "postEmsPlanPreview": {
+      "method": "post",
+      "path": "/ems/plan/preview"
+    },
+    "postEmsRun": {
+      "method": "post",
+      "path": "/ems/run"
+    },
+    "postEmsResetData": {
+      "method": "post",
+      "path": "/ems/reset-data"
+    },
+    "getEmsConfig": {
+      "method": "get",
+      "path": "/ems/config"
+    },
+    "putEmsConfig": {
+      "method": "put",
+      "path": "/ems/config"
+    },
+    "getEmsDevices": {
+      "method": "get",
+      "path": "/ems/devices"
+    },
+    "getEmsFlows": {
+      "method": "get",
+      "path": "/ems/flows"
+    },
+    "getEmsBatteryCards": {
+      "method": "get",
+      "path": "/ems/battery-cards"
+    },
+    "getEmsConsumers": {
+      "method": "get",
+      "path": "/ems/consumers"
+    },
+    "putEmsToggle": {
+      "method": "put",
+      "path": "/ems/toggle"
+    },
+    "getMeters": {
+      "method": "get",
+      "path": "/meters"
+    },
+    "putMeters": {
+      "method": "put",
+      "path": "/meters"
+    },
+    "postMetersRun": {
+      "method": "post",
+      "path": "/meters/run"
+    },
+    "getMetersDevices": {
+      "method": "get",
+      "path": "/meters/devices"
     }
   },
   "support": "https://community.homey.app/t/160031",
@@ -385,6 +470,228 @@
           }
         ],
         "id": "day_summarised"
+      },
+      {
+        "title": {
+          "en": "The EV reached its target",
+          "de": "Das E-Auto hat sein Ziel erreicht"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "soc",
+            "type": "number",
+            "title": {
+              "en": "Charge level (%)",
+              "de": "Ladestand (%)"
+            },
+            "example": 80
+          },
+          {
+            "name": "target",
+            "type": "number",
+            "title": {
+              "en": "Target (%)",
+              "de": "Ziel (%)"
+            },
+            "example": 80
+          }
+        ],
+        "id": "ems_car_target_reached"
+      },
+      {
+        "title": {
+          "en": "A consumer was switched",
+          "de": "Ein Verbraucher wurde geschaltet"
+        },
+        "hint": {
+          "en": "Fires when the energy management switches a consumer on or off. Also in silent mode and for devices it does not control: then it is only simulated and \"really switched\" is no.",
+          "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "name",
+            "type": "string",
+            "title": {
+              "en": "Name",
+              "de": "Name"
+            },
+            "example": "Dehumidifier"
+          },
+          {
+            "name": "state",
+            "type": "string",
+            "title": {
+              "en": "State (on/off)",
+              "de": "Zustand (on/off)"
+            },
+            "example": "on"
+          },
+          {
+            "name": "live",
+            "type": "boolean",
+            "title": {
+              "en": "Really switched",
+              "de": "Wirklich geschaltet"
+            },
+            "example": true
+          },
+          {
+            "name": "reason",
+            "type": "string",
+            "title": {
+              "en": "Reason",
+              "de": "Grund"
+            },
+            "example": "SoC 99% >= 98%"
+          }
+        ],
+        "id": "ems_consumer_switched"
+      },
+      {
+        "title": {
+          "en": "An error occurred",
+          "de": "Ein Fehler ist aufgetreten"
+        },
+        "hint": {
+          "en": "Fires once when a new problem appears (meter or charger not readable, battery command failed, prices or forecast missing).",
+          "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen)."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "area",
+            "type": "string",
+            "title": {
+              "en": "Area",
+              "de": "Bereich"
+            },
+            "example": "charger"
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "de": "Meldung"
+            },
+            "example": "Netzzähler nicht lesbar"
+          }
+        ],
+        "id": "ems_error"
+      },
+      {
+        "title": {
+          "en": "The house connection is overloaded",
+          "de": "Der Hausanschluss ist überlastet"
+        },
+        "hint": {
+          "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off. Also in silent mode or while the protection is not live: then it is only simulated and \"really switched\" is no.",
+          "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "current",
+            "type": "number",
+            "title": {
+              "en": "Highest phase current (A)",
+              "de": "Höchster Phasenstrom (A)"
+            },
+            "example": 37.5
+          },
+          {
+            "name": "phase",
+            "type": "number",
+            "title": {
+              "en": "Phase",
+              "de": "Phase"
+            },
+            "example": 2
+          },
+          {
+            "name": "action",
+            "type": "string",
+            "title": {
+              "en": "Action",
+              "de": "Aktion"
+            },
+            "example": "Sauna ausgeschaltet"
+          },
+          {
+            "name": "live",
+            "type": "boolean",
+            "title": {
+              "en": "Really switched",
+              "de": "Wirklich geschaltet"
+            },
+            "example": false
+          }
+        ],
+        "id": "ems_fuse_overload"
+      },
+      {
+        "title": {
+          "en": "The energy management mode changed",
+          "de": "Der Modus des Energiemanagements hat gewechselt"
+        },
+        "hint": {
+          "en": "Fires when the mode changes, for example from waiting for surplus to charging from solar.",
+          "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom»."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mode",
+            "type": "string",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "example": "solar_ev"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Status",
+              "de": "Status"
+            },
+            "example": "16A/3ph"
+          }
+        ],
+        "id": "ems_mode_changed"
       },
       {
         "title": {
@@ -695,6 +1002,137 @@
       }
     ],
     "conditions": [
+      {
+        "title": {
+          "en": "Backup reserve !{{is|is not}} on",
+          "de": "Notstrom-Reserve !{{ist|ist nicht}} ein"
+        },
+        "hint": {
+          "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price.",
+          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_backup_reserve_is_on"
+      },
+      {
+        "title": {
+          "en": "Charge now !{{is|is not}} on",
+          "de": "Sofort laden !{{ist|ist nicht}} ein"
+        },
+        "hint": {
+          "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar.",
+          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_charge_now_is_on"
+      },
+      {
+        "title": {
+          "en": "Energy management mode !{{is|isn't}}...",
+          "de": "Modus des Energiemanagements !{{ist|ist nicht}}..."
+        },
+        "titleFormatted": {
+          "en": "Energy management mode !{{is|isn't}} [[mode]]",
+          "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "values": [
+              {
+                "id": "disabled",
+                "label": {
+                  "en": "Off",
+                  "de": "Aus"
+                }
+              },
+              {
+                "id": "idle",
+                "label": {
+                  "en": "Idle",
+                  "de": "Bereit"
+                }
+              },
+              {
+                "id": "holding",
+                "label": {
+                  "en": "Waiting for surplus",
+                  "de": "Wartet auf Überschuss"
+                }
+              },
+              {
+                "id": "solar_ev",
+                "label": {
+                  "en": "Charging from solar",
+                  "de": "Lädt mit Solarstrom"
+                }
+              },
+              {
+                "id": "instant_ev",
+                "label": {
+                  "en": "Charging at full power",
+                  "de": "Lädt mit voller Leistung"
+                }
+              },
+              {
+                "id": "battery_priority",
+                "label": {
+                  "en": "Battery first",
+                  "de": "Batterie hat Vorrang"
+                }
+              },
+              {
+                "id": "error",
+                "label": {
+                  "en": "Error",
+                  "de": "Fehler"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_mode_is"
+      },
+      {
+        "title": {
+          "en": "Silent mode !{{is|is not}} on",
+          "de": "Silent-Modus !{{ist|ist nicht}} an"
+        },
+        "hint": {
+          "en": "Silent mode: everything is only simulated, nothing is switched.",
+          "de": "Silent-Modus: alles wird nur simuliert, nichts wird geschaltet."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_silent_is_on"
+      },
       {
         "title": {
           "en": "Price !{{is|isn't}} among the cheapest",
@@ -1008,6 +1446,314 @@
       }
     ],
     "actions": [
+      {
+        "title": {
+          "en": "Turn backup reserve on or off",
+          "de": "Notstrom-Reserve ein- oder ausschalten"
+        },
+        "titleFormatted": {
+          "en": "Turn backup reserve [[mode]]",
+          "de": "Notstrom-Reserve [[mode]]"
+        },
+        "hint": {
+          "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price. Like the switch on the energy management device.",
+          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "on",
+                  "de": "ein"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "off",
+                  "de": "aus"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_backup_reserve_set"
+      },
+      {
+        "title": {
+          "en": "EV: use the weekly template again",
+          "de": "E-Auto: Wochenvorlage gilt wieder"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_car_clear_target"
+      },
+      {
+        "title": {
+          "en": "Set the EV target for today or tomorrow",
+          "de": "Ziel des E-Autos für heute oder morgen setzen"
+        },
+        "titleFormatted": {
+          "en": "EV: [[day]] [[soc]] % by [[time]], charge [[charge]]",
+          "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]"
+        },
+        "hint": {
+          "en": "Overrides the weekly template on that day.",
+          "de": "Übersteuert die Wochenvorlage an diesem Tag."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "day",
+            "title": {
+              "en": "Day",
+              "de": "Tag"
+            },
+            "values": [
+              {
+                "id": "today",
+                "title": {
+                  "en": "today",
+                  "de": "heute"
+                }
+              },
+              {
+                "id": "tomorrow",
+                "title": {
+                  "en": "tomorrow",
+                  "de": "morgen"
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "soc",
+            "title": {
+              "en": "Target (%)",
+              "de": "Ziel (%)"
+            },
+            "min": 10,
+            "max": 100,
+            "step": 5
+          },
+          {
+            "type": "time",
+            "name": "time",
+            "title": {
+              "en": "Departure",
+              "de": "Abfahrt"
+            }
+          },
+          {
+            "type": "dropdown",
+            "name": "charge",
+            "title": {
+              "en": "Charge",
+              "de": "Laden"
+            },
+            "values": [
+              {
+                "id": "yes",
+                "title": {
+                  "en": "yes",
+                  "de": "ja"
+                }
+              },
+              {
+                "id": "no",
+                "title": {
+                  "en": "no",
+                  "de": "nein"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_car_set_target"
+      },
+      {
+        "title": {
+          "en": "Turn charge now on or off",
+          "de": "Sofort laden ein- oder ausschalten"
+        },
+        "titleFormatted": {
+          "en": "Turn charge now [[mode]]",
+          "de": "Sofort laden [[mode]]"
+        },
+        "hint": {
+          "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar. Like the switch on the energy management device.",
+          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "on",
+                  "de": "ein"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "off",
+                  "de": "aus"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_charge_now_set"
+      },
+      {
+        "title": {
+          "en": "Set the solar forecast factor",
+          "de": "Korrekturfaktor der PV-Prognose setzen"
+        },
+        "titleFormatted": {
+          "en": "Set the solar forecast factor to [[factor]]",
+          "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]"
+        },
+        "hint": {
+          "en": "Multiplies every value of the fed solar forecast, for example 0.75 if the forecast is usually 25 % too high. Also usable from a Flow that learns the factor.",
+          "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "number",
+            "name": "factor",
+            "title": {
+              "en": "Factor",
+              "de": "Faktor"
+            },
+            "min": 0.1,
+            "max": 3,
+            "step": 0.01,
+            "placeholder": {
+              "en": "0.75",
+              "de": "0.75"
+            }
+          }
+        ],
+        "id": "ems_set_pv_factor"
+      },
+      {
+        "title": {
+          "en": "Set the solar forecast",
+          "de": "PV-Prognose setzen"
+        },
+        "titleFormatted": {
+          "en": "Set the solar forecast to [[data]]",
+          "de": "PV-Prognose setzen auf [[data]]"
+        },
+        "hint": {
+          "en": "Feeds your own solar forecast into the energy management. A JSON list, for example [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Each entry needs a start (ISO time or ms) and kwh (energy in the slot) or kw (average power). The slot length is end minus start, or \"hours\", otherwise 1 hour. Feed it at least every 12 hours, otherwise it counts as outdated.",
+          "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "text",
+            "name": "data",
+            "title": {
+              "en": "Forecast (JSON)",
+              "de": "Prognose (JSON)"
+            },
+            "placeholder": {
+              "en": "[{\"start\":\"...\",\"kwh\":0.4}]",
+              "de": "[{\"start\":\"...\",\"kwh\":0.4}]"
+            }
+          }
+        ],
+        "id": "ems_set_pv_forecast"
+      },
+      {
+        "title": {
+          "en": "Set silent mode",
+          "de": "Silent-Modus setzen"
+        },
+        "titleFormatted": {
+          "en": "Set silent mode [[mode]]",
+          "de": "Silent-Modus [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode",
+              "de": "Modus"
+            },
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "on (simulate only)",
+                  "de": "ein (nur simulieren)"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "off (switch for real)",
+                  "de": "aus (wirklich schalten)"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_set_silent"
+      },
       {
         "title": {
           "en": "Find the cheapest block",
@@ -1571,6 +2317,65 @@
   },
   "drivers": [
     {
+      "id": "ems",
+      "name": {
+        "en": "Energy management",
+        "de": "Energiemanagement",
+        "fr": "Gestion de l'énergie",
+        "it": "Gestione dell'energia"
+      },
+      "class": "other",
+      "capabilities": [
+        "onoff",
+        "ems_charge_now",
+        "ems_backup_reserve",
+        "ems_mode",
+        "ems_status_text",
+        "ems_surplus",
+        "ems_released",
+        "ems_pv_power",
+        "ems_house_power",
+        "ems_grid_power",
+        "ems_battery_power",
+        "ems_price",
+        "ems_pv_today",
+        "ems_pv_tomorrow",
+        "ems_pv_now"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": {
+            "en": "Energy management on",
+            "de": "Energiemanagement ein",
+            "fr": "Gestion de l'énergie activée",
+            "it": "Gestione dell'energia attiva"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [],
+      "images": {
+        "small": "/drivers/ems/assets/images/small.png",
+        "large": "/drivers/ems/assets/images/large.png",
+        "xlarge": "/drivers/ems/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    },
+    {
       "id": "innostrom",
       "name": {
         "en": "Innostrom dynamic tariff",
@@ -1999,12 +2804,37 @@
     }
   ],
   "widgets": {
+    "consumers": {
+      "name": {
+        "en": "Consumers",
+        "de": "Verbraucher",
+        "fr": "Consommateurs",
+        "it": "Consumatori"
+      },
+      "height": 280,
+      "api": {
+        "getConsumers": {
+          "method": "GET",
+          "path": "/consumers"
+        },
+        "postStart": {
+          "method": "POST",
+          "path": "/start"
+        },
+        "postArm": {
+          "method": "POST",
+          "path": "/arm"
+        }
+      },
+      "id": "consumers",
+      "settings": []
+    },
     "cost": {
       "name": {
-        "en": "Innostrom costs",
-        "de": "Innostrom-Kosten",
-        "fr": "Coûts Innostrom",
-        "it": "Costi Innostrom"
+        "en": "Electricity costs",
+        "de": "Stromkosten",
+        "fr": "Coûts d'électricité",
+        "it": "Costi elettricità"
       },
       "height": 260,
       "api": {
@@ -2016,12 +2846,46 @@
       "id": "cost",
       "settings": []
     },
+    "fuse": {
+      "name": {
+        "en": "House connection",
+        "de": "Hausanschluss",
+        "fr": "Raccordement",
+        "it": "Allacciamento"
+      },
+      "height": 170,
+      "api": {
+        "getFuse": {
+          "method": "GET",
+          "path": "/fuse"
+        }
+      },
+      "id": "fuse",
+      "settings": []
+    },
+    "plan": {
+      "name": {
+        "en": "Energy plan",
+        "de": "Energieplan",
+        "fr": "Plan énergétique",
+        "it": "Piano energetico"
+      },
+      "height": 250,
+      "api": {
+        "getPlan": {
+          "method": "GET",
+          "path": "/plan"
+        }
+      },
+      "id": "plan",
+      "settings": []
+    },
     "price": {
       "name": {
-        "en": "Innostrom price",
-        "de": "Innostrom-Preis",
-        "fr": "Prix Innostrom",
-        "it": "Prezzo Innostrom"
+        "en": "Electricity price",
+        "de": "Strompreis",
+        "fr": "Prix de l'électricité",
+        "it": "Prezzo elettricità"
       },
       "height": 210,
       "api": {
@@ -2035,10 +2899,10 @@
     },
     "prices": {
       "name": {
-        "en": "Innostrom price list",
-        "de": "Innostrom-Preisliste",
-        "fr": "Liste de prix Innostrom",
-        "it": "Listino prezzi Innostrom"
+        "en": "Price list",
+        "de": "Preisliste",
+        "fr": "Liste des prix",
+        "it": "Listino prezzi"
       },
       "height": 400,
       "api": {
@@ -2199,6 +3063,297 @@
       "decimals": 2,
       "icon": "/assets/capabilities/price.svg",
       "insights": true
+    },
+    "ems_backup_reserve": {
+      "type": "boolean",
+      "title": {
+        "en": "Backup reserve",
+        "de": "Notstrom-Reserve",
+        "fr": "Réserve de secours",
+        "it": "Riserva di emergenza"
+      },
+      "desc": {
+        "en": "Keeps at least the configured battery level, charging from the grid if needed regardless of price. Turn on before an expected outage, off again afterwards.",
+        "de": "Hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Vor einem erwarteten Ausfall einschalten, danach wieder aus.",
+        "fr": "Maintient au moins le niveau de batterie configuré, en rechargeant depuis le réseau si nécessaire, quel que soit le prix. À activer avant une coupure attendue, puis à désactiver.",
+        "it": "Mantiene almeno il livello di carica impostato, ricaricando dalla rete se necessario indipendentemente dal prezzo. Attivare prima di un'interruzione prevista, poi disattivare."
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "uiQuickAction": false,
+      "icon": "/assets/capabilities/ems_backup_reserve.svg"
+    },
+    "ems_battery_power": {
+      "type": "number",
+      "title": {
+        "en": "Battery power",
+        "de": "Batterieleistung",
+        "fr": "Puissance batterie",
+        "it": "Potenza batteria"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_battery.svg"
+    },
+    "ems_charge_now": {
+      "type": "boolean",
+      "title": {
+        "en": "Charge now",
+        "de": "Sofort laden",
+        "fr": "Charger maintenant",
+        "it": "Ricarica subito"
+      },
+      "desc": {
+        "en": "Charges the EV charger at full power until you switch it off.",
+        "de": "Lädt die Wallbox mit voller Leistung, bis du es wieder ausschaltest.",
+        "fr": "Charge la borne à pleine puissance jusqu'à ce que vous l'éteigniez.",
+        "it": "Ricarica la wallbox a piena potenza finché non lo spegni."
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "uiQuickAction": false,
+      "icon": "/assets/capabilities/ems_charge_now.svg"
+    },
+    "ems_grid_power": {
+      "type": "number",
+      "title": {
+        "en": "Grid power",
+        "de": "Netzleistung",
+        "fr": "Puissance réseau",
+        "it": "Potenza rete"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_grid.svg"
+    },
+    "ems_house_power": {
+      "type": "number",
+      "title": {
+        "en": "House consumption",
+        "de": "Hausverbrauch",
+        "fr": "Consommation maison",
+        "it": "Consumo casa"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_house.svg"
+    },
+    "ems_mode": {
+      "type": "enum",
+      "title": {
+        "en": "EMS mode",
+        "de": "EMS-Modus",
+        "fr": "Mode EMS",
+        "it": "Modalità EMS"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "disabled",
+          "title": {
+            "en": "Off",
+            "de": "Aus",
+            "fr": "Arrêté",
+            "it": "Spento"
+          }
+        },
+        {
+          "id": "idle",
+          "title": {
+            "en": "Idle",
+            "de": "Bereit",
+            "fr": "En attente",
+            "it": "In attesa"
+          }
+        },
+        {
+          "id": "holding",
+          "title": {
+            "en": "Waiting for surplus",
+            "de": "Wartet auf Überschuss",
+            "fr": "Attend un surplus",
+            "it": "In attesa di surplus"
+          }
+        },
+        {
+          "id": "solar_ev",
+          "title": {
+            "en": "Charging from solar",
+            "de": "Lädt mit Solarstrom",
+            "fr": "Charge solaire",
+            "it": "Ricarica solare"
+          }
+        },
+        {
+          "id": "instant_ev",
+          "title": {
+            "en": "Charging at full power",
+            "de": "Lädt mit voller Leistung",
+            "fr": "Charge à pleine puissance",
+            "it": "Ricarica a piena potenza"
+          }
+        },
+        {
+          "id": "battery_priority",
+          "title": {
+            "en": "Battery first",
+            "de": "Batterie hat Vorrang",
+            "fr": "Batterie prioritaire",
+            "it": "Batteria prioritaria"
+          }
+        },
+        {
+          "id": "error",
+          "title": {
+            "en": "Error",
+            "de": "Fehler",
+            "fr": "Erreur",
+            "it": "Errore"
+          }
+        }
+      ],
+      "icon": "/assets/capabilities/ems_mode.svg"
+    },
+    "ems_price": {
+      "type": "number",
+      "title": {
+        "en": "Electricity price",
+        "de": "Strompreis",
+        "fr": "Prix de l'électricité",
+        "it": "Prezzo dell'elettricità"
+      },
+      "units": "Rp./kWh",
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/price.svg"
+    },
+    "ems_pv_now": {
+      "type": "number",
+      "title": {
+        "en": "Solar forecast (now)",
+        "de": "Solarprognose (jetzt)",
+        "fr": "Prévision solaire (maintenant)",
+        "it": "Previsione solare (ora)"
+      },
+      "units": "kW",
+      "decimals": 2,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/ems_forecast.svg"
+    },
+    "ems_pv_power": {
+      "type": "number",
+      "title": {
+        "en": "PV power",
+        "de": "PV-Leistung",
+        "fr": "Puissance PV",
+        "it": "Potenza FV"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_pv.svg"
+    },
+    "ems_pv_today": {
+      "type": "number",
+      "title": {
+        "en": "Solar forecast today (remaining)",
+        "de": "Solarprognose heute (Rest)",
+        "fr": "Prévision solaire aujourd'hui (reste)",
+        "it": "Previsione solare oggi (resto)"
+      },
+      "units": "kWh",
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/ems_forecast.svg"
+    },
+    "ems_pv_tomorrow": {
+      "type": "number",
+      "title": {
+        "en": "Solar forecast tomorrow",
+        "de": "Solarprognose morgen",
+        "fr": "Prévision solaire demain",
+        "it": "Previsione solare domani"
+      },
+      "units": "kWh",
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "icon": "/assets/capabilities/ems_forecast.svg"
+    },
+    "ems_released": {
+      "type": "number",
+      "title": {
+        "en": "Released surplus",
+        "de": "Freigegebener Überschuss",
+        "fr": "Surplus libéré",
+        "it": "Surplus rilasciato"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_released.svg"
+    },
+    "ems_status_text": {
+      "type": "string",
+      "title": {
+        "en": "EMS details",
+        "de": "EMS-Details",
+        "fr": "Détails EMS",
+        "it": "Dettagli EMS"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/capabilities/ems_status.svg"
+    },
+    "ems_surplus": {
+      "type": "number",
+      "title": {
+        "en": "Solar surplus",
+        "de": "Solar-Überschuss",
+        "fr": "Surplus solaire",
+        "it": "Surplus solare"
+      },
+      "units": "W",
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "icon": "/assets/capabilities/ems_surplus.svg"
     },
     "grid_charge_value": {
       "type": "number",

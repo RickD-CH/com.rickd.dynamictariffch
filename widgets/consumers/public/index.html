@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --cw-text: #1a1a1a; --cw-muted: #767676; --cw-bg: #ffffff; --cw-chip: #f2f2f2; --cw-ok: #2e9d50;
+      --cw-accent: #0277bd; --cw-warn: #c0392b; --cw-test-bg: #fff4e0; --cw-test: #9a5b00; --cw-border: #e0e0e0;
+      --cw-disabled: #c7c7cc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cw-text: #f2f2f2; --cw-muted: #a0a0a0; --cw-bg: #1e1e20; --cw-chip: #2a2a2c; --cw-ok: #4cc27a;
+        --cw-accent: #4fc3f7; --cw-warn: #ef5350; --cw-test-bg: #3a2c12; --cw-test: #ffc46b; --cw-border: #3a3a3c;
+        --cw-disabled: #5a5a5e;
+      }
+    }
+    .homey-dark-mode {
+      --cw-text: #f2f2f2; --cw-muted: #a0a0a0; --cw-bg: #1e1e20; --cw-chip: #2a2a2c; --cw-ok: #4cc27a;
+      --cw-accent: #4fc3f7; --cw-warn: #ef5350; --cw-test-bg: #3a2c12; --cw-test: #ffc46b; --cw-border: #3a3a3c;
+      --cw-disabled: #5a5a5e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px; color: var(--cw-text); background: var(--cw-bg); padding: 10px 12px;
+    }
+    .item { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--cw-border); }
+    .item:last-child { border-bottom: none; }
+    .ic { width: 28px; height: 28px; border-radius: 7px; background: var(--cw-chip); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; color: var(--cw-text); }
+    .ic svg { width: 16px; height: 16px; }
+    .body { flex: 1 1 auto; min-width: 0; }
+    .name { font-weight: 600; font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+    .sub { color: var(--cw-muted); font-size: 11px; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chip { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--cw-test-bg); color: var(--cw-test); white-space: nowrap; }
+    .btn { font: inherit; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 7px; border: none; background: var(--cw-accent); color: #fff; cursor: pointer; flex: 0 0 auto; }
+    .btn:disabled { background: var(--cw-disabled); color: var(--cw-muted); cursor: default; }
+    .btn.done { background: var(--cw-chip); color: var(--cw-ok); }
+    .car { padding-bottom: 10px; margin-bottom: 4px; border-bottom: 2px solid var(--cw-border); }
+    .car .top { display: flex; align-items: baseline; gap: 8px; }
+    .car .soc { font-size: 20px; font-weight: 700; }
+    .car .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--cw-chip); white-space: nowrap; }
+    .msg { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 16px 6px; }
+    .msg.err { color: var(--cw-warn); }
+    .list { max-height: 400px; overflow-y: auto; }
+    .sw { position: relative; width: 34px; height: 20px; flex: 0 0 auto; cursor: pointer; }
+    .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .sw .slider { position: absolute; inset: 0; background: var(--cw-disabled); border-radius: 999px; transition: background .15s; }
+    .sw .slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: transform .15s; }
+    .sw input:checked + .slider { background: var(--cw-ok); }
+    .sw input:checked + .slider:before { transform: translateX(14px); }
+    .sw input:disabled + .slider { opacity: .6; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var ICONS = {
+      car: 'M5 17H3v-5l2-5h14l2 5v5h-2M9 17h6M3 12h18M7 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM17 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+      drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
+      plug: 'M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0zM12 16v5',
+      bike: 'M2 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM15 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM5.5 16.5 9 9h6l3.5 7.5M12 16.5 9 9M8 6.5h3M15 9l-1-3h2.5',
+      dishwasher: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7h16M7.5 5h1M11.5 5h1M7 11.5h10M7 15.5h10',
+      boiler: 'M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM6 8h12M12 11.5s2.5 2.3 2.5 4a2.5 2.5 0 0 1-5 0c0-1.7 2.5-4 2.5-4z',
+      washer: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7.5h16M7.5 5.2h1.5M8.5 14a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0z',
+      fan: 'M10.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM12 10.5C11 6 12 3 14.5 3c2 0 2.5 3-1 7M13.5 12c4.5-1 7.5 0 7.5 2.5 0 2-3 2.5-7-1M12 13.5c1 4.5 0 7.5-2.5 7.5-2 0-2.5-3 1-7M10.5 12C6 13 3 12 3 9.5c0-2 3-2.5 7 1',
+      heatpump: 'M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM10 12a4 4 0 1 0 8 0 4 4 0 1 0-8 0zM14 8.5v7M10.5 12h7M5.5 9v6',
+    };
+    var lastJson = null;
+    var HomeyRef = null;
+
+    function esc(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function fill(s, o) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return o[k] !== undefined ? o[k] : m; }); }
+    function icon(name) {
+      var d = ICONS[name] || ICONS.plug;
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
+    }
+    function fit() {
+      try { if (HomeyRef) HomeyRef.setHeight(Math.min(460, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
+    }
+
+    function carHtml(Homey, car) {
+      if (!car) return '';
+      var badge = car.connected ? esc(Homey.__('consumersWidget.connected')) : esc(Homey.__('consumersWidget.notConnected'));
+      var sub = [];
+      if (car.targetSoc !== null) sub.push(esc(Homey.__('consumersWidget.target')) + ' ' + car.targetSoc + '%' + (car.departureTime ? ' · ' + esc(car.departureDate || '') + ' ' + esc(car.departureTime) : ''));
+      if (car.window) sub.push(esc(Homey.__('consumersWidget.window')) + ' ' + esc(car.window.from) + '–' + esc(car.window.to));
+      if (car.needKwh !== null) sub.push(esc(fill(Homey.__('consumersWidget.needKwh'), { kwh: car.needKwh })));
+      var testChip = !car.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
+      return '<div class="car">'
+        + '<div class="top"><span class="soc">' + (car.soc === null ? '–' : car.soc + '%') + '</span><span class="badge">' + badge + '</span></div>'
+        + '<div class="sub" style="white-space:normal">' + esc(car.reason || '') + '</div>'
+        + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
+        + '<div class="item" style="padding:6px 0 0;border:none"><span class="body" style="font-weight:600">' + esc(Homey.__('consumersWidget.chargeNow')) + '</span>' + testChip + '</div>'
+        + '</div>';
+    }
+
+    function consumerHtml(Homey, c) {
+      var sub = esc(c.reason || '');
+      var extra = [];
+      if (c.startedAt) extra.push(esc(fill(Homey.__('consumersWidget.startedToday'), { time: c.startedAtHm })));
+      if (!c.startedAt && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
+      if (c.durationH) extra.push(esc(fill(Homey.__('consumersWidget.durationInfo'), { h: c.durationH })));
+      var btn = '';
+      var auto = '';
+      if (c.isProgram) {
+        if (c.startedAt) btn = '<button class="btn done" disabled>✓</button>';
+        else {
+          // 'armed' (Automatik aus) sperrt nur die automatische PV-/Preis-Logik, nie den bewussten manuellen Start.
+          var disabled = (!!c.blocked && c.blocked !== 'armed') || !c.live;
+          btn = '<button class="btn" data-id="' + esc(c.id) + '"' + (disabled ? ' disabled title="' + sub + '"' : '') + '>' + esc(Homey.__('consumersWidget.start')) + '</button>';
+        }
+        var autoTitle = esc(c.armed ? Homey.__('consumersWidget.autoOn') : Homey.__('consumersWidget.autoOff'));
+        auto = '<label class="sw" title="' + autoTitle + '">'
+          + '<input type="checkbox" data-arm="' + esc(c.id) + '"' + (c.armed ? ' checked' : '') + '>'
+          + '<span class="slider"></span></label>';
+      }
+      var testChip = !c.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
+      return '<div class="item"><span class="ic">' + icon(c.icon) + '</span>'
+        + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>'
+        + '<span class="sub">' + sub + (extra.length ? ' · ' + extra.join(' · ') : '') + '</span></span>'
+        + auto + btn + '</div>';
+    }
+
+    function render(Homey, d) {
+      var root = document.getElementById('root');
+      if (!d.ems) { root.innerHTML = '<div class="msg">' + esc(Homey.__('consumersWidget.noEms')) + '</div>'; return fit(); }
+      var html = carHtml(Homey, d.car);
+      if (!d.consumers.length) html += '<div class="msg">' + esc(Homey.__('consumersWidget.none')) + '</div>';
+      else html += '<div class="list">' + d.consumers.map(function (c) { return consumerHtml(Homey, c); }).join('') + '</div>';
+      root.innerHTML = html;
+      root.querySelectorAll('button[data-id]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          b.disabled = true;
+          Homey.api('POST', '/start', { id: b.getAttribute('data-id') }).then(function () { load(Homey); }).catch(function () { b.disabled = false; });
+        });
+      });
+      root.querySelectorAll('input[data-arm]').forEach(function (inp) {
+        inp.addEventListener('change', function () {
+          var id = inp.getAttribute('data-arm');
+          var on = inp.checked;
+          inp.disabled = true;
+          Homey.api('POST', '/arm', { id: id, on: on }).then(function () { load(Homey); }).catch(function () { inp.disabled = false; inp.checked = !on; });
+        });
+      });
+      fit();
+    }
+
+    function load(Homey) {
+      return Homey.api('GET', '/consumers')
+        .then(function (d) {
+          var json = JSON.stringify(d);
+          if (json === lastJson) return;
+          lastJson = json;
+          render(Homey, d);
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastJson = null;
+          document.getElementById('root').innerHTML = '<div class="msg err">' + esc(Homey.__('consumersWidget.loadFailed')) + '</div>';
+          fit();
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      HomeyRef = Homey;
+      try {
+        document.getElementById('root').innerHTML = '<div class="msg">' + esc(Homey.__('consumersWidget.loading')) + '</div>';
+        Homey.ready({ height: 280 });
+        load(Homey);
+        setInterval(function () { load(Homey); }, 20000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="msg err">Widget error: ' + esc(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 280 }); } catch (e2) { /* nichts mehr zu tun */ }
+      }
+    }
+  </script>
+</body>
+</html>

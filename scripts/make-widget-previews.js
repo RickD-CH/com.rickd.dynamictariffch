@@ -67,6 +67,16 @@ function fuseSvg(t) {
     + pill(160, 592, 330, 22, t.soft) + pill(704, 580, 160, 46, ORANGE) + pill(530, 580, 154, 46, RED);
 }
 
+function consumersSvg(t) {
+  const row = (y, w, color) => `<rect x="160" y="${y}" width="26" height="26" rx="7" fill="${color}"/>` + pill(204, y + 2, w, 22, t.ink) + pill(204, y + 28, w - 60, 16, t.soft);
+  return pill(160, 252, 230, 70, t.ink) + pill(724, 266, 140, 42, t.panel)
+    + pill(160, 350, 320, 18, t.soft) + pill(160, 376, 230, 16, t.soft)
+    + row(430, 220, ORANGE) + pill(704, 432, 160, 26, GREEN)
+    + row(506, 260, GREEN)
+    + row(582, 200, PURPLE) + pill(704, 584, 160, 26, t.panel)
+    + row(658, 240, GRAY);
+}
+
 function page(svgInner, t, cardY, cardH) {
   return `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:transparent}</style></head><body>
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
@@ -81,6 +91,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'wprev-'));
 const jobs = [
   ['plan', planSvg, 222, 540],
   ['fuse', fuseSvg, 242, 440],
+  ['consumers', consumersSvg, 222, 540],
 ];
 for (const [w, fn, y, h] of jobs) {
   for (const [name, t] of Object.entries(THEMES)) {

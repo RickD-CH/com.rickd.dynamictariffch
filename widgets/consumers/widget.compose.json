@@ -1,0 +1,23 @@
+{
+  "name": {
+    "en": "Consumers",
+    "de": "Verbraucher",
+    "fr": "Consommateurs",
+    "it": "Consumatori"
+  },
+  "height": 280,
+  "api": {
+    "getConsumers": {
+      "method": "GET",
+      "path": "/consumers"
+    },
+    "postStart": {
+      "method": "POST",
+      "path": "/start"
+    },
+    "postArm": {
+      "method": "POST",
+      "path": "/arm"
+    }
+  }
+}

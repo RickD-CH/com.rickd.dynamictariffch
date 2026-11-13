@@ -390,3 +390,31 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Bewusst **nicht** an die Verbraucher-Liste gekoppelt (kein Zwang, jedes Schalt-Gerät zuerst als Verbraucher
   anzulegen) - ein simples Sauna-Thermostat bleibt ohne Zusatzaufwand automatisch schaltbar, nur Geräte mit
   Sonderfall brauchen den Flow.
+
+## Programm starten: Automatik ist eine eigene, bewusste Wahl (13.11.2026)
+
+- **Sicherheitskorrektur:** «Fernbedienung an» heisst nur «Gerät ist bereit», nie «darf automatisch starten».
+  Hintergrund: manche Geräte (z. B. Electrolux Geschirrspüler) verlangen «Fernbedienung» auch dann, wenn man ein
+  spezielles Programm nur über die Hersteller-App auswählen will - ohne die Absicht, dass unser EMS daraufhin
+  selbst losläuft. Würde unser EMS allein auf Fernbedienung/Tür/Status abstellen, könnte es ein Programm starten,
+  das man nur zum Einstellen scharf gemacht hat.
+- Deshalb zusätzliches, von Fernbedienung/Tür/Status **unabhängiges** Flag `st.programArmed` («Automatik»):
+  Standard **aus**, jeden Tag um Mitternacht automatisch wieder aus (muss bewusst neu eingeschaltet werden), nicht
+  persistiert (App-Neustart setzt ebenfalls zurück - Ausfallsicherheit vor Bequemlichkeit). Nur wenn Automatik an
+  ist, darf die PV-/Preis-Logik (Schritte 5-7 in `decideProgram`) überhaupt laufen; Fernbedienung/Tür/Status
+  werden weiterhin immer zuerst geprüft.
+- Der **manuelle Start** (Widget-Knopf, `forceNow`) ist davon komplett unabhängig immer möglich, sobald die
+  zwingenden Voraussetzungen am Gerät erfüllt sind - ein bewusster Klick ist ja schon die bewusste Wahl. Er prüft
+  die Automatik nicht und setzt sie auch nicht.
+- Bedienung: `EmsRunner.setProgramArmed(id, on)` / `EmsController.setProgramArmed(id, on)`, im Widget
+  «Verbraucher» als Schalter neben dem Start-Knopf (`POST /arm`, `widgets/consumers/`). `decideProgram` liefert bei
+  ausgeschalteter Automatik `blocked: 'armed'` - das Widget sperrt den Start-Knopf dafür **nicht** (nur bei
+  `state`/`door`/`remote`), sonst wäre der manuelle Start blockiert, obwohl er es laut `decideProgram` nicht ist.
+
+## Widget «Verbraucher» (13.11.2026)
+
+- Drittes Widget (`widgets/consumers/`, neben «Energieplan» und «Hausanschluss»): listet E-Auto/Wallbox (sofern
+  konfiguriert, mit SoC/Status/Ladefenster) und alle aktivierten Verbraucher mit Status; beim Typ «Programm
+  starten» zusätzlich «Jetzt starten» und der Automatik-Schalter. Bewusst kein eigenes E-Auto-Widget (Homey
+  erlaubt maximal 8 Widgets pro Dashboard).
+- Daten über `WidgetData.consumersWidget()`, API-Routen `getConsumers`/`postStart`/`postArm`.

@@ -118,5 +118,25 @@
     "throttled": "Wallbox limited to {a} A",
     "shed": "Off:",
     "test": "Test mode"
+  },
+  "consumersWidget": {
+    "loading": "Loading…",
+    "loadFailed": "Could not load the consumers.",
+    "noEms": "Energy management is not set up.",
+    "none": "No consumers set up.",
+    "test": "Test mode",
+    "car": "EV",
+    "notConnected": "not plugged in",
+    "connected": "plugged in",
+    "target": "Target",
+    "window": "Charging window",
+    "needKwh": "{kwh} kWh left",
+    "chargeNow": "Charge now",
+    "start": "Start",
+    "startedToday": "started today {time}",
+    "untilTime": "by {time} at the latest",
+    "durationInfo": "usually takes about {h} h",
+    "autoOn": "Auto mode on: starts by itself on PV surplus or at the cheapest moment",
+    "autoOff": "Auto mode off: only starts manually with \"Start\""
   }
 }

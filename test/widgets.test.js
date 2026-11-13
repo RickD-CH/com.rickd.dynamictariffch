@@ -138,7 +138,7 @@ test('Widgets: neutrale Namen, Texte in Deutsch und Englisch, jedes Widget hat V
   }
   for (const lang of ['de', 'en']) {
     const loc = JSON.parse(fs.readFileSync(path.join(root, 'locales', `${lang}.json`), 'utf8'));
-    for (const [sec, w] of [['planWidget', 'plan'], ['fuseWidget', 'fuse']]) {
+    for (const [sec, w] of [['planWidget', 'plan'], ['fuseWidget', 'fuse'], ['consumersWidget', 'consumers']]) {
       const html = fs.readFileSync(path.join(root, 'widgets', w, 'public', 'index.html'), 'utf8');
       const keys = [...html.matchAll(new RegExp(`__\\('${sec}\\.([a-zA-Z.]+)'\\)`, 'g'))].map((m) => m[1]);
       assert.ok(keys.length > 5);

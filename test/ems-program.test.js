@@ -4,7 +4,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { normalizeProgram, decideProgram } = require('../lib/ems/planner/program');
+const { normalizeProgram, decideProgram, windowOf } = require('../lib/ems/planner/program');
 const { fromLocal } = require('../lib/time');
 
 const TZ = 'Europe/Zurich';
@@ -50,7 +50,7 @@ test('Tür offen (wenn ein Türsensor gewählt ist): nicht starten', () => {
 
 test('PV-Überschuss: erst nach startSustainS am Stück, auch ausserhalb des Zeitfensters', () => {
   const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 300, windowFrom: '18:00' });
-  const st = {};
+  const st = { programArmed: true };
   let r = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 2200, slots: [], nowMs: at(11), tz: TZ,
   });
@@ -64,7 +64,7 @@ test('PV-Überschuss: erst nach startSustainS am Stück, auch ausserhalb des Zei
 
 test('Überschuss fällt zwischenzeitlich weg: Uhr beginnt neu', () => {
   const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 300 });
-  const st = {};
+  const st = { programArmed: true };
   decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 2200, slots: [], nowMs: at(11), tz: TZ,
   });
@@ -80,7 +80,7 @@ test('Überschuss fällt zwischenzeitlich weg: Uhr beginnt neu', () => {
 test('Vor dem Zeitfenster: warten, auch ohne PV und ohne Preise', () => {
   const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4 });
   const r = decideProgram({
-    cfg: p, st: {}, remoteValue: null, doorValue: null, exportW: 0, slots: [], nowMs: at(12), tz: TZ,
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: [], nowMs: at(12), tz: TZ,
   });
   assert.equal(r.start, false);
   assert.match(r.reason, /Zeitfenster ab 18:00/);
@@ -90,10 +90,10 @@ test('Im Zeitfenster: startet in der günstigsten Viertelstunde bis zur Frist', 
   const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4 });
   const all = slots(at(18), at(22), (t) => (t === at(20, 30) ? 8 : 25));
   let r = decideProgram({
-    cfg: p, st: {}, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(18), tz: TZ,
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(18), tz: TZ,
   });
   assert.equal(r.start, false, 'die günstigste Viertelstunde kommt erst um 20:30');
-  const st2 = {};
+  const st2 = { programArmed: true };
   r = decideProgram({
     cfg: p, st: st2, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(20, 30), tz: TZ,
   });
@@ -106,7 +106,7 @@ test('Frist erreicht (Fensterende): startet als Sicherheitsnetz, egal zu welchem
   const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4 });
   const all = slots(at(18), at(23), () => 45); // überall teuer
   const r = decideProgram({
-    cfg: p, st: {}, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(22), tz: TZ,
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(22), tz: TZ,
   });
   assert.equal(r.start, true);
   assert.match(r.reason, /maximale Wartezeit/);
@@ -114,7 +114,7 @@ test('Frist erreicht (Fensterende): startet als Sicherheitsnetz, egal zu welchem
 
 test('Nach dem Start: an diesem Tag nicht nochmals, auch nicht bei neuem PV-Überschuss', () => {
   const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0 });
-  const st = {};
+  const st = { programArmed: true };
   const first = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11), tz: TZ,
   });
@@ -126,18 +126,38 @@ test('Nach dem Start: an diesem Tag nicht nochmals, auch nicht bei neuem PV-Übe
   assert.match(second.reason, /schon gestartet/);
 });
 
-test('Neuer Tag setzt den Zähler zurück', () => {
+test('Neuer Tag setzt den Zähler zurück, aber auch die Automatik - die muss jeden Tag neu eingeschaltet werden', () => {
   const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0 });
-  const st = {};
+  const st = { programArmed: true };
   decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11), tz: TZ,
   });
   assert.ok(st.programStartedAt);
   const tomorrow = at(11) + 24 * 3600 * 1000;
-  const r = decideProgram({
+  const stillOff = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: tomorrow, tz: TZ,
   });
-  assert.equal(r.start, true);
+  assert.equal(stillOff.start, false, 'neuer Tag: Automatik ist wieder aus, nicht mehr "schon gestartet"');
+  assert.equal(stillOff.blocked, 'armed');
+  st.programArmed = true;
+  const r = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: tomorrow + 1000, tz: TZ,
+  });
+  assert.equal(r.start, true, 'nach erneutem Einschalten der Automatik geht es wie gewohnt');
+});
+
+test('Automatik aus (Standard): PV-Überschuss und Zeitfenster allein starten nichts, nur Fernbedienung reicht nicht', () => {
+  const p = normalizeProgram({
+    remoteCapability: 'measure_remoteControl', remoteOkValue: 'Enabled', minSurplusW: 100, startSustainS: 0, windowFrom: '00:00', maxWaitH: 1,
+  });
+  const st = {};
+  const r = decideProgram({
+    cfg: p, st, remoteValue: 'Enabled', doorValue: null, exportW: 5000, slots: [], nowMs: at(0, 30), tz: TZ,
+  });
+  assert.equal(r.start, false);
+  assert.equal(r.blocked, 'armed');
+  assert.match(r.reason, /Automatik ausgeschaltet/);
+  assert.ok(!st.programStartedAt, 'wird nicht als "gestartet" gezählt');
 });
 
 // ---------------------------------------------------------------- Runner (Geräte lesen und schalten)
@@ -147,9 +167,10 @@ const { EmsRunner } = require('../lib/ems/EmsRunner');
 const { ShadowLog } = require('../lib/ems/ShadowLog');
 const { PriceFeed } = require('../lib/ems/PriceFeed');
 const { PvFeed } = require('../lib/ems/PvFeed');
+const { makeConsumerState } = require('../lib/ems/planner/consumer');
 
 function makeRunner({
-  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0, state = undefined, stateIdleValue = undefined,
+  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0, state = undefined, stateIdleValue = undefined, armed = true,
 } = {}) {
   const config = normalizeConfig({
     enabled: true,
@@ -202,6 +223,7 @@ function makeRunner({
     shadowLog: new ShadowLog({ get() {}, set() {} }),
     store: null,
   });
+  if (armed) runner.consumerStates.set('gwa', Object.assign(makeConsumerState(), { programArmed: true }));
   return { runner, started, config };
 }
 
@@ -257,12 +279,12 @@ test('Status-Capability: "bereit" erlaubt den normalen Ablauf, ohne Capability w
     stateCapability: 'measure_applianceState', stateIdleValue: 'Idle', minSurplusW: 100, startSustainS: 0,
   });
   const ready = decideProgram({
-    cfg: p, st: {}, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
   });
   assert.equal(ready.start, true);
   const noCap = normalizeProgram({ minSurplusW: 100, startSustainS: 0 });
   const r = decideProgram({
-    cfg: noCap, st: {}, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+    cfg: noCap, st: { programArmed: true }, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
   });
   assert.equal(r.start, true, 'ohne gewählte Capability spielt der Ist-Zustand keine Rolle');
 });
@@ -278,4 +300,72 @@ test('Runner: Status "bereit" lässt den normalen Start zu', async () => {
   const { runner, started } = makeRunner({ state: 'Idle', stateIdleValue: 'Idle' });
   await runner.tickCharger(at(19));
   assert.equal(started.length, 1);
+});
+
+// ---------------------------------------------------------------- Manueller Start (Widget/Flow)
+
+test('forceNow: startet sofort, auch ausserhalb des Zeitfensters und ohne PV, aber nicht ohne Fernbedienung', () => {
+  const p = normalizeProgram({ remoteCapability: 'measure_remoteControl', remoteOkValue: 'Enabled' });
+  const blocked = decideProgram({
+    cfg: p, st: {}, remoteValue: 'Disabled', doorValue: null, exportW: 0, slots: [], nowMs: at(10), tz: TZ, forceNow: true,
+  });
+  assert.equal(blocked.start, false);
+  assert.equal(blocked.blocked, 'remote');
+  const st = {};
+  const r = decideProgram({
+    cfg: p, st, remoteValue: 'Enabled', doorValue: null, exportW: 0, slots: [], nowMs: at(10), tz: TZ, forceNow: true,
+  });
+  assert.equal(r.start, true);
+  assert.match(r.reason, /Manuell gestartet/);
+  assert.ok(st.programStartedAt);
+});
+
+test('forceNow: ignoriert "heute schon gestartet" - ein bewusster zweiter Klick zählt', () => {
+  const p = normalizeProgram({ minSurplusW: 100, startSustainS: 0 });
+  const st = { programArmed: true };
+  decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 200, slots: [], nowMs: at(10), tz: TZ,
+  });
+  assert.ok(st.programStartedAt, 'automatisch schon gestartet');
+  const r = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: [], nowMs: at(10) + 60000, tz: TZ, forceNow: true,
+  });
+  assert.equal(r.start, true, 'manueller Start geht trotzdem durch');
+});
+
+test('Runner: setProgramArmed schaltet die Automatik gezielt ein und aus (Widget/Flow)', async () => {
+  const { runner, started } = makeRunner({ armed: false });
+  await runner.tickCharger(at(19));
+  assert.equal(started.length, 0, 'Automatik aus: kein automatischer Start trotz Überschuss');
+  assert.equal(runner.consumerCurrent[0].blocked, 'armed');
+  assert.equal(runner.consumerCurrent[0].armed, false);
+  runner.setProgramArmed('gwa', true);
+  await runner.tickCharger(at(19) + 60000);
+  assert.equal(started.length, 1, 'nach bewusstem Einschalten startet die Automatik normal');
+  assert.equal(runner.consumerCurrent[0].armed, true);
+});
+
+test('Runner: forceProgramStart löst einen manuellen Start aus, unabhängig von der Automatik', async () => {
+  const { runner, started } = makeRunner({ armed: false });
+  await runner.forceProgramStart('gwa');
+  await runner.tickCharger(at(10));
+  assert.equal(started.length, 1, 'manueller Start geht auch bei ausgeschalteter Automatik durch');
+  assert.equal(runner.consumerCurrent[0].blocked, null);
+});
+
+test('deadlineMs/blocked: immer das heutige Fensterende, auch beim Warten oder bei einer Sperre', () => {
+  const p = normalizeProgram({
+    windowFrom: '18:00', maxWaitH: 4, doorCapability: 'measure_doorState', doorOkValue: 'Closed',
+  });
+  const { toMs } = windowOf(p, at(10), TZ);
+  const waiting = decideProgram({
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: 'Closed', exportW: 0, slots: [], nowMs: at(10), tz: TZ,
+  });
+  assert.equal(waiting.deadlineMs, toMs);
+  assert.equal(waiting.blocked, null);
+  const doorOpen = decideProgram({
+    cfg: p, st: {}, remoteValue: null, doorValue: 'Open', exportW: 0, slots: [], nowMs: at(10), tz: TZ,
+  });
+  assert.equal(doorOpen.blocked, 'door');
+  assert.equal(doorOpen.deadlineMs, toMs);
 });

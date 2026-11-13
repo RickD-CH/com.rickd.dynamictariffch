@@ -118,5 +118,25 @@
     "throttled": "Wallbox auf {a} A gedrosselt",
     "shed": "Aus:",
     "test": "Testmodus"
+  },
+  "consumersWidget": {
+    "loading": "Lädt…",
+    "loadFailed": "Verbraucher konnten nicht geladen werden.",
+    "noEms": "Energiemanagement nicht eingerichtet.",
+    "none": "Keine Verbraucher eingerichtet.",
+    "test": "Testmodus",
+    "car": "E-Auto",
+    "notConnected": "nicht angesteckt",
+    "connected": "angesteckt",
+    "target": "Ziel",
+    "window": "Ladefenster",
+    "needKwh": "noch {kwh} kWh",
+    "chargeNow": "Sofort laden",
+    "start": "Starten",
+    "startedToday": "heute {time} gestartet",
+    "untilTime": "spätestens {time}",
+    "durationInfo": "übliche Dauer ca. {h} h",
+    "autoOn": "Automatik ein: startet selbst bei PV-Überschuss oder im günstigsten Moment",
+    "autoOff": "Automatik aus: startet nur manuell mit «Starten»"
   }
 }
