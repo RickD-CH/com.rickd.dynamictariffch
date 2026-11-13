@@ -2357,7 +2357,11 @@
       load(),
       api('GET', '/ems/devices').then(function (r) { state.devices = r.devices || []; }).catch(function () { state.devices = []; }),
       api('GET', '/ems/flows').then(function (r) { state.flows = (r && r.flows) || []; }).catch(function () { state.flows = []; }),
-    ]).then(function () { render(); renderCompare(); startTimer(); })
+    ]).then(function () {
+      render(); renderCompare(); startTimer();
+      // Mit Energiemanagement-Gerät ist EMS die erste Ansicht unter «Einrichten»
+      if (!noDevice() && window.SetupNav && typeof window.SetupNav.preferEms === 'function') window.SetupNav.preferEms();
+    })
       .catch(function (e) {
         var m = $('ems-view-main');
         if (m) m.innerHTML = '<p class="warn">' + esc(S.error + ': ' + (e && e.message || e)) + '</p>';

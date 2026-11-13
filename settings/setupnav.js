@@ -11,6 +11,7 @@
     it: { general: 'Generale', price: 'App prezzi', ems: 'EMS', cmp: 'Confronto', hint: "Configura qui la gestione dell'energia: fonti di dati, consumatori, calcolo. Funzionamento e interruttori si trovano sotto «Oggi», il piano sotto «Previsione»." },
   };
   var VIEWS = ['general', 'price', 'ems', 'cmp'];
+  var userChose = false;
 
   function $(id) { return document.getElementById(id); }
 
@@ -35,10 +36,13 @@
     if (bar) {
       bar.addEventListener('click', function (ev) {
         var which = ev.target && ev.target.getAttribute ? ev.target.getAttribute('data-setup-sub') : null;
-        if (VIEWS.indexOf(which) >= 0) show(which);
+        if (VIEWS.indexOf(which) >= 0) { userChose = true; show(which); }
       });
     }
   }
 
-  window.SetupNav = { init: init, _show: show };
+  /** Mit Energiemanagement-Gerät öffnet «Einrichten» auf EMS, solange noch nichts selbst gewählt wurde. */
+  function preferEms() { if (!userChose) show('ems'); }
+
+  window.SetupNav = { init: init, preferEms: preferEms, _show: show };
 })();

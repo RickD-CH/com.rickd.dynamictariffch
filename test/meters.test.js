@@ -310,8 +310,8 @@ test('MetersUi: Übersicht zeigt je Zähler, ob er über die Auswahl, einen Flow
   assert.match(html, /Wie wird jeder Zähler gespeist\?/);
   const table = html.slice(html.indexOf('class="mt-feeds"'), html.indexOf('Automatisch lesen'));
   assert.doesNotMatch(table, /<table|<td/, 'keine breite Tabelle: bricht auf dem Handy um');
-  const rowOf = (name) => table.split('class="mt-feed"').find((r) => r.includes('<b>' + name + '</b>')) || '';
-  assert.ok(rowOf('Netzbezug').includes('mt-ok">Auswahl</div><div class="sub mt-feed-d">Energiezähler'), 'nur Auswahl');
+  const rowOf = (name) => table.split('class="mt-feed"').find((r) => r.includes('>' + name + '</b>')) || '';
+  assert.match(rowOf('Netzbezug'), /mt-ok">Auswahl<\/span>[\s\S]*class="mt-feed-d">Energiezähler/, 'nur Auswahl, Gerät darunter');
   assert.match(rowOf('Netzbezug'), /Auswahl zuletzt vor 60 s/);
   assert.match(rowOf('Einspeisung'), /Auswahl und Flow/);
   assert.match(rowOf('Einspeisung'), /Flow zuletzt vor 5 min/);

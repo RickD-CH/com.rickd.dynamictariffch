@@ -136,9 +136,9 @@
     var last = [];
     if (seen.auto) last.push(S.feedAutoAgo + ' ' + ago(seen.auto));
     if (seen.flow) last.push(S.feedFlowAgo + ' ' + ago(seen.flow));
-    return '<div class="mt-feed"><div class="mt-feed-n"><b>' + esc(label) + '</b></div><div class="mt-feed-h ' + cls + '">' + esc(how) + '</div>'
-      + (detail ? '<div class="sub mt-feed-d">' + esc(detail) + '</div>' : '')
-      + '<div class="sub mt-feed-l">' + esc(last.length ? last.join(' - ') : S.feedNoReport) + '</div></div>';
+    return '<div class="mt-feed"><div class="mt-feed-top"><b class="mt-feed-n">' + esc(label) + '</b><span class="mt-feed-h ' + cls + '">' + esc(how) + '</span>'
+      + '<span class="mt-feed-l">' + esc(last.length ? last.join(' · ') : S.feedNoReport) + '</span></div>'
+      + (detail ? '<div class="mt-feed-d">' + esc(detail) + '</div>' : '') + '</div>';
   }
 
   function feedTable() {
@@ -182,8 +182,9 @@
       + '.mt-f{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--st-muted);flex:1 1 180px}'
       + '.mt-f select{font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);width:100%}'
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
-      + '.mt-feed{padding:8px 0;border-bottom:1px solid var(--st-border);font-size:13px}.mt-feed-h{font-weight:600}.mt-feed-h.mt-ok{color:var(--st-cheap)}.mt-feed-h.mt-warn{color:#b9770e}'
-      + '.mt-feed-d,.mt-feed-l{font-size:12px;overflow-wrap:anywhere;word-break:break-word;margin-top:1px}'
+      + '.mt-feed{padding:6px 0;border-bottom:1px solid var(--st-border);font-size:13px}.mt-feed:last-child{border-bottom:none}'
+      + '.mt-feed-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.mt-feed-n{font-weight:600}.mt-feed-h{font-size:12px;font-weight:600}.mt-feed-h.mt-ok{color:var(--st-cheap)}.mt-feed-h.mt-warn{color:#b9770e}'
+      + '.mt-feed-l{margin-left:auto;font-size:11px;color:var(--st-muted)}.mt-feed-d{font-size:11px;color:var(--st-muted);overflow-wrap:anywhere;word-break:break-word;margin-top:1px}'
       + '</style>'
       + feedTable()
       + '<h3>' + esc(S.title) + '</h3><p class="sub">' + esc(S.hint) + '</p>'
