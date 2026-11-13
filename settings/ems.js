@@ -125,6 +125,8 @@
       programStartCap: 'Start-Capability', programStartVal: 'Start-Wert', programRemoteCap: 'Fernbedienung-Capability', programRemoteVal: 'Fernbedienung-Wert (wenn aktiv)',
       programRemoteWarn: 'Ohne Fernbedienung-Capability wird nicht geprüft, ob das Gerät überhaupt geschaltet werden kann - bei manchen Geräten (z. B. Electrolux) zwingend nötig.',
       programDoorCap: 'Tür-Capability (optional)', programDoorVal: 'Tür-Wert «zu» (wenn gewählt)',
+      programStateCap: 'Status-Capability (optional)', programStateVal: 'Status-Wert «bereit/leer» (wenn gewählt)',
+      programStateHint: 'Verhindert einen zweiten Start-Befehl, während das Gerät noch läuft (egal ob von Hand oder von uns gestartet) - welche Capability und welcher Wert «bereit» bedeutet, ist je Gerät anders. Leer lassen, wenn das Gerät so etwas nicht hat.',
       fullSoc: 'Voll ab SoC (%)', socOn: 'Ein ab SoC (%)', hysteresis: 'Aus unter (Prozentpunkte darunter)',
       batFirst: 'Hausbatterie zuerst bis (%)', batFirstPh: 'wie Wallbox', batFirstHint: 'Leer: wie die Wallbox (Hausbatterie hat Vorrang bis zur gemeinsamen Grenze). Eine Zahl: eigene Grenze; darüber nimmt der Verbraucher auch den Strom, der gerade in die Hausbatterie fliesst. Für kleine Verbraucher (eBike) z. B. 0.',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
@@ -262,6 +264,8 @@
       programStartCap: 'Start capability', programStartVal: 'Start value', programRemoteCap: 'Remote-control capability', programRemoteVal: 'Remote value (when enabled)',
       programRemoteWarn: 'Without a remote-control capability, the app never checks whether the device can even be switched - required for some appliances (e.g. Electrolux).',
       programDoorCap: 'Door capability (optional)', programDoorVal: 'Door value "closed" (when chosen)',
+      programStateCap: 'State capability (optional)', programStateVal: 'State value "ready/idle" (when chosen)',
+      programStateHint: 'Stops a second start command while the appliance is still running (whether started by hand or by us) - which capability and which value means "ready" differs by device. Leave empty if the appliance has nothing like this.',
       fullSoc: 'Full from SoC (%)', socOn: 'On from SoC (%)', hysteresis: 'Off below (points under that)',
       batFirst: 'Home battery first up to (%)', batFirstPh: 'like charger', batFirstHint: 'Empty: like the EV charger (home battery first up to the shared limit). A number: own limit; above it the device also takes the power currently flowing into the home battery. For small devices (e-bike) e.g. 0.',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
@@ -735,7 +739,7 @@
       humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
       accu: { enabled: false, sensorId: '', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 240 },
       program: {
-        minSurplusW: 2000, startSustainS: 300, windowFrom: '18:00', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', startCapability: 'dishwasher_execute_command', startValue: 'START',
+        minSurplusW: 2000, startSustainS: 300, windowFrom: '18:00', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', stateCapability: '', stateIdleValue: '', startCapability: 'dishwasher_execute_command', startValue: 'START',
       },
       meterDeviceId: '', meterCap: '',
       controlKind: 'device', flowOn: { id: '', advanced: false, name: '' }, flowOff: { id: '', advanced: false, name: '' }, assumedW: 0,
@@ -869,6 +873,9 @@
         + (pg.remoteCapability ? '' : '<p class="warn">' + esc(S.programRemoteWarn) + '</p>')
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programDoorCap) + '</span><select id="' + p + 'pgDoorCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.doorCapability) + '</select></label>'
         + field(S.programDoorVal, p + 'pgDoorVal', pg.doorOkValue, 'text', ' style="max-width:115px"') + '</div>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStateCap) + '</span><select id="' + p + 'pgStateCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.stateCapability) + '</select></label>'
+        + field(S.programStateVal, p + 'pgStateVal', pg.stateIdleValue, 'text', ' style="max-width:115px"') + '</div>'
+        + '<p class="ems-why">' + esc(S.programStateHint) + '</p>'
         + '</div>';
       ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label></div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
@@ -2022,7 +2029,7 @@
       if ($(p + 'pgSurplus')) {
         var pg0 = r.program || newConsumerRow().program;
         r.program = {
-          minSurplusW: num(p + 'pgSurplus', pg0.minSurplusW), startSustainS: num(p + 'pgSustain', pg0.startSustainS), windowFrom: val(p + 'pgFrom', pg0.windowFrom), maxWaitH: num(p + 'pgWait', pg0.maxWaitH), durationH: num(p + 'pgDuration', pg0.durationH), startCapability: val(p + 'pgStartCap', pg0.startCapability), startValue: val(p + 'pgStartVal', pg0.startValue), remoteCapability: val(p + 'pgRemoteCap', pg0.remoteCapability), remoteOkValue: val(p + 'pgRemoteVal', pg0.remoteOkValue), doorCapability: val(p + 'pgDoorCap', pg0.doorCapability), doorOkValue: val(p + 'pgDoorVal', pg0.doorOkValue),
+          minSurplusW: num(p + 'pgSurplus', pg0.minSurplusW), startSustainS: num(p + 'pgSustain', pg0.startSustainS), windowFrom: val(p + 'pgFrom', pg0.windowFrom), maxWaitH: num(p + 'pgWait', pg0.maxWaitH), durationH: num(p + 'pgDuration', pg0.durationH), startCapability: val(p + 'pgStartCap', pg0.startCapability), startValue: val(p + 'pgStartVal', pg0.startValue), remoteCapability: val(p + 'pgRemoteCap', pg0.remoteCapability), remoteOkValue: val(p + 'pgRemoteVal', pg0.remoteOkValue), doorCapability: val(p + 'pgDoorCap', pg0.doorCapability), doorOkValue: val(p + 'pgDoorVal', pg0.doorOkValue), stateCapability: val(p + 'pgStateCap', pg0.stateCapability), stateIdleValue: val(p + 'pgStateVal', pg0.stateIdleValue),
         };
       }
     });

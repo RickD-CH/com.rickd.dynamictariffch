@@ -364,3 +364,16 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Türsicherung sowie der Preis-Fallback mit unseren eigenen «günstigster Block»-Karten waren dort schon vorhanden;
   neu ist, dass alles an einem Ort konfiguriert ist (feste Werte statt Push-Rückfragen für Programmdauer/Wartezeit,
   auf Wunsch).
+
+## Programm starten: Status-Capability gegen Doppelstart (13.11.2026)
+
+- Zusätzliches, **frei wählbares** Feld bei Verbraucher-Typ «Programm starten»: Status-Capability + welcher Wert
+  «bereit/leer» bedeutet (wie Fernbedienung/Tür schon). Verhindert einen zweiten Start-Befehl, während das Gerät
+  noch läuft - egal ob von Hand gestartet oder vom letzten automatischen Lauf. Sobald ein anderer Wert als «bereit»
+  gelesen wird, gilt der Tag als «schon gestartet» (`st.programStartedAt`), bis Mitternacht.
+- Bewusst **nicht** auf das Electrolux-Beispiel zugeschnitten (z. B. nicht fest auf `measure_applianceState` mit den
+  Werten RUNNING/IDLE/... verdrahtet) - andere Nutzer haben andere Geräte und Capabilities; leer lassen, wenn das
+  Gerät keinen Status dieser Art hat.
+- Sofort-Start braucht keinen eigenen Flow/Knopf: wer die Fernbedienung ohnehin von Hand einschalten muss, kann dort
+  auch gleich direkt am Gerät starten. Die Status-Capability sorgt dafür, dass unser EMS das merkt und nicht
+  nochmals einen Befehl schickt.

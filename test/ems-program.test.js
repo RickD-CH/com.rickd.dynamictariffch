@@ -149,7 +149,7 @@ const { PriceFeed } = require('../lib/ems/PriceFeed');
 const { PvFeed } = require('../lib/ems/PvFeed');
 
 function makeRunner({
-  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0,
+  remote = 'Enabled', door = 'Closed', gridW = -2500, batteryW = 0, state = undefined, stateIdleValue = undefined,
 } = {}) {
   const config = normalizeConfig({
     enabled: true,
@@ -171,6 +171,8 @@ function makeRunner({
         remoteOkValue: 'Enabled',
         doorCapability: 'measure_doorState',
         doorOkValue: 'Closed',
+        stateCapability: stateIdleValue !== undefined ? 'measure_applianceState' : '',
+        stateIdleValue: stateIdleValue || '',
       },
     }],
   });
@@ -184,7 +186,7 @@ function makeRunner({
         gridW, houseW: 300, pvW: 3000, batterySoc: null, batteryW, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
       }),
       consumerStates: async (ids) => new Map(ids.map((id) => [id, {
-        actualOn: false, powerW: 0, available: true, values: {}, raw: { measure_remoteControl: remote, measure_doorState: door },
+        actualOn: false, powerW: 0, available: true, values: {}, raw: { measure_remoteControl: remote, measure_doorState: door, measure_applianceState: state },
       }])),
     },
     actuators: {
@@ -228,4 +230,52 @@ test('Runner: Tür offen - nicht starten', async () => {
   await runner.tickCharger(at(19));
   assert.equal(started.length, 0);
   assert.match(runner.consumerCurrent[0].reason, /Tür offen \(Open\)/);
+});
+
+// ---------------------------------------------------------------- Status-Capability (frei wählbar je Gerät)
+
+test('Status-Capability: Gerät läuft schon (von Hand oder vom letzten Mal) - kein Start, den ganzen Tag gesperrt', () => {
+  const p = normalizeProgram({
+    stateCapability: 'measure_applianceState', stateIdleValue: 'Idle', minSurplusW: 100, startSustainS: 0,
+  });
+  const st = {};
+  const r = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+  });
+  assert.equal(r.start, false);
+  assert.match(r.reason, /nicht bereit.*Running/);
+  assert.ok(st.programStartedAt, 'für den Rest des Tages gesperrt, damit kein zweiter Befehl kommt');
+  const later = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(19) + 3600000, tz: TZ,
+  });
+  assert.equal(later.start, false, 'bleibt gesperrt, auch wenn es inzwischen wieder bereit ist');
+  assert.match(later.reason, /schon gestartet/);
+});
+
+test('Status-Capability: "bereit" erlaubt den normalen Ablauf, ohne Capability wird der Ist-Zustand nicht geprüft', () => {
+  const p = normalizeProgram({
+    stateCapability: 'measure_applianceState', stateIdleValue: 'Idle', minSurplusW: 100, startSustainS: 0,
+  });
+  const ready = decideProgram({
+    cfg: p, st: {}, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+  });
+  assert.equal(ready.start, true);
+  const noCap = normalizeProgram({ minSurplusW: 100, startSustainS: 0 });
+  const r = decideProgram({
+    cfg: noCap, st: {}, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+  });
+  assert.equal(r.start, true, 'ohne gewählte Capability spielt der Ist-Zustand keine Rolle');
+});
+
+test('Runner: liest die gewählte Status-Capability vom echten Gerät und sperrt, solange es läuft', async () => {
+  const { runner, started } = makeRunner({ state: 'Running', stateIdleValue: 'Idle' });
+  await runner.tickCharger(at(19));
+  assert.equal(started.length, 0);
+  assert.match(runner.consumerCurrent[0].reason, /nicht bereit \(Status: Running\)/);
+});
+
+test('Runner: Status "bereit" lässt den normalen Start zu', async () => {
+  const { runner, started } = makeRunner({ state: 'Idle', stateIdleValue: 'Idle' });
+  await runner.tickCharger(at(19));
+  assert.equal(started.length, 1);
 });
