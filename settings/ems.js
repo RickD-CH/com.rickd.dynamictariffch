@@ -814,7 +814,7 @@
     if (r.kind === 'charger') {
       return '<p class="ems-why">' + esc(S.otherEms) + '</p>'
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'dev">' + deviceOptions(r.deviceId, hasCap(/^(evcharger_charging|target_power)/), S.pick) + '</select></label>'
-        + field(S.name, p + 'name', r.name, 'text', ' style="max-width:160px"') + '</div>'
+        + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
         + meterRow + lastTxt
         + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
         + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
@@ -863,12 +863,12 @@
         + '<div class="ems-row">' + field(S.programWindow, p + 'pgFrom', pg.windowFrom, 'time') + field(S.programMaxWait, p + 'pgWait', pg.maxWaitH, 'number', ' step="1" min="1" max="12"') + field(S.programDuration, p + 'pgDuration', pg.durationH, 'number', ' step="0.5" min="0.5" max="8"') + '</div>'
         + '<p class="ems-why">' + esc(S.programHint) + '</p>'
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStartCap) + '</span><select id="' + p + 'pgStartCap" data-ems-mode="' + i + '">' + capOptions(r.deviceId, /.*/, pg.startCapability) + '</select></label>'
-        + field(S.programStartVal, p + 'pgStartVal', pg.startValue, 'text') + '</div>'
+        + field(S.programStartVal, p + 'pgStartVal', pg.startValue, 'text', ' style="max-width:115px"') + '</div>'
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programRemoteCap) + '</span><select id="' + p + 'pgRemoteCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.remoteCapability) + '</select></label>'
-        + field(S.programRemoteVal, p + 'pgRemoteVal', pg.remoteOkValue, 'text') + '</div>'
+        + field(S.programRemoteVal, p + 'pgRemoteVal', pg.remoteOkValue, 'text', ' style="max-width:115px"') + '</div>'
         + (pg.remoteCapability ? '' : '<p class="warn">' + esc(S.programRemoteWarn) + '</p>')
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programDoorCap) + '</span><select id="' + p + 'pgDoorCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.doorCapability) + '</select></label>'
-        + field(S.programDoorVal, p + 'pgDoorVal', pg.doorOkValue, 'text') + '</div>'
+        + field(S.programDoorVal, p + 'pgDoorVal', pg.doorOkValue, 'text', ' style="max-width:115px"') + '</div>'
         + '</div>';
       ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label></div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
@@ -878,7 +878,7 @@
           + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>'));
     }
     return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
-      + field(S.name, p + 'name', r.name, 'text', ' style="max-width:160px"') + '</div>'
+      + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
       + '<div class="ems-row" style="gap:4px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
         return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
       }).join('') + '</div>'
