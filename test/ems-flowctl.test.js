@@ -104,6 +104,15 @@ test('Actuators.shed: mit eigenem Aus-Flow wird der Flow ausgelöst statt das Ge
   assert.deepEqual(calls, [['device', 'dev1', 'onoff', false]], 'ohne offFlow: wie bisher automatisch erkannt');
 });
 
+test('Actuators.shed: funktioniert auch ohne Geräte-Id (Wallbox hat keine eigene Shed-Geräte-Id, nur ihren Aus-Flow)', async () => {
+  const { act, calls } = fakeActuators();
+  const r = await act.shed(null, { live: true, offFlow: { id: 'f10', advanced: false, name: 'Wallbox aus' } });
+  assert.deepEqual(r, {
+    cmd: 'off', live: true, via: 'flow', flow: 'Wallbox aus',
+  });
+  assert.deepEqual(calls, [['flow', 'f10']]);
+});
+
 test('Inputs.listFlows: nur startbare, aktive, nicht defekte Flows, Standard und erweitert, sortiert', async () => {
   const inputs = new Inputs({}, () => {});
   inputs._api = async () => ({

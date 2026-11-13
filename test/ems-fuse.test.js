@@ -32,7 +32,7 @@ test('normalizeFuse: Standard aus, 40 A, 90 %, Wallbox in der Liste; Grenze 36 A
   assert.equal(d.amps, 40);
   assert.equal(d.reservePct, 90);
   assert.equal(d.throttle, true);
-  assert.deepEqual(d.shed, [{ kind: 'charger' }]);
+  assert.deepEqual(d.shed, [{ kind: 'charger', offFlow: null }]);
   assert.equal(limitA(d), 36);
   const n = normalizeFuse({
     amps: 9999, reservePct: 10, holdS: -3, caps: ['a'], shed: [{ kind: 'device', id: 'sauna', name: 'Sauna' }, { kind: 'device', id: 'sauna' }, { kind: 'x' }, { kind: 'flow', flow: { id: 'f1', name: 'Boiler aus' } }],
@@ -56,6 +56,13 @@ test('normalizeFuse: eigener Aus-Flow bei einem Gerät (für Geräte, die nicht 
   assert.equal(withoutFlow.shed[0].offFlow, null, 'Standard: automatisch erkennen, kein Flow hinterlegt');
   const emptyFlow = normalizeFuse({ shed: [{ kind: 'device', id: 'x', offFlow: { id: '', name: '' } }] });
   assert.equal(emptyFlow.shed[0].offFlow, null, 'Flow ohne Auswahl zählt wie keiner');
+});
+
+test('normalizeFuse: auch die Wallbox kann einen eigenen Aus-Flow statt des Stopp-Befehls bekommen', () => {
+  const withFlow = normalizeFuse({ shed: [{ kind: 'charger', offFlow: { id: 'f2', advanced: false, name: 'Wallbox aus' } }] });
+  assert.deepEqual(withFlow.shed[0], { kind: 'charger', offFlow: { id: 'f2', advanced: false, name: 'Wallbox aus' } });
+  const withoutFlow = normalizeFuse({ shed: [{ kind: 'charger' }] });
+  assert.equal(withoutFlow.shed[0].offFlow, null, 'Standard: Ladevorgang wird direkt gestoppt, kein Flow hinterlegt');
 });
 
 test('chargerCapAmps: freier Strom der knappsten Phase, eigener Wallbox-Strom wird abgezogen; einphasig nur Phase 1', () => {
@@ -399,7 +406,7 @@ test('Anzeige: Section Hausanschluss - einschalten, Sauna zur Liste, Reihenfolge
   const f = ctx.window.EmsUi._collect().ems.fuse;
   assert.equal(f.enabled, true);
   assert.equal(f.live, false);
-  assert.deepEqual(JSON.parse(JSON.stringify(f.shed)), [{ kind: 'device', id: 'sauna', name: 'Sauna' }, { kind: 'charger' }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(f.shed)), [{ kind: 'device', id: 'sauna', name: 'Sauna' }, { kind: 'charger', offFlow: null }]);
   click('data-ems-fusedel', '0');
-  assert.deepEqual(JSON.parse(JSON.stringify(ctx.window.EmsUi._collect().ems.fuse.shed)), [{ kind: 'charger' }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(ctx.window.EmsUi._collect().ems.fuse.shed)), [{ kind: 'charger', offFlow: null }]);
 });
