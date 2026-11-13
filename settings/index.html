@@ -183,8 +183,15 @@
     /* Manche Homey-WebViews malen Text/Zahl/Zeit-Felder mit dem nativen Eingabefeld statt mit unserer Farbe
        (im Dunkelmodus dann schwarzer Text auf dunklem Grund). appearance:none lässt uns die Farbe selbst setzen. */
     input[type="text"], input[type="number"], input[type="time"] { -webkit-appearance: none; appearance: none; }
-    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
-      -webkit-text-fill-color: var(--st-text); -webkit-box-shadow: 0 0 0 1000px var(--st-bg) inset; caret-color: var(--st-text);
+    /* Chrome erzwingt bei einem automatisch ausgefüllten Feld eine eigene Textfarbe (meist schwarz) und einen
+       hellen Hintergrund, die normale CSS-Regeln nicht übersteuern - nur mit !important geht das. Das war die
+       eigentliche Ursache beim Namensfeld: Chrome kennt dafür einen gespeicherten Wert (z. B. den eigenen Namen). */
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--st-text) !important;
+      -webkit-box-shadow: 0 0 0 1000px var(--st-bg) inset !important;
+      box-shadow: 0 0 0 1000px var(--st-bg) inset !important;
+      caret-color: var(--st-text) !important;
+      transition: background-color 600000s ease-in-out 0s;
     }
     /* Statusmarke: grüner Kreis mit Haken = erledigt, grauer Ring = offen */
     .st-check, .st-open { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; margin-right: 8px; vertical-align: -3px; text-align: center; font-size: 12px; line-height: 18px; }
