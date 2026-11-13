@@ -100,6 +100,7 @@
       fuseAmps: 'Sicherung (A)', fuseReserve: 'Reserve (% der Sicherung)', fuseLimitLbl: 'Grenze', fusePerPhase: 'pro Phase', fuseMeter: 'Zähler mit Phasenströmen', fuseMeterGrid: 'wie Netzzähler', fusePhase: 'Phase',
       fuseThrottle: 'Wallbox drosseln, damit keine Phase über die Grenze geht', fuseThrottleHint: 'Die Wallbox bekommt höchstens den Strom, der auf der knappsten Phase noch frei ist. Gilt, wenn das Energiemanagement die Wallbox steuert.',
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
+      fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
       fuseNow: 'Hausanschluss', fuseOf: 'von', fuseLoad: 'Belastung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
@@ -132,7 +133,7 @@
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
-      iconLbl: 'Symbol', iconNames: { plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', flame: 'Flamme', boiler: 'Boiler', washer: 'Waschmaschine', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
+      iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', boiler: 'Boiler', washer: 'Waschmaschine', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
       accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
@@ -239,6 +240,7 @@
       fuseAmps: 'Main fuse (A)', fuseReserve: 'Reserve (% of the fuse)', fuseLimitLbl: 'Limit', fusePerPhase: 'per phase', fuseMeter: 'Meter with phase currents', fuseMeterGrid: 'same as grid meter', fusePhase: 'Phase',
       fuseThrottle: 'Throttle the EV charger so that no phase exceeds the limit', fuseThrottleHint: 'The charger gets at most the current still free on the tightest phase. Applies when the energy management controls the charger.',
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
+      fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
       fuseNow: 'House connection', fuseOf: 'of', fuseLoad: 'load', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
@@ -271,7 +273,7 @@
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
-      iconLbl: 'Icon', iconNames: { plug: 'Socket', bike: 'Bike', drop: 'Drop', flame: 'Flame', boiler: 'Water heater', washer: 'Washing machine', fan: 'Fan', heatpump: 'Heat pump' },
+      iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', drop: 'Drop', boiler: 'Water heater', washer: 'Washing machine', fan: 'Fan', heatpump: 'Heat pump' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
       accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
@@ -302,7 +304,7 @@
     drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z',
     plug: 'M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0zM12 16v5',
     bike: 'M2 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM15 16.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0zM5.5 16.5 9 9h6l3.5 7.5M12 16.5 9 9M8 6.5h3M15 9l-1-3h2.5',
-    flame: 'M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 0 2 1 3.5 2.5 3.5 0-3.5-1-5.5 0-8.5z',
+    dishwasher: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7h16M7.5 5h1M11.5 5h1M7 11.5h10M7 15.5h10',
     boiler: 'M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM6 8h12M12 11.5s2.5 2.3 2.5 4a2.5 2.5 0 0 1-5 0c0-1.7 2.5-4 2.5-4z',
     washer: 'M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM4 7.5h16M7.5 5.2h1.5M8.5 14a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0z',
     fan: 'M10.5 12a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0zM12 10.5C11 6 12 3 14.5 3c2 0 2.5 3-1 7M13.5 12c4.5-1 7.5 0 7.5 2.5 0 2-3 2.5-7-1M12 13.5c1 4.5 0 7.5-2.5 7.5-2 0-2.5-3 1-7M10.5 12C6 13 3 12 3 9.5c0-2 3-2.5 7 1',
@@ -787,7 +789,7 @@
     var m = { full: S.modeFull, soc: S.modeSoc, surplus: S.modeSurplus }[r.mode] || r.mode;
     return m + ' - ' + (r.live ? S.modeLiveTag : S.modeTest);
   }
-  var CONSUMER_ICONS = ['plug', 'bike', 'drop', 'flame', 'boiler', 'washer', 'fan', 'heatpump'];
+  var CONSUMER_ICONS = ['plug', 'bike', 'drop', 'dishwasher', 'boiler', 'washer', 'fan', 'heatpump'];
   function rowIcon(r) { return r.kind === 'charger' ? 'charger' : (r.icon && ICONS[r.icon] ? r.icon : (r.type === 'dehumidifier' ? 'drop' : 'plug')); }
   function consumerIconById(id, name) {
     var c = ((state.cfg && state.cfg.consumers) || []).filter(function (x) { return x.id === id || x.name === name; })[0];
@@ -938,9 +940,24 @@
     var used = {};
     f.shed.forEach(function (e) { used[shedKey(e)] = true; });
     var rows = f.shed.map(function (e, i) {
-      return '<div class="ems-row" style="align-items:center;margin:4px 0"><span style="flex:1;font-size:14px">' + (i + 1) + '. ' + esc(shedName(e)) + '</span>'
+      var head = '<div class="ems-row" style="align-items:center;margin:4px 0"><span style="flex:1;font-size:14px">' + (i + 1) + '. ' + esc(shedName(e)) + '</span>'
         + (i > 0 ? '<button class="btn" data-ems-fuseup="' + i + '">' + esc(S.fuseUp) + '</button>' : '')
         + '<button class="btn" data-ems-fusedel="' + i + '">' + esc(S.fuseDel) + '</button></div>';
+      if (e.kind !== 'device') return head;
+      var d = findDevice(e.id);
+      var caps = (d && d.caps) || [];
+      var auto = caps.indexOf('onoff') >= 0 ? S.fuseAutoOnoff : (caps.indexOf('thermostat_mode') >= 0 ? S.fuseAutoThermostat : S.fuseAutoNone);
+      var viaFlow = !!(e.offFlow && e.offFlow.id !== undefined);
+      var key = 'fuseshed' + i;
+      return head + '<details class="ems-adv" style="margin:0 0 8px"' + (state.open[key] ? ' open' : '') + '><summary data-ems-adv="' + key + '">' + esc(S.fuseHowTitle) + '</summary>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>&nbsp;</span><select data-ems-fuseshedkind="' + i + '">'
+        + '<option value="auto"' + (viaFlow ? '' : ' selected') + '>' + esc(S.fuseAutoLbl) + '</option>'
+        + '<option value="flow"' + (viaFlow ? ' selected' : '') + '>' + esc(S.fuseFlow) + '</option>'
+        + '</select></label></div>'
+        + (viaFlow
+          ? '<div class="ems-row"><label class="ems-f ems-wide"><span>&nbsp;</span><select data-ems-fuseshedflow="' + i + '">' + flowOptions(e.offFlow) + '</select></label></div>'
+          : '<p class="ems-why">' + esc(auto) + '</p>')
+        + '</details>';
     }).join('') || '<p class="ems-why">' + esc(S.fuseShedNone) + '</p>';
     var addOpts = '<option value="">' + esc(S.fuseAddPick) + '</option>'
       + (!used.charger && state.cfg.charger.id ? '<option value="charger">' + esc(S.wallbox) + '</option>' : '')
@@ -2350,6 +2367,23 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
+    var fuseShedKind = g('data-ems-fuseshedkind');
+    if (fuseShedKind !== null) {
+      sync();
+      var fzk = fuseCfg().shed[Number(fuseShedKind)];
+      if (fzk) fzk.offFlow = t.value === 'flow' ? { id: '', advanced: false, name: '' } : null;
+      renderSetup();
+      return;
+    }
+    var fuseShedFlow = g('data-ems-fuseshedflow');
+    if (fuseShedFlow !== null) {
+      sync();
+      var fzf = fuseCfg().shed[Number(fuseShedFlow)];
+      var flSel = (state.flows || []).filter(function (x) { return x.id === t.value; })[0];
+      if (fzf) fzf.offFlow = flSel ? { id: flSel.id, advanced: !!flSel.advanced, name: flSel.name } : { id: t.value, advanced: false, name: '' };
+      renderSetup();
+      return;
+    }
     if (t.id && /accuEnable$/.test(t.id)) { sync(); renderSetup(); return; }
     if (g('data-ems-bploadmode') !== null || g('data-ems-bpmode') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }

@@ -45,6 +45,19 @@ test('normalizeFuse: Standard aus, 40 A, 90 %, Wallbox in der Liste; Grenze 36 A
   assert.equal(normalizeConfig({}).fuse.enabled, false);
 });
 
+test('normalizeFuse: eigener Aus-Flow bei einem Gerät (für Geräte, die nicht einfach Ein/Aus können)', () => {
+  const withFlow = normalizeFuse({
+    shed: [{
+      kind: 'device', id: 'dryfy', name: 'DryFy', offFlow: { id: 'f1', advanced: true, name: 'DryFy aus' },
+    }],
+  });
+  assert.deepEqual(withFlow.shed[0].offFlow, { id: 'f1', advanced: true, name: 'DryFy aus' });
+  const withoutFlow = normalizeFuse({ shed: [{ kind: 'device', id: 'sauna', name: 'Sauna' }] });
+  assert.equal(withoutFlow.shed[0].offFlow, null, 'Standard: automatisch erkennen, kein Flow hinterlegt');
+  const emptyFlow = normalizeFuse({ shed: [{ kind: 'device', id: 'x', offFlow: { id: '', name: '' } }] });
+  assert.equal(emptyFlow.shed[0].offFlow, null, 'Flow ohne Auswahl zählt wie keiner');
+});
+
 test('chargerCapAmps: freier Strom der knappsten Phase, eigener Wallbox-Strom wird abgezogen; einphasig nur Phase 1', () => {
   // Wallbox lädt 3-phasig mit 16 A (11 kW). Haus: L1 30 A gesamt (14 A ohne Wallbox), L2/L3 20 A
   assert.equal(chargerCapAmps({
@@ -113,7 +126,9 @@ test('stepFuse: erst nach der Wartezeit, dann der nächste laufende Eintrag; Fre
 
 // ---------------------------------------------------------------- Runner
 
-function fuseRunner({ silent = false, fuseLive = true, chargerLive = true, shed = [{ kind: 'charger' }, { kind: 'device', id: 'sauna', name: 'Sauna' }] } = {}) {
+function fuseRunner({
+  silent = false, fuseLive = true, chargerLive = true, shed = [{ kind: 'charger' }, { kind: 'device', id: 'sauna', name: 'Sauna' }],
+} = {}) {
   const calls = { charger: [], shed: [] };
   const state = {
     sauna: true,
@@ -142,9 +157,13 @@ function fuseRunner({ silent = false, fuseLive = true, chargerLive = true, shed 
       shedStates: async (ids) => new Map(ids.map((id) => [id, { available: true, on: id === 'sauna' ? state.sauna : false }])),
     },
     actuators: {
-      charger: async (id, cmd, o) => { calls.charger.push({ ...cmd, live: o.live }); return { cmd: cmd.type }; },
+      charger: async (id, cmd, o) => {
+        calls.charger.push({ ...cmd, live: o.live }); return { cmd: cmd.type };
+      },
       consumer: async () => ({}),
-      shed: async (id, o) => { calls.shed.push({ id, live: o.live }); if (o.live) state.sauna = false; return { cmd: 'off', live: o.live }; },
+      shed: async (id, o) => {
+        calls.shed.push({ id, live: o.live }); if (o.live) state.sauna = false; return { cmd: 'off', live: o.live };
+      },
     },
     shadowLog: new ShadowLog(mem()),
     store: mem(),
@@ -163,7 +182,9 @@ test('Runner: Sofortladen 16 A, Backofen auf Phase 1 - die Wallbox wird sofort a
   // Wallbox zieht 16 A; L1 jetzt 38 A (22 A ohne Wallbox) -> 14 A frei
   state.i = { ...state.i, chargerPowerW: 11040, phaseA: [38, 30, 30] };
   await runner.tickCharger(T0 + 20000);
-  assert.deepEqual(calls.charger, [{ type: 'set', amps: 14, phases: 3, live: true }]);
+  assert.deepEqual(calls.charger, [{
+    type: 'set', amps: 14, phases: 3, live: true,
+  }]);
   assert.equal(runner.fuseCurrent.capAmps, 14);
   assert.match(runner.chargerCurrent.mine.reason, /Hausanschluss: auf 14 A/);
   assert.ok(runner.fuseEvents.some((e) => e.action === 'throttle' && e.capAmps === 14));
@@ -237,14 +258,22 @@ test('Controller: beobachtet die Phasen in Echtzeit, rechnet bei hoher Phase sof
     settings: { get: (k) => settings.get(k), set: (k, v) => settings.set(k, JSON.parse(JSON.stringify(v))) },
     clock: { getTimezone: () => 'Europe/Zurich' },
     drivers: { getDriver: () => ({ getDevices: () => [] }) },
-    setTimeout: (f, ms) => { timers.push({ f, ms }); return timers.length; },
+    setTimeout: (f, ms) => {
+      timers.push({ f, ms }); return timers.length;
+    },
     clearTimeout: () => {},
   };
   const ctrl = new EmsController({ homey, log() {}, error() {} });
   let listener = null;
   const fired = [];
   ctrl.runner = {
-    inputs: { watch: async (id, caps, cb) => { listener = { id, caps, cb }; return () => { listener = null; }; } },
+    inputs: {
+      watch: async (id, caps, cb) => {
+        listener = { id, caps, cb }; return () => {
+          listener = null;
+        };
+      },
+    },
     tickCharger: async () => 30000,
     fuseEvents: [{ ts: 1, action: 'over' }],
     current: null,
@@ -283,18 +312,50 @@ test('Anzeige: Section Hausanschluss - einschalten, Sauna zur Liste, Reihenfolge
   const els = new Map();
   const handlers = {};
   const el = (id) => {
-    if (!els.has(id)) els.set(id, { id, innerHTML: '', textContent: '', value: '', checked: false, hidden: false, classList: { contains: () => true, toggle() {} }, addEventListener: (t, f) => { handlers[`${id}:${t}`] = f; } });
+    if (!els.has(id)) {
+      els.set(id, {
+        id,
+        innerHTML: '',
+        textContent: '',
+        value: '',
+        checked: false,
+        hidden: false,
+        classList: { contains: () => true, toggle() {} },
+        addEventListener: (t, f) => {
+          handlers[`${id}:${t}`] = f;
+        },
+      });
+    }
     return els.get(id);
   };
-  const ctx = { document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math };
+  const ctx = {
+    document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math,
+  };
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
-  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, charger: { id: 'wb', maxAmps: 16 }, fuse: { enabled: true } });
+  const config = normalizeConfig({
+    enabled: true, devices: { meter: { id: 'em' } }, charger: { id: 'wb', maxAmps: 16 }, fuse: { enabled: true },
+  });
   const res = {
     'GET /ems/shadow': {
-      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null }, fuse: { limitA: 36, maxA: 37.4, phase: 1, over: true, capAmps: 9, shed: ['Wallbox'], live: false },
+      enabled: true,
+      deviceExists: true,
+      shadow: true,
+      config,
+      pv: {},
+      current: null,
+      charger: { current: null },
+      fuse: {
+        limitA: 36, maxA: 37.4, phase: 1, over: true, capAmps: 9, shed: ['Wallbox'], live: false,
+      },
     },
-    'GET /ems/consumers': { current: [], events: [], fuseEvents: [{ ts: Date.now() - 60000, action: 'shed', name: 'Wallbox', maxA: 37.4, phase: 1, live: false }] },
+    'GET /ems/consumers': {
+      current: [],
+      events: [],
+      fuseEvents: [{
+        ts: Date.now() - 60000, action: 'shed', name: 'Wallbox', maxA: 37.4, phase: 1, live: false,
+      }],
+    },
     'GET /ems/devices': {
       devices: [
         { id: 'em', name: 'Energiezähler', caps: ['measure_power', 'measure_current.phase1', 'measure_current.phase2', 'measure_current.phase3'] },

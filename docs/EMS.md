@@ -377,3 +377,16 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Sofort-Start braucht keinen eigenen Flow/Knopf: wer die Fernbedienung ohnehin von Hand einschalten muss, kann dort
   auch gleich direkt am Gerät starten. Die Status-Capability sorgt dafür, dass unser EMS das merkt und nicht
   nochmals einen Befehl schickt.
+
+## Hausanschluss-Schutz: eigener Aus-Flow je Gerät (13.11.2026)
+
+- Jeder Geräte-Eintrag in der Abschalt-Liste hat jetzt ein aufklappbares «Wie ausschalten?»: **Automatisch**
+  (wie bisher: Ein/Aus-Capability, sonst Thermostat-Modus auf «Aus» - mit Infotext, welche Capability erkannt
+  wurde) oder **ein eigener Flow**. Für Geräte, die nicht einfach per Capability geschaltet werden können (z. B.
+  ein Tuya-Gerät, das vorher neu verbunden werden muss) wählt man hier den passenden Aus-Flow statt eine
+  Vermutung laufen zu lassen, die im Ernstfall nichts bewirkt.
+- `lib/ems/planner/fuse.js` (`normalizeShed`): neues Feld `offFlow` je Geräte-Eintrag (`null` = automatisch).
+  `Actuators.shed()` löst bei vorhandenem `offFlow` den Flow aus, sonst wie bisher.
+- Bewusst **nicht** an die Verbraucher-Liste gekoppelt (kein Zwang, jedes Schalt-Gerät zuerst als Verbraucher
+  anzulegen) - ein simples Sauna-Thermostat bleibt ohne Zusatzaufwand automatisch schaltbar, nur Geräte mit
+  Sonderfall brauchen den Flow.
