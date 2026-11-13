@@ -45,8 +45,8 @@
       ldMine: 'Dieses EMS', ldOther: 'Anderes EMS', ldNone: 'Ohne Batterie', ldDiff: 'Differenz', ldToday: 'heute bisher', ldTotal: 'Summe', ldNone2: 'Noch keine Daten, die Auswertung startet mit dem nächsten Batterie-Lauf.',
       bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
-      bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
-      bpLearned: 'Gelernt: {kw} kW am Morgen (Schnitt 05 bis 10 Uhr, {days} Tage). Das EMS misst den Hausverbrauch laufend und merkt sich den Durchschnitt jeder Viertelstunde der letzten 7 Tage. Ein kalter Morgen mit Wärmepumpe zählt so automatisch mehr als ein milder.',
+      bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadSchedule: 'Hausverbrauch', bpDay1: '1 Tag', bpDays: '{n} Tage', bpEvening: 'abends {kw} kW', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
+      bpLearned: 'Gelernt: {kw} kW am Morgen (Schnitt 05 bis 10 Uhr, {days}). Das EMS misst den Hausverbrauch laufend und merkt sich den Durchschnitt jeder Viertelstunde der letzten 7 Tage. Ein kalter Morgen mit Wärmepumpe zählt so automatisch mehr als ein milder.',
       bpLearning: 'Lernt noch: es gibt noch keine Messungen. Bis dahin rechnet es mit {kw} kW.',
       brTitle: 'Morgen überbrücken', brCharge: 'lädt {kwh} kWh bis {soc} % um {at}. Grund: teuer {from} bis {to}, die Sonne übernimmt ab {sun}. Bedarf {need} kWh ({load} kW {how}), vorhanden {have} kWh.',
       brEnough: 'nicht nötig, die Ladung reicht (Bedarf {need} kWh für {from} bis {to}, vorhanden {have} kWh).', brUnprofitable: 'lohnt sich nicht: Laden wäre mit dem Verlust teurer als die teuren Stunden ({from} bis {to}).',
@@ -173,8 +173,8 @@
       ldMine: 'This EMS', ldOther: 'Other EMS', ldNone: 'Without battery', ldDiff: 'Difference', ldToday: 'today so far', ldTotal: 'Total', ldNone2: 'No data yet, the evaluation starts with the next battery run.',
       bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
-      bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
-      bpLearned: 'Learned: {kw} kW in the morning (average 05 to 10, {days} days). The energy management measures the house consumption continuously and keeps the average of every quarter-hour of the last 7 days. A cold morning with the heat pump counts more than a mild one.',
+      bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadSchedule: 'House consumption', bpDay1: '1 day', bpDays: '{n} days', bpEvening: 'evening {kw} kW', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
+      bpLearned: 'Learned: {kw} kW in the morning (average 05 to 10, {days}). The energy management measures the house consumption continuously and keeps the average of every quarter-hour of the last 7 days. A cold morning with the heat pump counts more than a mild one.',
       bpLearning: 'Still learning: no measurements yet. Until then it uses {kw} kW.',
       brTitle: 'Bridge the morning', brCharge: 'charges {kwh} kWh up to {soc} % at {at}. Reason: expensive {from} to {to}, solar takes over from {sun}. Need {need} kWh ({load} kW {how}), available {have} kWh.',
       brEnough: 'not needed, the charge is enough (need {need} kWh for {from} to {to}, available {have} kWh).', brUnprofitable: 'not worth it: charging would cost more incl. losses than the expensive hours ({from} to {to}).',
@@ -454,13 +454,30 @@
     } else {
       html += '<p class="ems-why ems-ok">' + esc(S.batCtlFound) + '</p>' + mapSelectHtml(bc, cards);
       if (bc.enabled) {
-        var title = function (id) { return cardTitle(cards, id); };
+        var vals = { power: Math.round(c.battery.chargePowerKw * 1000), target_soc: c.battery.targetSoc, normal_discharge: bc.normalDischargeW };
+        var argsOf = { luna2000_start_force_charge: { power: vals.power, target_soc: vals.target_soc }, luna2000_set_working_mode: { mode: '2' } };
+        var title = function (id, k) {
+          var t = cardTitle(cards, id);
+          var a = argsOf[id] || (id === 'luna2000_set_max_discharge_power' ? { power: k === 'hold' ? 0 : vals.normal_discharge } : null);
+          if (!a) return t;
+          var card = (cards.cards || []).filter(function (x) { return x.id === id; })[0] || {};
+          var names = [];
+          (card.title || '').replace(/\[\[([^\]]+)\]\]/g, function (m, n) { names.push(n); return m; });
+          var show = function (n) {
+            if (a[n] === undefined) return '…';
+            var arg = (card.args || []).filter(function (x) { return x.name === n; })[0];
+            var opt = arg && arg.values ? arg.values.filter(function (v) { return String(v.id) === String(a[n]); })[0] : null;
+            return opt ? opt.title : String(a[n]);
+          };
+          var i = 0;
+          return t.replace(/…/g, function () { return show(names[i++]); });
+        };
         var steps = { charge: ['luna2000_start_force_charge'], hold: ['luna2000_stop_force_charge_discharge', 'luna2000_set_max_discharge_power'], normal: ['luna2000_stop_force_charge_discharge', 'luna2000_set_working_mode', 'luna2000_set_max_discharge_power'] };
         html += batteryValuesHtml(c, bc)
           + '<p class="ems-why"><b>' + esc(S.batCtlSteps) + '</b><br>'
-          + esc(S.batModeCharge) + ': ' + steps.charge.map(title).map(esc).join(', ') + '<br>'
-          + esc(S.batModeHold) + ': ' + steps.hold.map(title).map(esc).join(', ') + '<br>'
-          + esc(S.batModeNormal) + ': ' + steps.normal.map(title).map(esc).join(', ') + ' (' + esc(S.batCarSkip) + ')</p>'
+          + esc(S.batModeCharge) + ': ' + steps.charge.map(function (x) { return title(x, 'charge'); }).map(esc).join(', ') + '<br>'
+          + esc(S.batModeHold) + ': ' + steps.hold.map(function (x) { return title(x, 'hold'); }).map(esc).join(', ') + '<br>'
+          + esc(S.batModeNormal) + ': ' + steps.normal.map(function (x) { return title(x, 'normal'); }).map(esc).join(', ') + ' (' + esc(S.batCarSkip) + ')</p>'
           + '<p class="ems-why ems-warn">' + esc(S.batCtlWarn) + '</p>';
       }
     }
@@ -523,9 +540,10 @@
         var load = state.shadow && state.shadow.load;
         var learned = load && load.days > 0 && load.morningKw !== null && load.morningKw !== undefined;
         var fixedKw = b.bridgeLoadKw !== undefined ? b.bridgeLoadKw : 1;
-        var info = auto ? (learned ? fill(S.bpLearned, { kw: load.morningKw.toFixed(1), days: load.days }) : fill(S.bpLearning, { kw: fixedKw })) : '';
+        var daysTxt = learned ? (load.days === 1 ? S.bpDay1 : fill(S.bpDays, { n: load.days })) : '';
+        var info = auto ? (learned ? fill(S.bpLearned, { kw: load.morningKw.toFixed(1), days: daysTxt + (load.eveningKw ? ', ' + fill(S.bpEvening, { kw: load.eveningKw.toFixed(1) }) : '') }) : fill(S.bpLearning, { kw: fixedKw })) : '';
         var preview = fixedMode ? bridgeText(true) : scheduleText();
-        return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.bpLoad) + '</span><select id="ems-bp-loadmode" data-ems-bploadmode="1">'
+        return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(fixedMode ? S.bpLoad : S.bpLoadSchedule) + '</span><select id="ems-bp-loadmode" data-ems-bploadmode="1">'
           + '<option value="auto"' + (auto ? ' selected' : '') + '>' + esc(S.bpLoadAuto + (learned ? ': ' + load.morningKw.toFixed(1) + ' kW' : '')) + '</option>'
           + '<option value="fixed"' + (auto ? '' : ' selected') + '>' + esc(S.bpLoadFixed) + '</option></select></label>'
           + (auto ? '' : field(S.bpLoadFixed, 'ems-bp-load', fixedKw, 'number', ' step="0.1" min="0.1" max="10"'))
@@ -674,10 +692,10 @@
         + '<p class="ems-why">' + esc(S.fcCurveHint) + '</p><p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
     }
     var d = srcDevice(s.key);
-    if (s.key === 'bat' && d.id) why += batteryPlanHtml() + batteryControlHtml();
+    var batExtra = s.key === 'bat' && d.id ? batteryPlanHtml() + batteryControlHtml() : '';
     var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div><p class="ems-why">' + esc(S.carSetupHint) + '</p>' : '';
-    return why + carExtra + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
-      + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label></div>';
+    return why + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
+      + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label></div>' + carExtra + batExtra;
   }
 
   // ---------------------------------------------------------------- Zeilen (Verbraucher)
@@ -816,7 +834,7 @@
     }
     return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
       + field(S.name, p + 'name', r.name, 'text') + '</div>'
-      + '<div class="ems-row" style="gap:6px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
+      + '<div class="ems-row" style="gap:4px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
         return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
       }).join('') + '</div>'
       + ctrl + ctrlBody + meterRow + lastTxt
@@ -1013,7 +1031,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.fuse-phs{display:flex;gap:16px;margin:10px 0 0 40px}.fuse-ph{flex:1;min-width:0;font-size:13px;white-space:nowrap}.fuse-kw{font-size:11px;margin-top:2px}.fuse-bar{height:4px;border-radius:2px;background:var(--st-seg-bg);margin:4px 0 0;overflow:hidden}.fuse-bar i{display:block;height:100%;border-radius:2px}.car-badge{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:1px;white-space:nowrap}.pl-pricechart .chart{margin-top:0;padding-left:0;padding-right:0;height:110px}.pl-pricechart .chart-labels{display:none}.pl-pvwrap{position:relative}.pl-scale{position:absolute;left:6px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--st-muted);pointer-events:none}.pl-scale span{background:var(--st-chip-bg);padding:0 3px;border-radius:3px;opacity:.88}.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:36px !important;height:36px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.fuse-phs{display:flex;gap:16px;margin:10px 0 0 40px}.fuse-ph{flex:1;min-width:0;font-size:13px;white-space:nowrap}.fuse-kw{font-size:11px;margin-top:2px}.fuse-bar{height:4px;border-radius:2px;background:var(--st-seg-bg);margin:4px 0 0;overflow:hidden}.fuse-bar i{display:block;height:100%;border-radius:2px}.car-badge{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:1px;white-space:nowrap}.pl-pricechart .chart{margin-top:0;padding-left:0;padding-right:0;height:110px}.pl-pricechart .chart-labels{display:none}.pl-pvwrap{position:relative}.pl-scale{position:absolute;left:6px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--st-muted);pointer-events:none}.pl-scale span{background:var(--st-chip-bg);padding:0 3px;border-radius:3px;opacity:.88}.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:32px !important;height:32px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -1780,9 +1798,10 @@
 
   // ---------------------------------------------------------------- Vergleich (nur Testphase)
 
+  function anyModeLabel(k) { return k === 'charge' || k === 'hold' || k === 'normal' ? batModeLabel(k) : modeLabel(k); }
   function counts(o) {
     var keys = Object.keys(o || {});
-    return keys.length ? keys.map(function (k) { return modeLabel(k) + ' ' + o[k]; }).join(' / ') : '-';
+    return keys.length ? keys.map(function (k) { return anyModeLabel(k) + ' ' + o[k]; }).join(' / ') : '-';
   }
   function cmpSection(title, data) {
     if (!data) return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.none2) + '</p></div>';
@@ -1794,8 +1813,8 @@
       return '<tr><td>' + esc(time(e.ts)) + '</td><td>' + esc(e.soc === null || e.soc === undefined ? '-' : e.soc + ' %') + '</td><td>' + esc(e.price === null || e.price === undefined ? '-' : e.price) + '</td><td>' + esc(modeLabel(e.mine)) + '</td><td>' + esc(modeLabel(e.other)) + '</td><td>' + esc(e.reason) + '</td></tr>';
     }).join('');
     return '<div class="card"><h2>' + esc(title) + '</h2><p class="sub">' + esc(S.overall) + ': <b>' + esc(pct) + '</b></p>'
-      + (days ? '<h3>' + esc(S.perDay) + '</h3><table class="ems-t"><tr><th>' + esc(S.day) + '</th><th>' + esc(S.same) + '</th><th>' + esc(S.compared) + '/' + esc(S.runs) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th></tr>' + days + '</table>' : '<p class="sub">' + esc(S.none2) + '</p>')
-      + (ev ? '<h3>' + esc(S.changes) + '</h3><table class="ems-t"><tr><th>' + esc(S.time) + '</th><th>SoC</th><th>' + esc(S.price) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th><th>' + esc(S.reason) + '</th></tr>' + ev + '</table>' : '')
+      + (days ? '<h3>' + esc(S.perDay) + '</h3><div style="overflow-x:auto"><table class="ems-t"><tr><th>' + esc(S.day) + '</th><th>' + esc(S.same) + '</th><th>' + esc(S.compared) + '/' + esc(S.runs) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th></tr>' + days + '</table></div>' : '<p class="sub">' + esc(S.none2) + '</p>')
+      + (ev ? '<h3>' + esc(S.changes) + '</h3><div style="overflow-x:auto"><table class="ems-t"><tr><th>' + esc(S.time) + '</th><th>SoC</th><th>' + esc(S.price) + '</th><th>' + esc(S.mine) + '</th><th>' + esc(S.theirs) + '</th><th>' + esc(S.reason) + '</th></tr>' + ev + '</table></div>' : '')
       + '</div>';
   }
   function compareNowHtml() {
@@ -1804,12 +1823,12 @@
     var ch = sh.charger && sh.charger.current;
     var cur = sh.current;
     if (ch) {
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(ch.mine.mode) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(ch.other ? ch.other.mode : '-') + '</div><div class="ems-s">' + esc(ch.other ? ch.other.reason : '') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(anyModeLabel(ch.mine.mode)) + '</div><div class="ems-s">' + esc(ch.mine.reason) + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpCharger) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(ch.other ? anyModeLabel(ch.other.mode) : '-') + '</div><div class="ems-s">' + esc(ch.other ? ch.other.reason : '') + '</div></div>');
     }
     if (cur) {
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(modeLabel(cur.mine.mode)) + '</div><div class="ems-s">' + esc(cur.soc === null ? '' : Math.round(cur.soc) + ' %') + '</div></div>');
-      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(modeLabel(cur.other && cur.other.mode)) + '</div><div class="ems-s">' + esc(cur.other ? cur.other.reason : '') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.mine) + '</div><div class="ems-v">' + esc(anyModeLabel(cur.mine.mode)) + '</div><div class="ems-s">' + esc(cur.soc === null ? '' : Math.round(cur.soc) + ' %') + '</div></div>');
+      cards.push('<div class="ems-card"><div class="ems-k">' + esc(S.cmpBattery) + ' - ' + esc(S.theirs) + '</div><div class="ems-v">' + esc(cur.other ? anyModeLabel(cur.other.mode) : '-') + '</div><div class="ems-s">' + esc(cur.other ? cur.other.reason : '') + '</div></div>');
     }
     return cards.length ? '<div class="card"><h2>' + esc(S.nowSec) + '</h2><div class="ems-cards">' + cards.join('') + '</div></div>' : '';
   }

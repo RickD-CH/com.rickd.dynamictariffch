@@ -262,7 +262,7 @@ test('Zähler-Oberfläche: mit Energiemanagement keine eigene Verbraucher-Liste,
   const env = makeUi({ ...baseResponses, 'GET /meters': { config: cfg, status: {}, consumersManagedByEms: true }, 'PUT /meters': { config: cfg, status: {} } });
   await env.ctx.window.MetersUi.init(env.api, 'de');
   const html = env.els.get('meters-auto').innerHTML;
-  assert.match(html, /im Setup unter «Energiemanagement»/);
+  assert.match(html, /unter Einrichten → EMS → Verbraucher/);
   assert.doesNotMatch(html, /data-mt-add/);
   env.handlers['meters-auto:click']({ target: { getAttribute: (n) => (n === 'data-mt-save' ? '1' : null) } });
   await new Promise((r) => setTimeout(r, 20));

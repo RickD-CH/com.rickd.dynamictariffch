@@ -446,9 +446,11 @@
       <details class="card sec">
         <summary><h2 id="h2-meters"></h2></summary>
         <div id="meters-auto"></div>
+        <details class="ems-adv" style="margin:10px 0"><summary id="sum-meters-flow" style="cursor:pointer;font-size:13px"></summary>
         <p class="sub" id="p-meters-intro" style="margin-bottom:8px"></p>
         <ol id="ol-meters"></ol>
         <p class="sub" id="p-meters-note"></p>
+        </details>
         <div class="subhead" id="h3-reports"></div>
         <div class="scroll"><table class="status"><tbody id="tb-reports"></tbody></table></div>
       </details>
@@ -706,6 +708,7 @@
         { t: 'Kurz warten', d: 'Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Zähler mit grober Auflösung (z. B. Wechselrichter) ändern sich nur alle paar Minuten, dann dauert es entsprechend länger.' },
       ],
       metersHeading: 'Zählerstände',
+      metersFlowSummary: 'Alternativ: Werte per Flow melden',
       metersIntro: 'Oben wählst du die Zähler, die App liest sie selbst. Alternativ, oder wenn ein Zähler nicht in der Liste ist, meldest du die Werte per Flow:',
       metersSteps: [
         'Neuer Flow, Trigger «Zeit: Alle 15 Minuten» (oder «Zählerstand hat sich geändert» deines Zählers)',
@@ -841,6 +844,7 @@
         { t: 'Wait a little', d: 'The first report only sets the baseline; from the second one kWh are priced. Counters with coarse resolution (e.g. inverters) only change every few minutes, so it takes correspondingly longer.' },
       ],
       metersHeading: 'Meter readings',
+      metersFlowSummary: 'Alternative: report values with a Flow',
       metersIntro: 'Choose your meters above and the app reads them itself. Alternatively, or if a meter is not in the list, report the values with a Flow:',
       metersSteps: [
         'New Flow, trigger "Time: Every 15 minutes" (or your meter\'s "reading has changed")',
@@ -977,7 +981,7 @@
         : (LANG === 'en' ? 'Optional: prices and all price cards work without these steps. ' : '')) + T.setupIntro;
       $('h2-meters').textContent = T.metersHeading;
       $('h3-reports').textContent = T.reportsHeading;
-      $('p-meters-intro').textContent = T.metersIntro;
+      $('p-meters-intro').textContent = T.metersIntro; if ($('sum-meters-flow')) $('sum-meters-flow').textContent = T.metersFlowSummary || 'Flow';
       $('ol-meters').innerHTML = T.metersSteps.map(function (st) {
         if (typeof st === 'string') return '<li>' + escapeHtml(st) + '</li>';
         return '<li>' + escapeHtml(st.text) + '<ul>' + st.bullets.map(function (b) { return '<li>' + escapeHtml(b) + '</li>'; }).join('') + '</ul></li>';

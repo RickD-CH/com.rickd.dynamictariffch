@@ -14,8 +14,8 @@
       consumers: 'Verbraucher (optional)', consumerHint: 'Zum Beispiel Auto oder Wärmepumpe: zeigt, zu welchem Preis sie liefen. Höchstens 12.',
       name: 'Name', add: 'Verbraucher hinzufügen', remove: 'Entfernen', save: 'Speichern und jetzt lesen', saved: 'Gespeichert',
       error: 'Fehler', last: 'zuletzt', ago: 'vor', min: 'min', sec: 's', kwh: 'kWh', never: 'noch nicht gelesen',
-      flowNote: 'Alternativ kannst du die Werte weiter per Flow melden (siehe unten). Beides zusammen ist unproblematisch.',
-      managedHint: 'Deine Verbraucher mit ihren Zählern verwaltest du im Setup unter «Energiemanagement».',
+      flowNote: 'Alternativ kannst du die Werte weiter per Flow melden (unten unter «Alternativ: Werte per Flow melden»). Beides zusammen ist unproblematisch.',
+      managedHint: 'Deine Verbraucher mit ihren Zählern verwaltest du unter Einrichten → EMS → Verbraucher.',
       feedTitle: 'Wie wird jeder Zähler gespeist?', feedSource: 'Zähler', feedHow: 'Gespeist über', feedLast: 'Letzte Meldung',
       feedAuto: 'Auswahl', feedFlow: 'Flow', feedBoth: 'Auswahl und Flow', feedNone: 'nicht gespeist', feedAutoOff: 'Auswahl vorbereitet, automatisches Lesen ist aus',
       feedRun: 'Jetzt lesen und aktualisieren', feedRunning: 'liest ...', feedRunDone: 'Gelesen', interval: 'Lesen alle', every5: 'alle 5 Minuten', every10: 'alle 10 Minuten', every15: 'alle 15 Minuten', every30: 'alle 30 Minuten', every60: 'jede Stunde',
@@ -32,8 +32,8 @@
       consumers: 'Consumers (optional)', consumerHint: 'For example car or heat pump: shows at what price they ran. At most 12.',
       name: 'Name', add: 'Add consumer', remove: 'Remove', save: 'Save and read now', saved: 'Saved',
       error: 'Error', last: 'last', ago: 'ago', min: 'min', sec: 's', kwh: 'kWh', never: 'not read yet',
-      flowNote: 'Alternatively you can keep reporting the values with a Flow (see below). Both together is fine.',
-      managedHint: 'You manage your consumers and their meters in Setup under "Energy management".',
+      flowNote: 'Alternatively you can keep reporting the values with a Flow (below under «Alternative: report values with a Flow»). Both together is fine.',
+      managedHint: 'You manage your consumers and their meters under Setup → EMS → Consumers.',
       feedTitle: 'How is each meter fed?', feedSource: 'Meter', feedHow: 'Fed by', feedLast: 'Last report',
       feedAuto: 'Selection', feedFlow: 'Flow', feedBoth: 'Selection and Flow', feedNone: 'not fed', feedAutoOff: 'Selection prepared, automatic reading is off',
       feedRun: 'Read now and refresh', feedRunning: 'reading ...', feedRunDone: 'Read', interval: 'Read every', every5: 'every 5 minutes', every10: 'every 10 minutes', every15: 'every 15 minutes', every30: 'every 30 minutes', every60: 'every hour',
@@ -178,7 +178,7 @@
     var cons = state.managed ? '' : (state.consumers || []).map(consumerRow).join('');
     host.innerHTML = '<style>'
       + '.mt-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0;padding-bottom:8px;border-bottom:1px solid var(--st-border)}'
-      + '.mt-l{flex:0 0 130px;font-size:13px}.mt-l input{width:120px;font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
+      + '.mt-l{flex:1 1 100%;font-size:13px}.mt-l input{width:120px;font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.mt-f{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--st-muted);flex:1 1 180px}'
       + '.mt-f select{font:inherit;padding:4px 6px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);width:100%}'
       + '.mt-s{flex:1 1 100%;font-size:12px}.mt-rm{margin:-4px 0 6px}'
