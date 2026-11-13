@@ -176,6 +176,12 @@
     .swt input:checked + i::before { transform: translateX(20px); }
     .swt input:focus-visible + i { outline: 2px solid var(--st-accent); outline-offset: 2px; }
     .bk-check input[type="checkbox"] { accent-color: var(--st-switch-on); }
+    /* Manche Homey-WebViews malen Text/Zahl/Zeit-Felder mit dem nativen Eingabefeld statt mit unserer Farbe
+       (im Dunkelmodus dann schwarzer Text auf dunklem Grund). appearance:none lässt uns die Farbe selbst setzen. */
+    input[type="text"], input[type="number"], input[type="time"] { -webkit-appearance: none; appearance: none; }
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
+      -webkit-text-fill-color: var(--st-text); -webkit-box-shadow: 0 0 0 1000px var(--st-bg) inset; caret-color: var(--st-text);
+    }
     /* Statusmarke: grüner Kreis mit Haken = erledigt, grauer Ring = offen */
     .st-check, .st-open { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; margin-right: 8px; vertical-align: -3px; text-align: center; font-size: 12px; line-height: 18px; }
     .st-check { background: var(--st-switch-on); color: #fff; font-weight: 700; }

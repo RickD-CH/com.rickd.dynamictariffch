@@ -322,3 +322,22 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   löscht Vergleich (Batterie und Wallbox), Franken-Auswertung, Protokoll (Verbraucher, Batterie, Hausanschluss) und
   Plan-Verlauf, z. B. beim Go-live. Gelernter Hausverbrauch, Einstellungen und Aufträge bleiben. Kostendaten werden
   separat gelöscht (Tage im Zeitraum, Verbraucher, alles).
+
+## Notstrom-Reserve (13.11.2026)
+
+- **Zweck:** vor einem erwarteten Stromausfall sicherstellen, dass die Hausbatterie mindestens einen eingestellten
+  Ladestand hat - unabhängig von Preis und sonstiger Planung. Übersteuert die übrige Batterie-Planung vollständig,
+  solange sie aktiv ist (`lib/ems/planner/battery.js`, ganz am Anfang von `decideBattery`): unter dem Ziel wird
+  sofort geladen (egal zu welchem Preis), ab dem Ziel wird gehalten (nicht entladen). Wirkt in beiden Modi
+  (`reserveMode` auto/fixed).
+- **Nur per Klick oder Flow, nie automatisch.** Eigene Capability `ems_backup_reserve` (Schalter an der
+  Geräte-Kachel), Flow-Aktion `ems_backup_reserve_set`, Flow-Bedingung `ems_backup_reserve_is_on`. Zusätzlich ein
+  Schalter bei «Heute» im Abschnitt Hausbatterie. Die eigene Capability bekommt von Homey keine automatische
+  Flow-Karte (wie schon bei `ems_charge_now`, siehe oben), darum die zwei eigenen Karten.
+  Richard hat dafür bereits einen eigenen Advanced Flow (Notstrom) - der schaltet diese Reserve mit ein.
+- Die Reserve (%) wird unter Einrichten → EMS → Hausbatterie → Planung eingestellt (`backupReserve.soc`, Standard
+  50 %) und bleibt beim Ein-/Ausschalten erhalten; das Speichern der Einrichtung rührt nur die Zahl an, nie den
+  Schalter selbst (`EmsController.putConfig` mischt `battery.backupReserve` wie `battery.control` zusammen, statt es
+  zu ersetzen).
+- Geht über dieselbe Ausführung wie jeder andere Batterie-Modus (`_controlBattery`): live nur, wenn Silent-Modus aus
+  und die Batteriesteuerung auf live steht; sonst nur simuliert und im Protokoll sichtbar.

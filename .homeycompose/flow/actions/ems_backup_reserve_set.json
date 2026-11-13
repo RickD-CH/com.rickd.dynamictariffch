@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "Turn backup reserve on or off",
+    "de": "Notstrom-Reserve ein- oder ausschalten"
+  },
+  "titleFormatted": {
+    "en": "Turn backup reserve [[mode]]",
+    "de": "Notstrom-Reserve [[mode]]"
+  },
+  "hint": {
+    "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price. Like the switch on the energy management device.",
+    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Mode",
+        "de": "Modus"
+      },
+      "values": [
+        { "id": "on", "title": { "en": "on", "de": "ein" } },
+        { "id": "off", "title": { "en": "off", "de": "aus" } }
+      ]
+    }
+  ]
+}

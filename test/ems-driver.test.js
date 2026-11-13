@@ -66,8 +66,11 @@ test('DeviceState: ausgeschaltet, vor dem ersten Lauf, bekannter und unbekannter
   });
   assert.deepEqual(s, {
     enabled: true, mode: 'solar_ev', text: '16A/3ph', surplusW: 3250, pvW: 6401, houseW: 1200, gridW: -3250, batteryW: -45, releasedW: 3300,
-    chargeNow: true, priceRp: 31.5, pvTodayKwh: 12.3, pvTomorrowKwh: 20, pvNowKw: 3.46,
+    chargeNow: true, backupReserve: false, priceRp: 31.5, pvTodayKwh: 12.3, pvTomorrowKwh: 20, pvNowKw: 3.46,
   });
+  assert.equal(buildDeviceState({
+    enabled: true, charger: null, chargeNow: false, backupReserve: true,
+  }).backupReserve, true, 'gilt auch vor dem ersten Lauf');
   // Fehlende Werte bleiben null (werden am Gerät nicht überschrieben)
   const partial = buildDeviceState({ enabled: true, charger: { mine: { mode: 'idle', reason: '' }, gridW: 10 }, chargeNow: false });
   assert.equal(partial.pvW, null);

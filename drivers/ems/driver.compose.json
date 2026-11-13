@@ -10,6 +10,7 @@
   "capabilities": [
     "onoff",
     "ems_charge_now",
+    "ems_backup_reserve",
     "ems_mode",
     "ems_status_text",
     "ems_surplus",

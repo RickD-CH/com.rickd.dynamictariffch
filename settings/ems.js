@@ -46,6 +46,10 @@
       bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
       bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadSchedule: 'Hausverbrauch', bpDay1: '1 Tag', bpDays: '{n} Tage', bpEvening: 'abends {kw} kW', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
+      backupTitle: 'Notstrom-Reserve', backupSoc: 'Reserve (%)',
+      backupHint: 'Hält mindestens diesen Ladestand, lädt dafür notfalls aus dem Netz nach - egal zu welchem Preis. Ein- oder ausschalten über den Schalter bei «Heute» oder per Flow, nie automatisch.',
+      backupActive: 'Aktiv: hält mind. {soc} %, lädt notfalls nach',
+      backupRow: 'Notstrom-Reserve', backupRowOn: 'Aktiv - hält mind. {soc} %', backupRowOff: 'Aus',
       bpLearned: 'Gelernt: {kw} kW am Morgen (Schnitt 05 bis 10 Uhr, {days}). Das EMS misst den Hausverbrauch laufend und merkt sich den Durchschnitt jeder Viertelstunde der letzten 7 Tage. Ein kalter Morgen mit Wärmepumpe zählt so automatisch mehr als ein milder.',
       bpLearning: 'Lernt noch: es gibt noch keine Messungen. Bis dahin rechnet es mit {kw} kW.',
       brTitle: 'Morgen überbrücken', brCharge: 'lädt {kwh} kWh bis {soc} % um {at}. Grund: teuer {from} bis {to}, die Sonne übernimmt ab {sun}. Bedarf {need} kWh ({load} kW {how}), vorhanden {have} kWh.',
@@ -174,6 +178,10 @@
       bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
       bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadSchedule: 'House consumption', bpDay1: '1 day', bpDays: '{n} days', bpEvening: 'evening {kw} kW', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
+      backupTitle: 'Backup reserve', backupSoc: 'Reserve (%)',
+      backupHint: 'Keeps at least this charge level, charging from the grid if needed - regardless of price. Turn on or off with the switch under "Today" or with a Flow, never automatically.',
+      backupActive: 'Active: keeps at least {soc} %, charges from the grid if needed',
+      backupRow: 'Backup reserve', backupRowOn: 'Active - keeps at least {soc} %', backupRowOff: 'Off',
       bpLearned: 'Learned: {kw} kW in the morning (average 05 to 10, {days}). The energy management measures the house consumption continuously and keeps the average of every quarter-hour of the last 7 days. A cold morning with the heat pump counts more than a mild one.',
       bpLearning: 'Still learning: no measurements yet. Until then it uses {kw} kW.',
       brTitle: 'Bridge the morning', brCharge: 'charges {kwh} kWh up to {soc} % at {at}. Reason: expensive {from} to {to}, solar takes over from {sun}. Need {need} kWh ({load} kW {how}), available {have} kWh.',
@@ -290,6 +298,7 @@
     chevron: 'M6 9l6 6 6-6',
     check: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8 12l3 3 5-6',
     warn: 'M12 3 2 20h20zM12 10v5M12 17.5v.5',
+    shield: 'M12 21s7-3.5 7-9V6l-7-3-7 3v6c0 5.5 7 9 7 9z',
   };
   var COLORS = { grid: '#378add', pv: '#e08a1e', house: '#534ab7', bat: '#3b9d4a', price: '#8a6a4a', fc: '#2e9fd6', charger: '#7f77dd', generic: '#6b7280', dehumidifier: '#1d9e75' };
 
@@ -435,7 +444,8 @@
   }
 
   function field(label, id, value, type, extra) {
-    return '<label class="ems-f"><span>' + esc(label) + '</span><input id="' + id + '" type="' + (type || 'number') + '" value="' + esc(value) + '"' + (extra || '') + '></label>';
+    var t = type || 'number';
+    return '<label class="ems-f"><span>' + esc(label) + '</span><input id="' + id + '" type="' + t + '" value="' + esc(value) + '"' + (t === 'text' ? ' spellcheck="false" autocomplete="off"' : '') + (extra || '') + '></label>';
   }
   function check(label, id, on) {
     return '<label class="ems-c"><span class="swt"><input class="sw" id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '><i></i></span> <span>' + esc(label) + '</span></label>';
@@ -551,7 +561,15 @@
           + (info ? '<p class="ems-why">' + esc(info) + '</p>' : '')
           + (fixedMode ? '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>' : '')
           + (preview ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(preview) + '</b></p>' : '');
-      }()) + '</div>';
+      }()) + '</div>' + backupReserveHtml(b);
+  }
+  /** Notstrom-Reserve: nur die Reserve (%) ist hier einstellbar - ein/aus geht nur über «Heute» oder einen Flow. */
+  function backupReserveHtml(b) {
+    var br = b.backupReserve || { active: false, soc: 50 };
+    return '<div class="ems-box"><b>' + esc(S.backupTitle) + '</b>'
+      + '<div class="ems-row">' + field(S.backupSoc, 'ems-bp-backupsoc', br.soc, 'number', ' step="5" min="0" max="100"') + '</div>'
+      + '<p class="ems-why">' + esc(S.backupHint) + '</p>'
+      + (br.active ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(fill(S.backupActive, { soc: br.soc })) + '</b></p>' : '') + '</div>';
   }
   function batteryValuesHtml(c, bc) {
     return '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>';
@@ -1363,10 +1381,17 @@
         + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.batRow) + '</span><span class="ems-item-s ems-muted">' + esc(bsub) + ' - ' + esc(btag) + '</span></span>'
         + '<span class="swt"><input class="sw" type="checkbox" data-ems-toggle="battery"' + (bc.live ? ' checked' : '') + '><i></i></span></div></div>';
     }
+    var backupItem = '';
+    if (hasBattery()) {
+      var br = cfg.battery.backupReserve || { active: false, soc: 50 };
+      backupItem = '<div class="ems-item"><div class="ems-item-h" style="cursor:default"><span class="ems-ic" style="background:' + (br.active ? '#c0392b' : COLORS.bat) + '">' + icon('shield', 17) + '</span>'
+        + '<span class="ems-item-t"><span class="ems-item-n">' + esc(S.backupRow) + '</span><span class="ems-item-s ems-muted">' + esc(br.active ? fill(S.backupRowOn, { soc: br.soc }) : S.backupRowOff) + '</span></span>'
+        + '<span class="swt"><input class="sw" id="ems-backupreserve" type="checkbox" data-ems-backupreserve="1"' + (br.active ? ' checked' : '') + '><i></i></span></div></div>';
+    }
     var silentTags = function (h) { return silentOn ? h.replace(/ - (gesteuert|nicht gesteuert|controlled|not controlled)<\/span>/g, ' - ' + esc(S.silentTag) + '</span>') : h; };
     var sections = '';
     if (carItem || chargerItem || wb) sections += '<p class="lbl">' + esc(carItem ? S.secCar : S.secWallbox) + '</p><div class="ems-list">' + carItem + silentTags(chargerItem) + wb + '</div>';
-    if (batItem) sections += '<p class="lbl">' + esc(S.secBat) + '</p><div class="ems-list">' + batItem + '</div>';
+    if (batItem || backupItem) sections += '<p class="lbl">' + esc(S.secBat) + '</p><div class="ems-list">' + batItem + backupItem + '</div>';
     if (items) sections += '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + silentTags(items) + '</div>';
     if (!sections) sections = '<p class="lbl">' + esc(S.consumers) + '</p><p class="sub">' + esc(S.noConsumers) + '</p>';
     return styleHtml() + head + fuseLineHtml() + sections + '<p class="ems-why">' + esc(S.switchHint) + '</p><p class="warn" id="ems-toggle-err" hidden></p>' + protocolHtml();
@@ -1905,6 +1930,7 @@
         if ($('ems-bp-loadmode')) bb.bridgeLoadMode = String($('ems-bp-loadmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
         if (bb.bridgeLoadMode === 'fixed' && $('ems-bp-load')) bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
         bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
+        if ($('ems-bp-backupsoc')) bb.backupReserve = Object.assign({ active: false, soc: 50 }, bb.backupReserve, { soc: num('ems-bp-backupsoc', (bb.backupReserve || {}).soc) });
       }
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
         var bcc = state.cfg.battery.control = Object.assign({ enabled: false, live: false, preset: '', normalDischargeW: 7000, repeatMin: 10 }, state.cfg.battery.control);
@@ -1992,6 +2018,7 @@
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
         deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', reserveMode: c.battery.reserveMode === 'fixed' ? 'fixed' : 'auto', floorSoc: c.battery.floorSoc,
+        backupReserve: { soc: c.battery.backupReserve ? c.battery.backupReserve.soc : 50 }, // active geht nur über «Heute» oder einen Flow, nie über diesen Speichern-Knopf
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
@@ -2311,6 +2338,11 @@
     if (g('data-ems-chargenow') !== null) {
       var cn = !!t.checked;
       api('PUT', '/ems/config', { charger: { chargeNow: cn } }).then(function () { return refreshStatus(); }).catch(function () { t.checked = !cn; });
+      return;
+    }
+    if (g('data-ems-backupreserve') !== null) {
+      var br2 = !!t.checked;
+      api('PUT', '/ems/config', { battery: { backupReserve: { active: br2 } } }).then(function () { return refreshStatus(); }).catch(function () { t.checked = !br2; });
       return;
     }
     var src = g('data-ems-src');

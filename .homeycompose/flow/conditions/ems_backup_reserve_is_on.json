@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Backup reserve !{{is|is not}} on",
+    "de": "Notstrom-Reserve !{{ist|ist nicht}} ein"
+  },
+  "hint": {
+    "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price.",
+    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ]
+}

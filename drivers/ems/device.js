@@ -9,7 +9,7 @@ const Homey = require('homey');
 // Alle Capabilities des Geräts in Anzeigereihenfolge. Fehlende werden beim Start ergänzt, damit ein
 // schon gekoppeltes Gerät nach einem Update die neuen Werte bekommt.
 const CAPABILITIES = [
-  'onoff', 'ems_charge_now', 'ems_mode', 'ems_status_text', 'ems_surplus', 'ems_released',
+  'onoff', 'ems_charge_now', 'ems_backup_reserve', 'ems_mode', 'ems_status_text', 'ems_surplus', 'ems_released',
   'ems_pv_power', 'ems_house_power', 'ems_grid_power', 'ems_battery_power', 'ems_price',
   'ems_pv_today', 'ems_pv_tomorrow', 'ems_pv_now',
 ];
@@ -26,6 +26,9 @@ class EmsDevice extends Homey.Device {
     });
     this.registerCapabilityListener('ems_charge_now', async (value) => {
       await this._ems().setChargeNow(value === true);
+    });
+    this.registerCapabilityListener('ems_backup_reserve', async (value) => {
+      await this._ems().setBackupReserve(value === true);
     });
 
     this._ems().attachDevice(this);
@@ -56,13 +59,14 @@ class EmsDevice extends Homey.Device {
 
   /**
    * Zustand aus dem Controller übernehmen.
-   * @param {{enabled:boolean, mode:string, text:string, surplusW:number, chargeNow:boolean}} s
+   * @param {{enabled:boolean, mode:string, text:string, surplusW:number, chargeNow:boolean, backupReserve:boolean}} s
    */
   async publish(s) {
     await this._set('onoff', s.enabled);
     await this._set('ems_status_text', s.text || '');
     await this._set('ems_surplus', s.surplusW);
     await this._set('ems_charge_now', s.chargeNow);
+    await this._set('ems_backup_reserve', s.backupReserve);
     // Messwerte und Prognose: nur setzen, was gerade vorliegt
     const values = {
       ems_released: s.releasedW,

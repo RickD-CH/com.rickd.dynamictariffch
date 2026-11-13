@@ -122,6 +122,10 @@ class DynamicTariffApp extends Homey.App {
       .registerRunListener(async (args) => this.ems.setChargeNow(args.mode === 'on'));
     this.homey.flow.getConditionCard('ems_charge_now_is_on')
       .registerRunListener(async () => this.ems.getConfig().charger.chargeNow === true);
+    this.homey.flow.getActionCard('ems_backup_reserve_set')
+      .registerRunListener(async (args) => this.ems.setBackupReserve(args.mode === 'on'));
+    this.homey.flow.getConditionCard('ems_backup_reserve_is_on')
+      .registerRunListener(async () => this.ems.getConfig().battery.backupReserve.active === true);
 
     this.homey.flow.getConditionCard('ems_mode_is')
       .registerRunListener(async (args) => args.device.getCapabilityValue('ems_mode') === args.mode);

@@ -124,3 +124,37 @@ test('sumKwh: Slots mit Ende im Fenster', () => {
   const slots = [{ end: 1000, kw: 2, h: 0.5 }, { end: 2000, kw: 4, h: 0.5 }, { end: 3000, kw: 6, h: 0.5 }];
   assert.equal(sumKwh(slots, 1000, 3000), 5);
 });
+
+// ---------------------------------------------------------------- Notstrom-Reserve
+
+test('Notstrom-Reserve: unter dem Ziel laden (egal zu welchem Preis), überstimmt den Fahrplan', () => {
+  const c = { ...cfg, backupReserve: { active: true, soc: 60 } };
+  const r = decideBattery({ cfg: c, soc: 40, slots: dayPrices(), nowMs: at(19) }); // 19 Uhr: sonst teure Zeit -> entladen
+  assert.equal(r.mode, 'charge');
+  assert.equal(r.targetEff, 60);
+  assert.match(r.reason, /Notstrom-Reserve.*60/);
+  assert.equal(r.backupReserve, true);
+});
+
+test('Notstrom-Reserve: am oder über dem Ziel halten, nicht weiter entladen', () => {
+  const c = { ...cfg, backupReserve: { active: true, soc: 60 } };
+  const r = decideBattery({ cfg: c, soc: 60, slots: dayPrices(), nowMs: at(19) });
+  assert.equal(r.mode, 'hold');
+  assert.match(r.reason, /Notstrom-Reserve.*60/);
+  const above = decideBattery({ cfg: c, soc: 80, slots: dayPrices(), nowMs: at(19) });
+  assert.equal(above.mode, 'hold', 'auch deutlich darüber wird nicht entladen, solange aktiv');
+});
+
+test('Notstrom-Reserve: aus = normale Planung (Fahrplan oder feste Reserve) läuft wie bisher', () => {
+  const c = { ...cfg, backupReserve: { active: false, soc: 60 } };
+  const r = decideBattery({ cfg: c, soc: 40, slots: dayPrices(), nowMs: at(19) });
+  assert.equal(r.mode, 'normal', 'teure Abendstunde, Reserve aus: normal entladen wie ohne das Feld');
+  assert.equal(r.backupReserve, undefined);
+});
+
+test('Notstrom-Reserve: wirkt auch im Fahrplan-Modus (reserveMode auto)', () => {
+  const c = { ...cfg, reserveMode: 'auto', backupReserve: { active: true, soc: 50 } };
+  const r = decideBattery({ cfg: c, soc: 20, slots: dayPrices(), nowMs: at(19) });
+  assert.equal(r.mode, 'charge');
+  assert.equal(r.targetEff, 50);
+});

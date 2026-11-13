@@ -194,12 +194,27 @@ test('Aktion/Bedingung «Sofort laden»: schaltet den Schalter wie am Gerät, La
   assert.equal(ctrl.getConfig().charger.chargeNow, false);
 });
 
+test('Aktion/Bedingung «Notstrom-Reserve»: schaltet wie am Gerät, die eingestellte Reserve (%) bleibt dabei erhalten', async () => {
+  const { ctrl, settings } = makeCtrl();
+  settings.set('ems.config', normalizeConfig({
+    silent: true, devices: { meter: { id: 'm' } }, battery: { deviceId: 'bat', backupReserve: { soc: 65 } },
+  }));
+  assert.deepEqual(ctrl.getConfig().battery.backupReserve, { active: false, soc: 65 });
+  await ctrl.setBackupReserve(true);
+  assert.deepEqual(ctrl.getConfig().battery.backupReserve, { active: true, soc: 65 }, 'die Reserve (%) bleibt beim Einschalten erhalten');
+  await ctrl.setBackupReserve(false);
+  assert.deepEqual(ctrl.getConfig().battery.backupReserve, { active: false, soc: 65 });
+  // Default ohne eigene Angabe
+  settings.set('ems.config', normalizeConfig({}));
+  assert.deepEqual(ctrl.getConfig().battery.backupReserve, { active: false, soc: 50 });
+});
+
 // ---------------------------------------------------------------- Karten vorhanden und registriert
 
 test('Flow-Karten: Dateien vorhanden (de/en) und in app.js registriert', () => {
   const root = path.join(__dirname, '..');
   const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-  for (const [dir, id] of [['triggers', 'ems_error'], ['triggers', 'ems_car_target_reached'], ['actions', 'ems_set_silent'], ['actions', 'ems_car_set_target'], ['actions', 'ems_car_clear_target'], ['actions', 'ems_charge_now_set'], ['conditions', 'ems_silent_is_on'], ['conditions', 'ems_charge_now_is_on']]) {
+  for (const [dir, id] of [['triggers', 'ems_error'], ['triggers', 'ems_car_target_reached'], ['actions', 'ems_set_silent'], ['actions', 'ems_car_set_target'], ['actions', 'ems_car_clear_target'], ['actions', 'ems_charge_now_set'], ['actions', 'ems_backup_reserve_set'], ['conditions', 'ems_silent_is_on'], ['conditions', 'ems_charge_now_is_on'], ['conditions', 'ems_backup_reserve_is_on']]) {
     const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow', dir, `${id}.json`), 'utf8'));
     assert.ok(card.title.de && card.title.en, id);
     assert.ok(card.args.some((a) => a.type === 'device' && a.filter === 'driver_id=ems'), id);
