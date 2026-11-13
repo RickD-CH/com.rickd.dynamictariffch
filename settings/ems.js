@@ -814,7 +814,7 @@
     if (r.kind === 'charger') {
       return '<p class="ems-why">' + esc(S.otherEms) + '</p>'
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'dev">' + deviceOptions(r.deviceId, hasCap(/^(evcharger_charging|target_power)/), S.pick) + '</select></label>'
-        + field(S.name, p + 'name', r.name, 'text') + '</div>'
+        + field(S.name, p + 'name', r.name, 'text', ' style="max-width:160px"') + '</div>'
         + meterRow + lastTxt
         + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
         + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
@@ -878,7 +878,7 @@
           + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>'));
     }
     return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
-      + field(S.name, p + 'name', r.name, 'text') + '</div>'
+      + field(S.name, p + 'name', r.name, 'text', ' style="max-width:160px"') + '</div>'
       + '<div class="ems-row" style="gap:4px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
         return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
       }).join('') + '</div>'
