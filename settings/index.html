@@ -1271,17 +1271,26 @@
       $('p-hourly-example').textContent = T.hourlyExample + ': [' + vals.join(', ') + ', …]';
     }
     var themeMode = 'auto';
+    // 'auto' wird sofort in ein eindeutiges data-theme aufgelöst (nie entfernt) - Chromes eigenes "Force Dark" für
+    // Webseiten verlässt sich beim Erkennen "kennt diese Seite Dunkelmodus selbst?" nicht zuverlässig auf die
+    // @media(prefers-color-scheme)-Regel allein und malt sonst einzelne Felder (v. a. Eingabefelder) falsch ein.
+    // Gleiches Muster wie in com.rickd.devicewatchdog.
+    var prefersDarkMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
     function applyTheme(mode) {
       themeMode = mode === 'light' || mode === 'dark' ? mode : 'auto';
+      var resolved = themeMode === 'auto' ? ((prefersDarkMedia && prefersDarkMedia.matches) ? 'dark' : 'light') : themeMode;
       [document.documentElement, document.body].forEach(function (el) {
-        if (themeMode === 'auto') el.removeAttribute('data-theme'); else el.setAttribute('data-theme', themeMode);
+        el.setAttribute('data-theme', resolved);
       });
       var sw = document.getElementById('theme-sw');
       if (!sw) return;
       sw.innerHTML = [['auto', T.themeAuto], ['light', T.themeLight], ['dark', T.themeDark]].map(function (b) {
         return '<button class="btn small' + (themeMode === b[0] ? ' active' : '') + '" data-theme-mode="' + b[0] + '">' + escapeHtml(b[1]) + '</button>';
       }).join('');
+    }
+    if (prefersDarkMedia && prefersDarkMedia.addEventListener) {
+      prefersDarkMedia.addEventListener('change', function () { if (themeMode === 'auto') applyTheme('auto'); });
     }
     var lastCost = null;
 
