@@ -111,8 +111,7 @@ test('Keine Hersteller- oder Personennamen ausserhalb des Vergleichs-Reiters', a
   // Die Vergleichsquelle liegt im Vergleichs-Reiter, nicht mehr in der Geräte-Karte
   assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-cmp"/);
   assert.doesNotMatch(ems, /ems-d-cmp/);
-  assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
-  assert.doesNotMatch(ems, /ems-b-target/);
+  assert.doesNotMatch(env.els.get('ems-view-cmp').innerHTML, /ems-b-target|ems-bp-reserve/, 'Batterie-Planer nicht mehr im Vergleich');
 });
 
 test('Navigation: vier Reiter in fester Reihenfolge, Segmented Control ohne Scrollbalken', () => {

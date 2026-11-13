@@ -277,3 +277,16 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Ist ein Verlauf da, wird er verwendet (mit Korrekturfaktor); sonst wie bisher die Tagessumme als Sonnenkurve.
   Den Bericht für morgen legt Homey an, sobald die Prognose vorliegt; vorher gilt für morgen die Kurve.
 - `pv.daily.shape` sagt je Tag, ob der Verlauf von Homey (`homey`) oder die Kurve (`curve`) gilt.
+
+## Batterie: Morgen überbrücken, Planung unter Einrichten (13.11.2026)
+
+- **Morgen überbrücken** (`battery.bridge`, Standard an): greift die Solar-Grenze (`solarLimitKwh`), lädt der Planer
+  trotzdem so viel, wie die teuren Reserve-Viertelstunden bis zum Moment brauchen, in dem die PV-Prognose den
+  Morgenverbrauch deckt (`bridgeLoadKw`, Standard 1 kW). Untergrenze `floorSoc` (10 %), Wirkungsgrad 0.9. Geladen wird
+  nur vor der Lücke und nur, wenn Ladepreis / 0.9 unter dem Durchschnitt der Lücke liegt. Grund im Protokoll:
+  «Morgen überbrücken: 27 % bis Sonne (09:00)».
+- Anlass: Wochentest 13.11. - 23 % Ladung um 06:00 bei 38.8 bis 43 Rp. von 07:00 bis 09:00, Netzladen wegen 24.6 kWh
+  Sonne gesperrt (beide EMS gleich).
+- **Planung** (Spitzenstunden = `reserveHours`, Ziel, Ladeleistung, Solar-Grenze, Überbrücken) steht unter Einrichten →
+  Hausbatterie, nicht mehr in der Vergleichsansicht.
+- Batterie-Protokoll: Wiederholungen (alle 10 min bei Laden/Halten) sind keine eigenen Einträge mehr.

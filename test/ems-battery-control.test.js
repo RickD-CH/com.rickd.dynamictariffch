@@ -220,3 +220,18 @@ test('Anzeige: Silent-Schalter speichert; Batterie-Zeile mit Live-Schalter; Prot
   assert.equal(body.control.preset, 'luna2000');
   assert.equal(body.control.live, undefined, 'live nur über den Schalter, nicht über Speichern');
 });
+
+test('Protokoll: Wiederholungen (alle 10 min) erzeugen keine Einträge, nur Wechsel; alte Wiederholungen werden beim Start entfernt', async () => {
+  const { runner } = setup({ silent: true, live: false, soc: 20 });
+  await runner.tick(at(3));
+  for (let m = 5; m <= 60; m += 5) await runner.tick(at(3, m));
+  assert.equal(runner.current.mine.mode, 'charge', 'nachts günstig: laden (wird alle 10 min wiederholt)');
+  assert.equal(runner.batteryEvents.length, 1, 'ein Eintrag für den Start, keine Wiederholungen');
+  assert.ok(runner.batteryControl.lastSentAt > at(3, 30), 'trotzdem wiederholt gesendet (simuliert)');
+  const store = new Map([['batteryEvents', [{ ts: 1, mode: 'hold', why: 'Start: hold' }, { ts: 2, mode: 'hold', why: 'Wiederholung' }, { ts: 3, mode: 'hold', why: 'Wiederholung', error: 'x' }]]]);
+  const r2 = new EmsRunner({
+    getConfig: () => normalizeConfig({}), prices: prices(), pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
+    inputs: {}, actuators: null, shadowLog: new ShadowLog({ get() {}, set() {} }), store: { get: (k) => store.get(k), set: (k, v) => store.set(k, v) },
+  });
+  assert.deepEqual(r2.batteryEvents.map((e) => e.ts), [1, 3], 'Wiederholung ohne Fehler weg');
+});

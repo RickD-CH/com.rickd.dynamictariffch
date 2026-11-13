@@ -383,14 +383,14 @@ test('Neutral: keine Hersteller- oder Personennamen in Betrieb und Setup (de und
   }
 });
 
-test('Vergleich: zeigt weiter die Daten, Quelle und Batterie-Planer liegen dort', async () => {
+test('Vergleich: zeigt weiter die Daten und die Quelle; der Batterie-Planer liegt unter Einrichten → Hausbatterie', async () => {
   const env = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { overallAgreePct: 92, days: [{ day: '2026-11-10', ticks: 40, compared: 40, agree: 37, agreePct: 93, mine: { hold: 30 }, other: { hold: 33 } }], events: [] } }));
   const data = env.els.get('ems-cmp-data').innerHTML;
   assert.match(data, /Gesamt gleich: <b>92 %<\/b>/);
   assert.match(data, /Anderes EMS/);
   assert.match(env.els.get('ems-view-cmp').innerHTML, /id="ems-d-cmp"/);
-  assert.match(env.els.get('ems-view-cmp').innerHTML, /ems-b-target/);
-  assert.doesNotMatch(setup(env) + main(env), /ems-d-cmp|ems-b-target/);
+  assert.doesNotMatch(env.els.get('ems-view-cmp').innerHTML, /ems-b-target|ems-bp-reserve/);
+  assert.doesNotMatch(setup(env) + main(env), /ems-d-cmp/);
 });
 
 test('Gerätewechsel wird beim Auffrischen nicht überschrieben', async () => {

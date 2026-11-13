@@ -38,6 +38,9 @@
       batCtlMap: 'Zuordnung', batCtlMapAuto: 'erkannte Vorlage', batCtlMapCustom: 'eigene Zuordnung', batCtlAddStep: 'Karte hinzufügen', batCtlPick: '- Karte wählen -', batCtlDel: 'Entfernen',
       batCtlPh: 'In Zahlenfeldern gehen auch Platzhalter: {power} = Ladeleistung (W), {target_soc} = Ziel-Ladestand (%), {normal_discharge} = normale Entladeleistung (W).', batCtlEmpty: 'keine Karte (es wird nichts gesendet)', batCtlLoading: 'Karten der Batterie werden geprüft ...',
       batCtlWarn: 'Nur ein System darf die Batterie steuern. Schalte die Batteriesteuerung im anderen Energiemanagement und eigene Batterie-Flows aus, bevor du live schaltest.',
+      bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
+      bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
+      bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
       batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
       batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
@@ -153,6 +156,9 @@
       batCtlMap: 'Mapping', batCtlMapAuto: 'detected template', batCtlMapCustom: 'own mapping', batCtlAddStep: 'Add card', batCtlPick: '- pick a card -', batCtlDel: 'Remove',
       batCtlPh: 'Number fields also accept placeholders: {power} = charge power (W), {target_soc} = target charge (%), {normal_discharge} = normal discharge power (W).', batCtlEmpty: 'no card (nothing is sent)', batCtlLoading: 'Checking the battery\'s cards ...',
       batCtlWarn: 'Only one system may control the battery. Switch off battery control in the other energy management and your own battery flows before going live.',
+      bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
+      bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
+      bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over (kW)', bpFloor: 'Do not discharge below (%)',
       batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
       batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
@@ -445,9 +451,19 @@
     var k = ((cards && cards.cards) || []).filter(function (x) { return x.id === id; })[0];
     return k && k.title ? k.title.replace(/\[\[[^\]]*\]\]/g, '…') : id;
   }
+  /** Batterie-Planer: wie die Batterie über den Tag eingesetzt wird (gilt für Plan, Simulation und Steuerung). */
+  function batteryPlanHtml() {
+    var b = state.cfg.battery;
+    return '<div class="ems-box"><b>' + esc(S.bpTitle) + '</b>'
+      + '<div class="ems-row">' + field(S.bpReserve, 'ems-bp-reserve', b.reserveHours, 'number', ' step="1" min="0" max="24"') + field(S.batCtlTarget, 'ems-bp-target', b.targetSoc, 'number', ' step="5" min="10" max="100"') + field(S.batCtlPower, 'ems-bp-power', b.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + '</div>'
+      + '<p class="ems-why">' + esc(S.bpReserveHint) + '</p>'
+      + '<div class="ems-row">' + field(S.bpSolar, 'ems-bp-solar', b.solarLimitKwh, 'number', ' step="1" min="0"') + '</div><p class="ems-why">' + esc(S.bpSolarHint) + '</p>'
+      + '<div class="ems-row">' + check(S.bpBridge, 'ems-bp-bridge', b.bridge !== false) + '</div>'
+      + '<div class="ems-row">' + field(S.bpLoad, 'ems-bp-load', b.bridgeLoadKw !== undefined ? b.bridgeLoadKw : 1, 'number', ' step="0.1" min="0.1" max="10"') + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
+      + '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p></div>';
+  }
   function batteryValuesHtml(c, bc) {
-    return '<div class="ems-row">' + field(S.batCtlPower, 'ems-bc-power', c.battery.chargePowerKw, 'number', ' step="0.5" min="0.5" max="10"') + field(S.batCtlTarget, 'ems-bc-target', c.battery.targetSoc, 'number', ' step="1" min="10" max="100"') + '</div>'
-      + '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>';
+    return '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>';
   }
   /** Erkannte Vorlage oder eigene Zuordnung (nur wenn eine Vorlage erkannt wurde). */
   function mapSelectHtml(bc, cards) {
@@ -585,7 +601,7 @@
         + '<p class="ems-why">' + esc(S.fcCurveHint) + '</p><p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
     }
     var d = srcDevice(s.key);
-    if (s.key === 'bat' && d.id) why += batteryControlHtml();
+    if (s.key === 'bat' && d.id) why += batteryPlanHtml() + batteryControlHtml();
     var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div><p class="ems-why">' + esc(S.carSetupHint) + '</p>' : '';
     return why + carExtra + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
       + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label></div>';
@@ -1708,9 +1724,7 @@
   function compareSettingsHtml() {
     var c = state.cfg;
     return '<div class="card"><h2>' + esc(S.cmpSource) + '</h2><div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.cmpDev) + '</span><select id="ems-d-cmp">' + deviceOptions(c.devices.compareEms, hasCap(/^ems_mode$/), S.none) + '</select></label></div></div>'
-      + '<details class="card sec"><summary><h2>' + esc(S.batterySec) + '</h2></summary><div class="ems-row">'
-      + field(S.targetSoc, 'ems-b-target', c.battery.targetSoc) + field(S.reserve, 'ems-b-reserve', c.battery.reserveHours) + field(S.solarLimit, 'ems-b-solar', c.battery.solarLimitKwh)
-      + '</div></details><p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-cmp">' + esc(state.msg) + '</span></p>';
+      + '<p><button class="btn" data-ems-save="1">' + esc(S.save) + '</button> <span class="sub" id="ems-msg-cmp">' + esc(state.msg) + '</span></p>';
   }
   function renderCompare() {
     var panel = $('ems-view-cmp');
@@ -1749,14 +1763,22 @@
     syncFuse();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
+      if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-reserve')) {
+        var bb = state.cfg.battery;
+        bb.reserveHours = num('ems-bp-reserve', bb.reserveHours);
+        bb.targetSoc = num('ems-bp-target', bb.targetSoc);
+        bb.chargePowerKw = num('ems-bp-power', bb.chargePowerKw);
+        bb.solarLimitKwh = num('ems-bp-solar', bb.solarLimitKwh);
+        bb.bridge = chk('ems-bp-bridge');
+        bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
+        bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
+      }
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
         var bcc = state.cfg.battery.control = Object.assign({ enabled: false, live: false, preset: '', normalDischargeW: 7000, repeatMin: 10 }, state.cfg.battery.control);
         bcc.enabled = chk('ems-bc-on');
         if ($('ems-bc-normal')) {
           bcc.normalDischargeW = num('ems-bc-normal', bcc.normalDischargeW);
           bcc.repeatMin = num('ems-bc-repeat', bcc.repeatMin);
-          state.cfg.battery.chargePowerKw = num('ems-bc-power', state.cfg.battery.chargePowerKw);
-          state.cfg.battery.targetSoc = num('ems-bc-target', state.cfg.battery.targetSoc);
         }
         syncCustomMap(bcc);
       }
@@ -1815,11 +1837,6 @@
     if (state.cmpBuilt) {
       var other = $('ems-d-cmp');
       if (other && other.value !== undefined) state.cfg.devices.compareEms = other.value;
-      if ($('ems-b-target')) {
-        state.cfg.battery.targetSoc = num('ems-b-target', state.cfg.battery.targetSoc);
-        state.cfg.battery.reserveHours = num('ems-b-reserve', state.cfg.battery.reserveHours);
-        state.cfg.battery.solarLimitKwh = num('ems-b-solar', state.cfg.battery.solarLimitKwh);
-      }
     }
   }
 
@@ -1841,7 +1858,7 @@
     var ems = {
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
-        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw,
+        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, floorSoc: c.battery.floorSoc,
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
