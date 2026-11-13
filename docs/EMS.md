@@ -290,3 +290,10 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Planung** (Spitzenstunden = `reserveHours`, Ziel, Ladeleistung, Solar-Grenze, Überbrücken) steht unter Einrichten →
   Hausbatterie, nicht mehr in der Vergleichsansicht.
 - Batterie-Protokoll: Wiederholungen (alle 10 min bei Laden/Halten) sind keine eigenen Einträge mehr.
+- **Gelernter Hausverbrauch** (`lib/ems/LoadProfile.js`): bei jedem Wallbox-Lauf wird der Hausverbrauch (Hausverbrauch-
+  Quelle) der lokalen Viertelstunde des Tages zugeordnet; Durchschnitt je Viertelstunde über die letzten 7 Tage
+  (mindestens 3 Messungen je Viertelstunde und Tag). `battery.bridgeLoadMode` = `auto` (Standard) nimmt diese Werte,
+  `fixed` den festen `bridgeLoadKw`. Ohne Messungen gilt der feste Wert.
+- **Vorschau:** der Planer liefert `bridgeInfo` (Status charge/enough/unprofitable/nogap/nosun, Bedarf, vorhanden,
+  Nachladen, Zeiten, verwendeter Verbrauch). Angezeigt unter Einrichten → Hausbatterie → Planung und im Ausblick unter
+  der Batterie-Zeile.

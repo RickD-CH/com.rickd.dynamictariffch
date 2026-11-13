@@ -40,7 +40,12 @@
       batCtlWarn: 'Nur ein System darf die Batterie steuern. Schalte die Batteriesteuerung im anderen Energiemanagement und eigene Batterie-Flows aus, bevor du live schaltest.',
       bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
-      bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
+      bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
+      bpLearned: 'Gelernt: {kw} kW am Morgen (Schnitt 05 bis 10 Uhr, {days} Tage). Das EMS misst den Hausverbrauch laufend und merkt sich den Durchschnitt jeder Viertelstunde der letzten 7 Tage. Ein kalter Morgen mit Wärmepumpe zählt so automatisch mehr als ein milder.',
+      bpLearning: 'Lernt noch: es gibt noch keine Messungen. Bis dahin rechnet es mit {kw} kW.',
+      brTitle: 'Morgen überbrücken', brCharge: 'lädt {kwh} kWh bis {soc} % um {at}. Grund: teuer {from} bis {to}, die Sonne übernimmt ab {sun}. Bedarf {need} kWh ({load} kW {how}), vorhanden {have} kWh.',
+      brEnough: 'nicht nötig, die Ladung reicht (Bedarf {need} kWh für {from} bis {to}, vorhanden {have} kWh).', brUnprofitable: 'lohnt sich nicht: Laden wäre mit dem Verlust teurer als die teuren Stunden ({from} bis {to}).',
+      brNoGap: 'nicht nötig, vor der Sonne (ab {sun}) gibt es keine teuren Stunden.', brNoSun: 'keine Sonne in Sicht.', brOff: 'zurzeit nicht nötig: die Solar-Grenze greift nicht, es wird normal aus dem Netz geladen.', brHowLearned: 'gelernt', brHowFixed: 'fest',
       batCtlPower: 'Ladeleistung beim Netzladen (kW)', batCtlTarget: 'Ziel-Ladestand beim Netzladen (%)', batCtlNormal: 'Normale Entladeleistung (W)', batCtlRepeat: 'Befehl wiederholen alle (min)',
       batCtlSteps: 'So wird gesteuert', batModeCharge: 'Laden', batModeHold: 'Halten', batModeNormal: 'Normal', batCarSkip: 'nicht, solange das Auto lädt',
       batRow: 'Batterie', batRowNone: 'noch nichts gesendet', batSent: 'zuletzt',
@@ -158,7 +163,12 @@
       batCtlWarn: 'Only one system may control the battery. Switch off battery control in the other energy management and your own battery flows before going live.',
       bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
-      bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over (kW)', bpFloor: 'Do not discharge below (%)',
+      bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
+      bpLearned: 'Learned: {kw} kW in the morning (average 05 to 10, {days} days). The energy management measures the house consumption continuously and keeps the average of every quarter-hour of the last 7 days. A cold morning with the heat pump counts more than a mild one.',
+      bpLearning: 'Still learning: no measurements yet. Until then it uses {kw} kW.',
+      brTitle: 'Bridge the morning', brCharge: 'charges {kwh} kWh up to {soc} % at {at}. Reason: expensive {from} to {to}, solar takes over from {sun}. Need {need} kWh ({load} kW {how}), available {have} kWh.',
+      brEnough: 'not needed, the charge is enough (need {need} kWh for {from} to {to}, available {have} kWh).', brUnprofitable: 'not worth it: charging would cost more incl. losses than the expensive hours ({from} to {to}).',
+      brNoGap: 'not needed, there are no expensive hours before the sun (from {sun}).', brNoSun: 'no sun in sight.', brOff: 'not needed at the moment: the solar limit does not apply, normal grid charging.', brHowLearned: 'learned', brHowFixed: 'fixed',
       batCtlPower: 'Charge power when charging from the grid (kW)', batCtlTarget: 'Target charge when charging from the grid (%)', batCtlNormal: 'Normal discharge power (W)', batCtlRepeat: 'Repeat command every (min)',
       batCtlSteps: 'How it is controlled', batModeCharge: 'Charge', batModeHold: 'Hold', batModeNormal: 'Normal', batCarSkip: 'not while the car is charging',
       batRow: 'Battery', batRowNone: 'nothing sent yet', batSent: 'last',
@@ -451,6 +461,28 @@
     var k = ((cards && cards.cards) || []).filter(function (x) { return x.id === id; })[0];
     return k && k.title ? k.title.replace(/\[\[[^\]]*\]\]/g, '…') : id;
   }
+  function fill(t, o) { return String(t).replace(/\{(\w+)\}/g, function (m, k) { return o[k] !== undefined && o[k] !== null ? o[k] : m; }); }
+  /** Was «Morgen überbrücken» gerade vorhat (aus dem letzten Batterie-Lauf); '' wenn ausgeschaltet. */
+  function bridgeText(all) {
+    var b = state.cfg && state.cfg.battery;
+    if (!b || b.bridge === false) return '';
+    var mine = state.shadow && state.shadow.current && state.shadow.current.mine;
+    var bi = mine && mine.bridgeInfo;
+    var o = bi ? {
+      kwh: bi.chargeKwh, soc: bi.target, at: bi.chargeAt ? hm(bi.chargeAt) : '-', from: bi.gapFrom ? hm(bi.gapFrom) : '-', to: bi.gapTo ? hm(bi.gapTo) : '-',
+      sun: bi.untilMs ? hm(bi.untilMs) : '-', need: bi.needKwh, have: bi.haveKwh, load: bi.loadKw, how: bi.learned ? S.brHowLearned : S.brHowFixed,
+    } : {};
+    var t;
+    if (!bi) t = mine ? S.brOff : '';
+    else if (bi.status === 'charge') t = fill(S.brCharge, o);
+    else if (bi.status === 'enough') t = fill(S.brEnough, o);
+    else if (bi.status === 'unprofitable') t = fill(S.brUnprofitable, o);
+    else if (bi.status === 'nogap') t = fill(S.brNoGap, o);
+    else t = S.brNoSun;
+    if (!t || (!all && (!bi || (bi.status !== 'charge' && bi.status !== 'enough')))) return '';
+    return S.brTitle + ': ' + t;
+  }
+
   /** Batterie-Planer: wie die Batterie über den Tag eingesetzt wird (gilt für Plan, Simulation und Steuerung). */
   function batteryPlanHtml() {
     var b = state.cfg.battery;
@@ -459,8 +491,22 @@
       + '<p class="ems-why">' + esc(S.bpReserveHint) + '</p>'
       + '<div class="ems-row">' + field(S.bpSolar, 'ems-bp-solar', b.solarLimitKwh, 'number', ' step="1" min="0"') + '</div><p class="ems-why">' + esc(S.bpSolarHint) + '</p>'
       + '<div class="ems-row">' + check(S.bpBridge, 'ems-bp-bridge', b.bridge !== false) + '</div>'
-      + '<div class="ems-row">' + field(S.bpLoad, 'ems-bp-load', b.bridgeLoadKw !== undefined ? b.bridgeLoadKw : 1, 'number', ' step="0.1" min="0.1" max="10"') + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
-      + '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p></div>';
+      + (function () {
+        var auto = b.bridgeLoadMode !== 'fixed';
+        var load = state.shadow && state.shadow.load;
+        var learned = load && load.days > 0 && load.morningKw !== null && load.morningKw !== undefined;
+        var fixedKw = b.bridgeLoadKw !== undefined ? b.bridgeLoadKw : 1;
+        var info = auto ? (learned ? fill(S.bpLearned, { kw: load.morningKw.toFixed(1), days: load.days }) : fill(S.bpLearning, { kw: fixedKw })) : '';
+        var preview = bridgeText(true);
+        return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.bpLoad) + '</span><select id="ems-bp-loadmode" data-ems-bploadmode="1">'
+          + '<option value="auto"' + (auto ? ' selected' : '') + '>' + esc(S.bpLoadAuto + (learned ? ': ' + load.morningKw.toFixed(1) + ' kW' : '')) + '</option>'
+          + '<option value="fixed"' + (auto ? '' : ' selected') + '>' + esc(S.bpLoadFixed) + '</option></select></label>'
+          + (auto ? '' : field(S.bpLoadFixed, 'ems-bp-load', fixedKw, 'number', ' step="0.1" min="0.1" max="10"'))
+          + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
+          + (info ? '<p class="ems-why">' + esc(info) + '</p>' : '')
+          + '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>'
+          + (preview ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(preview) + '</b></p>' : '');
+      }()) + '</div>';
   }
   function batteryValuesHtml(c, bc) {
     return '<div class="ems-row">' + field(S.batCtlNormal, 'ems-bc-normal', bc.normalDischargeW, 'number', ' step="100" min="0"') + field(S.batCtlRepeat, 'ems-bc-repeat', bc.repeatMin, 'number', ' step="1" min="2" max="60"') + '</div>';
@@ -1501,6 +1547,7 @@
         else if (row.kind === 'job') label = (row.name || S.wallbox) + ' - ' + (row.preview ? S.pvPreviewLbl : S.pvJobWord);
         else label = row.name + (test.consumers && test.consumers.indexOf(row.id) >= 0 ? ' - ' + S.planTest : '');
         body += '<div class="pl-lbl">' + esc(label) + '</div>' + planLaneSvg(row, day) + legendFor(row.kind, row);
+        if (row.kind === 'battery' && day.key === 'today' && bridgeText(false)) body += '<p class="ems-why" style="margin:4px 0 0">' + esc(bridgeText(false)) + '</p>';
       });
       body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
       body += '</div>';
@@ -1770,7 +1817,8 @@
         bb.chargePowerKw = num('ems-bp-power', bb.chargePowerKw);
         bb.solarLimitKwh = num('ems-bp-solar', bb.solarLimitKwh);
         bb.bridge = chk('ems-bp-bridge');
-        bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
+        if ($('ems-bp-loadmode')) bb.bridgeLoadMode = String($('ems-bp-loadmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
+        if (bb.bridgeLoadMode === 'fixed' && $('ems-bp-load')) bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
         bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
       }
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
@@ -1858,7 +1906,7 @@
     var ems = {
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
-        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, floorSoc: c.battery.floorSoc,
+        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', floorSoc: c.battery.floorSoc,
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
@@ -2151,6 +2199,7 @@
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
     if (t.id && /accuEnable$/.test(t.id)) { sync(); renderSetup(); return; }
+    if (g('data-ems-bploadmode') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
     if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {
