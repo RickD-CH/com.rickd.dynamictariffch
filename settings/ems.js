@@ -209,7 +209,7 @@
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
-      save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', saveDirty: 'Änderungen speichern ●', unsaved: 'Noch nicht gespeichert: bitte «Speichern» drücken.', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
+      save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', saveDirty: 'Änderungen speichern ●', saveSec: 'Speichern', unsavedTag: '● ungespeichert', unsaved: 'Noch nicht gespeichert: bitte «Speichern» drücken.', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       modeNames: { disabled: 'Aus', idle: 'Bereit', holding: 'Wartet auf Überschuss', solar_ev: 'Lädt mit Solarstrom', instant_ev: 'Lädt mit voller Leistung', battery_priority: 'Batterie hat Vorrang', error: 'Fehler' },
       otherEms: 'Steuert schon ein anderes Energiemanagement diese Wallbox, dort zuerst ausschalten. Sonst steuern zwei Systeme dieselbe Wallbox.',
       cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das andere Energiemanagement tut. Gleich = beide wählen im selben Lauf denselben Modus.',
@@ -419,7 +419,7 @@
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
-      save: 'Save energy management settings', saved: 'Saved', saveDirty: 'Save changes ●', unsaved: 'Not saved yet: please press "Save".', error: 'Error', toggleFailed: 'Could not set the switch',
+      save: 'Save energy management settings', saved: 'Saved', saveDirty: 'Save changes ●', saveSec: 'Save', unsavedTag: '● unsaved', unsaved: 'Not saved yet: please press "Save".', error: 'Error', toggleFailed: 'Could not set the switch',
       modeNames: { disabled: 'Off', idle: 'Idle', holding: 'Waiting for surplus', solar_ev: 'Charging from solar', instant_ev: 'Charging at full power', battery_priority: 'Battery first', error: 'Error' },
       otherEms: 'If another energy management already controls this charger, switch it off there first. Otherwise two systems control the same charger.',
       cmpIntro: "What this energy management would do, compared with what the other energy management does. Same = both choose the same mode in the same run.",
@@ -1336,7 +1336,7 @@
       + '<span class="ems-ic" style="background:' + color + '">' + icon(ic, 17) + '</span>'
       + '<span class="ems-item-t"><span class="ems-item-n">' + esc(title) + ' ' + (tagHtmlStr || '') + '</span><span class="ems-item-s ems-' + summary.cls + '">' + esc(summary.text) + '</span></span>'
       + '<span class="ems-chev">' + icon('chevron', 16) + '</span></div>'
-      + (open ? '<div class="ems-item-b">' + body + '</div>' : '') + '</div>';
+      + (open ? '<div class="ems-item-b">' + body + '<button class="ems-save ems-save-sec" data-ems-save="1"' + (state.dirty ? ' style="background:var(--st-warn,#d98a1a)"' : '') + '>' + esc(state.dirty ? S.saveDirty : S.saveSec) + '</button></div>' : '') + '</div>';
   }
 
   function calcDeviceCount() {
@@ -1419,6 +1419,7 @@
       + '.ems-f input,.ems-f select{font:inherit;padding:5px 7px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 200px}.ems-wide select{width:100%}'
       + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
       + '.ems-adv{margin:8px 0}.ems-adv summary{cursor:pointer;font-size:12px;color:var(--st-muted)}'
+      + '.ems-dirty{color:#b9770e;font-size:11px;font-weight:600}.ems-save-sec{margin-top:12px}'
       + '.ems-save{display:block;width:100%;padding:11px;border:0;border-radius:8px;background:var(--st-accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}'
       + '.ems-cards{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.ems-card{flex:1 1 140px;border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;background:var(--st-card-bg)}'
       + '.ems-k{font-size:12px;color:var(--st-muted)}.ems-v{font-size:18px;font-weight:600}.ems-s{font-size:12px;color:var(--st-muted)}'
@@ -2547,17 +2548,31 @@
     for (var i = 0; i < AUTOSAVE_SKIP.length; i += 1) if (up(t, AUTOSAVE_SKIP[i]) !== null) return false;
     return true;
   }
-  function markDirty() {
+  function markDirty(target) {
     state.dirty = true;
     var b = $('ems-savebtn');
     if (b) {
       b.textContent = S.saveDirty;
       if (b.style) b.style.background = 'var(--st-warn, #d98a1a)';
     }
+    // Jeder geöffnete Bereich hat seinen eigenen Speichern-Knopf (er speichert alle Änderungen der Seite) und zeigt hier, dass etwas offen ist
+    var host = $('ems-view-devices');
+    if (host && typeof host.querySelectorAll === 'function') {
+      host.querySelectorAll('.ems-save-sec').forEach(function (sb) {
+        sb.textContent = S.saveDirty;
+        if (sb.style) sb.style.background = 'var(--st-warn, #d98a1a)';
+      });
+    }
+    var item = target && target.closest ? target.closest('.ems-item') : null;
+    if (item && !item.getAttribute('data-dirty')) {
+      item.setAttribute('data-dirty', '1');
+      var nm = item.querySelector('.ems-item-n');
+      if (nm) nm.insertAdjacentHTML('beforeend', ' <span class="ems-dirty">' + esc(S.unsavedTag) + '</span>');
+    }
     setMsg(S.unsaved);
   }
   function onEdit(ev) {
-    if (editWanted(ev && ev.target)) markDirty();
+    if (editWanted(ev && ev.target)) markDirty(ev.target);
   }
 
   function onToggle(t) {

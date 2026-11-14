@@ -627,3 +627,13 @@ test('Kein Auto-Speichern: Eingaben speichern nichts, der Knopf zeigt «Änderun
   clean.input({ 'data-ems-enable': '1' });
   assert.doesNotMatch(clean.ctx.document.getElementById('ems-savebtn').textContent, /Änderungen/);
 });
+
+test('Jeder geöffnete Bereich hat einen eigenen Speichern-Knopf (gleiche Speicher-Aktion), geschlossene nicht', async () => {
+  const ui = await startUi({ dhw: { enabled: true } });
+  assert.doesNotMatch(ui.setup(), /class="ems-save ems-save-sec"/, 'alles zu: kein Bereichs-Knopf');
+  ui.click({ 'data-ems-open': 'dhw' });
+  const h = ui.setup();
+  assert.equal((h.match(/class="ems-save ems-save-sec" data-ems-save="1"/g) || []).length, 1, 'nur im geöffneten Bereich');
+  ui.click({ 'data-ems-open': 'sg' });
+  assert.equal((ui.setup().match(/class="ems-save ems-save-sec"/g) || []).length, 2, 'zwei offene Bereiche, zwei Knöpfe');
+});
