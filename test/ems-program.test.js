@@ -408,3 +408,34 @@ test('deadlineMs/blocked: immer das heutige Fensterende, auch beim Warten oder b
   assert.equal(doorOpen.blocked, 'door');
   assert.equal(doorOpen.deadlineMs, toMs);
 });
+
+test('Runner: «läuft» (isOn) nur innerhalb der üblichen Programmdauer, danach nicht mehr für immer an', async () => {
+  const { runner } = makeRunner({ remote: 'Enabled', door: 'Closed', gridW: -2500 });
+  await runner.tickCharger(at(19));
+  assert.equal(runner.consumerCurrent[0].isOn, true);
+  runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  await runner.tickCharger(at(19) + 4 * 3600000);
+  assert.equal(runner.consumerCurrent[0].isOn, false, 'nach 4 h (Standarddauer 3 h) ist das Programm vorbei');
+});
+
+test('Frist und günstigster Moment starten höchstens einmal pro Tag - nach der Abkühlpause nur noch PV-Überschuss', () => {
+  const p = normalizeProgram({
+    windowFrom: '18:00', maxWaitH: 4, durationH: 1, minSurplusW: 2000, startSustainS: 0,
+  });
+  const st = { programArmed: true };
+  const first = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: slots(at(18), at(23), () => 45), nowMs: at(22), tz: TZ,
+  });
+  assert.equal(first.start, true, 'Frist erreicht: einmal starten');
+  const later = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: slots(at(18), at(23), () => 45), nowMs: at(23, 30), tz: TZ,
+  });
+  assert.equal(later.start, false, 'nach der Abkühlpause nicht nochmals wegen der Frist');
+  assert.match(later.reason, /heute schon gestartet/);
+  const surplus = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(23, 40), tz: TZ,
+  });
+  assert.equal(surplus.start, true, 'PV-Überschuss darf weiterhin auslösen');
+});

@@ -485,3 +485,9 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Zurück auf Normal beim Ende, aber nur, wenn die Steuerung das Programm selbst gestartet hat (auch nach einem App-Neustart mitten im Programm).
   Sonne hat Vorrang: kommt sie während des Programms dazu, übernimmt SG-Ready (`boost`). Das Programm hält nur per Preis.
 - Standard für beide Mindest-Temperaturen (`priceBelowTemp`, `pvBelowTemp`): 45 °C (0 = keine Prüfung).
+
+## Programm starten: Korrekturen aus den Live-Daten (14.11.2026)
+
+- Die Zeitplan-Auslöser (Frist am Fensterende, günstigste Viertelstunde) starten höchstens **einmal pro Tag**. Mit der Abkühlpause statt
+  Tages-Limit hätte sonst nach der Frist jedes Mal nach Ablauf der Pause ein weiterer Start gedroht. Nur PV-Überschuss darf mehrmals auslösen.
+- «Läuft» (`isOn`) gilt nur innerhalb der üblichen Programmdauer; vorher blieb ein einmal gestartetes Gerät in der Planansicht für immer «an».
