@@ -567,3 +567,9 @@ startet bei Soll minus Hysterese und stoppt bei Soll plus Hysterese. Darum steue
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App
 selbst nichts geschaltet hat, zeigt das Widget «Läuft (extern)», und das Warmwasser-Programm startet nicht bzw. wird beendet (gegenseitiger Ausschluss).
 Die Warnung «Weicht ab!» gibt es weiterhin nur live.
+
+### Hausbatterie-Schutz der Wallbox einstellbar (Rampe)
+
+In den Einstellungen unter «Wallbox» gibt es jetzt vier Felder: **Auto lädt ab Batterie (%)**, **Anteil dort (%)**, **Voller Überschuss ab Batterie (%)** und **Anteil dort (%)**.
+Unterhalb des ersten Werts wartet das Auto ganz (Batterie zuerst), darüber steigt der Anteil des Solarstroms linear bis zum zweiten Wert. Standard 50 / 0 / 80 / 100.
+Beispiel «etwas laden»: 30 / 30 / 70 / 100. Die Werte werden auf 0 bis 100 begrenzt. Die gleiche Regel gilt für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).

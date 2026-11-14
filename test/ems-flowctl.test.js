@@ -655,3 +655,21 @@ test('Verbraucher: kein «Typ»-Dropdown mehr, der Feuchte-Notlauf steht bei jed
   const c = ui.ctx.window.EmsUi._collect().ems.consumers;
   assert.equal(c.length >= 1 && c[0].type, 'dehumidifier', 'bestehender Typ bleibt erhalten');
 });
+
+test('Wallbox: Hausbatterie-Schutz (Rampe) einstellbar - Felder sichtbar, Werte gehen mit dem Speichern mit, ungültige werden begrenzt', async () => {
+  const ui = await startUi();
+  ui.click({ 'data-ems-open': 'row0' });
+  const h = ui.setup();
+  assert.match(h, /Hausbatterie-Schutz/);
+  assert.match(h, /Auto lädt ab Batterie \(%\)/);
+  assert.deepEqual(
+    { lo: ui.ctx.window.EmsUi._collect().ems.share.socLow, hi: ui.ctx.window.EmsUi._collect().ems.share.socHigh, plo: ui.ctx.window.EmsUi._collect().ems.share.pctLow },
+    { lo: 50, hi: 80, plo: 0 },
+    'Standard 50 / 0 / 80 / 100',
+  );
+  ui.set('ems-share-lo', '30');
+  ui.set('ems-share-pctlo', '30');
+  ui.set('ems-share-hi', '700');
+  const s = ui.ctx.window.EmsUi._collect().ems.share;
+  assert.deepEqual([s.socLow, s.pctLow, s.socHigh, s.pctHigh], [30, 30, 100, 100], 'über 100 wird begrenzt');
+});

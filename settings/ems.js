@@ -202,6 +202,7 @@
       batFirst: 'Hausbatterie zuerst bis (%)', batFirstPh: 'wie Wallbox', batFirstHint: 'Leer: wie die Wallbox (Hausbatterie hat Vorrang bis zur gemeinsamen Grenze). Eine Zahl: eigene Grenze; darüber nimmt der Verbraucher auch den Strom, der gerade in die Hausbatterie fliesst. Für kleine Verbraucher (eBike) z. B. 0.',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
+      shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
@@ -412,6 +413,7 @@
       batFirst: 'Home battery first up to (%)', batFirstPh: 'like charger', batFirstHint: 'Empty: like the EV charger (home battery first up to the shared limit). A number: own limit; above it the device also takes the power currently flowing into the home battery. For small devices (e-bike) e.g. 0.',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
+      shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', drop: 'Drop', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
@@ -958,6 +960,16 @@
     return fallback && fallback.id === id ? fallback : { id: '', advanced: false, name: '' };
   }
 
+  // Hausbatterie-Schutz: wie viel vom Solarstrom das Auto in Abhängigkeit vom Batteriestand bekommt (gilt auch für Geräte ohne eigene Grenze)
+  function shareBox() {
+    var sh = (state.cfg && state.cfg.share) || { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100 };
+    var num0 = ' step="5" min="0" max="100"';
+    return '<div class="ems-box"><b>' + esc(S.shareTitle) + '</b><p class="ems-why">' + esc(S.shareWhy) + '</p><div class="ems-row">'
+      + field(S.shareLo, 'ems-share-lo', sh.socLow, 'number', num0) + field(S.sharePctLo, 'ems-share-pctlo', sh.pctLow, 'number', num0)
+      + field(S.shareHi, 'ems-share-hi', sh.socHigh, 'number', num0) + field(S.sharePctHi, 'ems-share-pcthi', sh.pctHigh, 'number', num0) + '</div>'
+      + '<p class="ems-why">' + esc(S.shareEx) + '</p></div>';
+  }
+
   function rowBody(r, i) {
     var p = 'row' + i + '-';
     var meterRow = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.meterDevice) + '</span><select id="' + p + 'mdev" data-ems-mdev="' + i + '">' + deviceOptions(r.meterDeviceId, hasCap(/^meter_power/), S.none) + '</select></label>'
@@ -969,6 +981,7 @@
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'dev">' + deviceOptions(r.deviceId, hasCap(/^(evcharger_charging|target_power)/), S.pick) + '</select></label>'
         + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
         + meterRow + lastTxt
+        + shareBox()
         + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
         + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
         + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label></details>';
@@ -2396,6 +2409,13 @@
   }
 
   /** Zustand -> zwei Konfigurationen: Energiemanagement und Zählerstände (Kosten). */
+  function shareCollect(cur) {
+    var s0 = cur || { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100 };
+    if (!$('ems-share-lo')) return s0;
+    var b = function (id, fb) { return Math.min(100, Math.max(0, num(id, fb))); };
+    return Object.assign({}, s0, { socLow: b('ems-share-lo', s0.socLow), pctLow: b('ems-share-pctlo', s0.pctLow), socHigh: b('ems-share-hi', s0.socHigh), pctHigh: b('ems-share-pcthi', s0.pctHigh) });
+  }
+
   function collect() {
     sync();
     var c = state.cfg;
@@ -2420,6 +2440,7 @@
       charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
       pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
       car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
+      share: shareCollect(c.share),
       refreshS: Number(c.refreshS) || 0,
       tickMinutes: Number(c.tickMinutes) || 5,
       fuse: c.fuse ? JSON.parse(JSON.stringify(c.fuse)) : undefined,
