@@ -19,13 +19,12 @@ test('Konfiguration: Standardwerte, Grenzen, ungültige Uhrzeit fällt zurück, 
   const d = normalizeDelay({});
   assert.equal(d.enabled, false);
   assert.deepEqual([d.windowFrom, d.windowTo, d.releaseWeekday, d.releaseWeekend, d.releaseLow], ['05:00', '14:00', '16:00', '15:00', '10:00']);
-  assert.deepEqual([d.minForecastKwh, d.comfortTemp, d.startMargin, d.priceBlockHours, d.priceRelease], [15, 32, 3, 1.5, true]);
-  const x = normalizeDelay({ windowFrom: 'kaputt', minForecastKwh: 999, comfortTemp: 1, startMargin: 50, priceBlockHours: 0.1, releaseWeekday: '7:05' });
+  assert.deepEqual([d.minForecastKwh, d.comfortTemp, d.startMargin], [15, 32, 3]);
+  const x = normalizeDelay({ windowFrom: 'kaputt', minForecastKwh: 999, comfortTemp: 1, startMargin: 50, releaseWeekday: '7:05' });
   assert.equal(x.windowFrom, '05:00');
   assert.equal(x.minForecastKwh, 200);
   assert.equal(x.comfortTemp, 10);
   assert.equal(x.startMargin, 10);
-  assert.equal(x.priceBlockHours, 0.25);
   assert.equal(x.releaseWeekday, '07:05');
 });
 
@@ -56,21 +55,17 @@ test('Keine Verzögerung: aus, ausserhalb des Fensters, Freigabezeit vorbei, Kom
   assert.equal(decideDelay(base({ dhwRunning: true })).action, 'none');
 });
 
-test('Wenig Sonne mit Preisoptimierung: bis zum Beginn des günstigsten Blocks (höchstens zur Freigabezeit); läuft der Block schon: nicht verzögern', () => {
-  const r = decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: at(13, 11) }));
+test('Wenig Sonne mit Preisoptimierung: bis zur Freigabezeit warten, in den günstigen Stunden startet das Programm selbst; nach der Freigabezeit nicht mehr verzögern', () => {
+  const r = decideDelay(base({ forecastKwh: 5, priceOn: true }));
   assert.equal(r.action, 'start');
-  assert.equal(r.releaseAt, at(13, 11));
-  assert.match(r.reason, /günstiger Block ab 11:00/);
-  assert.equal(decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: at(13, 18) })).releaseAt, at(13, 16), 'höchstens zur Freigabezeit');
-  assert.match(decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: at(13, 6) })).reason, /läuft schon/);
-  assert.equal(decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: () => at(13, 12) })).releaseAt, at(13, 12), 'auch als Funktion (nur bei Bedarf berechnet)');
+  assert.equal(r.releaseAt, at(13, 16), 'Mo-Fr 16:00');
+  assert.match(r.reason, /Warmwasser-Programm heizt in den günstigen Stunden/);
+  assert.match(decideDelay(base({ forecastKwh: 5, priceOn: true, nowMs: at(13, 16, 30), cfg: normalizeDelay({ enabled: true, windowTo: '18:00' }) })).reason, /Freigabezeit schon vorbei/);
 });
 
-test('Wenig Sonne ohne Preisoptimierung (oder ohne Block): feste Uhrzeit 10:00; danach nicht mehr verzögern', () => {
+test('Wenig Sonne ohne Preisoptimierung: feste Uhrzeit 10:00; danach nicht mehr verzögern', () => {
   const r = decideDelay(base({ forecastKwh: 5, priceOn: false }));
   assert.equal(r.releaseAt, at(13, 10));
-  assert.equal(decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: null })).releaseAt, at(13, 10), 'kein Block gefunden');
-  assert.equal(decideDelay(base({ forecastKwh: 5, priceOn: true, priceBlockStart: at(13, 12), cfg: normalizeDelay({ enabled: true, priceRelease: false }) })).releaseAt, at(13, 10), 'Preis-Freigabe aus');
   assert.match(decideDelay(base({ forecastKwh: 5, nowMs: at(13, 10, 30) })).reason, /Freigabezeit schon vorbei/);
   assert.equal(decideDelay(base({ forecastKwh: null })).releaseAt, at(13, 10), 'Prognose unbekannt = wenig Sonne');
 });

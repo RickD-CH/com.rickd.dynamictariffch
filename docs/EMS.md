@@ -569,8 +569,8 @@ kurz zu takten und mittags nochmals. Fällt das Warmwasser im Zeitfenster (Stand
 (WW-Soll minus Hysterese plus Marge 3 K), senkt die App den WW-Soll per Flow «verzögern» ab. Die Wärmepumpe startet nicht von selbst.
 Später übernimmt SG-Ready (Sonne) oder das Warmwasser-Programm (günstiger Block) das Aufheizen in einem Lauf.
 
-- **Bis wann:** Prognose >= 15 kWh: Freigabe Mo bis Fr 16:00, Wochenende 15:00. Wenig Sonne und Preisoptimierung aktiv: Beginn des günstigsten Blocks (Standard 1,5 h),
-  spätestens zur Freigabezeit. Wenig Sonne ohne Preise: 10:00.
+- **Bis wann:** Prognose >= 15 kWh: Freigabe Mo bis Fr 16:00, Wochenende 15:00. Wenig Sonne und Preisoptimierung aktiv: ebenfalls bis zur Freigabezeit; in den günstigen Stunden
+  startet das Warmwasser-Programm selbst (hebt den Soll an und beendet damit die Verzögerung), einen eigenen Preis-Block gibt es dafür nicht. Wenig Sonne ohne Preise: 10:00.
 - **Freigabe sofort:** Komfortgrenze (32 °C) unterschritten, SG-Ready läuft, Modul pausiert oder ausgeschaltet, neuer Tag, nach 14 Stunden. Startet das Programm selbst, endet die Verzögerung ohne Flow.
 - **Einmal pro Tag.** Die Verzögerung übersteht einen Neustart der App (der Zustand wird gespeichert); die Basis des WW-Soll wird währenddessen nicht überschrieben.
 - Braucht die Flows «verzögern» und «zurück auf Normal» (Ausgabe über Flows). Standardmässig **aus**, im Trockenlauf wird nur simuliert.
