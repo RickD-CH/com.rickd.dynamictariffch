@@ -131,3 +131,29 @@ test('Konfiguration: PV-Faktor mit Grenzen', () => {
   assert.equal(normalizeConfig({ pv: { factor: 0 } }).pv.factor, 0.1);
   assert.equal(normalizeConfig({ pv: { factor: 'x' } }).pv.factor, 1);
 });
+
+test('Prognose-Bonus der Rampe: verschiebt die Rampe nur bei klar mehr Sonne als Batterie und Haus brauchen, sonst unverändert (defensiv)', () => {
+  const { applyShareBonus } = require('../lib/ems/planner/shareBonus'); // eslint-disable-line global-require
+  const share = { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100 };
+  const base = { share, bonus: 20, soc: 40, capacityKwh: 10, remainingKwh: 20, houseKwh: 4 };
+  // Rest 20 kWh - Batterie bis voll 6 kWh - Haus 4 kWh = 10 kWh Überschuss = ganze Kapazität -> voller Bonus
+  let r = applyShareBonus(base);
+  assert.equal(r.shift, 20);
+  assert.deepEqual([r.share.socLow, r.share.socHigh], [30, 60]);
+  // halber Überschuss -> halber Bonus
+  r = applyShareBonus({ ...base, remainingKwh: 15 });
+  assert.equal(r.shift, 10);
+  // zu wenig Sonne -> keine Verschiebung
+  r = applyShareBonus({ ...base, remainingKwh: 8 });
+  assert.equal(r.shift, 0);
+  assert.equal(r.share, share);
+  // defensiv: ohne Prognose, Profil, Kapazität, Ladestand oder mit bonus 0 nichts
+  for (const o of [{ remainingKwh: null }, { houseKwh: null }, { capacityKwh: 0 }, { soc: null }, { bonus: 0 }]) {
+    const x = applyShareBonus({ ...base, ...o });
+    assert.equal(x.shift, 0);
+    assert.equal(x.share, share);
+  }
+  // nie unter 0, obere Grenze bleibt über der unteren
+  r = applyShareBonus({ ...base, share: { socLow: 10, socHigh: 15, pctLow: 0, pctHigh: 100 } });
+  assert.deepEqual([r.share.socLow, r.share.socHigh], [0, 1]);
+});

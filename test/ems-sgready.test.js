@@ -1085,3 +1085,21 @@ test('Externer SG-Ready-Lauf (z. B. der bisherige Flow schaltet das Relais): Rü
   await runner.tickCharger(at(22) + 3600000);
   assert.equal(runner.dhwCurrent.on, false, 'startet auch später nicht, solange es gemeldet wird');
 });
+
+test('Runner: wirksame Rampe mit Prognose-Bonus (Rest-Prognose, Batterie bis voll, Hausverbrauch bis Sonnenende), ohne Profil defensiv unverändert', () => {
+  const { runner } = makeRunner();
+  const share = {
+    socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100, forecastBonus: 20,
+  };
+  const cfg = { share, battery: { deviceId: 'b', capacityKwh: 10 } };
+  runner.pv = { remainingTodayKwh: () => 20, forecastKwh: (n, h) => Math.min(20, h * 5) };
+  runner.loadProfile = { averageKw: () => 1 }; // 4 h Sonne x 1 kW = 4 kWh Haus
+  const r = runner._computeShare(cfg, { batterySoc: 40, batteryCapacityKwh: 0 }, at(10));
+  assert.equal(runner.shareShift, 20, '20 - 6 (Batterie) - 4 (Haus) = 10 kWh = ganze Kapazität');
+  assert.deepEqual([r.socLow, r.socHigh], [30, 60]);
+  runner.loadProfile = { averageKw: () => null }; // noch nichts gelernt
+  const n = runner._computeShare(cfg, { batterySoc: 40, batteryCapacityKwh: 0 }, at(10));
+  assert.equal(runner.shareShift, 0);
+  assert.equal(n, share);
+  assert.equal(runner._computeShare({ ...cfg, share: { ...share, forecastBonus: 0 } }, { batterySoc: 40 }, at(10)).socLow, 50);
+});

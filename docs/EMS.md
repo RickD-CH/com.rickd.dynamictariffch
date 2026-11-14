@@ -573,3 +573,14 @@ Die Warnung «Weicht ab!» gibt es weiterhin nur live.
 In den Einstellungen unter «Wallbox» gibt es jetzt vier Felder: **Auto lädt ab Batterie (%)**, **Anteil dort (%)**, **Voller Überschuss ab Batterie (%)** und **Anteil dort (%)**.
 Unterhalb des ersten Werts wartet das Auto ganz (Batterie zuerst), darüber steigt der Anteil des Solarstroms linear bis zum zweiten Wert. Standard 50 / 0 / 80 / 100.
 Beispiel «etwas laden»: 30 / 30 / 70 / 100. Die Werte werden auf 0 bis 100 begrenzt. Die gleiche Regel gilt für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).
+
+### Prognose-Bonus der Hausbatterie-Rampe
+
+Optional (`share.forecastBonus`, 0 bis 40 Prozentpunkte, Standard 0 = aus): Zeigt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Ende
+der Sonne brauchen, wird die Rampe nach unten verschoben, das Auto (und Geräte ohne eigene Grenze) bekommt also früher einen Teil des Solarstroms.
+
+    überschuss   = Rest-Prognose - (Batterie bis voll) - (Hausverbrauch bis zum Ende der Sonne)
+    verschiebung = Bonus x (überschuss / Batteriekapazität, begrenzt auf 0 bis 1)
+
+Der Hausverbrauch kommt aus dem gelernten Profil, das Ende der Sonne aus der Prognose. Defensiv: ohne frische Prognose, Kapazität, Ladestand oder gelerntes
+Profil passiert nichts. Die Verschiebung wird im Shadow (`shareShift`) und in den Einstellungen angezeigt. Logik: `lib/ems/planner/shareBonus.js`, Anbindung `EmsRunner._computeShare`.
