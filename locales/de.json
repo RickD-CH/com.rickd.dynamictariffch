@@ -141,6 +141,8 @@
     "sgBoost": "Empfehlung (Boost)",
     "sgForced": "Zwangsladung",
     "sgDhw": "Warmwasser-Programm",
+    "sgReported": "Wärmepumpe meldet: {v}",
+    "sgMismatch": "Weicht ab!",
     "sgWaiting": "Wartet auf den ersten Lauf",
     "sgTemp": "Warmwasser {t} °C",
     "sgUntil": "bis {time}",

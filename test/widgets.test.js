@@ -169,6 +169,11 @@ test('Widget «Verbraucher»: SG-Ready-Block nur wenn aktiv, mit Zustand, Warmwa
   assert.equal(w.tempWW, 48.5);
   assert.equal(w.untilHm, '21:07');
   assert.equal(w.live, false, 'nicht live: Testmodus');
+  assert.equal(w.reported, null);
+  assert.equal(w.mismatch, false);
+  const fb = consumersWidget({ shadow: { ...on, sgready: { ...on.sgready, reported: '2 NORMAL', mismatch: true } }, consumerCurrent: [], tz: TZ }).sgready;
+  assert.equal(fb.reported, '2 NORMAL');
+  assert.equal(fb.mismatch, true);
   const waiting = consumersWidget({ shadow: { ...base, config: on.config }, consumerCurrent: [], tz: TZ }).sgready;
   assert.equal(waiting.state, null, 'noch kein Lauf: Platzhalter statt Absturz');
 });

@@ -117,6 +117,8 @@
       var sub = [];
       if (sg.reason) sub.push(esc(sg.reason));
       if (sg.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
+      if (sg.reported) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
+      if (sg.mismatch) sub.push('<b style="color:var(--cw-warn)">' + esc(Homey.__('consumersWidget.sgMismatch')) + '</b>');
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('boiler') + '</span>' + esc(Homey.__('consumersWidget.sgTitle')) + testChip + '</div>'
         + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + '</div>'

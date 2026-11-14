@@ -498,3 +498,7 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   (`settings/ems.js`), der Schlüssel ist die Feld-Id ohne `rowN-`/`ems-`; `field()`/`check()` hängen sie automatisch an. Selbsterklärende Felder
   (Name, Gerät) haben keinen Text. Neue Felder: einfach einen Eintrag in `S.tips` (DE und EN) ergänzen.
 - Die SG-Ready-Erklärungen sind auf dasselbe Muster umgestellt (vorher dauerhaft sichtbare Absätze).
+- **Zustand von der Wärmepumpe übernehmen (14.11.2026):** `feedbackId`/`feedbackCapability` (z. B. «SG Rdy B.Zustand» der Stiebel-Eltron, Wert «2 NORMAL»).
+  Gelesen wird die Standardnummer 1 bis 4 (1 EVU-Sperre, 2 Normal, 3 Empfehlung, 4 Anlaufbefehl, `parseSgReadyState`), sonst Stichworte. Der gemeldete Wert
+  steht im Widget («Wärmepumpe meldet: …»). Weicht er nach 5 Minuten Einschwingzeit vom gewollten Zustand ab, oder meldet sie EVU-Sperre, warnt das Widget
+  («Weicht ab!») und ein Logeintrag entsteht. Nur live. Leer = nur der eigene Zustand.

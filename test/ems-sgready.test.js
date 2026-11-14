@@ -5,7 +5,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  normalizeSgReady, decideSgReady, makeSgReadyState, relaysFor,
+  normalizeSgReady, decideSgReady, makeSgReadyState, relaysFor, parseSgReadyState,
 } = require('../lib/ems/planner/sgready');
 const { fromLocal } = require('../lib/time');
 
@@ -614,4 +614,44 @@ test('Runner: Betriebsart-Vergleich ignoriert Gross-/Kleinschreibung und Leerzei
   r.runner.inputs.readValue = async () => ' AUTOMATIK ';
   await r.runner.tickCharger(at(10));
   assert.equal(r.runner.sgReadyCurrent.modeBlocked, false);
+});
+
+test('parseSgReadyState: Nummern 1 bis 4, Text mit führender Nummer, Stichworte, sonst unbekannt', () => {
+  assert.equal(parseSgReadyState('2 NORMAL').state, 'off');
+  assert.equal(parseSgReadyState('3 EMPFEHLUNG').state, 'boost');
+  assert.equal(parseSgReadyState('4 ANLAUFBEFEHL').state, 'forced');
+  assert.equal(parseSgReadyState('1 EVU SPERRE').state, 'lock');
+  assert.equal(parseSgReadyState(3).state, 'boost');
+  assert.equal(parseSgReadyState('Normalbetrieb').state, 'off');
+  assert.equal(parseSgReadyState('Einschaltempfehlung').state, 'boost');
+  assert.equal(parseSgReadyState('12 irgendwas').state, null);
+  assert.equal(parseSgReadyState(null).state, null);
+  assert.equal(parseSgReadyState('2 NORMAL').raw, '2 NORMAL');
+});
+
+test('Runner: Zustand von der Wärmepumpe übernehmen - gemeldet wird angezeigt, Abweichung erst nach der Einschwingzeit, nur live', async () => {
+  const { runner } = makeRunner({ feedbackId: 'wp', feedbackCapability: 'sg' });
+  let reported = '2 NORMAL';
+  runner.inputs.readValue = async (id) => (id === 'wp' ? reported : null);
+  await runner.tickCharger(at(10)); // wir wollen boost, die WP meldet noch normal
+  assert.equal(runner.sgReadyCurrent.state, 'boost');
+  assert.equal(runner.sgReadyCurrent.reported, '2 NORMAL');
+  assert.equal(runner.sgReadyCurrent.mismatch, false, 'Einschwingzeit: noch keine Warnung');
+  await runner.tickCharger(at(10) + 6 * 60000);
+  assert.equal(runner.sgReadyCurrent.mismatch, true, 'nach 6 Minuten meldet sie immer noch Normal');
+  reported = '3 EMPFEHLUNG';
+  await runner.tickCharger(at(10) + 7 * 60000);
+  assert.equal(runner.sgReadyCurrent.mismatch, false, 'passt jetzt');
+  reported = '1 EVU SPERRE';
+  await runner.tickCharger(at(10) + 8 * 60000);
+  assert.equal(runner.sgReadyCurrent.mismatch, true, 'EVU-Sperre warnt sofort');
+});
+
+test('Runner: Rückmeldung ohne live warnt nie (es wird ja nichts geschaltet)', async () => {
+  const { runner } = makeRunner({ feedbackId: 'wp', feedbackCapability: 'sg', live: false });
+  runner.inputs.readValue = async () => '2 NORMAL';
+  await runner.tickCharger(at(10));
+  await runner.tickCharger(at(10) + 10 * 60000);
+  assert.equal(runner.sgReadyCurrent.reported, '2 NORMAL');
+  assert.equal(runner.sgReadyCurrent.mismatch, false);
 });

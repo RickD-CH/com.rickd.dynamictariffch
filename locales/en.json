@@ -141,6 +141,8 @@
     "sgBoost": "Recommendation (boost)",
     "sgForced": "Forced charging",
     "sgDhw": "Hot-water program",
+    "sgReported": "Heat pump reports: {v}",
+    "sgMismatch": "Differs!",
     "sgWaiting": "Waiting for the first run",
     "sgTemp": "Hot water {t} °C",
     "sgUntil": "until {time}",

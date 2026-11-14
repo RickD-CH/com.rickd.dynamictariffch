@@ -121,6 +121,7 @@
       sgForced: 'Zwangsladung (1:1) erlauben', sgForcedW: 'Schwelle Zwangsladung (W)', sgForcedH: 'Zustand 1:1, oft mit Heizstab und viel Strom. Nur aus dem Boost heraus und erst ab dieser Solarleistung. Standard aus.',
       sgSensor: 'Warmwasser-Temperatur (Gerät und Wert)', sgSensorH: 'Messwert «WW IST» der Wärmepumpe, damit der Boost bei der Zieltemperatur endet.',
       sgMode: 'Betriebsart der Wärmepumpe (Gerät und Wert, optional)', sgModeOk: 'Steuern nur bei diesem Wert (z. B. Automatik)', sgModeH: 'Die Steuerung greift nur ein, wenn die Betriebsart diesen Wert hat. Bei Ferien, Komfort oder Standby wird nicht gesteuert. Leer lassen = keine Prüfung.',
+      sgFeedback: 'Zustand von der Wärmepumpe übernehmen (Gerät und Wert, optional)', sgFeedbackH: 'Liest den SG-Ready-Zustand der Wärmepumpe (z. B. «2 NORMAL»), zeigt ihn im Widget und warnt, wenn er nach dem Schalten nicht passt. Leer = nur der eigene Zustand.',
       sgOutput: 'Wie werden die Zustände gesetzt?', sgOutRelays: 'Zwei Relais (z. B. 2 Shellys)', sgOutFlows: 'Flows (je Zustand ein Flow, z. B. Modbus)',
       sgOutH: 'Relais: Normal = beide aus, Empfehlung (0:1) = Relais 1 an, Zwangsladung (1:1) = beide an. Flows: ein eigener Flow je Zustand, z. B. Modbus-Register schreiben.',
       sgRecRelay: 'Relais Empfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgFlowNormal: 'Flow Normalbetrieb (0:0)', sgFlowBoost: 'Flow Empfehlung (0:1)', sgFlowForced: 'Flow Zwangsladung (1:1)',
@@ -316,6 +317,7 @@
       sgForced: 'Allow forced charging (1:1)', sgForcedW: 'Forced charging threshold (W)', sgForcedH: 'State 1:1, often with a heating rod and high consumption. Only from the boost and only from this solar power. Off by default.',
       sgSensor: 'Hot-water temperature (device and value)', sgSensorH: 'The heat pump hot-water actual value, so the boost ends at the target temperature.',
       sgMode: 'Heat pump operating mode (device and value, optional)', sgModeOk: 'Control only at this value (e.g. Automatic)', sgModeH: 'Control only acts when the operating mode has this value. Not in holiday, comfort or standby. Leave empty = no check.',
+      sgFeedback: 'Take the state from the heat pump (device and value, optional)', sgFeedbackH: 'Reads the SG Ready state of the heat pump (e.g. 2 NORMAL), shows it in the widget and warns if it does not match after switching. Empty = own state only.',
       sgOutput: 'How are the states set?', sgOutRelays: 'Two relays (e.g. 2 Shellys)', sgOutFlows: 'Flows (one flow per state, e.g. Modbus)',
       sgOutH: 'Relays: normal = both off, recommendation (0:1) = relay 1 on, forced (1:1) = both on. Flows: one flow per state, e.g. writing Modbus registers.',
       sgRecRelay: 'Relay recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgFlowNormal: 'Flow normal operation (0:0)', sgFlowBoost: 'Flow recommendation (0:1)', sgFlowForced: 'Flow forced charging (1:1)',
@@ -1172,6 +1174,7 @@
       + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
       + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./, S.sgModeH)
       + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '')
+      + sgDevPair(S.sgFeedback, 'ems-sg-fbk', g.feedbackId, g.feedbackCapability, /./, S.sgFeedbackH)
       + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced, S.sgForcedH) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + tipI('sg-output') + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label>' + tipT('sg-output', S.sgOutH) + '</div>'
       + (flows
@@ -1209,6 +1212,8 @@
     g.modeId = ($('ems-sg-mode-dev') || { value: g.modeId }).value || '';
     if ($('ems-sg-mode-cap')) g.modeCapability = g.modeId ? val('ems-sg-mode-cap', g.modeCapability) : '';
     if ($('ems-sg-modeok')) g.modeOkValue = String($('ems-sg-modeok').value || '');
+    g.feedbackId = ($('ems-sg-fbk-dev') || { value: g.feedbackId }).value || '';
+    if ($('ems-sg-fbk-cap')) g.feedbackCapability = g.feedbackId ? val('ems-sg-fbk-cap', g.feedbackCapability) : '';
     g.output = val('ems-sg-output', g.output) === 'flows' ? 'flows' : 'relays';
     if ($('ems-sg-rec-dev')) g.recommendRelay = { deviceId: val('ems-sg-rec-dev', g.recommendRelay.deviceId), capability: val('ems-sg-rec-cap', g.recommendRelay.capability) };
     if ($('ems-sg-frc-dev')) g.forceRelay = { deviceId: val('ems-sg-frc-dev', g.forceRelay.deviceId), capability: val('ems-sg-frc-cap', g.forceRelay.capability) };
