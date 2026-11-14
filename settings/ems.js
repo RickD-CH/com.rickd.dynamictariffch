@@ -976,9 +976,6 @@
     var modes = [['surplus', S.modeSurplus], ['program', S.modeProgram]].concat(hasBattery() ? [['full', S.modeFull], ['soc', S.modeSoc]] : []);
     if (!hasBattery() && (r.mode === 'full' || r.mode === 'soc')) modes.push([r.mode, r.mode === 'full' ? S.modeFull : S.modeSoc]);
     var modeOpts = modes.map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === r.mode ? ' selected' : '') + '>' + esc(m[1]) + '</option>'; }).join('');
-    var typeOpts = [['generic', S.typeGeneric], ['dehumidifier', S.typeDehum]].map(function (t) {
-      return '<option value="' + t[0] + '"' + (t[0] === r.type ? ' selected' : '') + '>' + esc(t[1]) + '</option>';
-    }).join('');
     var params = '';
     if (r.mode === 'full') params += field(S.fullSoc, p + 'fullSoc', r.fullSoc) + field(S.hysteresis, p + 'hysteresis', r.hysteresis);
     if (r.mode === 'soc') params += field(S.socOn, p + 'socOn', r.socOn) + field(S.hysteresis, p + 'hysteresis', r.hysteresis);
@@ -998,7 +995,7 @@
     var ctrlBody = '';
     if (viaFlow ? !!(r.flowOn && r.flowOn.id) : !!r.deviceId) {
       var h = r.humidity;
-      var hum = r.type === 'dehumidifier'
+      var hum = true
         ? '<div class="ems-box"><b>' + esc(S.humTitle) + '</b><div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
           + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.humSensor) + '</span><select id="' + p + 'humSensor">' + deviceOptions(h.sensorId, hasCap(/^measure_humidity$/), S.none) + '</select></label>'
           + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div><p class="ems-why">' + esc(S.humHint) + '</p></div>'
@@ -1033,7 +1030,7 @@
           + field(S.minRun, p + 'minRunMin', r.minRunMin) + field(S.minOff, p + 'minOffMin', r.minOffMin) + field(S.protect, p + 'protectSoc', r.protectSoc) + '</div>'
           + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>'));
     }
-    return '<div class="ems-row"><label class="ems-f"><span>' + esc(S.type) + '</span><select id="' + p + 'type" data-ems-mode="' + i + '">' + typeOpts + '</select></label>'
+    return '<div class="ems-row">'
       + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
       + '<div class="ems-row" style="gap:4px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
         return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
@@ -2355,7 +2352,6 @@
         if ($(p + 'autoOff')) r.autoOff = chk(p + 'autoOff');
         return;
       }
-      r.type = val(p + 'type', r.type);
       r.controlKind = val(p + 'kind', r.controlKind || 'device');
       if (r.controlKind === 'flow') {
         r.flowOn = pickFlow(val(p + 'flowOn', r.flowOn.id), r.flowOn);
@@ -2380,7 +2376,7 @@
           stopAt: num(p + 'accuStop', ac0.stopAt), resumeBelow: num(p + 'accuResume', ac0.resumeBelow), chargeBelow: num(p + 'accuLow', ac0.chargeBelow), maxRunMin: num(p + 'accuMax', ac0.maxRunMin),
         };
       }
-      if (r.type === 'dehumidifier' && $(p + 'humSensor')) {
+      if ($(p + 'humSensor')) {
         r.humidity = {
           enabled: chk(p + 'humEnable'), sensorId: val(p + 'humSensor', r.humidity.sensorId), capability: r.humidity.capability || 'measure_humidity',
           onAbove: num(p + 'humOn', r.humidity.onAbove), offBelow: num(p + 'humOff', r.humidity.offBelow), runMin: num(p + 'humRun', r.humidity.runMin),

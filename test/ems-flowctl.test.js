@@ -637,3 +637,21 @@ test('Jeder geöffnete Bereich hat einen eigenen Speichern-Knopf (gleiche Speich
   ui.click({ 'data-ems-open': 'sg' });
   assert.equal((ui.setup().match(/class="ems-save ems-save-sec"/g) || []).length, 2, 'zwei offene Bereiche, zwei Knöpfe');
 });
+
+test('Verbraucher: kein «Typ»-Dropdown mehr, der Feuchte-Notlauf steht bei jedem Gerät (unter Erweitert), ein bestehender Typ bleibt erhalten', async () => {
+  const ui = await startUi({
+    consumers: [{
+      id: 'lamp', name: 'Lampe', enabled: true, mode: 'surplus', type: 'dehumidifier', humidity: { enabled: true, sensorId: 'lamp', onAbove: 70 },
+    }, {
+      id: 'lamp', name: 'Heizer', enabled: true, mode: 'surplus', type: 'generic',
+    }],
+  });
+  ui.click({ 'data-ems-open': 'row1' });
+  ui.click({ 'data-ems-open': 'row2' });
+  const h = ui.setup();
+  assert.doesNotMatch(h, /id="row1-type"/);
+  assert.doesNotMatch(h, /Allgemeiner Verbraucher/);
+  assert.equal((h.match(/Feuchte-Notlauf/g) || []).length >= 2, true, 'Feuchte-Notlauf bei beiden Geräten (auch beim «allgemeinen»)');
+  const c = ui.ctx.window.EmsUi._collect().ems.consumers;
+  assert.equal(c.length >= 1 && c[0].type, 'dehumidifier', 'bestehender Typ bleibt erhalten');
+});
