@@ -374,3 +374,47 @@ test('PV-Flow-Aktionen: an den EMS-Treiber gebunden, mit Hinweis und Beispiel', 
   assert.match(appJs, /getActionCard\('ems_set_pv_forecast'\)/);
   assert.match(appJs, /getActionCard\('ems_set_pv_factor'\)/);
 });
+
+test('Auslöser «Ein Verbraucher wurde geschaltet»: ein Programm-Start (Geschirrspüler & Co.) meldet «on», nicht «off»; Ausschalten bleibt «off»', () => {
+  const homey = makeHomey();
+  const dev = new EmsDevice(homey, CAPS);
+  dev.fireConsumerSwitched({ name: 'Geschirrspüler', cmd: 'program', live: true, reason: 'Start bei PV-Überschuss' });
+  dev.fireConsumerSwitched({ name: 'eBike', cmd: 'on', live: false, reason: 'Überschuss' });
+  dev.fireConsumerSwitched({ name: 'eBike', cmd: 'off', live: false, reason: 'kein Überschuss' });
+  assert.deepEqual(homey.fired.map(([id, t]) => [id, t.name, t.state, t.live]), [
+    ['ems_consumer_switched', 'Geschirrspüler', 'on', true],
+    ['ems_consumer_switched', 'eBike', 'on', false],
+    ['ems_consumer_switched', 'eBike', 'off', false],
+  ]);
+});
+
+test('Auslöser «Automatik abgelaufen»: Name und Grund als Werte', () => {
+  const homey = makeHomey();
+  const dev = new EmsDevice(homey, CAPS);
+  dev.fireProgramExpired({ name: 'Tumbler', reason: 'Automatik abgelaufen: die Wartezeit ist vorbei, es wurde nicht gestartet' });
+  assert.deepEqual(homey.fired, [['ems_program_expired', { name: 'Tumbler', reason: 'Automatik abgelaufen: die Wartezeit ist vorbei, es wurde nicht gestartet' }]]);
+});
+
+test('Flow-Karten für Programm-Geräte und Module: Dateien vollständig (de/en), Gerät und Auswahlfeld vorhanden, in app.js registriert', () => {
+  const root = path.join(__dirname, '..');
+  const read = (kind, id) => JSON.parse(fs.readFileSync(path.join(root, '.homeycompose', 'flow', kind, `${id}.json`), 'utf8'));
+  const appJs = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  const cards = [
+    ['actions', 'ems_program_start', ['device', 'consumer']],
+    ['actions', 'ems_program_arm', ['device', 'consumer', 'mode', 'wait']],
+    ['actions', 'ems_module_pause', ['device', 'module', 'mode']],
+    ['conditions', 'ems_program_armed', ['device', 'consumer']],
+    ['conditions', 'ems_module_paused', ['device', 'module']],
+    ['conditions', 'ems_consumer_running', ['device', 'consumer']],
+  ];
+  for (const [kind, id, args] of cards) {
+    const c = read(kind, id);
+    assert.ok(c.title.de && c.title.en, `${id}: Titel de/en`);
+    assert.deepEqual(c.args.map((a) => a.name), args, `${id}: Argumente`);
+    assert.match(appJs, new RegExp(`'${id}'`), `${id} ist in app.js registriert`);
+    if (args.includes('consumer')) assert.equal(c.args.find((a) => a.name === 'consumer').type, 'autocomplete');
+  }
+  assert.equal(read('actions', 'ems_program_arm').args.find((a) => a.name === 'wait').required, false, 'Wartezeit ist optional');
+  const t = read('triggers', 'ems_program_expired');
+  assert.deepEqual(t.tokens.map((x) => x.name), ['name', 'reason']);
+});

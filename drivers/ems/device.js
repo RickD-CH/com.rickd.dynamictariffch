@@ -129,11 +129,19 @@ class EmsDevice extends Homey.Device {
       .catch((err) => this.error('Trigger ems_car_target_reached:', err && err.message));
   }
 
+  /** Die Automatik eines Programm-Geräts ist abgelaufen (Wartezeit vorbei, nicht gestartet). */
+  fireProgramExpired(e) {
+    this.homey.flow.getDeviceTriggerCard('ems_program_expired')
+      .trigger(this, { name: String(e.name || ''), reason: String(e.reason || '') })
+      .catch((err) => this.error('Trigger ems_program_expired:', err && err.message));
+  }
+
   /** Ein Verbraucher wurde (im Testbetrieb oder live) ein- oder ausgeschaltet. */
   fireConsumerSwitched(e) {
     this.homey.flow.getDeviceTriggerCard('ems_consumer_switched')
       .trigger(this, {
-        name: e.name, state: e.cmd === 'on' ? 'on' : 'off', live: e.live === true, reason: e.reason || '',
+        // ein Programm-Start (Geschirrspüler & Co.) ist ein Einschalten: «on» (früher fälschlich «off»)
+        name: e.name, state: e.cmd === 'on' || e.cmd === 'program' ? 'on' : 'off', live: e.live === true, reason: e.reason || '',
       })
       .catch((err) => this.error('Trigger ems_consumer_switched:', err && err.message));
   }

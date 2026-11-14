@@ -1,0 +1,73 @@
+{
+  "title": {
+    "en": "Switch the automatic of a program device on or off",
+    "de": "Automatik eines Programm-Geräts ein- oder ausschalten"
+  },
+  "titleFormatted": {
+    "en": "Automatic of [[consumer]] [[mode]], wait [[wait]] h",
+    "de": "Automatik von [[consumer]] [[mode]], Wartezeit [[wait]] h"
+  },
+  "hint": {
+    "en": "With the automatic on, the device starts once by itself: on PV surplus, in the cheapest block of the program duration, or at the latest when the wait is over. Then the automatic switches itself off. The wait (1 to 12 h) is optional; without it the default wait of the device applies.",
+    "de": "Mit eingeschalteter Automatik startet das Gerät einmal selbst: bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit. Danach geht die Automatik von selbst aus. Die Wartezeit (1 bis 12 h) ist optional, ohne sie gilt die Standard-Wartezeit des Geräts."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "autocomplete",
+      "name": "consumer",
+      "title": {
+        "en": "Program device",
+        "de": "Programm-Gerät"
+      },
+      "placeholder": {
+        "en": "Choose a device",
+        "de": "Gerät wählen"
+      }
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Automatic",
+        "de": "Automatik"
+      },
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "on",
+            "de": "ein"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "off",
+            "de": "aus"
+          }
+        }
+      ]
+    },
+    {
+      "type": "number",
+      "name": "wait",
+      "required": false,
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "title": {
+        "en": "Wait (h, optional)",
+        "de": "Wartezeit (h, optional)"
+      },
+      "placeholder": {
+        "en": "default wait",
+        "de": "Standard-Wartezeit"
+      }
+    }
+  ]
+}

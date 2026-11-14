@@ -1,0 +1,69 @@
+{
+  "title": {
+    "en": "Pause or resume SG Ready / hot-water program",
+    "de": "SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen"
+  },
+  "titleFormatted": {
+    "en": "[[mode]] [[module]]",
+    "de": "[[module]] [[mode]]"
+  },
+  "hint": {
+    "en": "Pausing ends a running run at once and blocks new starts until it is resumed. Resuming only lifts the pause; it does not switch on a module that is switched off in the settings.",
+    "de": "Pausieren beendet einen laufenden Lauf sofort und sperrt neue Starts, bis es fortgesetzt wird. Fortsetzen hebt nur die Pause auf, ein in den Einstellungen ausgeschaltetes Modul wird dadurch nicht eingeschaltet."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "module",
+      "title": {
+        "en": "Module",
+        "de": "Modul"
+      },
+      "values": [
+        {
+          "id": "sgready",
+          "title": {
+            "en": "SG Ready (heat up)",
+            "de": "SG-Ready (Aufheizen)"
+          }
+        },
+        {
+          "id": "dhw",
+          "title": {
+            "en": "Hot-water program",
+            "de": "Warmwasser-Programm"
+          }
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Action",
+        "de": "Aktion"
+      },
+      "values": [
+        {
+          "id": "pause",
+          "title": {
+            "en": "pause",
+            "de": "pausieren"
+          }
+        },
+        {
+          "id": "resume",
+          "title": {
+            "en": "resume",
+            "de": "fortsetzen"
+          }
+        }
+      ]
+    }
+  ]
+}

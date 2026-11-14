@@ -660,6 +660,16 @@ Der Sicherheits-Timer des alten Flows «Cube eBike laden mit PV» steckt in der 
 - **Neustart der App:** Sperre (`accuFull`, `accuLockedAt`), eingefrorener Ladestand (`accuStale`), Ladebeginn (`accuOnSince`, `accuStartV`) und der Tiefentladeschutz (`accuLow`) werden mit den Verbraucher-Zuständen gespeichert.
   Die Höchstdauer läuft nach einem Neustart also weiter, und eine Sperre bleibt bestehen. Die Meldung «Ein Fehler ist aufgetreten» kommt nach einem Neustart nicht nochmals.
 
+### Flow-Karten für Programm-Geräte und Module (14.11.2026)
+
+Was das Widget kann, geht jetzt auch per Flow (alle mit Auswahl des Energiemanagement-Geräts):
+
+- **Aktionen:** «Programm-Gerät jetzt starten» (Auswahl nur der Geräte vom Typ «Programm starten»), «Automatik eines Programm-Geräts ein- oder ausschalten» (mit optionaler Wartezeit 1 bis 12 h), «SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen».
+  Ein Flow hebt beim «Fortsetzen» nur die Pause auf und schaltet kein in den Einstellungen ausgeschaltetes Modul ein (das Widget aktiviert es weiterhin).
+- **Bedingungen:** «Die Automatik eines Programm-Geräts ist ein», «SG-Ready / Warmwasser-Programm ist pausiert», «Ein Verbraucher läuft».
+- **Auslöser:** «Die Automatik eines Programm-Geräts ist abgelaufen» (Werte: Gerät, Grund) und, korrigiert: «Ein Verbraucher wurde geschaltet» meldet einen Programm-Start jetzt als «on» (vorher fälschlich «off»); auch das Log schreibt «Programm gestartet».
+- Bewusst nicht als Karte: das Umschalten von «live» je Modul (nur in den Einstellungen, damit kein Flow versehentlich echte Befehle freischaltet).
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App

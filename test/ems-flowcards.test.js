@@ -293,3 +293,19 @@ test('Sicherheits-Stopp eines Akku-Verbrauchers (eBike nach der Höchstdauer): a
   ctrl._fireEvents();
   assert.equal(fired.length, 2, 'nach der Freigabe und einem neuen Stopp wieder gemeldet');
 });
+
+test('Controller.setModulePaused: ein Flow hebt nur die Pause auf (schaltet kein ausgeschaltetes Modul ein), das Widget aktiviert es weiterhin', async () => {
+  const { ctrl, settings } = makeCtrl();
+  const puts = [];
+  ctrl.putConfig = (b) => { puts.push(b); };
+  const paused = [];
+  ctrl.runner = { setPaused: (w, p) => paused.push([w, p]), tickCharger: async () => {} };
+  ctrl._publish = () => {};
+  await ctrl.setModulePaused('dhw', false, false);
+  assert.deepEqual(puts, [], 'Flow: kein Einschalten');
+  await ctrl.setModulePaused('dhw', false);
+  assert.deepEqual(puts, [{ dhw: { enabled: true } }], 'Widget: wie bisher');
+  await ctrl.setModulePaused('sgready', true, false);
+  assert.deepEqual(paused, [['dhw', false], ['dhw', false], ['sgready', true]]);
+  assert.ok(settings);
+});

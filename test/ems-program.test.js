@@ -554,3 +554,19 @@ test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis
   assert.equal(st.programArmed, false);
   assert.equal(st.armedAt, null);
 });
+
+test('Runner: läuft die Automatik ohne Start ab, wird der Rückruf «Automatik abgelaufen» einmal aufgerufen und der Startversuch bleibt aus', async () => {
+  const { runner, started } = makeRunner({ armed: false, gridW: 0, state: 'Running', stateIdleValue: 'Ready to Start' });
+  const expired = [];
+  runner.onProgramExpired = (e) => expired.push(e);
+  runner.setProgramArmed('gwa', true, 2);
+  const st = runner.consumerStates.get('gwa');
+  const t = st.armedAt + 2 * 3600000 + 3600000 + 60000; // Wartezeit plus Nachfrist vorbei
+  await runner.tickCharger(t);
+  await runner.tickCharger(t + 30000);
+  assert.equal(started.length, 0);
+  assert.equal(expired.length, 1, 'genau einmal');
+  assert.equal(expired[0].name, 'Geschirrspüler');
+  assert.match(expired[0].reason, /Automatik abgelaufen/);
+  assert.equal(st.programArmed, false);
+});

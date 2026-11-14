@@ -118,6 +118,37 @@ class DynamicTariffApp extends Homey.App {
         return true;
       });
 
+    // Programm-Geräte (Geschirrspüler, Waschmaschine, Tumbler) und Module per Flow, wie im Widget
+    const consumerItems = (onlyProgram) => async (query) => {
+      const q = String(query || '').trim().toLowerCase();
+      const list = (this.ems.getConfig().consumers || []).filter((c) => c.enabled && (!onlyProgram || c.mode === 'program'));
+      return list.map((c) => ({ id: c.id, name: c.name })).filter((i) => !q || i.name.toLowerCase().includes(q));
+    };
+    for (const [kind, id, onlyProgram] of [['Action', 'ems_program_start', true], ['Action', 'ems_program_arm', true], ['Condition', 'ems_program_armed', true], ['Condition', 'ems_consumer_running', false]]) {
+      this.homey.flow[`get${kind}Card`](id).registerArgumentAutocompleteListener('consumer', consumerItems(onlyProgram));
+    }
+    this.homey.flow.getActionCard('ems_program_start')
+      .registerRunListener(async (args) => this.ems.startProgramNow(args.consumer && args.consumer.id));
+    this.homey.flow.getActionCard('ems_program_arm')
+      .registerRunListener(async (args) => {
+        const w = Number(args.wait);
+        return this.ems.setProgramArmed(args.consumer && args.consumer.id, args.mode === 'on', Number.isFinite(w) && w > 0 ? w : null);
+      });
+    this.homey.flow.getActionCard('ems_module_pause')
+      .registerRunListener(async (args) => this.ems.setModulePaused(args.module, args.mode === 'pause', false));
+    this.homey.flow.getConditionCard('ems_program_armed')
+      .registerRunListener(async (args) => {
+        const st = this.ems.runner && this.ems.runner.consumerStates.get(args.consumer && args.consumer.id);
+        return !!(st && st.programArmed);
+      });
+    this.homey.flow.getConditionCard('ems_module_paused')
+      .registerRunListener(async (args) => !!(this.ems.runner && this.ems.runner.paused && this.ems.runner.paused[args.module]));
+    this.homey.flow.getConditionCard('ems_consumer_running')
+      .registerRunListener(async (args) => {
+        const cur = ((this.ems.runner && this.ems.runner.consumerCurrent) || []).find((c) => c.id === (args.consumer && args.consumer.id));
+        return !!(cur && cur.isOn);
+      });
+
     this.homey.flow.getActionCard('ems_set_silent')
       .registerRunListener(async (args) => {
         this.ems.setSilent(args.mode === 'on'); return true;
