@@ -917,3 +917,44 @@ test('Warmwasser verzögern: Option mit allen Einstellungen, standardmässig aus
   assert.equal(c.delay.releaseWeekday, '15:30');
   assert.equal(c.priceFrom, '2027-01-01');
 });
+
+test('Warmwasser-Ausgabe «Aktionskarte»: Gerät, Karte, Argumente und Temperaturen werden gesammelt; ohne Karte warnt das Verzögern', async () => {
+  const cards = {
+    cards: [{
+      id: 'write_register',
+      title: 'Register schreiben',
+      args: [
+        { name: 'register', type: 'text', title: 'Register' },
+        { name: 'value', type: 'number', title: 'Wert' },
+        { name: 'mode', type: 'dropdown', title: 'Modus', values: [{ id: 'sim', title: 'Simulation' }, { id: 'live', title: 'Live' }] },
+      ],
+    }],
+  };
+  const ui = await startUi({ dhw: { enabled: true, output: 'card', delay: { enabled: true } }, deviceCards: cards });
+  ui.click({ 'data-ems-open': 'dhw' });
+  let h = ui.setup();
+  assert.match(h, /Aktionskarte eines Geräts/);
+  assert.match(h, /Zum Verzögern fehlt die Aktionskarte/, 'ohne Gerät und Karte: Warnung');
+  assert.doesNotMatch(h, /Flow «Soll absenken/, 'bei Karte keine Flow-Auswahl fürs Verzögern');
+  ui.set('ems-dhw-sp-dev', 'lamp');
+  ui.change({ id: 'ems-dhw-sp-dev', 'data-ems-sgdev': '1' });
+  await ui.flush();
+  ui.set('ems-dhw-sp-card', 'write_register');
+  ui.change({ id: 'ems-dhw-sp-card', 'data-ems-sgdev': '1' });
+  await ui.flush();
+  h = ui.setup();
+  assert.match(h, /Argument für den Soll/);
+  assert.match(h, /id="ems-dhw-sp-a-register"/);
+  ui.set('ems-dhw-sp-a-register', '1012');
+  ui.set('ems-dhw-sp-a-mode', 'live');
+  ui.set('ems-dhw-sp-prog', '51');
+  const sp = JSON.parse(JSON.stringify(ui.ctx.window.EmsUi._collect().ems.dhw.setpoint));
+  assert.equal(sp.deviceId, 'lamp');
+  assert.equal(sp.card, 'write_register');
+  assert.equal(sp.valueArg, 'value');
+  assert.equal(sp.args.register, '1012');
+  assert.equal(sp.args.mode, 'live');
+  assert.equal(sp.programC, 51);
+  assert.equal(sp.delayC, 30);
+  assert.equal(ui.ctx.window.EmsUi._collect().ems.dhw.output, 'card');
+});

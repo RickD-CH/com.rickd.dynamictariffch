@@ -1262,7 +1262,7 @@ test('Warmwasser verzögern: Komfortgrenze, SG-Ready, Pause und Ausschalten gebe
   const noFlow = delayRunner({ delay: { enabled: true, flowDelay: { id: '', advanced: false, name: '' } } });
   await noFlow.runner.tickCharger(at(7));
   assert.deepEqual(noFlow.fired, []);
-  assert.match(noFlow.runner.dhwCurrent.delay.reason, /braucht die Flows/);
+  assert.match(noFlow.runner.dhwCurrent.delay.reason, /braucht die Aktionskarte oder die Flows/);
 
   const cool = delayRunner();
   cool.tempRef.v = 49; // über der Startschwelle (47)
@@ -1295,4 +1295,36 @@ test('Preisoptimierung ab Datum: vorher keine Preis-Starts (Grund wird genannt),
   await ready.runner.tickCharger(at(22));
   assert.equal(ready.runner.dhwCurrent.priceOn, true);
   assert.equal(ready.runner.dhwCurrent.on, true, 'Datum erreicht: günstige Stunde startet das Programm');
+});
+
+test('Ausgabe «Aktionskarte»: Verzögerung schreibt delayC, Freigabe den gemerkten Normal-Soll, das Programm programC - ohne Flows', async () => {
+  const calls = [];
+  const t = delayRunner({
+    output: 'card',
+    flowOn: { id: '', advanced: false, name: '' },
+    flowOff: { id: '', advanced: false, name: '' },
+    delay: { enabled: true, minForecastKwh: 15 },
+    setpoint: {
+      deviceId: 'wp', card: 'write_register', valueArg: 'value', scale: 10, args: { register: '1012', addressing: '1', type: 'INT16', mode: 'live' }, programC: 52, delayC: 30, normalC: 47,
+    },
+  });
+  t.runner.actuators.card = async (id, args, { live }) => { calls.push({ id, args, live }); return { cmd: 'card' }; };
+  await t.runner.tickCharger(at(7));
+  assert.equal(t.runner.dhwDelay.active, true, 'verzögert ohne Flow');
+  assert.deepEqual(JSON.parse(JSON.stringify(calls[0])), {
+    id: 'homey:device:wp:write_register', args: { register: '1012', addressing: '1', type: 'INT16', mode: 'live', value: 300 }, live: true,
+  });
+  assert.deepEqual(t.fired, [], 'kein Flow gestartet');
+  await t.runner.tickCharger(at(17)); // Freigabezeit vorbei
+  assert.equal(t.runner.dhwDelay.active, false);
+  assert.equal(calls[1].args.value, 480, 'zurück auf den vorher gemerkten Soll 48 °C');
+  // Programm: ein = 52 °C, aus = Basis (hier 48), ohne Basis der Normalwert
+  const ex = [];
+  await t.runner._dhwApply(t.runner.cfg ? t.runner.cfg.dhw : { output: 'card', setpoint: { deviceId: 'wp', card: 'write_register', valueArg: 'value', scale: 10, args: {}, programC: 52, delayC: 30, normalC: 47 } }, true, false, ex);
+  assert.equal(calls[calls.length - 1].args.value, 520);
+  t.runner._dhwSollBase = null;
+  await t.runner._dhwApply({ output: 'card', setpoint: { deviceId: 'wp', card: 'write_register', valueArg: 'value', scale: 10, args: {}, programC: 52, delayC: 30, normalC: 47 } }, false, false, ex);
+  assert.equal(calls[calls.length - 1].args.value, 470, 'Ersatz: eingestellter Normalwert');
+  // Schutz: Werte ausserhalb 10..60 °C werden nicht geschrieben
+  await assert.rejects(() => t.runner._writeSetpoint({ deviceId: 'wp', card: 'c', valueArg: 'value', scale: 10, args: {} }, 75, true), /ausserhalb/);
 });

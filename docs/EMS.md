@@ -573,10 +573,21 @@ Später übernimmt SG-Ready (Sonne) oder das Warmwasser-Programm (günstiger Blo
   startet das Warmwasser-Programm selbst (hebt den Soll an und beendet damit die Verzögerung), einen eigenen Preis-Block gibt es dafür nicht. Wenig Sonne ohne Preise: 10:00.
 - **Freigabe sofort:** Komfortgrenze (32 °C) unterschritten, SG-Ready läuft, Modul pausiert oder ausgeschaltet, neuer Tag, nach 14 Stunden. Startet das Programm selbst, endet die Verzögerung ohne Flow.
 - **Einmal pro Tag.** Die Verzögerung übersteht einen Neustart der App (der Zustand wird gespeichert); die Basis des WW-Soll wird währenddessen nicht überschrieben.
-- Braucht die Flows «verzögern» und «zurück auf Normal» (Ausgabe über Flows). Standardmässig **aus**, im Trockenlauf wird nur simuliert.
+- Braucht entweder die **Aktionskarte** (siehe unten) oder die Flows «verzögern» und «zurück auf Normal». Standardmässig **aus**, im Trockenlauf wird nur simuliert.
 - **Preisoptimierung ab (Datum):** Vor diesem Datum gelten die günstigsten Stunden und der Preis-Block nicht (kein dynamischer Tarif). Leer = sofort.
   Das Datum gilt nur für das Warmwasser-Modul.
 - Die Schwellen (Prognose 15 kWh, Freigabe 15/16 Uhr) stammen aus dem bisherigen Flow «WW Bereitung dynamisch» und passen zum Frühling. Im Winter eher tiefer ansetzen.
+
+### Warmwasser-Soll direkt per Aktionskarte (ohne Flows)
+
+Unter «Warmwasser-Programm setzen über» gibt es die Ausgabe **Aktionskarte eines Geräts**. Die App ruft dann selbst die Karte «Register schreiben» des Modbus-Geräts auf
+und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10). Die übrigen Argumente (Register 1012, Adressierung, Typ, Modus) werden unverändert mitgegeben.
+
+- **Programm ein:** Soll während des Programms (Standard 52 °C). **Verzögern:** Soll beim Verzögern (Standard 30 °C).
+- **Zurück auf Normal:** der vor dem Programm bzw. der Verzögerung gelesene Soll (die App merkt ihn sich); ist er unbekannt oder grösser/gleich dem Programm-Soll, gilt der eingestellte
+  «Normale Soll» (Standard 48 °C). Dadurch braucht es weder die Flows «Programm ein», «verzögern» und «zurück auf Normal» noch die Variable `WW_Dyn_WW-CONSTSOLLTAG` noch den Flow «Normalwert merken».
+- Schutz: Es werden nur Werte von 10 bis 60 °C geschrieben. Im Trockenlauf (Silent oder «Befehle senden» aus) wird nichts gesendet.
+- Die Flow-Ausgabe bleibt für Geräte, die sich nicht über eine Karte ansprechen lassen.
 
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
