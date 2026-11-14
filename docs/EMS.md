@@ -613,3 +613,15 @@ Konfiguration: `charger.stateCapability`, `powerCapability`, `phaseCapability`, 
 - Beim ersten Öffnen der Einrichtung wird die **erste nicht eingerichtete Pflichtquelle** (z. B. Netzzähler) aufgeklappt. Danach entscheidet nur noch der Benutzer.
 - **«Anschluss der Wallbox»** ist von Anfang an offen, wenn die gewählte Karte «Ladeleistung setzen» am Gerät fehlt; die Titelzeile zeigt «⚠ Karte fehlt». Sonst bleibt er zu.
 - Alle übrigen Bereiche bleiben zu.
+
+### Mindestlaufzeit pro Tag (Aufträge) und Überschuss
+
+Für Verbraucher wie eine Pool-Pumpe gibt es die **Aufträge** (Ausblick → Aufträge): Ziel = der Verbraucher, **Stunden**, **Uhrzeit** (Frist), Wiederholung **täglich**
+(oder Werktage, Wochenende), optional Preisgrenze und «am Stück». Die App wählt die günstigsten Viertelstunden bis zur Frist.
+
+Läuft das Gerät schon aus anderem Grund (z. B. bei Überschuss), zählt diese Viertelstunde sofort zur Laufzeit des Auftrags und wird nicht nochmals eingeplant.
+Ist die Mindestlaufzeit allein durch Überschuss erreicht, ist der Auftrag erledigt und das Gerät läuft in den günstigen Stunden nicht zusätzlich.
+
+### Weitere Symbole
+
+Für Verbraucher stehen zusätzlich **Pool**, **Klimaanlage** und **Heizstab** zur Auswahl (Einstellungen und Widget).

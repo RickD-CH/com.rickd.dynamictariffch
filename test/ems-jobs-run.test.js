@@ -235,3 +235,27 @@ test('Rechenintervall: automatisch 15 s mit Auto, 30 s mit Verbrauchern, 5 min s
     assert.equal(await withCar.runner.tickCharger(at(10)), s * 1000, 'fest gilt auch mit Auto');
   }
 });
+
+test('Auftrag und Überschuss: gelaufene Viertelstunden (auch wegen Überschuss) zählen und werden nicht nochmals eingeplant', () => {
+  // vier Viertelstunden nötig, nicht am Stück; die zwei günstigsten (1:00, 1:15) sind schon gelaufen (z. B. bei Überschuss)
+  const j = job({ contiguous: false, need: 4, ran: [at(1), at(1, 15)] });
+  const r = stepJob({ job: j, slots: slotList(), nowMs: at(1, 31) });
+  assert.equal(r.status, 'active');
+  assert.equal(r.remaining, 2, 'nur noch 2 von 4 fehlen');
+  assert.equal(r.starts.length, 2, 'es werden nur 2 neue Viertelstunden geplant');
+  assert.equal(r.starts.includes(at(1)) || r.starts.includes(at(1, 15)), false, 'schon gelaufene werden nicht nochmals gewählt');
+  const done = stepJob({ job: job({ need: 2, ran: [at(1), at(1, 15)] }), slots: slotList(), nowMs: at(1, 31) });
+  assert.equal(done.status, 'done', 'Mindestlaufzeit allein durch Überschuss erreicht');
+});
+
+test('Runner: _countJobQuarter zählt die laufende Viertelstunde einmal, nicht vor dem Beginn und nicht nach der Frist', () => {
+  const { runner, js } = setup({ jobs: [job({ time: '05:00', deadline: at(5), contiguous: false, need: 8, from: at(0) })] });
+  runner._countJobQuarter('dry', at(1, 5));
+  runner._countJobQuarter('dry', at(1, 9));
+  assert.deepEqual(js.get('dry').ran, [at(1)], 'dieselbe Viertelstunde nur einmal');
+  runner._countJobQuarter('dry', at(1, 20));
+  assert.deepEqual(js.get('dry').ran, [at(1), at(1, 15)]);
+  runner._countJobQuarter('dry', at(5, 10));
+  assert.equal(js.get('dry').ran.length, 2, 'nach der Frist nicht mehr');
+  runner._countJobQuarter('gibt-es-nicht', at(1, 5));
+});
