@@ -870,3 +870,27 @@ test('Warmwasser-Programm: Betriebsart-Prüfung bricht das eigene Umschalten nic
   assert.equal(runner.dhwCurrent.on, false);
   assert.match(runner.dhwCurrent.reason, /Betriebsart/);
 });
+
+test('Pause (Widget-Schalter): beendet ein laufendes Warmwasser-Programm sofort, sperrt neue Starts und bleibt gespeichert', async () => {
+  const fired = [];
+  const { runner } = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  await runner.tickCharger(at(22));
+  assert.deepEqual(fired, ['on']);
+  runner.setPaused('dhw', true);
+  await runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(fired, ['on', 'off'], 'Pause beendet den Lauf (zurück auf Normal)');
+  assert.equal(runner.dhwCurrent.on, false);
+  assert.equal(runner.dhwCurrent.paused, true);
+  await runner.tickCharger(at(22) + 3600000);
+  assert.deepEqual(fired, ['on', 'off'], 'kein neuer Start während der Pause');
+  assert.throws(() => runner.setPaused('x', true));
+  runner.setPaused('dhw', false);
+  assert.equal(runner.paused.dhw, false);
+});

@@ -108,10 +108,15 @@
         + '</div>';
     }
 
+    function pauseSwitch(Homey, mod, paused) {
+      return '<label class="sw" title="' + esc(Homey.__(paused ? 'consumersWidget.pauseOff' : 'consumersWidget.pauseOn')) + '">'
+        + '<input type="checkbox" data-pause="' + mod + '"' + (paused ? '' : ' checked') + '><span class="slider"></span></label>';
+    }
+
     function sgHtml(Homey, sg) {
       if (!sg) return '';
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
-      var state = sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting'));
+      var state = sg.paused ? esc(Homey.__('consumersWidget.paused')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
@@ -121,14 +126,14 @@
       if (sg.mismatch) sub.push('<b style="color:var(--cw-warn)">' + esc(Homey.__('consumersWidget.sgMismatch')) + '</b>');
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('boiler') + '</span>' + esc(Homey.__('consumersWidget.sgTitle')) + testChip + '</div>'
-        + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + '</div>'
+        + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + pauseSwitch(Homey, 'sgready', sg.paused) + '</div>'
         + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
         + '</div>';
     }
 
     function dhwHtml(Homey, dh) {
       if (!dh) return '';
-      var state = !dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle'));
+      var state = dh.paused ? esc(Homey.__('consumersWidget.paused')) : (!dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle')));
       var testChip = !dh.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
@@ -136,7 +141,7 @@
       if (dh.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'
-        + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + '</div>'
+        + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + pauseSwitch(Homey, 'dhw', dh.paused) + '</div>'
         + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
         + '</div>';
     }
@@ -185,6 +190,13 @@
         b.addEventListener('click', function () {
           b.disabled = true;
           Homey.api('POST', '/start', { id: b.getAttribute('data-id') }).then(function () { load(Homey); }).catch(function () { b.disabled = false; });
+        });
+      });
+      root.querySelectorAll('input[data-pause]').forEach(function (inp) {
+        inp.addEventListener('change', function () {
+          var on = inp.checked;
+          inp.disabled = true;
+          Homey.api('POST', '/pause', { module: inp.getAttribute('data-pause'), paused: !on }).then(function () { load(Homey); }).catch(function () { inp.disabled = false; inp.checked = !on; });
         });
       });
       root.querySelectorAll('input[data-arm]').forEach(function (inp) {

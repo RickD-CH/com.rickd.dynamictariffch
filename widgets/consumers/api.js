@@ -19,6 +19,13 @@ module.exports = {
     return { ok: true };
   },
 
+  async postPause({ homey, body }) {
+    const ems = homey.app && homey.app.ems;
+    if (!ems || !ems.hasDevice()) throw new Error('Energiemanagement nicht bereit');
+    await ems.setModulePaused(body && body.module, body && body.paused === true);
+    return { ok: true };
+  },
+
   async postArm({ homey, body }) {
     const ems = homey.app && homey.app.ems;
     if (!ems || !ems.hasDevice()) throw new Error('Energiemanagement nicht bereit');

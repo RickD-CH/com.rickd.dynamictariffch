@@ -149,6 +149,9 @@
     "sgWaiting": "Waiting for the first run",
     "sgTemp": "Hot water {t} °C",
     "sgUntil": "until {time}",
+    "paused": "Paused",
+    "pauseOn": "Runs automatically. Switching off pauses and ends a running cycle.",
+    "pauseOff": "Paused: will not start. Switching on releases it again.",
     "autoOn": "Auto mode on: starts by itself on PV surplus or at the cheapest moment",
     "autoOff": "Auto mode off: only starts manually with \"Start\""
   }

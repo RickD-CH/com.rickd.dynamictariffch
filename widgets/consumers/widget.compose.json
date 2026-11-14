@@ -15,6 +15,10 @@
       "method": "POST",
       "path": "/start"
     },
+    "postPause": {
+      "method": "POST",
+      "path": "/pause"
+    },
     "postArm": {
       "method": "POST",
       "path": "/arm"
