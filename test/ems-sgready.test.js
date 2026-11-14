@@ -1169,3 +1169,20 @@ test('Korrekturfaktor automatisch: trägt die Empfehlung einmal pro Tag selbst e
   await r2.runner.tickCharger(at(10));
   assert.deepEqual(set2, [], 'unter 7 Tagen keine Empfehlung');
 });
+
+test('Korrekturfaktor automatisch: kommen die Tage erst später (z. B. durch einen Import), wird beim nächsten Lauf angewendet, nicht erst morgen', async () => {
+  const { PvAccuracy } = require('../lib/ems/PvAccuracy'); // eslint-disable-line global-require
+  const acc = new PvAccuracy(null, 'Europe/Zurich');
+  const { runner } = makeRunner();
+  runner.pvAccuracy = acc;
+  const set = [];
+  runner.onAutoFactor = (f) => set.push(f);
+  const cfg = runner.getConfig();
+  cfg.pv.factor = 1;
+  cfg.pv.factorAuto = true;
+  await runner.tickCharger(at(10));
+  assert.deepEqual(set, [], 'noch keine Daten');
+  acc.importDays(Array.from({ length: 8 }, (_, k) => ({ day: `2026-10-0${k + 1}`, forecastKwh: 10, actualKwh: 6 })));
+  await runner.tickCharger(at(10) + 60000);
+  assert.deepEqual(set, [0.6], 'sofort angewendet, sobald die Empfehlung da ist');
+});
