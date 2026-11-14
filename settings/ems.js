@@ -879,8 +879,8 @@
         + so('auto', S.fcSrcAuto) + so('homey', S.fcSrcHomey) + so('device', S.fcSrcDevice) + so('external', S.fcSrcExternal) + '</select></label></div>';
       var deviceRow = srcMode === 'device'
         ? '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select data-ems-pv="device">' + deviceOptions(dev.id, null, S.pick) + '</select></label>'
-          + '<label class="ems-f ems-wide"><span>' + esc(S.fcToday) + '</span><select data-ems-pv="today">' + capOptions(dev.id, /./, dev.today) + '</select></label>'
-          + '<label class="ems-f ems-wide"><span>' + esc(S.fcTomorrow) + '</span><select data-ems-pv="tomorrow">' + capOptions(dev.id, /./, dev.tomorrow) + '</select></label></div>'
+          + '<label class="ems-f ems-wide"><span>' + esc(S.fcToday) + '</span><select data-ems-pv="today">' + capOptions(dev.id, /./, dev.today) + '</select></label>' + (dev.id && dev.today ? curHtml(dev.id, dev.today) : '')
+          + '<label class="ems-f ems-wide"><span>' + esc(S.fcTomorrow) + '</span><select data-ems-pv="tomorrow">' + capOptions(dev.id, /./, dev.tomorrow) + '</select></label>' + (dev.id && dev.tomorrow ? curHtml(dev.id, dev.tomorrow) : '') + '</div>'
         : '';
       return why + sourceRow + deviceRow + '<div class="ems-row">' + field(S.factor, 'ems-pv-factor', factor, 'number', ' step="0.01" min="0.1" max="3"') + '</div><p class="ems-why">' + esc(S.factorHint) + '</p>' + pvAccuracyHtml(factor, !!pvc.factorAuto)
         + '<p class="ems-why">' + esc(S.fcCurveHint) + '</p><p class="ems-why ems-' + info.cls + '">' + esc(info.text) + '</p>';
@@ -1055,7 +1055,7 @@
     if (devId && !cards) loadChargerCards(devId);
     var capSel = function (id, label, value, none, hint) {
       var opts = (none ? '<option value=""' + (value ? '' : ' selected') + '>' + esc(S.wbNone) + '</option>' : '') + capOptions(devId, /./, value);
-      return '<label class="ems-f ems-wide"><span>' + esc(label) + (hint ? tipI(id) : '') + '</span><select id="' + id + '">' + opts + '</select></label>' + (hint ? tipT(id, hint) : '');
+      return '<label class="ems-f ems-wide"><span>' + esc(label) + (hint ? tipI(id) : '') + '</span><select id="' + id + '">' + opts + '</select></label>' + (devId && value ? curHtml(devId, value) : '') + (hint ? tipT(id, hint) : '');
     };
     var pc = (cards || []).filter(function (x) { return x.id === cur.powerCard; })[0];
     var numArgs = pc ? (pc.args || []).filter(function (a) { return a.type === 'number' || a.type === 'range'; }) : [];
@@ -1204,12 +1204,12 @@
         + '<p class="ems-why">' + esc(S.programHint) + '</p>'
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStartCap) + '</span><select id="' + p + 'pgStartCap" data-ems-mode="' + i + '">' + capOptions(r.deviceId, /.*/, pg.startCapability) + '</select></label>'
         + field(S.programStartVal, p + 'pgStartVal', pg.startValue, 'text', ' style="max-width:115px"') + '</div>'
-        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programRemoteCap) + '</span><select id="' + p + 'pgRemoteCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.remoteCapability) + '</select></label>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programRemoteCap) + '</span><select id="' + p + 'pgRemoteCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.remoteCapability) + '</select></label>' + (r.deviceId && pg.remoteCapability ? curHtml(r.deviceId, pg.remoteCapability) : '')
         + field(S.programRemoteVal, p + 'pgRemoteVal', pg.remoteOkValue, 'text', ' style="max-width:115px"') + '</div>'
         + (pg.remoteCapability ? '' : '<p class="warn">' + esc(S.programRemoteWarn) + '</p>')
-        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programDoorCap) + '</span><select id="' + p + 'pgDoorCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.doorCapability) + '</select></label>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programDoorCap) + '</span><select id="' + p + 'pgDoorCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.doorCapability) + '</select></label>' + (r.deviceId && pg.doorCapability ? curHtml(r.deviceId, pg.doorCapability) : '')
         + field(S.programDoorVal, p + 'pgDoorVal', pg.doorOkValue, 'text', ' style="max-width:115px"') + '</div>'
-        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStateCap) + '</span><select id="' + p + 'pgStateCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.stateCapability) + '</select></label>'
+        + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.programStateCap) + '</span><select id="' + p + 'pgStateCap" data-ems-mode="' + i + '">' + '<option value="">' + esc(S.none) + '</option>' + capOptions(r.deviceId, /.*/, pg.stateCapability) + '</select></label>' + (r.deviceId && pg.stateCapability ? curHtml(r.deviceId, pg.stateCapability) : '')
         + field(S.programStateVal, p + 'pgStateVal', pg.stateIdleValue, 'text', ' style="max-width:115px"') + '</div>'
         + '<p class="ems-why">' + esc(S.programStateHint) + '</p>'
         + '</div>';
@@ -1311,7 +1311,7 @@
       + '<p class="ems-why"><b>' + esc(S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A ' + S.fusePerPhase) + '</b></p>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.fuseMeter) + '</span><select id="ems-fuse-dev" data-ems-fusedev="1">' + deviceOptions(f.meterId, hasCap(/^measure_current/), S.fuseMeterGrid) + '</select></label></div>'
       + '<div class="ems-row">' + [0, 1, 2].map(function (k) {
-        return '<label class="ems-f"><span>' + esc(S.fusePhase + ' ' + (k + 1)) + '</span><select id="ems-fuse-cap' + k + '">' + capOptions(meterId, /^measure_current/, f.caps[k]) + '</select></label>';
+        return '<label class="ems-f"><span>' + esc(S.fusePhase + ' ' + (k + 1)) + '</span><select id="ems-fuse-cap' + k + '">' + capOptions(meterId, /^measure_current/, f.caps[k]) + '</select></label>' + (meterId && f.caps[k] ? curHtml(meterId, f.caps[k]) : '');
       }).join('') + '</div>'
       + (cur && cur.error ? '<p class="ems-why ems-warn">' + esc(S.fuseNoPhases) + '</p>' : '')
       + check(S.fuseThrottle, 'ems-fuse-throttle', f.throttle) + '<p class="ems-why">' + esc(S.fuseThrottleHint) + '</p>'

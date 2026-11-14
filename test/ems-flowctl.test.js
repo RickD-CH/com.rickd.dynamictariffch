@@ -1020,3 +1020,32 @@ test('«Erweitert»-Bereiche nennen ihre Inhalte als Stichworte (SG-Ready, Warmw
   assert.match(h, /<summary[^>]*>Erweitert \(Freigabe bei wenig Sonne, Marge\)<\/summary>/);
   assert.equal(/<summary[^>]*>Erweitert<\/summary>/.test(h), false, 'kein nacktes «Erweitert» mehr');
 });
+
+test('Aktuell-Anzeige: auch bei Programm-Verbrauchern (Fernbedienung, Tür, Status) und bei der Wallbox (Ladezustand, Leistung)', async () => {
+  const devices = [{
+    id: 'lamp',
+    name: 'Maschine',
+    cls: 'other',
+    caps: ['measure_remoteControl', 'measure_doorState', 'measure_applianceState', 'evcharger_charging_state', 'measure_power'],
+    values: {
+      measure_remoteControl: 'Disabled', measure_doorState: 'Open', measure_applianceState: 'Delayed Start', evcharger_charging_state: 'plugged_in_charging', measure_power: 3680,
+    },
+    units: { measure_power: 'W' },
+  }];
+  const prog = await startUi({
+    consumers: [{
+      id: 'lamp', name: 'Geschirrspüler', enabled: true, mode: 'program', program: { remoteCapability: 'measure_remoteControl', doorCapability: 'measure_doorState', stateCapability: 'measure_applianceState' },
+    }],
+    devices,
+  });
+  prog.click({ 'data-ems-open': 'row1' });
+  const h = prog.setup();
+  assert.match(h, /data-ems-cur="lamp\|measure_remoteControl">Disabled</);
+  assert.match(h, /data-ems-cur="lamp\|measure_doorState">Open</);
+  assert.match(h, /data-ems-cur="lamp\|measure_applianceState">Delayed Start</);
+  const wb = await startUi({ charger: { id: 'lamp', enabled: true }, devices, deviceCards: { cards: [] } });
+  wb.click({ 'data-ems-open': 'row0' });
+  const w = wb.setup();
+  assert.match(w, /data-ems-cur="lamp\|evcharger_charging_state">plugged_in_charging</);
+  assert.match(w, /data-ems-cur="lamp\|measure_power">3(?:[.,’ ]|&#39;)?680 W</);
+});

@@ -625,7 +625,7 @@ und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10
 
 ### Aktuelle Werte als Hilfe in den Einstellungen
 
-Neben jeder Auswahl «Gerät und Wert» (Datenquellen, Warmwasser-Sensor und -Soll, Zähler, Akku-Sensor) steht der **aktuelle Wert** der gewählten Capability, nur lesen, mit Einheit (zum Beispiel «47,3 °C»). Unbekannt zeigt «–».
+Neben jeder Auswahl «Gerät und Wert» (Datenquellen, Warmwasser-Sensor und -Soll, Zähler, Akku-Sensor, Programm-Geräte mit Fernbedienung, Tür und Status, Wallbox-Capabilities, Sonnenprognose, Sicherung) steht der **aktuelle Wert** der gewählten Capability, nur lesen, mit Einheit (zum Beispiel «47,3 °C»). Unbekannt zeigt «–».
 Die Werte kommen mit der Geräteliste und werden beim Aufklappen eines Bereichs aufgefrischt, höchstens alle 30 Sekunden (kein ständiges Abfragen).
 
 ### Diagnose zum Kopieren (Fehler melden)
