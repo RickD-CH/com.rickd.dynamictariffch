@@ -129,11 +129,87 @@ test('Start (Trigger B, Preis): unabhängig von windowTo - startet auch nach 17:
       usePrice: true, maxPriceRp: 15, windowTo: '17:00', startDelayMin: 0,
     },
     priceNow: 12,
+    tempWW: 45,
     nowMs: at(22),
   });
   const r = decideSgReady(x);
   assert.equal(r.state, 'boost');
   assert.match(r.reason, /günstig/);
+});
+
+test('Mindest-Temperatur (Preis): nur starten, wenn das Warmwasser unter priceBelowTemp liegt, unbekannte Temperatur blockiert', () => {
+  const cfg = {
+    usePrice: true, maxPriceRp: 15, priceBelowTemp: 50, startDelayMin: 0, priceSkipPv: false,
+  };
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 10, tempWW: 49, nowMs: at(22),
+  })).state, 'boost');
+  const warm = decideSgReady(base({
+    cfg, priceNow: 10, tempWW: 52, nowMs: at(22),
+  }));
+  assert.equal(warm.state, 'off');
+  assert.match(warm.reason, /noch warm genug/);
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 10, tempWW: null, nowMs: at(22),
+  })).state, 'off', 'ohne Messwert kein Start, der Geld kostet');
+  assert.equal(decideSgReady(base({
+    cfg: { ...cfg, priceBelowTemp: 0 }, priceNow: 10, tempWW: 55, nowMs: at(22),
+  })).state, 'boost', '0 = keine Prüfung');
+});
+
+test('Mindest-Temperatur (Sonne, optional): nur wenn pvBelowTemp > 0, unbekannte Temperatur blockiert die gratis Sonne nicht', () => {
+  const cfg = { minSolarW: 1500, startDelayMin: 0, pvBelowTemp: 0 };
+  assert.equal(decideSgReady(base({
+    cfg, pvW: 2000, tempWW: 55, nowMs: at(10),
+  })).state, 'boost', 'Standard: keine Prüfung');
+  const on = { ...cfg, pvBelowTemp: 52 };
+  assert.equal(decideSgReady(base({
+    cfg: on, pvW: 2000, tempWW: 55, nowMs: at(10),
+  })).state, 'off');
+  assert.equal(decideSgReady(base({
+    cfg: on, pvW: 2000, tempWW: 50, nowMs: at(10),
+  })).state, 'boost');
+  assert.equal(decideSgReady(base({
+    cfg: on, pvW: 2000, tempWW: null, nowMs: at(10),
+  })).state, 'boost');
+});
+
+test('PV-Prognose: Preis-Start lohnt sich nicht, wenn die Sonne heute noch genug liefert - nach windowTo oder ohne Prognose schon', () => {
+  const cfg = {
+    usePrice: true, maxPriceRp: 15, priceBelowTemp: 0, startDelayMin: 0, priceSkipPv: true, priceSkipPvKwh: 6, windowTo: '17:00',
+  };
+  const sunny = decideSgReady(base({
+    cfg, priceNow: 10, pvForecastKwh: 12, nowMs: at(11),
+  }));
+  assert.equal(sunny.state, 'off');
+  assert.match(sunny.reason, /Sonne reicht/);
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 10, pvForecastKwh: 3, nowMs: at(11),
+  })).state, 'boost', 'wenig Sonne erwartet');
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 10, pvForecastKwh: null, nowMs: at(11),
+  })).state, 'boost', 'Prognose unbekannt');
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 10, pvForecastKwh: 12, nowMs: at(18),
+  })).state, 'boost', 'Sonnen-Start nicht mehr offen');
+  assert.equal(decideSgReady(base({
+    cfg: { ...cfg, priceSkipPv: false }, priceNow: 10, pvForecastKwh: 12, nowMs: at(11),
+  })).state, 'boost', 'Option aus');
+});
+
+test('Halten per Preis: steigende Warmwasser-Temperatur (über priceBelowTemp) beendet den Lauf nicht', () => {
+  const x = base({
+    cfg: {
+      usePrice: true, maxPriceRp: 15, priceBelowTemp: 50, minRunMin: 0, stopDelayMin: 0, startDelayMin: 0, priceSkipPv: false,
+    },
+    priceNow: 10,
+    tempWW: 45,
+    nowMs: at(22),
+  });
+  assert.equal(decideSgReady(x).state, 'boost');
+  x.tempWW = 54; // über der Start-Schwelle, aber unter dem Ziel (56)
+  x.nowMs += 30 * MIN;
+  assert.equal(decideSgReady(x).state, 'boost');
 });
 
 test('Start: Preis zu teuer und PV/Akku ungenügend -> kein Start', () => {

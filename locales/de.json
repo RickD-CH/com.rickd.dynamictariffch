@@ -136,6 +136,13 @@
     "startedToday": "heute {time} gestartet",
     "untilTime": "spätestens {time}",
     "durationInfo": "übliche Dauer ca. {h} h",
+    "sgTitle": "Boiler (SG-Ready)",
+    "sgNormal": "Normalbetrieb",
+    "sgBoost": "Empfehlung (Boost)",
+    "sgForced": "Zwangsladung",
+    "sgWaiting": "Wartet auf den ersten Lauf",
+    "sgTemp": "Warmwasser {t} °C",
+    "sgUntil": "bis {time}",
     "autoOn": "Automatik ein: startet selbst bei PV-Überschuss oder im günstigsten Moment",
     "autoOff": "Automatik aus: startet nur manuell mit «Starten»"
   }

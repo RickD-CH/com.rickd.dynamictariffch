@@ -146,3 +146,28 @@ test('Widgets: neutrale Namen, Texte in Deutsch und Englisch, jedes Widget hat V
     }
   }
 });
+
+test('Widget «Verbraucher»: SG-Ready-Block nur wenn aktiv, mit Zustand, Warmwasser, Grund und Testmodus', () => {
+  const { consumersWidget } = require('../lib/WidgetData');
+  const base = {
+    deviceExists: true,
+    config: {
+      enabled: true, silent: false, consumers: [], sgready: { enabled: false },
+    },
+  };
+  assert.equal(consumersWidget({ shadow: base, consumerCurrent: [], tz: TZ }).sgready, null);
+  const on = {
+    ...base,
+    config: { ...base.config, sgready: { enabled: true, live: false, targetTemp: 56 } },
+    sgready: {
+      state: 'boost', reason: 'Mindestlaufzeit läuft noch', deadlineMs: NOW, tempWW: 48.46, live: false,
+    },
+  };
+  const w = consumersWidget({ shadow: on, consumerCurrent: [], tz: TZ }).sgready;
+  assert.equal(w.state, 'boost');
+  assert.equal(w.tempWW, 48.5);
+  assert.equal(w.untilHm, '21:07');
+  assert.equal(w.live, false, 'nicht live: Testmodus');
+  const waiting = consumersWidget({ shadow: { ...base, config: on.config }, consumerCurrent: [], tz: TZ }).sgready;
+  assert.equal(waiting.state, null, 'noch kein Lauf: Platzhalter statt Absturz');
+});

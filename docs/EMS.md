@@ -472,3 +472,10 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   `flows` = je Zustand ein Flow (`flowNormal`/`flowBoost`/`flowForced`, z. B. Modbus-Register der ISG schreiben). Nur beim Wechsel.
   Der SG-Ready-Standard kennt vier Zustände (1:0 EVU-Sperre, 0:0 Normal, 0:1 Empfehlung, 1:1 Anlaufbefehl); die Sperre wird nicht genutzt.
 - Einstellungen mit kurzen Erklärtexten unter «Einrichten», direkt unter den Verbrauchern (vor dem Hausanschluss-Schutz).
+- **Mindest-Temperatur je Auslöser (14.11.2026):** `priceBelowTemp` (Standard 50 °C) und optional `pvBelowTemp` (Standard 0 = aus): gestartet
+  wird nur, wenn «WW IST» darunter liegt. Gilt nur für den Start, nicht fürs Halten (die Temperatur steigt ja beim Heizen). Ohne Messwert
+  blockiert das den Preis-Start (kostet Geld), nicht den Sonnen-Start (gratis).
+- **PV-Prognose beim Preis-Start:** `priceSkipPv` (Standard an) + `priceSkipPvKwh` (6 kWh): Preis-Start wird übersprungen, solange der Rest der
+  heutigen PV-Prognose mindestens so hoch ist und der Sonnen-Start noch offen ist (vor `windowTo`). Prognose unbekannt = kein Überspringen.
+- **Widget «Verbraucher»:** zeigt den SG-Ready-Block (Zustand, Warmwasser-Temperatur, Grund, «bis HH:MM» bei Mindestlaufzeit/Abkühlpause,
+  Testmodus-Chip) unter dem E-Auto, nur wenn die Steuerung eingeschaltet ist.

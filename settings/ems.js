@@ -114,6 +114,9 @@
       sgStopDelay: 'Ausschaltverzögerung (Min.)', sgStopDelayH: 'Fallen die Bedingungen nach der Mindestlaufzeit weg, wird noch so lange gewartet, bevor zurück auf Normalbetrieb geschaltet wird.',
       sgCooldown: 'Abkühlpause nach Ende (Min.)', sgCooldownH: 'Pause nach dem Ende eines Boosts, bevor ein neuer starten darf.',
       sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgPriceH: 'Startet den Boost auch bei günstigem Preis, unabhängig von Sonne und Uhrzeit.',
+      sgPriceBelow: 'Preis-Start nur unter Warmwasser (°C)', sgPriceBelowH: 'Per Preis wird nur geheizt, wenn das Warmwasser unter diesem Wert liegt (0 = immer). Ohne Temperatur-Messwert kein Preis-Start.',
+      sgPvBelow: 'Sonnen-Start nur unter Warmwasser (°C)', sgPvBelowH: 'Optional: auch mit Sonne nur starten, wenn das Warmwasser unter diesem Wert liegt (0 = immer, Standard).',
+      sgSkipPv: 'Preis-Start auslassen, wenn die Sonne reicht', sgSkipPvKwh: 'Sonne reicht ab Prognose (kWh, Rest heute)', sgSkipPvH: 'Lohnt sich nicht, per Preis zu starten, wenn die Sonne heute noch genug liefert. Gilt nur, solange der Sonnen-Start noch offen ist (vor der spätesten Startzeit).',
       sgForced: 'Zwangsladung (1:1) erlauben', sgForcedW: 'Schwelle Zwangsladung (W)', sgForcedH: 'Zustand 1:1, oft mit Heizstab und viel Strom. Nur aus dem Boost heraus und erst ab dieser Solarleistung. Standard aus.',
       sgSensor: 'Warmwasser-Temperatur (Gerät und Wert)', sgSensorH: 'Messwert «WW IST» der Wärmepumpe, damit der Boost bei der Zieltemperatur endet.',
       sgMode: 'Betriebsart der Wärmepumpe (Gerät und Wert, optional)', sgModeOk: 'Steuern nur bei diesem Wert (z. B. Automatik)', sgModeH: 'Die Steuerung greift nur ein, wenn die Betriebsart diesen Wert hat. Bei Ferien, Komfort oder Standby wird nicht gesteuert. Leer lassen = keine Prüfung.',
@@ -274,6 +277,9 @@
       sgStopDelay: 'Switch-off delay (min)', sgStopDelayH: 'If the conditions drop after the minimum run time, wait this long before returning to normal operation.',
       sgCooldown: 'Cool-down after end (min)', sgCooldownH: 'Pause after a boost ends before a new one may start.',
       sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgPriceH: 'Also starts the boost at a cheap price, independent of sun and time of day.',
+      sgPriceBelow: 'Price start only below hot water (°C)', sgPriceBelowH: 'Heats on price only if the hot water is below this value (0 = always). Without a temperature reading there is no price start.',
+      sgPvBelow: 'Sun start only below hot water (°C)', sgPvBelowH: 'Optional: also with sun, only start if the hot water is below this value (0 = always, default).',
+      sgSkipPv: 'Skip price start when the sun is enough', sgSkipPvKwh: 'Sun is enough from forecast (kWh, rest of today)', sgSkipPvH: 'Starting on price is pointless if the sun will still deliver enough today. Only applies while the sun start is still open (before the latest start time).',
       sgForced: 'Allow forced charging (1:1)', sgForcedW: 'Forced charging threshold (W)', sgForcedH: 'State 1:1, often with a heating rod and high consumption. Only from the boost and only from this solar power. Off by default.',
       sgSensor: 'Hot-water temperature (device and value)', sgSensorH: 'The heat pump hot-water actual value, so the boost ends at the target temperature.',
       sgMode: 'Heat pump operating mode (device and value, optional)', sgModeOk: 'Control only at this value (e.g. Automatic)', sgModeH: 'Control only acts when the operating mode has this value. Not in holiday, comfort or standby. Leave empty = no check.',
@@ -1079,6 +1085,9 @@
       + sgFld(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
       + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', S.sgPriceH)
+      + sgFld(S.sgPriceBelow, 'ems-sg-pricebelow', g.priceBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPriceBelowH)
+      + '<div class="ems-row">' + check(S.sgSkipPv, 'ems-sg-skippv', g.priceSkipPv) + (g.priceSkipPv ? field(S.sgSkipPvKwh, 'ems-sg-skippvkwh', g.priceSkipPvKwh, 'number', ' step="1" min="0"') : '') + '</div>' + sgHint(S.sgSkipPvH)
+      + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
       + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/) + sgHint(S.sgSensorH)
       + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
       + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./)
@@ -1102,6 +1111,9 @@
     g.startDelayMin = num('ems-sg-startdelay', g.startDelayMin); g.minRunMin = num('ems-sg-minrun', g.minRunMin);
     g.stopDelayMin = num('ems-sg-stopdelay', g.stopDelayMin); g.cooldownMin = num('ems-sg-cooldown', g.cooldownMin);
     g.usePrice = chk('ems-sg-useprice'); g.maxPriceRp = num('ems-sg-maxprice', g.maxPriceRp);
+    g.priceBelowTemp = num('ems-sg-pricebelow', g.priceBelowTemp); g.pvBelowTemp = num('ems-sg-pvbelow', g.pvBelowTemp);
+    g.priceSkipPv = chk('ems-sg-skippv');
+    if ($('ems-sg-skippvkwh')) g.priceSkipPvKwh = num('ems-sg-skippvkwh', g.priceSkipPvKwh);
     g.allowForced = chk('ems-sg-forced');
     if ($('ems-sg-forcedw')) g.forcedMinW = num('ems-sg-forcedw', g.forcedMinW);
     g.sensorId = val('ems-sg-sensor-dev', g.sensorId); g.tempCapability = val('ems-sg-sensor-cap', g.tempCapability);
@@ -2496,7 +2508,7 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
-    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
+    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || t.id === 'ems-sg-skippv' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
     var fuseShedKind = g('data-ems-fuseshedkind');
     if (fuseShedKind !== null) {
       sync();
