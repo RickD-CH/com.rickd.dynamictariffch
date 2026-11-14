@@ -117,13 +117,13 @@
       if (!sg) return '';
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
       if (!sg.enabled) sg.paused = true;
-      var state = sg.paused ? esc(Homey.__(sg.enabled ? 'consumersWidget.paused' : 'consumersWidget.moduleOff')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
+      var state = sg.paused ? esc(Homey.__('consumersWidget.moduleOff')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
-      if (sg.reason) sub.push(esc(sg.reason));
+      if (sg.reason && !sg.paused) sub.push(esc(sg.reason));
       if (sg.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
-      if (sg.reported) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
+      if (sg.reported && !sg.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
       if (sg.mismatch) sub.push('<b style="color:var(--cw-warn)">' + esc(Homey.__('consumersWidget.sgMismatch')) + '</b>');
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('boiler') + '</span>' + esc(Homey.__('consumersWidget.sgTitle')) + testChip + '</div>'
@@ -135,11 +135,11 @@
     function dhwHtml(Homey, dh) {
       if (!dh) return '';
       if (!dh.enabled) dh.paused = true;
-      var state = dh.paused ? esc(Homey.__(dh.enabled ? 'consumersWidget.paused' : 'consumersWidget.moduleOff')) : (!dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle')));
+      var state = dh.paused ? esc(Homey.__('consumersWidget.moduleOff')) : (!dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle')));
       var testChip = !dh.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
-      if (dh.reason) sub.push(esc(dh.reason));
+      if (dh.reason && !dh.paused) sub.push(esc(dh.reason));
       if (dh.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'

@@ -1186,7 +1186,6 @@
     var g = sgCfg();
     var flows = g.output === 'flows';
     var html = '<p class="ems-why">' + esc(S.sgWhy) + '</p><div class="ems-row">' + check(S.sgOn, 'ems-sg-on', g.enabled) + '</div>';
-    if (!g.enabled) return html;
     return html
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgBasis) + tipI('sg-basis') + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label>' + tipT('sg-basis', S.sgBasisH) + '</div>'
       + sgFld(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"', S.sgMinSolarH)
@@ -1215,7 +1214,7 @@
     if (!state.cfg || !state.open.sg || !$('ems-sg-on')) return;
     var g = sgCfg();
     g.enabled = chk('ems-sg-on');
-    if (!g.enabled || !$('ems-sg-basis')) return;
+    if (!$('ems-sg-basis')) return;
     g.basis = val('ems-sg-basis', g.basis) === 'export' ? 'export' : 'pv';
     g.minSolarW = num('ems-sg-minsolar', g.minSolarW); g.minSoc = num('ems-sg-minsoc', g.minSoc); g.socHysteresis = num('ems-sg-hyst', g.socHysteresis);
     syncTarget('ems-sg', 'ems-sg-temp', g); g.windowTo = val('ems-sg-to', g.windowTo);
@@ -1281,7 +1280,6 @@
     var cap = d.output === 'capability';
     var dev = d.device || { deviceId: '', capability: '', onValue: '', offValue: '' };
     var html = '<p class="ems-why">' + esc(S.dhwWhy) + '</p><div class="ems-row">' + check(S.dhwOnLbl, 'ems-dhw-on', d.enabled) + '</div>';
-    if (!d.enabled) return html;
     return html
       + sgFld(S.dhwCheapHours, 'ems-dhw-cheap', d.cheapHours, 'number', ' step="0.25" min="0.25" max="12" data-ems-sgdev="1"', S.dhwCheapH)
       + dhwPreviewHtml(d.cheapHours)
@@ -1306,7 +1304,7 @@
     if (!state.cfg || !state.open.dhw || !$('ems-dhw-on')) return;
     var d = dhwCfg();
     d.enabled = chk('ems-dhw-on');
-    if (!d.enabled || !$('ems-dhw-cheap')) return;
+    if (!$('ems-dhw-cheap')) return;
     d.cheapHours = num('ems-dhw-cheap', d.cheapHours); d.belowTemp = num('ems-dhw-below', d.belowTemp);
     d.skipPv = chk('ems-dhw-skippv');
     if ($('ems-dhw-skippvkwh')) { d.skipPvKwh = num('ems-dhw-skippvkwh', d.skipPvKwh); d.skipPvUntil = val('ems-dhw-skipuntil', d.skipPvUntil); }

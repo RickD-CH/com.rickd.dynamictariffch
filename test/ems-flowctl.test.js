@@ -268,12 +268,37 @@ async function startUi(extra = {}) {
   const handlers = {};
   const el = (id) => {
     if (!els.has(id)) {
+      // Wert und Häkchen kommen aus dem gezeichneten HTML, solange der Test sie nicht selbst setzt (wie im Browser)
+      const own = {};
+      const tag = () => {
+        const html = (els.get('ems-view-devices') || { innerHTML: '' }).innerHTML;
+        const m = new RegExp('<(input|select|textarea)\\b[^>]*\\bid="' + id + '"[^>]*>').exec(html);
+        return m ? { kind: m[1], tag: m[0], at: m.index + m[0].length, html } : null;
+      };
+      const unesc = (x) => x.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
       els.set(id, {
         id,
         innerHTML: '',
         textContent: '',
-        value: '',
-        checked: false,
+        get value() {
+          if ('value' in own) return own.value;
+          const t = tag();
+          if (!t) return '';
+          if (t.kind === 'select') {
+            const part = t.html.slice(t.at, t.html.indexOf('</select>', t.at));
+            const sel = /<option value="([^"]*)"[^>]*selected/.exec(part) || /<option value="([^"]*)"/.exec(part);
+            return sel ? unesc(sel[1]) : '';
+          }
+          const v = /\bvalue="([^"]*)"/.exec(t.tag);
+          return v ? unesc(v[1]) : '';
+        },
+        set value(v) { own.value = v; },
+        get checked() {
+          if ('checked' in own) return own.checked;
+          const t = tag();
+          return !!t && /\schecked\b/.test(t.tag);
+        },
+        set checked(v) { own.checked = v; },
         hidden: false,
         classList: { contains: () => true, toggle: () => {} },
         addEventListener: (t, f) => {
@@ -440,7 +465,7 @@ test('Anzeige: SG-Ready-Bereich ist da, standardmässig aus, und die Einstellung
   ui.click({ 'data-ems-open': 'sg' });
   const html = ui.setup();
   assert.match(html, /SG-Ready steuern/);
-  assert.doesNotMatch(html, /Mindestlaufzeit/, 'solange aus, keine weiteren Felder');
+  assert.match(html, /Mindestlaufzeit/, 'die Einstellungen sind auch im ausgeschalteten Zustand sichtbar');
   const sg = ui.ctx.window.EmsUi._collect().ems.sgready;
   assert.equal(sg.enabled, false);
   assert.equal(sg.minRunMin, 90);
@@ -466,6 +491,8 @@ test('Anzeige: SG-Ready - Erklärtexte, Betriebsart, Ausgabe über Relais oder F
   assert.match(h2, /Flow Normalbetrieb \(0:0\)/);
   assert.match(h2, /Flow Empfehlung \(0:1\)/);
   assert.doesNotMatch(h2, /Relais Empfehlung/);
+  flows.set('ems-sg-fb', 'f1'); // die nachgebildete Oberfläche liefert sonst leere Werte
+  flows.set('ems-sg-output', 'flows');
   const sg = flows.ctx.window.EmsUi._collect().ems.sgready;
   assert.equal(sg.output, 'flows');
   assert.equal(sg.flowBoost.id, 'f1');
@@ -479,7 +506,7 @@ test('Anzeige: Warmwasser-Programm - günstigste Stunden statt Preis, mit Vorsch
   off.click({ 'data-ems-open': 'dhw' });
   const h0 = off.setup();
   assert.match(h0, /Warmwasser-Programm bei günstigem Preis starten/);
-  assert.doesNotMatch(h0, /Nur starten unter Warmwasser/, 'solange aus keine weiteren Felder');
+  assert.match(h0, /Nur starten unter Warmwasser/, 'die Einstellungen sind auch im ausgeschalteten Zustand sichtbar');
   // Preise: heute 02:00-03:00 für 8 Rp., sonst 30 Rp.; morgen 05:00-07:00 günstig
   const day = (d0, cheapFrom, cheapTo) => Array.from({ length: 96 }, (_, k) => [d0 + k * 900000, d0 + k * 900000 >= cheapFrom && d0 + k * 900000 < cheapTo ? 8 : 30]);
   const d0 = Date.UTC(2026, 10, 13, 0, 0) - 3600000; // 00:00 Zürich
