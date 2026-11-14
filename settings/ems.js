@@ -2550,7 +2550,10 @@
   function markDirty() {
     state.dirty = true;
     var b = $('ems-savebtn');
-    if (b) { b.textContent = S.saveDirty; b.style.background = 'var(--st-warn, #d98a1a)'; }
+    if (b) {
+      b.textContent = S.saveDirty;
+      if (b.style) b.style.background = 'var(--st-warn, #d98a1a)';
+    }
     setMsg(S.unsaved);
   }
   function onEdit(ev) {
