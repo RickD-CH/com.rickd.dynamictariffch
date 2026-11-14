@@ -150,6 +150,7 @@
     "sgTemp": "Warmwasser {t} °C",
     "sgUntil": "bis {time}",
     "paused": "Pausiert",
+    "moduleOff": "Aus",
     "pauseOn": "Läuft automatisch. Ausschalten pausiert und beendet einen laufenden Lauf.",
     "pauseOff": "Pausiert: startet nicht. Einschalten gibt wieder frei.",
     "autoOn": "Automatik ein: startet selbst bei PV-Überschuss oder im günstigsten Moment",

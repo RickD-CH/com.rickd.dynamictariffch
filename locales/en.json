@@ -150,6 +150,7 @@
     "sgTemp": "Hot water {t} °C",
     "sgUntil": "until {time}",
     "paused": "Paused",
+    "moduleOff": "Off",
     "pauseOn": "Runs automatically. Switching off pauses and ends a running cycle.",
     "pauseOff": "Paused: will not start. Switching on releases it again.",
     "autoOn": "Auto mode on: starts by itself on PV surplus or at the cheapest moment",

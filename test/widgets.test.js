@@ -224,3 +224,20 @@ test('Widget «Verbraucher»: Warmwasser-Programm-Block nur wenn aktiv, mit Zust
   const waiting = consumersWidget({ shadow: { ...off, config: on.config }, consumerCurrent: [], tz: TZ }).dhw;
   assert.equal(waiting.known, false, 'noch kein Lauf: Platzhalter');
 });
+
+test('Widget «Verbraucher»: eingerichtete, aber ausgeschaltete Module erscheinen mit Schalter-Zustand «aus», nicht eingerichtete nicht', () => {
+  const base = {
+    deviceExists: true, silent: true, config: { consumers: [], sgready: { enabled: false }, dhw: { enabled: false } },
+  };
+  const none = consumersWidget({ shadow: base, consumerCurrent: [], tz: TZ });
+  assert.equal(none.dhw, null);
+  assert.equal(none.sgready, null);
+  const set = consumersWidget({
+    shadow: { ...base, config: { ...base.config, dhw: { enabled: false, flowOn: { id: 'f1' } }, sgready: { enabled: false, recommendRelay: { deviceId: 'r' } } } },
+    consumerCurrent: [],
+    tz: TZ,
+  });
+  assert.equal(set.dhw.enabled, false);
+  assert.equal(set.sgready.enabled, false);
+  assert.equal(set.dhw.known, false);
+});

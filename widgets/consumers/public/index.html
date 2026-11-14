@@ -116,7 +116,8 @@
     function sgHtml(Homey, sg) {
       if (!sg) return '';
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
-      var state = sg.paused ? esc(Homey.__('consumersWidget.paused')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
+      if (!sg.enabled) sg.paused = true;
+      var state = sg.paused ? esc(Homey.__(sg.enabled ? 'consumersWidget.paused' : 'consumersWidget.moduleOff')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
@@ -133,7 +134,8 @@
 
     function dhwHtml(Homey, dh) {
       if (!dh) return '';
-      var state = dh.paused ? esc(Homey.__('consumersWidget.paused')) : (!dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle')));
+      if (!dh.enabled) dh.paused = true;
+      var state = dh.paused ? esc(Homey.__(dh.enabled ? 'consumersWidget.paused' : 'consumersWidget.moduleOff')) : (!dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle')));
       var testChip = !dh.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
