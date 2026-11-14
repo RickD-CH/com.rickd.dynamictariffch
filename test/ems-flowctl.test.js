@@ -326,7 +326,7 @@ async function startUi(extra = {}) {
     },
     'GET /ems/consumers': { current: [], events: [] },
     'GET /ems/devices': {
-      devices: [{
+      devices: extra.devices || [{
         id: 'lamp', name: 'Lampe', cls: 'light', caps: ['onoff'],
       }],
     },
@@ -797,4 +797,24 @@ test('Einklappteile öffnen sich selbst, wenn Aufmerksamkeit nötig ist: erste f
   await fine.flush();
   assert.doesNotMatch(fine.setup(), /data-ems-adv="row0-link">[^<]*<span class="ems-warn">/, 'Karte vorhanden: keine Warnung');
   assert.doesNotMatch(fine.setup(), /<details class="ems-adv" open><summary data-ems-adv="row0-link"/, 'und der Bereich bleibt zu');
+});
+
+test('Automatisch vorschlagen: eingetragene Zeilen sind farblich getönt und mit «Vorschlag» gekennzeichnet, der Speichern-Knopf zeigt offene Änderungen; schon Gewähltes bleibt unmarkiert', async () => {
+  const ui = await startUi({
+    noMeter: true,
+    devices: [
+      { id: 'em', name: 'Zähler', cls: 'sensor', caps: ['measure_power', 'meter_power.exported', 'measure_power.load'] },
+      { id: 'pvd', name: 'Solar', cls: 'solarpanel', caps: ['measure_power'] },
+    ],
+  });
+  assert.doesNotMatch(ui.setup(), /class="ems-tag ems-tag-sug"/, 'vor dem Vorschlag keine Kennzeichnung');
+  ui.click({ 'data-ems-suggest': '1' });
+  const h = ui.setup();
+  const tags = (h.match(/class="ems-tag ems-tag-sug"/g) || []).length;
+  assert.ok(tags >= 3, `Netzzähler, Hausverbrauch und PV gekennzeichnet (${tags})`);
+  assert.match(h, /class="ems-item ems-sug"/, 'Zeile getönt');
+  assert.match(ui.ctx.document.getElementById('ems-msg').textContent, /Noch nicht gespeichert/, 'offene Änderungen sichtbar');
+  const again = await startUi({ devices: [{ id: 'em', name: 'Zähler', cls: 'sensor', caps: ['measure_power', 'meter_power.exported'] }] });
+  again.click({ 'data-ems-suggest': '1' });
+  assert.doesNotMatch(again.setup(), /class="ems-tag ems-tag-sug"/, 'Netzzähler war schon gewählt: nichts markiert');
 });

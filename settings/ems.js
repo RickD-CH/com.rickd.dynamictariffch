@@ -92,7 +92,7 @@
       pvSavedOk: 'Auftrag übernommen',
       setupReady: 'Bereit: alle Pflicht-Quellen sind gewählt', setupMissing: 'Es fehlt noch:',
       setupNoBat: 'Ohne Hausbatterie läuft das Energiemanagement trotzdem: Wallbox und Verbraucher laden nach Überschuss. Modi nach Batteriestand sind dann nicht möglich.',
-      suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
+      suggestedTag: 'Vorschlag', suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
       tagRequired: 'Pflicht', tagRecommended: 'Empfohlen', tagOptional: 'Optional', tagAuto: 'Automatisch',
       notChosen: 'nicht gewählt', device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- keines -', pickFirst: '- zuerst Gerät wählen -',
       fuseTitle: 'HAUSANSCHLUSS', fuseRow: 'Hausanschluss-Schutz', fuseOff: 'aus', fuseOn: 'Hausanschluss schützen',
@@ -303,7 +303,7 @@
       pvSavedOk: 'Job applied',
       setupReady: 'Ready: all required sources are chosen', setupMissing: 'Still missing:',
       setupNoBat: 'Without a home battery energy management still works: the EV charger and consumers charge from surplus. Modes by battery level are then not possible.',
-      suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
+      suggestedTag: 'Suggested', suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
       tagRequired: 'Required', tagRecommended: 'Recommended', tagOptional: 'Optional', tagAuto: 'Automatic',
       notChosen: 'not chosen', device: 'Device', value: 'Value', pick: '- choose device -', none: '- none -', pickFirst: '- choose a device first -',
       fuseTitle: 'HOUSE CONNECTION', fuseRow: 'Main fuse protection', fuseOff: 'off', fuseOn: 'Protect the main fuse',
@@ -1459,7 +1459,9 @@
 
   function listRow(key, ic, color, title, tagHtmlStr, summary, body) {
     var open = !!state.open[key];
-    return '<div class="ems-item' + (open ? ' open' : '') + '"><div class="ems-item-h" data-ems-open="' + esc(key) + '">'
+    var sug = !!(state.suggested && state.suggested[key]);
+    if (sug) tagHtmlStr = (tagHtmlStr || '') + '<span class="ems-tag ems-tag-sug">' + esc(S.suggestedTag) + '</span>';
+    return '<div class="ems-item' + (open ? ' open' : '') + (sug ? ' ems-sug' : '') + '"><div class="ems-item-h" data-ems-open="' + esc(key) + '">'
       + '<span class="ems-ic" style="background:' + color + '">' + icon(ic, 17) + '</span>'
       + '<span class="ems-item-t"><span class="ems-item-n">' + esc(title) + ' ' + (tagHtmlStr || '') + '</span><span class="ems-item-s ems-' + summary.cls + '">' + esc(summary.text) + '</span></span>'
       + '<span class="ems-chev">' + icon('chevron', 16) + '</span></div>'
@@ -1556,6 +1558,7 @@
       + '.ems-f input,.ems-f select{font:inherit;padding:5px 7px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 200px}.ems-wide select{width:100%}'
       + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
       + '.ems-adv{margin:8px 0}.ems-adv summary{cursor:pointer;font-size:12px;color:var(--st-muted)}'
+      + '.ems-item.ems-sug{background:var(--st-lv-cheap-bg)}.ems-tag-sug{background:var(--st-switch-on);color:#fff}'
       + '.share-svg{width:100%;max-width:440px;height:auto;display:block;margin:2px 0}'
       + '.ems-dirty{color:#b9770e;font-size:11px;font-weight:600}.ems-save-sec{margin-top:12px}'
       + '.ems-save{display:block;width:100%;padding:11px;border:0;border-radius:8px;background:var(--st-accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}'
@@ -2588,9 +2591,11 @@
     var n = 0;
     var by = function (fn) { for (var i = 0; i < state.devices.length; i++) if (fn(state.devices[i])) return state.devices[i]; return null; };
     var has = function (d, re) { return (d.caps || []).some(function (x) { return re.test(x); }); };
+    state.suggested = {};
     var set = function (key, d, prefer, re) {
       if (!d || srcDevice(key).id) return;
       setSrc(key, d.id, pickCap(d.id, re || /^measure_power/, '', prefer)); n += 1;
+      state.suggested['src-' + key] = true;
     };
     var grid = by(function (d) { return has(d, /^measure_power$/) && has(d, /^meter_power\.exported$/); });
     set('grid', grid, 'measure_power');
@@ -2602,8 +2607,10 @@
       state.rows[0].deviceId = wb.id;
       if (!state.rows[0].meterDeviceId && has(wb, /^meter_power$/)) { state.rows[0].meterDeviceId = wb.id; state.rows[0].meterCap = 'meter_power'; }
       n += 1;
+      state.suggested.row0 = true;
     }
     state.suggestMsg = n ? S.suggested + ' ' + n : S.nothingSuggested;
+    if (n) markDirty();
     renderSetup();
   }
 
@@ -2681,6 +2688,7 @@
       return load();
     }).then(function () {
       state.dirty = false;
+      state.suggested = {};
       setMsg(S.saved);
       render();
       renderCompare();
