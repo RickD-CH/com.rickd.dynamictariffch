@@ -343,7 +343,7 @@ async function startUi(extra = {}) {
   };
   const click = (attrs) => handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
   const change = (attrs) => handlers['ems-view-devices:change']({ target: { getAttribute: (n) => (n in attrs ? attrs[n] : null), value: '', parentNode: null } });
-  const input = (attrs) => handlers['ems-view-devices:input']({ target: { tagName: 'INPUT', getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
+  const input = (attrs) => handlers['ems-view-devices:input']({ target: { id: attrs.id, tagName: 'INPUT', getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
   const flush = async () => {
     const fs = timers.splice(0).filter(Boolean);
     fs.forEach((f) => f());
@@ -675,4 +675,19 @@ test('Wallbox: Hausbatterie-Schutz (Rampe) einstellbar - Felder sichtbar, Werte 
   ui.set('ems-share-hi', '700');
   const s = ui.ctx.window.EmsUi._collect().ems.share;
   assert.deepEqual([s.socLow, s.pctLow, s.socHigh, s.pctHigh], [30, 30, 100, 100], 'über 100 wird begrenzt');
+});
+
+test('Wallbox: Maximalstrom, Haltezeit und «Sofort laden beim Abstecken ausschalten» stehen ohne «Erweitert»; das Rampen-Diagramm folgt den getippten Werten', async () => {
+  const ui = await startUi();
+  ui.click({ 'data-ems-open': 'row0' });
+  const h = ui.setup();
+  const i = h.indexOf('Maximalstrom (A)');
+  assert.ok(i > 0, 'Maximalstrom sichtbar');
+  const before = h.slice(Math.max(0, h.lastIndexOf('Hausbatterie-Schutz')), i);
+  assert.doesNotMatch(before.slice(before.lastIndexOf('<details')), /^<details class="ems-adv"[^>]*><summary data-ems-adv="row0adv"/, 'nicht in einem Erweitert-Bereich');
+  assert.doesNotMatch(h, /data-ems-adv="row0adv"/, 'die Wallbox-Zeile hat keinen Erweitert-Bereich mehr');
+  assert.match(h, /«Sofort laden» beim Abstecken ausschalten/);
+  ui.set('ems-share-lo', '30');
+  ui.input({ id: 'ems-share-lo' });
+  assert.match(ui.ctx.document.getElementById('ems-share-live').innerHTML, /41\.0,/, 'Diagramm zeichnet die neue untere Grenze (30 %)');
 });

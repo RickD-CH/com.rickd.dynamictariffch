@@ -983,23 +983,38 @@
     return svg;
   }
 
+  /** Diagramm, «Jetzt»-Zeile und Bonus-Meldung der Box (mit den Statusdaten und, wenn angegeben, den gerade getippten Werten). */
+  function shareLiveHtml(sh) {
+    var info = state.shadow && state.shadow.shareInfo;
+    var now = info && info.pct !== null && info.pct !== undefined && info.soc !== null && info.soc !== undefined
+      ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareNow.replace('{soc}', info.soc).replace('{pct}', info.pct)) + '</p>' : '';
+    return '<span class="ems-f">' + esc(S.shareChartCap) + '</span>' + shareChart(sh, info) + now;
+  }
+  function shareBonusLine() {
+    return state.shadow && state.shadow.shareShift > 0 ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareBonusNow.replace('{n}', state.shadow.shareShift)) + '</p>' : '';
+  }
+  /** Ohne Neuzeichnen der Eingabefelder aktualisieren (beim Status-Update und beim Tippen). */
+  function updateShareLive() {
+    var el = $('ems-share-live');
+    if (!el || !state.cfg) return;
+    el.innerHTML = shareLiveHtml(shareCollect(state.cfg.share));
+    var b = $('ems-share-bonusnow');
+    if (b) b.innerHTML = shareBonusLine();
+  }
+
   // Hausbatterie-Schutz: wie viel vom Solarstrom das Auto in Abhängigkeit vom Batteriestand bekommt (gilt auch für Geräte ohne eigene Grenze)
   function shareBox() {
     var sh = (state.cfg && state.cfg.share) || { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100 };
-    var info = state.shadow && state.shadow.shareInfo;
     var num0 = ' step="5" min="0" max="100"';
-    var now = info && info.pct !== null && info.pct !== undefined && info.soc !== null && info.soc !== undefined
-      ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareNow.replace('{soc}', info.soc).replace('{pct}', info.pct)) + '</p>' : '';
-    var bonusNow = state.shadow && state.shadow.shareShift > 0 ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareBonusNow.replace('{n}', state.shadow.shareShift)) + '</p>' : '';
     return '<div class="ems-box"><b>' + esc(S.shareTitle) + '</b><p class="ems-why">' + esc(S.shareWhy) + '</p>'
       + '<div class="ems-row"><span class="ems-f" style="flex-basis:100%">' + esc(S.shareLowRow) + '</span>'
       + field(S.shareAt, 'ems-share-lo', sh.socLow, 'number', num0) + field(S.shareGets, 'ems-share-pctlo', sh.pctLow, 'number', num0) + '</div>'
       + '<div class="ems-row"><span class="ems-f" style="flex-basis:100%">' + esc(S.shareHighRow) + '</span>'
       + field(S.shareAt, 'ems-share-hi', sh.socHigh, 'number', num0) + field(S.shareGets, 'ems-share-pcthi', sh.pctHigh, 'number', num0) + '</div>'
-      + '<div style="margin:8px 0 2px"><span class="ems-f">' + esc(S.shareChartCap) + '</span>' + shareChart(sh, info) + now + '</div>'
+      + '<div id="ems-share-live" style="margin:8px 0 2px">' + shareLiveHtml(sh) + '</div>'
       + '<p class="ems-why">' + esc(S.shareEx) + '</p>'
       + '<div class="ems-box" style="margin:8px 0 0"><b>' + esc(S.shareBonusTitle) + '</b>'
-      + '<div class="ems-row">' + field(S.shareBonus, 'ems-share-bonus', sh.forecastBonus || 0, 'number', ' step="5" min="0" max="40"', S.shareBonusH) + '</div>' + bonusNow + '</div></div>';
+      + '<div class="ems-row">' + field(S.shareBonus, 'ems-share-bonus', sh.forecastBonus || 0, 'number', ' step="5" min="0" max="40"', S.shareBonusH) + '</div><div id="ems-share-bonusnow">' + shareBonusLine() + '</div></div></div>';
   }
 
   function rowBody(r, i) {
@@ -1014,9 +1029,8 @@
         + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
         + meterRow + lastTxt
         + shareBox()
-        + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
-        + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
-        + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label></details>';
+        + '<div class="ems-row">' + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
+        + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label>';
     }
     var modes = [['surplus', S.modeSurplus], ['program', S.modeProgram]].concat(hasBattery() ? [['full', S.modeFull], ['soc', S.modeSoc]] : []);
     if (!hasBattery() && (r.mode === 'full' || r.mode === 'soc')) modes.push([r.mode, r.mode === 'full' ? S.modeFull : S.modeSoc]);
@@ -2559,6 +2573,7 @@
     if (ae && ae.getAttribute && (ae.getAttribute('data-ems-draft') !== null || ae.getAttribute('data-ems-carf') !== null || ae.getAttribute('data-ems-carcal') !== null || ae.getAttribute('data-ems-cnlim') !== null)) return Promise.resolve();
     return load().then(function () {
       if (noDevice() !== state.renderedNoDevice) { render(); } else { renderMain(); }
+      updateShareLive();
       renderCompare();
       if (state.preview) runPreview();
     }).catch(function () {});
@@ -2628,6 +2643,7 @@
     setMsg(S.unsaved);
   }
   function onEdit(ev) {
+    if (ev && ev.target && /^ems-share-/.test(ev.target.id || '')) updateShareLive();
     if (editWanted(ev && ev.target)) markDirty(ev.target);
   }
 
