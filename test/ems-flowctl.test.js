@@ -832,6 +832,8 @@ test('Priorität der Verbraucher: Nummer in der Titelzeile (nur bei Überschuss 
   assert.equal((h0.match(/class="ems-tag ems-tag-prio"/g) || []).length, 2, 'nur die zwei Überschuss-Verbraucher tragen eine Priorität');
   assert.match(h0, /Priorität 1/);
   assert.match(h0, /Priorität 2/);
+  assert.match(h0, /class="ems-mv" data-ems-move="2:-1"/, 'die Pfeile stehen schon in der zugeklappten Titelzeile');
+  assert.match(h0, /data-ems-move="1:-1" title="nach oben" aria-label="nach oben" disabled/, 'beim ersten ist «nach oben» gesperrt');
   ui.click({ 'data-ems-open': 'row2' });
   assert.match(ui.setup(), /data-ems-move="2:-1"/, 'Pfeil nach oben beim zweiten');
   ui.click({ 'data-ems-open': 'row1' });

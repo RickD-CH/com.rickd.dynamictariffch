@@ -953,6 +953,13 @@
     prioList().forEach(function (x) { if (x.r.mode === 'surplus') { total += 1; if (x.i === i) rank = total; } n += 1; });
     return total >= 2 && rank ? rank : 0;
   }
+  function prioArrows(i) {
+    var list = prioList(); var pos = -1;
+    list.forEach(function (x, k) { if (x.i === i) pos = k; });
+    if (list.length < 2 || pos < 0) return '';
+    return '<span class="ems-mvs"><button class="ems-mv" data-ems-move="' + i + ':-1" title="' + esc(S.prioUp) + '" aria-label="' + esc(S.prioUp) + '"' + (pos === 0 ? ' disabled' : '') + '>▲</button>'
+      + '<button class="ems-mv" data-ems-move="' + i + ':1" title="' + esc(S.prioDown) + '" aria-label="' + esc(S.prioDown) + '"' + (pos === list.length - 1 ? ' disabled' : '') + '>▼</button></span>';
+  }
   function prioRow(i) {
     var list = prioList(); var pos = -1;
     list.forEach(function (x, k) { if (x.i === i) pos = k; });
@@ -1558,7 +1565,7 @@
     var rows = state.rows.map(function (r, i) {
       var name = r.kind === 'charger' ? S.wallbox + (r.name ? ' (' + r.name + ')' : '') : (r.name || S.consumers.charAt(0) + S.consumers.slice(1).toLowerCase());
       var pr = prioRank(i);
-      return listRow('row' + i, rowIcon(r), rowColor(r), name, pr ? '<span class="ems-tag ems-tag-prio">' + esc(S.prioTag.replace('{n}', pr)) + '</span>' : '', { text: rowSub(r), cls: r.deviceId && r.control !== false ? 'ok' : 'muted' }, rowBody(r, i));
+      return listRow('row' + i, rowIcon(r), rowColor(r), name, (pr ? '<span class="ems-tag ems-tag-prio">' + esc(S.prioTag.replace('{n}', pr)) + '</span>' : '') + (r.kind === 'consumer' ? prioArrows(i) : ''), { text: rowSub(r), cls: r.deviceId && r.control !== false ? 'ok' : 'muted' }, rowBody(r, i));
     }).join('');
     host.innerHTML = styleHtml()
       + setupHeadHtml()
@@ -1592,7 +1599,7 @@
       + '.ems-f input,.ems-f select{font:inherit;padding:5px 7px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 200px}.ems-wide select{width:100%}'
       + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
       + '.ems-adv{margin:8px 0}.ems-adv summary{cursor:pointer;font-size:12px;color:var(--st-muted)}'
-      + '.ems-tag-prio{background:var(--st-chip-bg);color:var(--st-muted)}'
+      + '.ems-tag-prio{background:var(--st-chip-bg);color:var(--st-muted)}.ems-mvs{white-space:nowrap}.ems-mv{display:inline-block !important;width:auto !important;min-width:0 !important;height:auto !important;margin:0 0 0 4px !important;padding:0 6px !important;font-size:11px !important;line-height:18px !important;border-radius:6px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ems-mv[disabled]{opacity:.35;cursor:default}'
       + '.ems-item.ems-sug{background:var(--st-lv-cheap-bg)}.ems-tag-sug{background:var(--st-switch-on);color:#fff}'
       + '.share-svg{width:100%;max-width:440px;height:auto;display:block;margin:2px 0}'
       + '.ems-dirty{color:#b9770e;font-size:11px;font-weight:600}.ems-save-sec{margin-top:12px}'
