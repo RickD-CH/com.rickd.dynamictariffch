@@ -289,7 +289,7 @@ async function startUi(extra = {}) {
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
   const config = normalizeConfig({
-    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready,
+    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready, dhw: extra.dhw,
   });
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
@@ -473,33 +473,43 @@ test('Anzeige: SG-Ready - Erklärtexte, Betriebsart, Ausgabe über Relais oder F
   assert.ok(h1.indexOf('SG-Ready-Steuerung') > h1.indexOf('Verbraucher') && h1.indexOf('SG-Ready-Steuerung') < h1.indexOf('Hausanschluss-Schutz'), 'Boiler steht unter den Verbrauchern, vor dem Hausanschluss');
 });
 
-test('Anzeige: SG-Ready - Preis startet nur das Warmwasser-Programm, per Flow oder App-Funktion', async () => {
-  const flows = await startUi({ sgready: { enabled: true, priceAction: 'dhw', dhwFlowOn: { id: 'f1', name: 'Sauna an' } } });
-  flows.click({ 'data-ems-open': 'sg' });
+test('Anzeige: Warmwasser-Programm bei günstigem Preis - eigener Bereich unabhängig von SG-Ready, per Flow oder App-Funktion', async () => {
+  const off = await startUi();
+  assert.match(off.setup(), /WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS/);
+  off.click({ 'data-ems-open': 'dhw' });
+  const h0 = off.setup();
+  assert.match(h0, /Warmwasser-Programm bei günstigem Preis starten/);
+  assert.doesNotMatch(h0, /Nur starten unter Warmwasser/, 'solange aus keine weiteren Felder');
+  const flows = await startUi({ dhw: { enabled: true, flowOn: { id: 'f1', name: 'Sauna an' }, maxPriceRp: 12 } });
+  flows.click({ 'data-ems-open': 'dhw' });
   const h = flows.setup();
+  assert.match(h, /Nur starten unter Warmwasser/);
   assert.match(h, /Flow Warmwasser-Programm ein/);
   assert.match(h, /Flow zurück auf Normal/);
   assert.doesNotMatch(h, /Gerät und Capability der App-Funktion/);
-  assert.equal(flows.ctx.window.EmsUi._collect().ems.sgready.dhwFlowOn.id, 'f1');
+  const c1 = flows.ctx.window.EmsUi._collect().ems;
+  assert.equal(c1.dhw.flowOn.id, 'f1');
+  assert.equal(c1.dhw.maxPriceRp, 12);
+  assert.equal(c1.dhw.belowTemp, 45, 'Standard 45 °C');
   const cap = await startUi({
-    sgready: {
+    dhw: {
       enabled: true,
-      priceAction: 'dhw',
-      dhwOutput: 'capability',
-      dhwDevice: {
+      output: 'capability',
+      device: {
         deviceId: 'lamp', capability: 'onoff', onValue: 'true', offValue: 'false',
       },
     },
   });
-  cap.click({ 'data-ems-open': 'sg' });
+  cap.click({ 'data-ems-open': 'dhw' });
   const h2 = cap.setup();
   assert.match(h2, /Gerät und Capability der App-Funktion/);
   assert.match(h2, /Wert für zurück auf Normal/);
   assert.doesNotMatch(h2, /Flow Warmwasser-Programm ein/);
-  assert.equal(cap.ctx.window.EmsUi._collect().ems.sgready.dhwDevice.offValue, 'false');
-  const plain = await startUi({ sgready: { enabled: true } });
-  plain.click({ 'data-ems-open': 'sg' });
-  assert.doesNotMatch(plain.setup(), /Warmwasser-Programm ein/, 'Standard: SG-Ready-Empfehlung, keine Zusatzfelder');
+  assert.equal(cap.ctx.window.EmsUi._collect().ems.dhw.device.offValue, 'false');
+  // SG-Ready selbst kennt keinen Preis mehr
+  const sg = await startUi({ sgready: { enabled: true } });
+  sg.click({ 'data-ems-open': 'sg' });
+  assert.doesNotMatch(sg.setup(), /Preis-Start|günstigem Strompreis|Was startet der Preis/, 'der Preis gehört zum eigenen Bereich');
 });
 
 test('Anzeige: kurze Erklärungen hinter einem ⓘ - eingeklappt, ein Klick klappt sie auf, nur bei erklärungsbedürftigen Feldern', async () => {

@@ -390,7 +390,7 @@ const { ShadowLog } = require('../lib/ems/ShadowLog');
 const { PriceFeed } = require('../lib/ems/PriceFeed');
 const { PvFeed } = require('../lib/ems/PvFeed');
 
-function makeRunner(sgOver = {}, tempRef = { v: 40 }) {
+function makeRunner(sgOver = {}, tempRef = { v: 40 }, dhwOver = undefined) {
   const config = normalizeConfig({
     enabled: true,
     silent: false,
@@ -406,6 +406,7 @@ function makeRunner(sgOver = {}, tempRef = { v: 40 }) {
       forceRelay: { deviceId: 'rel1', capability: 'onoff' },
       ...sgOver,
     },
+    dhw: dhwOver,
   });
   const calls = [];
   const runner = new EmsRunner({
@@ -550,65 +551,6 @@ test('Warmwasser-Programm hält nur per Preis und endet, wenn der Preis steigt',
   assert.ok(x.st.cooldownUntil);
 });
 
-test('Runner: Warmwasser-Programm per Flow - ein beim Start, zurück auf Normal beim Ende, SG-Ready-Relais bleiben aus', async () => {
-  const fired = [];
-  const { runner, calls, tempRef } = makeRunner({
-    usePrice: true,
-    maxPriceRp: 100,
-    priceAction: 'dhw',
-    priceSkipPv: false,
-    priceBelowTemp: 45,
-    pvBelowTemp: 0,
-    minSolarW: 99999,
-    dhwFlowOn: { id: 'on', advanced: false, name: 'WW an' },
-    dhwFlowOff: { id: 'off', advanced: true, name: 'WW aus' },
-  });
-  runner.prices = { getSlots: () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }] };
-  runner.actuators.consumer = async (id, on, { live, flow }) => {
-    fired.push([flow.id, live]);
-    return { cmd: 'on', live };
-  };
-  await runner.tickCharger(at(22));
-  assert.deepEqual(fired, [['on', true]]);
-  assert.equal(runner.sgReadyCurrent.state, 'dhw');
-  assert.ok(calls.every((c) => c[2] === false), 'SG-Ready-Relais nie auf an');
-  await runner.tickCharger(at(22) + 30000);
-  assert.equal(fired.length, 1, 'keine Wiederholung');
-  tempRef.v = 57;
-  await runner.tickCharger(at(22) + 60000);
-  assert.deepEqual(fired[1], ['off', true]);
-});
-
-test('Runner: Warmwasser-Programm per App-Capability (Werte true/false oder Text), «aus» nie ohne vorheriges «ein»', async () => {
-  const sets = [];
-  const { runner, tempRef } = makeRunner({
-    usePrice: true,
-    maxPriceRp: 100,
-    priceAction: 'dhw',
-    dhwOutput: 'capability',
-    priceSkipPv: false,
-    minSolarW: 99999,
-    pvBelowTemp: 0,
-    dhwDevice: {
-      deviceId: 'wp', capability: 'dhw_mode', onValue: 'Warmwasser', offValue: 'Automatik',
-    },
-  });
-  runner.prices = { getSlots: () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }] };
-  runner.actuators.program = async (deviceId, capability, value, { live }) => {
-    sets.push([deviceId, capability, value, live]);
-    return { cmd: 'program', live };
-  };
-  tempRef.v = 57; // Ziel schon erreicht: Normalbetrieb, aber kein «aus» ohne vorheriges «ein»
-  await runner.tickCharger(at(21));
-  assert.equal(sets.filter((s) => s[1] === 'dhw_mode').length, 0);
-  tempRef.v = 40;
-  await runner.tickCharger(at(22));
-  assert.deepEqual(sets.filter((s) => s[1] === 'dhw_mode'), [['wp', 'dhw_mode', 'Warmwasser', true]]);
-  tempRef.v = 57;
-  await runner.tickCharger(at(22) + 60000);
-  assert.deepEqual(sets.filter((s) => s[1] === 'dhw_mode')[1], ['wp', 'dhw_mode', 'Automatik', true]);
-});
-
 test('Runner: Betriebsart-Vergleich ignoriert Gross-/Kleinschreibung und Leerzeichen (AUTOMATIK = Automatik)', async () => {
   const r = makeRunner({ modeId: 'wp', modeCapability: 'mode', modeOkValue: 'Automatik' });
   r.runner.inputs.readValue = async () => ' AUTOMATIK ';
@@ -654,4 +596,90 @@ test('Runner: Rückmeldung ohne live warnt nie (es wird ja nichts geschaltet)', 
   await runner.tickCharger(at(10) + 10 * 60000);
   assert.equal(runner.sgReadyCurrent.reported, '2 NORMAL');
   assert.equal(runner.sgReadyCurrent.mismatch, false);
+});
+
+const dhwBase = {
+  enabled: true, live: true, maxPriceRp: 100, belowTemp: 45, skipPv: false, startDelayMin: 0, minRunMin: 0, stopDelayMin: 0, sensorId: 'ww',
+};
+const cheapAt22 = () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }];
+
+test('Warmwasser-Programm (eigenes Modul) per Flow: ein beim Start, zurück auf Normal beim Ende, SG-Ready bleibt unberührt', async () => {
+  const fired = [];
+  const { runner, calls, tempRef } = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'WW an' }, flowOff: { id: 'off', advanced: true, name: 'WW aus' },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.actuators.consumer = async (id, on, { live, flow }) => {
+    fired.push([flow.id, live]);
+    return { cmd: 'on', live };
+  };
+  await runner.tickCharger(at(22));
+  assert.deepEqual(fired, [['on', true]]);
+  assert.equal(runner.dhwCurrent.on, true);
+  await runner.tickCharger(at(22) + 30000);
+  assert.equal(fired.length, 1, 'keine Wiederholung');
+  tempRef.v = 57;
+  await runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(fired[1], ['off', true]);
+  assert.equal(runner.dhwCurrent.on, false);
+  assert.equal(calls.length, 0, 'SG-Ready-Relais werden nicht angefasst');
+  assert.equal(runner.sgReadyCurrent, null, 'SG-Ready ist aus');
+});
+
+test('Warmwasser-Programm per App-Capability (true/false oder Text), «aus» nie ohne vorheriges «ein»', async () => {
+  const sets = [];
+  const { runner, tempRef } = makeRunner({ enabled: false }, { v: 57 }, {
+    ...dhwBase,
+    output: 'capability',
+    device: {
+      deviceId: 'wp', capability: 'dhw_mode', onValue: 'Warmwasser', offValue: 'Automatik',
+    },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.actuators.program = async (deviceId, capability, value, { live }) => {
+    sets.push([deviceId, capability, value, live]);
+    return { cmd: 'program', live };
+  };
+  await runner.tickCharger(at(21)); // Ziel schon erreicht: kein «aus» ohne vorheriges «ein»
+  assert.equal(sets.length, 0);
+  tempRef.v = 40;
+  await runner.tickCharger(at(22));
+  assert.deepEqual(sets, [['wp', 'dhw_mode', 'Warmwasser', true]]);
+  tempRef.v = 57;
+  await runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(sets[1], ['wp', 'dhw_mode', 'Automatik', true]);
+});
+
+test('Warmwasser-Programm: Sonne hat Vorrang - übernimmt SG-Ready im Boost, wird das Programm beendet; nicht live nur simuliert', async () => {
+  const fired = [];
+  const { runner } = makeRunner({ minSolarW: 1500, startDelayMin: 0, minRunMin: 0 }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'WW an' }, flowOff: { id: 'off', advanced: false, name: 'WW aus' },
+  });
+  runner.prices = { getSlots: () => [{ start: Math.floor(at(10) / 900000) * 900000, end: at(10) + 900000, price: 10 }] };
+  runner.actuators.consumer = async (id, on, { live, flow }) => {
+    fired.push([flow.id, live]);
+    return { cmd: 'on', live };
+  };
+  let pv = 0;
+  runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: pv, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  await runner.tickCharger(at(10)); // keine Sonne, günstiger Preis
+  assert.equal(runner.dhwCurrent.on, true);
+  pv = 3000; // Sonne kommt dazu
+  await runner.tickCharger(at(10) + 60000);
+  assert.equal(runner.sgReadyCurrent.state, 'boost');
+  assert.equal(runner.dhwCurrent.on, false);
+  assert.match(runner.dhwCurrent.reason, /SG-Ready/);
+  assert.deepEqual(fired.map((f) => f[0]), ['on', 'off']);
+
+  const dry = makeRunner({ enabled: false }, { v: 40 }, { ...dhwBase, live: false, flowOn: { id: 'on', advanced: false, name: 'x' } });
+  dry.runner.prices = { getSlots: cheapAt22 };
+  const seen = [];
+  dry.runner.actuators.consumer = async (id, on, { live }) => {
+    seen.push(live);
+    return { cmd: 'on', live };
+  };
+  await dry.runner.tickCharger(at(22));
+  assert.deepEqual(seen, [false], 'nicht live: Flow nur simuliert');
 });

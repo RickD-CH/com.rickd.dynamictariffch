@@ -126,6 +126,21 @@
         + '</div>';
     }
 
+    function dhwHtml(Homey, dh) {
+      if (!dh) return '';
+      var state = !dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle'));
+      var testChip = !dh.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
+      var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) : '';
+      var sub = [];
+      if (dh.reason) sub.push(esc(dh.reason));
+      if (dh.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
+      return '<div class="car">'
+        + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'
+        + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + '</div>'
+        + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
+        + '</div>';
+    }
+
     function consumerHtml(Homey, c) {
       var sub = esc(c.reason || '');
       var extra = [];
@@ -162,7 +177,7 @@
     function render(Homey, d) {
       var root = document.getElementById('root');
       if (!d.ems) { root.innerHTML = '<div class="msg">' + esc(Homey.__('consumersWidget.noEms')) + '</div>'; return fit(); }
-      var html = carHtml(Homey, d.car) + sgHtml(Homey, d.sgready);
+      var html = carHtml(Homey, d.car) + sgHtml(Homey, d.sgready) + dhwHtml(Homey, d.dhw);
       if (!d.consumers.length) html += '<div class="msg">' + esc(Homey.__('consumersWidget.none')) + '</div>';
       else html += '<div class="list">' + d.consumers.map(function (c) { return consumerHtml(Homey, c); }).join('') + '</div>';
       root.innerHTML = html;

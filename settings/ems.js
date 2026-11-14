@@ -102,7 +102,14 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
-      sgTitle: 'BOILER / WÄRMEPUMPE (SG-READY)', sgRow: 'SG-Ready-Steuerung', sgOff: 'aus', sgOn: 'SG-Ready steuern', sgWhy: 'Schaltet die Einschaltempfehlung (0:1) der Wärmepumpe, wenn Sonne oder ein günstiger Preis das Warmwasser bezahlen. Normalbetrieb (0:0) ist der Ausgangszustand.',
+            dhwTitle: 'WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS', dhwRow: 'Warmwasser-Programm', dhwOff: 'aus', dhwRunning: 'läuft', dhwWaiting: 'wartet',
+      dhwOnLbl: 'Warmwasser-Programm bei günstigem Preis starten', dhwWhy: 'Unabhängig von SG-Ready: ist der Strom günstig und das Warmwasser unter dem Mindestwert, startet das Warmwasser-Programm der Wärmepumpe (Flow oder App-Funktion) und danach wieder zurück auf Normal. Sonne und SG-Ready haben Vorrang.',
+      dhwPriceH: 'Das Programm startet, wenn der aktuelle Preis höchstens so hoch ist.',
+      dhwBelow: 'Nur starten unter Warmwasser (°C)', dhwBelowH: 'Nur wenn das Warmwasser unter diesem Wert liegt (0 = immer). Ohne Temperatur-Messwert startet es nicht.',
+      dhwSkipPv: 'Nicht starten, wenn die Sonne reicht', dhwSkipPvKwh: 'Sonne reicht ab Prognose (kWh, Rest heute)', dhwSkipUntil: 'Sonnenprognose zählt bis', dhwSkipPvH: 'Lohnt sich nicht, per Preis zu starten, wenn die Sonne heute noch genug liefert (Rest-Prognose).', dhwSkipUntilH: 'Bis zu dieser Uhrzeit zählt die Sonnenprognose, danach darf der Preis starten.',
+      dhwTarget: 'Beenden ab Warmwasser (°C)', dhwTargetH: 'Erreicht das Warmwasser diese Temperatur, wird zurück auf Normal gesetzt. Der eigentliche Zielwert steht in der Wärmepumpe selbst.', dhwMinRunH: 'Einmal gestartet läuft das Programm mindestens so lange. Nur Zieltemperatur, Betriebsart oder Sonne (SG-Ready) beenden früher.',
+      dhwLive: 'Warmwasser-Programm live (sonst nur simulieren)', dhwLiveHint: 'Live startet es das Programm wirklich. Der Silent-Modus hat Vorrang. Vorher einen bestehenden Flow dafür ausschalten, damit nur ein System schaltet.',
+      sgTitle: 'BOILER / WÄRMEPUMPE (SG-READY)', sgRow: 'SG-Ready-Steuerung', sgOff: 'aus', sgOn: 'SG-Ready steuern', sgWhy: 'Schaltet die Einschaltempfehlung (0:1) der Wärmepumpe, wenn die Sonne oder ein voller Akku das Warmwasser bezahlen. Normalbetrieb (0:0) ist der Ausgangszustand. Den günstigen Preis gibt es separat im Bereich darunter.',
       sgBasis: 'Steuerungsbasis', sgBasisPv: 'Solarleistung (PV-Produktion)', sgBasisExport: 'Netzeinspeisung', sgBasisH: 'Solarleistung = was die PV produziert (sinnvoll mit Hausakku, der den Überschuss sonst schluckt). Netzeinspeisung = was ins Netz fliesst.',
       sgMinSolar: 'Mindest-Solarleistung für Start (W)', sgMinSolarH: 'Ab dieser Leistung darf der Boost starten.',
       sgMinSoc: 'Mindest-Hausakku für Start (%)', sgMinSocH: 'Der Hausakku muss mindestens so voll sein, bevor die Wärmepumpe den Strom bekommt. Ohne Akku egal.',
@@ -298,7 +305,14 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
-      sgTitle: 'BOILER / HEAT PUMP (SG READY)', sgRow: 'SG Ready control', sgOff: 'off', sgOn: 'Control SG Ready', sgWhy: 'Switches the heat pump switch-on recommendation (0:1) when sun or a cheap price pays for the hot water. Normal operation (0:0) is the base state.',
+            dhwTitle: 'HOT-WATER PROGRAM ON A CHEAP PRICE', dhwRow: 'Hot-water program', dhwOff: 'off', dhwRunning: 'running', dhwWaiting: 'waiting',
+      dhwOnLbl: 'Start the hot-water program on a cheap price', dhwWhy: 'Independent of SG Ready: if power is cheap and the hot water is below the minimum, the heat pump hot-water program starts (flow or app function) and is set back to normal afterwards. Sun and SG Ready take precedence.',
+      dhwPriceH: 'The program starts when the current price is at most this high.',
+      dhwBelow: 'Only start below hot water (°C)', dhwBelowH: 'Only if the hot water is below this value (0 = always). Without a temperature reading it does not start.',
+      dhwSkipPv: 'Do not start if the sun is enough', dhwSkipPvKwh: 'Sun is enough from forecast (kWh, rest of today)', dhwSkipUntil: 'Sun forecast counts until', dhwSkipPvH: 'Starting on price is pointless if the sun will still deliver enough today (remaining forecast).', dhwSkipUntilH: 'Until this time the sun forecast counts, afterwards the price may start.',
+      dhwTarget: 'End at hot water (°C)', dhwTargetH: 'When the hot water reaches this temperature it is set back to normal. The real target is set in the heat pump itself.', dhwMinRunH: 'Once started the program runs at least this long. Only target temperature, operating mode or sun (SG Ready) end it earlier.',
+      dhwLive: 'Hot-water program live (otherwise simulate only)', dhwLiveHint: 'Live, it really starts the program. Silent mode takes precedence. Switch off an existing flow for it first so that only one system switches.',
+      sgTitle: 'BOILER / HEAT PUMP (SG READY)', sgRow: 'SG Ready control', sgOff: 'off', sgOn: 'Control SG Ready', sgWhy: 'Switches the heat pump switch-on recommendation (0:1) when sun or a full battery pays for the hot water. Normal operation (0:0) is the base state. The cheap price has its own section below.',
       sgBasis: 'Control basis', sgBasisPv: 'Solar power (PV production)', sgBasisExport: 'Grid feed-in', sgBasisH: 'Solar power = what the PV produces (useful with a house battery that would otherwise swallow the surplus). Grid feed-in = what flows into the grid.',
       sgMinSolar: 'Minimum solar power to start (W)', sgMinSolarH: 'The boost may start from this power.',
       sgMinSoc: 'Minimum house battery to start (%)', sgMinSocH: 'The house battery must be at least this full before the heat pump gets the power. Ignored without a battery.',
@@ -1140,15 +1154,6 @@
   function sgFlowSel(label, id, cur) {
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + id + '">' + flowOptions(cur) + '</select></label></div>';
   }
-  function sgDhwHtml(g) {
-    var cap = g.dhwOutput === 'capability';
-    var d = g.dhwDevice || { deviceId: '', capability: '', onValue: '', offValue: '' };
-    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('sg-dhwout') + '</span><select id="ems-sg-dhwout" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('sg-dhwout', S.sgDhwH) + '</div>'
-      + (cap
-        ? sgDevPair(S.sgDhwDev, 'ems-sg-dhwdev', d.deviceId, d.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-sg-dhwonv', d.onValue, 'text') + field(S.sgDhwOffV, 'ems-sg-dhwoffv', d.offValue, 'text') + '</div>'
-        : sgFlowSel(S.sgDhwOn, 'ems-sg-dhwon', g.dhwFlowOn) + sgFlowSel(S.sgDhwOff, 'ems-sg-dhwoff', g.dhwFlowOff))
-      ;
-  }
   function sgBody() {
     var g = sgCfg();
     var flows = g.output === 'flows';
@@ -1164,11 +1169,6 @@
       + sgFld(S.sgMinRun, 'ems-sg-minrun', g.minRunMin, 'number', ' step="5" min="0"', S.sgMinRunH)
       + sgFld(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
-      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice, S.sgPriceH) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', '')
-      + sgFld(S.sgPriceBelow, 'ems-sg-pricebelow', g.priceBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPriceBelowH)
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgPriceAct) + tipI('sg-priceaction') + '</span><select id="ems-sg-priceaction" data-ems-sgdev="1"><option value="sgready"' + (g.priceAction === 'dhw' ? '' : ' selected') + '>' + esc(S.sgActSg) + '</option><option value="dhw"' + (g.priceAction === 'dhw' ? ' selected' : '') + '>' + esc(S.sgActDhw) + '</option></select></label>' + tipT('sg-priceaction', S.sgActH) + '</div>'
-      + (g.priceAction === 'dhw' ? sgDhwHtml(g) : '')
-      + '<div class="ems-row">' + check(S.sgSkipPv, 'ems-sg-skippv', g.priceSkipPv, S.sgSkipPvH) + (g.priceSkipPv ? field(S.sgSkipPvKwh, 'ems-sg-skippvkwh', g.priceSkipPvKwh, 'number', ' step="1" min="0"') : '') + '</div>'
       + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
       + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/, S.sgSensorH)
       + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
@@ -1193,19 +1193,7 @@
     g.targetTemp = num('ems-sg-temp', g.targetTemp); g.windowTo = val('ems-sg-to', g.windowTo);
     g.startDelayMin = num('ems-sg-startdelay', g.startDelayMin); g.minRunMin = num('ems-sg-minrun', g.minRunMin);
     g.stopDelayMin = num('ems-sg-stopdelay', g.stopDelayMin); g.cooldownMin = num('ems-sg-cooldown', g.cooldownMin);
-    g.usePrice = chk('ems-sg-useprice'); g.maxPriceRp = num('ems-sg-maxprice', g.maxPriceRp);
-    g.priceBelowTemp = num('ems-sg-pricebelow', g.priceBelowTemp); g.pvBelowTemp = num('ems-sg-pvbelow', g.pvBelowTemp);
-    g.priceSkipPv = chk('ems-sg-skippv');
-    g.priceAction = val('ems-sg-priceaction', g.priceAction) === 'dhw' ? 'dhw' : 'sgready';
-    if ($('ems-sg-dhwout')) g.dhwOutput = val('ems-sg-dhwout', g.dhwOutput) === 'capability' ? 'capability' : 'flows';
-    if ($('ems-sg-dhwon')) g.dhwFlowOn = pickFlow($('ems-sg-dhwon').value || '', g.dhwFlowOn);
-    if ($('ems-sg-dhwoff')) g.dhwFlowOff = pickFlow($('ems-sg-dhwoff').value || '', g.dhwFlowOff);
-    if ($('ems-sg-dhwdev-dev')) {
-      g.dhwDevice = {
-        deviceId: val('ems-sg-dhwdev-dev', ''), capability: val('ems-sg-dhwdev-cap', ''), onValue: String(($('ems-sg-dhwonv') || { value: '' }).value || ''), offValue: String(($('ems-sg-dhwoffv') || { value: '' }).value || ''),
-      };
-    }
-    if ($('ems-sg-skippvkwh')) g.priceSkipPvKwh = num('ems-sg-skippvkwh', g.priceSkipPvKwh);
+    g.pvBelowTemp = num('ems-sg-pvbelow', g.pvBelowTemp);
     g.allowForced = chk('ems-sg-forced');
     if ($('ems-sg-forcedw')) g.forcedMinW = num('ems-sg-forcedw', g.forcedMinW);
     g.sensorId = val('ems-sg-sensor-dev', g.sensorId); g.tempCapability = val('ems-sg-sensor-cap', g.tempCapability);
@@ -1221,6 +1209,68 @@
     if ($('ems-sg-fb')) g.flowBoost = pickFlow($('ems-sg-fb').value || '', g.flowBoost);
     if ($('ems-sg-ff')) g.flowForced = pickFlow($('ems-sg-ff').value || '', g.flowForced);
     g.live = chk('ems-sg-live');
+  }
+
+  // ---------------------------------------------------------------- Warmwasser-Programm bei günstigem Preis (unabhängig von SG-Ready)
+
+  function dhwCfg() {
+    if (!state.cfg.dhw) state.cfg.dhw = { enabled: false, live: false };
+    return state.cfg.dhw;
+  }
+  function dhwSummary() {
+    var d = dhwCfg();
+    if (!d.enabled) return { text: S.dhwOff, cls: 'muted' };
+    var cur = state.shadow && state.shadow.dhw;
+    return { text: cur ? (cur.on ? S.dhwRunning : S.dhwWaiting) + ' - ' + cur.reason : S.dhwRow, cls: 'ok' };
+  }
+  function dhwBody() {
+    var d = dhwCfg();
+    var cap = d.output === 'capability';
+    var dev = d.device || { deviceId: '', capability: '', onValue: '', offValue: '' };
+    var html = '<p class="ems-why">' + esc(S.dhwWhy) + '</p><div class="ems-row">' + check(S.dhwOnLbl, 'ems-dhw-on', d.enabled) + '</div>';
+    if (!d.enabled) return html;
+    return html
+      + sgFld(S.sgMaxPrice, 'ems-dhw-maxprice', d.maxPriceRp, 'number', ' step="0.5" min="0"', S.dhwPriceH)
+      + sgFld(S.dhwBelow, 'ems-dhw-below', d.belowTemp, 'number', ' step="1" min="0" max="90"', S.dhwBelowH)
+      + '<div class="ems-row">' + check(S.dhwSkipPv, 'ems-dhw-skippv', d.skipPv, S.dhwSkipPvH) + (d.skipPv ? field(S.dhwSkipPvKwh, 'ems-dhw-skippvkwh', d.skipPvKwh, 'number', ' step="1" min="0"') + field(S.dhwSkipUntil, 'ems-dhw-skipuntil', d.skipPvUntil, 'time', '', S.dhwSkipUntilH) : '') + '</div>'
+      + sgDevPair(S.sgSensor, 'ems-dhw-sensor', d.sensorId, d.tempCapability, /^measure_temperature/, S.sgSensorH)
+      + sgFld(S.dhwTarget, 'ems-dhw-target', d.targetTemp, 'number', ' step="1" min="20" max="90"', S.dhwTargetH)
+      + sgDevPair(S.sgMode, 'ems-dhw-mode', d.modeId, d.modeCapability, /./, S.sgModeH)
+      + (d.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-dhw-modeok', d.modeOkValue, 'text') + '</div>' : '')
+      + sgFld(S.sgStartDelay, 'ems-dhw-startdelay', d.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
+      + sgFld(S.sgMinRun, 'ems-dhw-minrun', d.minRunMin, 'number', ' step="5" min="0"', S.dhwMinRunH)
+      + sgFld(S.sgStopDelay, 'ems-dhw-stopdelay', d.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
+      + sgFld(S.sgCooldown, 'ems-dhw-cooldown', d.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('dhw-out') + '</span><select id="ems-dhw-out" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('dhw-out', S.sgDhwH) + '</div>'
+      + (cap
+        ? sgDevPair(S.sgDhwDev, 'ems-dhw-dev', dev.deviceId, dev.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-dhw-onv', dev.onValue, 'text') + field(S.sgDhwOffV, 'ems-dhw-offv', dev.offValue, 'text') + '</div>'
+        : sgFlowSel(S.sgDhwOn, 'ems-dhw-flowon', d.flowOn) + sgFlowSel(S.sgDhwOff, 'ems-dhw-flowoff', d.flowOff))
+      + '<div class="ems-row">' + check(S.dhwLive, 'ems-dhw-live', d.live) + '</div><p class="ems-why ems-warn">' + esc(S.dhwLiveHint) + '</p>';
+  }
+  function syncDhw() {
+    if (!state.cfg || !state.open.dhw || !$('ems-dhw-on')) return;
+    var d = dhwCfg();
+    d.enabled = chk('ems-dhw-on');
+    if (!d.enabled || !$('ems-dhw-maxprice')) return;
+    d.maxPriceRp = num('ems-dhw-maxprice', d.maxPriceRp); d.belowTemp = num('ems-dhw-below', d.belowTemp);
+    d.skipPv = chk('ems-dhw-skippv');
+    if ($('ems-dhw-skippvkwh')) { d.skipPvKwh = num('ems-dhw-skippvkwh', d.skipPvKwh); d.skipPvUntil = val('ems-dhw-skipuntil', d.skipPvUntil); }
+    d.sensorId = val('ems-dhw-sensor-dev', d.sensorId); d.tempCapability = val('ems-dhw-sensor-cap', d.tempCapability);
+    d.targetTemp = num('ems-dhw-target', d.targetTemp);
+    d.modeId = ($('ems-dhw-mode-dev') || { value: d.modeId }).value || '';
+    if ($('ems-dhw-mode-cap')) d.modeCapability = d.modeId ? val('ems-dhw-mode-cap', d.modeCapability) : '';
+    if ($('ems-dhw-modeok')) d.modeOkValue = String($('ems-dhw-modeok').value || '');
+    d.startDelayMin = num('ems-dhw-startdelay', d.startDelayMin); d.minRunMin = num('ems-dhw-minrun', d.minRunMin);
+    d.stopDelayMin = num('ems-dhw-stopdelay', d.stopDelayMin); d.cooldownMin = num('ems-dhw-cooldown', d.cooldownMin);
+    d.output = val('ems-dhw-out', d.output) === 'capability' ? 'capability' : 'flows';
+    if ($('ems-dhw-flowon')) d.flowOn = pickFlow($('ems-dhw-flowon').value || '', d.flowOn);
+    if ($('ems-dhw-flowoff')) d.flowOff = pickFlow($('ems-dhw-flowoff').value || '', d.flowOff);
+    if ($('ems-dhw-dev-dev')) {
+      d.device = {
+        deviceId: val('ems-dhw-dev-dev', ''), capability: val('ems-dhw-dev-cap', ''), onValue: String(($('ems-dhw-onv') || { value: '' }).value || ''), offValue: String(($('ems-dhw-offv') || { value: '' }).value || ''),
+      };
+    }
+    d.live = chk('ems-dhw-live');
   }
 
   function listRow(key, ic, color, title, tagHtmlStr, summary, body) {
@@ -1286,6 +1336,7 @@
       + '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + rows
       + '<div class="ems-item ems-add" data-ems-add="1"><span class="ems-ic" style="background:var(--st-seg-bg);color:var(--st-text)">' + icon('plus', 17) + '</span><span class="ems-item-n">' + esc(S.addConsumer) + '</span></div></div>'
       + '<p class="lbl">' + esc(S.sgTitle) + '</p><div class="ems-list">' + listRow('sg', 'boiler', '#e67e22', S.sgRow, '', sgSummary(), sgBody()) + '</div>'
+      + '<p class="lbl">' + esc(S.dhwTitle) + '</p><div class="ems-list">' + listRow('dhw', 'drop', '#2980b9', S.dhwRow, '', dhwSummary(), dhwBody()) + '</div>'
       + '<p class="lbl">' + esc(S.fuseTitle) + '</p><div class="ems-list">' + listRow('fuse', 'bolt', '#c0392b', S.fuseRow, '', fuseSummary(), fuseBody()) + '</div>'
       + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
       + '<p><button class="ems-save" data-ems-save="1">' + esc(S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
@@ -2197,6 +2248,7 @@
     if (!state.cfg || noDevice()) return;
     syncFuse();
     syncSg();
+    syncDhw();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-target')) {
@@ -2314,6 +2366,7 @@
       tickMinutes: Number(c.tickMinutes) || 5,
       fuse: c.fuse ? JSON.parse(JSON.stringify(c.fuse)) : undefined,
       sgready: c.sgready ? JSON.parse(JSON.stringify(c.sgready)) : undefined,
+      dhw: c.dhw ? JSON.parse(JSON.stringify(c.dhw)) : undefined,
       consumers: consumers,
     };
     var cost = state.rows.filter(function (r) { return r.name && r.meterDeviceId && r.meterCap; }).map(function (r) {
@@ -2609,7 +2662,7 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
-    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || t.id === 'ems-sg-skippv' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
+    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || t.id === 'ems-dhw-on' || t.id === 'ems-dhw-skippv' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
     var fuseShedKind = g('data-ems-fuseshedkind');
     if (fuseShedKind !== null) {
       sync();

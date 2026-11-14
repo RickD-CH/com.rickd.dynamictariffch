@@ -200,3 +200,27 @@ test('Widget «Verbraucher»: «heute gestartet» nur, wenn der Start wirklich h
   }).consumers[0];
   assert.equal(fresh.startedToday, true);
 });
+
+test('Widget «Verbraucher»: Warmwasser-Programm-Block nur wenn aktiv, mit Zustand, Temperatur und Testmodus', () => {
+  const off = {
+    deviceExists: true,
+    config: {
+      enabled: true, silent: false, consumers: [], sgready: { enabled: false }, dhw: { enabled: false },
+    },
+  };
+  assert.equal(consumersWidget({ shadow: off, consumerCurrent: [], tz: TZ }).dhw, null);
+  const on = {
+    ...off,
+    config: { ...off.config, dhw: { enabled: true, live: false } },
+    dhw: {
+      on: true, reason: 'Start: günstiger Strompreis (Warmwasser-Programm)', deadlineMs: NOW, tempWW: 41.04, live: false,
+    },
+  };
+  const w = consumersWidget({ shadow: on, consumerCurrent: [], tz: TZ }).dhw;
+  assert.equal(w.on, true);
+  assert.equal(w.known, true);
+  assert.equal(w.tempWW, 41);
+  assert.equal(w.live, false);
+  const waiting = consumersWidget({ shadow: { ...off, config: on.config }, consumerCurrent: [], tz: TZ }).dhw;
+  assert.equal(waiting.known, false, 'noch kein Lauf: Platzhalter');
+});

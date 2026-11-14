@@ -502,3 +502,14 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Gelesen wird die Standardnummer 1 bis 4 (1 EVU-Sperre, 2 Normal, 3 Empfehlung, 4 Anlaufbefehl, `parseSgReadyState`), sonst Stichworte. Der gemeldete Wert
   steht im Widget («Wärmepumpe meldet: …»). Weicht er nach 5 Minuten Einschwingzeit vom gewollten Zustand ab, oder meldet sie EVU-Sperre, warnt das Widget
   («Weicht ab!») und ein Logeintrag entsteht. Nur live. Leer = nur der eigene Zustand.
+
+## Warmwasser-Programm bei günstigem Preis als eigenes Modul (14.11.2026)
+
+- Der Preis-Auslöser ist aus SG-Ready herausgenommen: **SG-Ready** (`cfg.sgready`) steuert nur noch Sonne/Akku (Relais oder Flows, Zustände 0:0/0:1/1:1),
+  der Preis hat einen eigenen Bereich **«Warmwasser-Programm bei günstigem Preis»** (`cfg.dhw`, `lib/ems/planner/dhw.js`), unabhängig ein- und ausschaltbar.
+- Das Modul nutzt dieselbe Zustandsmaschine (`decideSgReady` mit `dhwToSgCfg`: ohne Sonnen-Auslöser, mit Preis-Auslöser, Zustand `dhw`) und eigenen
+  gespeicherten Zustand (`dhwState`): Höchstpreis, «nur starten unter Warmwasser» (Standard 45 °C), «nicht starten, wenn die Sonne reicht» (Rest-Prognose
+  ab 6 kWh, nur bis zu einer eigenen Uhrzeit), Zieltemperatur, Betriebsart, Einschaltverzögerung, Mindestlaufzeit, Ausschaltverzögerung, Abkühlpause.
+- Ein/aus per Flow (`flowOn`/`flowOff`, z. B. Modbus-Betriebsart) oder Capability einer App (`device`); «zurück auf Normal» nur, wenn das Modul das
+  Programm selbst gestartet hat. **Sonne hat Vorrang:** läuft SG-Ready im Boost/Zwang, wird das Programm beendet (`externalBlock`).
+- SG-Ready ignoriert einen gespeicherten Preis-Auslöser (`usePrice` wird im Runner auf aus gesetzt). Im Verbraucher-Widget gibt es einen eigenen Block.
