@@ -945,13 +945,14 @@
   // Priorität bei Überschuss = Reihenfolge der gesteuerten Verbraucher in der Liste (oben startet zuerst und geht zuletzt aus)
   function prioList() {
     var out = [];
-    state.rows.forEach(function (r, i) { if (r.kind === 'consumer' && r.control !== false && r.deviceId) out.push({ r: r, i: i }); });
+    // Nur «Bei Überschuss»: Programme (Geschirrspüler, Waschmaschine ...) und die Modi nach Batteriestand haben eine eigene Regel, eine Reihenfolge würde dort nichts bewirken
+    state.rows.forEach(function (r, i) { if (r.kind === 'consumer' && r.control !== false && r.deviceId && r.mode === 'surplus') out.push({ r: r, i: i }); });
     return out;
   }
   function prioRank(i) {
-    var n = 0; var rank = 0; var total = 0;
-    prioList().forEach(function (x) { if (x.r.mode === 'surplus') { total += 1; if (x.i === i) rank = total; } n += 1; });
-    return total >= 2 && rank ? rank : 0;
+    var list = prioList(); var rank = 0;
+    list.forEach(function (x, k) { if (x.i === i) rank = k + 1; });
+    return list.length >= 2 ? rank : 0;
   }
   function prioArrows(i) {
     var list = prioList(); var pos = -1;

@@ -628,7 +628,7 @@ Für Verbraucher stehen zusätzlich **Pool**, **Klimaanlage** und **Heizstab** z
 
 ### Priorität der Verbraucher bei Überschuss
 
-Die Reihenfolge der Verbraucher in den Einstellungen ist ihre Priorität (Pfeile «nach oben/nach unten» in der Zeile, in der Titelzeile steht «Priorität N», sobald mindestens zwei Verbraucher auf «Bei Überschuss» stehen). Wer weiter oben steht, startet zuerst und geht zuletzt aus.
+Die Reihenfolge der Verbraucher mit «Bei Überschuss» in den Einstellungen ist ihre Priorität (Pfeile «nach oben/nach unten» in der Titelzeile, nur bei diesen, in der Titelzeile steht «Priorität N», sobald mindestens zwei Verbraucher auf «Bei Überschuss» stehen). Wer weiter oben steht, startet zuerst und geht zuletzt aus.
 
 - **Starten:** Nach einem Start (jedes Verbrauchers, auch eines Programms) startet 90 Sekunden lang kein weiterer Überschuss-Verbraucher; seine Wartezeit läuft weiter, er startet danach sofort, wenn der gemessene Überschuss noch reicht. So wird derselbe Überschuss nicht doppelt verplant.
 - **Ausschalten:** Fehlt Überschuss, bleibt ein höher priorisierter Verbraucher an (höchstens 3 Minuten), solange ein niedriger priorisierter noch läuft; der niedrige geht zuerst aus.

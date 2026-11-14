@@ -843,3 +843,20 @@ test('Priorität der Verbraucher: Nummer in der Titelzeile (nur bei Überschuss 
   assert.equal(JSON.stringify(names), JSON.stringify(['Zweiter', 'Erster', 'Dritter']), 'Reihenfolge getauscht');
   assert.match(ui.ctx.document.getElementById('ems-msg').textContent, /Noch nicht gespeichert/);
 });
+
+test('Priorität: Pfeile und Nummer nur bei «Bei Überschuss», nicht bei Programmen und nicht bei den Modi nach Batteriestand', async () => {
+  const ui = await startUi({
+    consumers: [
+      { id: 'lamp', name: 'Oben', enabled: true, mode: 'surplus' },
+      { id: 'lamp2', name: 'Spüler', enabled: true, mode: 'program' },
+      { id: 'lamp3', name: 'Unten', enabled: true, mode: 'surplus' },
+      { id: 'lamp4', name: 'Voll', enabled: true, mode: 'full' },
+    ],
+  });
+  const h = ui.setup();
+  const moves = (h.match(/data-ems-move="(\d+):/g) || []).map((x) => x.replace(/\D/g, ''));
+  assert.equal(JSON.stringify([...new Set(moves)]), JSON.stringify(['1', '3']), 'Pfeile nur bei den zwei Überschuss-Verbrauchern (Zeilen 1 und 3)');
+  assert.equal((h.match(/class="ems-tag ems-tag-prio"/g) || []).length, 2);
+  const one = await startUi({ consumers: [{ id: 'lamp', name: 'Allein', enabled: true, mode: 'surplus' }, { id: 'lamp2', name: 'Spüler', enabled: true, mode: 'program' }] });
+  assert.doesNotMatch(one.setup(), /data-ems-move=/, 'ein einziger Überschuss-Verbraucher: nichts zu ordnen, keine Pfeile');
+});
