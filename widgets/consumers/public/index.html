@@ -48,7 +48,7 @@
     .car .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--cw-chip); white-space: nowrap; }
     .msg { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 16px 6px; }
     .msg.err { color: var(--cw-warn); }
-    .list { max-height: 400px; overflow-y: auto; }
+    .list { max-height: none; }
     .sw { position: relative; width: 34px; height: 20px; flex: 0 0 auto; cursor: pointer; }
     .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
     .sw .slider { position: absolute; inset: 0; background: var(--cw-disabled); border-radius: 999px; transition: background .15s; }
@@ -88,7 +88,7 @@
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
     }
     function fit() {
-      try { if (HomeyRef) HomeyRef.setHeight(Math.min(460, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
+      try { if (HomeyRef) HomeyRef.setHeight(Math.min(1100, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
     }
 
     function carHtml(Homey, car) {
