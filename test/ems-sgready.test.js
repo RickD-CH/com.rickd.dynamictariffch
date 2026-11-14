@@ -129,7 +129,7 @@ test('Start (Trigger B, Preis): unabhängig von windowTo - startet auch nach 17:
       usePrice: true, maxPriceRp: 15, windowTo: '17:00', startDelayMin: 0,
     },
     priceNow: 12,
-    tempWW: 45,
+    tempWW: 40,
     nowMs: at(22),
   });
   const r = decideSgReady(x);
@@ -161,7 +161,7 @@ test('Mindest-Temperatur (Sonne, optional): nur wenn pvBelowTemp > 0, unbekannte
   const cfg = { minSolarW: 1500, startDelayMin: 0, pvBelowTemp: 0 };
   assert.equal(decideSgReady(base({
     cfg, pvW: 2000, tempWW: 55, nowMs: at(10),
-  })).state, 'boost', 'Standard: keine Prüfung');
+  })).state, 'boost', '0 = keine Prüfung');
   const on = { ...cfg, pvBelowTemp: 52 };
   assert.equal(decideSgReady(base({
     cfg: on, pvW: 2000, tempWW: 55, nowMs: at(10),
@@ -495,4 +495,116 @@ test('Runner: Ausgabe über Flows - je Zustand ein Flow, nur beim Wechsel, ohne 
   await runner.tickCharger(at(10) + 60000);
   assert.deepEqual(fired[1], ['fn', true], 'Zieltemperatur: Normalbetrieb-Flow');
   assert.equal(calls.length, 0, 'im Flow-Modus werden keine Relais geschrieben');
+});
+
+test('Standardwerte: Mindest-Temperatur 45 °C für Preis- und Sonnen-Start', () => {
+  const d = normalizeSgReady({});
+  assert.equal(d.priceBelowTemp, 45);
+  assert.equal(d.pvBelowTemp, 45);
+  assert.equal(d.priceAction, 'sgready');
+});
+
+test('Preis-Start als Warmwasser-Programm (dhw): SG-Ready bleibt aus, Sonne hat Vorrang und übernimmt als boost', () => {
+  const cfg = {
+    usePrice: true, maxPriceRp: 15, priceAction: 'dhw', startDelayMin: 0, minRunMin: 0, stopDelayMin: 0, priceSkipPv: false, minSolarW: 1500,
+  };
+  const x = base({
+    cfg, priceNow: 10, tempWW: 40, nowMs: at(22),
+  });
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'dhw');
+  assert.match(r.reason, /Warmwasser-Programm/);
+  assert.deepEqual(relaysFor('dhw'), { recommend: false, force: false });
+  // Sonne kommt dazu (vor windowTo): SG-Ready übernimmt
+  const y = base({
+    cfg, priceNow: 10, tempWW: 40, nowMs: at(10),
+  });
+  decideSgReady(y);
+  assert.equal(y.st.state, 'dhw');
+  y.pvW = 3000;
+  y.nowMs += 60000;
+  assert.equal(decideSgReady(y).state, 'boost');
+  // Sonne hat beim Start Vorrang vor dem Preis
+  const z = base({
+    cfg, priceNow: 10, pvW: 3000, tempWW: 40, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(z).state, 'boost');
+});
+
+test('Warmwasser-Programm hält nur per Preis und endet, wenn der Preis steigt', () => {
+  const x = base({
+    cfg: {
+      usePrice: true, maxPriceRp: 15, priceAction: 'dhw', startDelayMin: 0, minRunMin: 0, stopDelayMin: 0, cooldownMin: 30, priceSkipPv: false, minSolarW: 1500,
+    },
+    priceNow: 10,
+    tempWW: 40,
+    nowMs: at(22),
+  });
+  assert.equal(decideSgReady(x).state, 'dhw');
+  x.nowMs += 15 * MIN;
+  assert.equal(decideSgReady(x).state, 'dhw');
+  x.priceNow = 30;
+  x.nowMs += 15 * MIN;
+  const end = decideSgReady(x);
+  assert.equal(end.state, 'off');
+  assert.ok(x.st.cooldownUntil);
+});
+
+test('Runner: Warmwasser-Programm per Flow - ein beim Start, zurück auf Normal beim Ende, SG-Ready-Relais bleiben aus', async () => {
+  const fired = [];
+  const { runner, calls, tempRef } = makeRunner({
+    usePrice: true,
+    maxPriceRp: 100,
+    priceAction: 'dhw',
+    priceSkipPv: false,
+    priceBelowTemp: 45,
+    pvBelowTemp: 0,
+    minSolarW: 99999,
+    dhwFlowOn: { id: 'on', advanced: false, name: 'WW an' },
+    dhwFlowOff: { id: 'off', advanced: true, name: 'WW aus' },
+  });
+  runner.prices = { getSlots: () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }] };
+  runner.actuators.consumer = async (id, on, { live, flow }) => {
+    fired.push([flow.id, live]);
+    return { cmd: 'on', live };
+  };
+  await runner.tickCharger(at(22));
+  assert.deepEqual(fired, [['on', true]]);
+  assert.equal(runner.sgReadyCurrent.state, 'dhw');
+  assert.ok(calls.every((c) => c[2] === false), 'SG-Ready-Relais nie auf an');
+  await runner.tickCharger(at(22) + 30000);
+  assert.equal(fired.length, 1, 'keine Wiederholung');
+  tempRef.v = 57;
+  await runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(fired[1], ['off', true]);
+});
+
+test('Runner: Warmwasser-Programm per App-Capability (Werte true/false oder Text), «aus» nie ohne vorheriges «ein»', async () => {
+  const sets = [];
+  const { runner, tempRef } = makeRunner({
+    usePrice: true,
+    maxPriceRp: 100,
+    priceAction: 'dhw',
+    dhwOutput: 'capability',
+    priceSkipPv: false,
+    minSolarW: 99999,
+    pvBelowTemp: 0,
+    dhwDevice: {
+      deviceId: 'wp', capability: 'dhw_mode', onValue: 'Warmwasser', offValue: 'Automatik',
+    },
+  });
+  runner.prices = { getSlots: () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }] };
+  runner.actuators.program = async (deviceId, capability, value, { live }) => {
+    sets.push([deviceId, capability, value, live]);
+    return { cmd: 'program', live };
+  };
+  tempRef.v = 57; // Ziel schon erreicht: Normalbetrieb, aber kein «aus» ohne vorheriges «ein»
+  await runner.tickCharger(at(21));
+  assert.equal(sets.filter((s) => s[1] === 'dhw_mode').length, 0);
+  tempRef.v = 40;
+  await runner.tickCharger(at(22));
+  assert.deepEqual(sets.filter((s) => s[1] === 'dhw_mode'), [['wp', 'dhw_mode', 'Warmwasser', true]]);
+  tempRef.v = 57;
+  await runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(sets.filter((s) => s[1] === 'dhw_mode')[1], ['wp', 'dhw_mode', 'Automatik', true]);
 });

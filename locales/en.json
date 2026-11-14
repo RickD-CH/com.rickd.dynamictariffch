@@ -140,6 +140,7 @@
     "sgNormal": "Normal operation",
     "sgBoost": "Recommendation (boost)",
     "sgForced": "Forced charging",
+    "sgDhw": "Hot-water program",
     "sgWaiting": "Waiting for the first run",
     "sgTemp": "Hot water {t} °C",
     "sgUntil": "until {time}",

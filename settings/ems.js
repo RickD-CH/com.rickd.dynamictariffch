@@ -114,6 +114,7 @@
       sgStopDelay: 'Ausschaltverzögerung (Min.)', sgStopDelayH: 'Fallen die Bedingungen nach der Mindestlaufzeit weg, wird noch so lange gewartet, bevor zurück auf Normalbetrieb geschaltet wird.',
       sgCooldown: 'Abkühlpause nach Ende (Min.)', sgCooldownH: 'Pause nach dem Ende eines Boosts, bevor ein neuer starten darf.',
       sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgPriceH: 'Startet den Boost auch bei günstigem Preis, unabhängig von Sonne und Uhrzeit.',
+      sgPriceAct: 'Was startet der Preis?', sgActSg: 'SG-Ready-Empfehlung (wie bei Sonne)', sgActDhw: 'Nur das Warmwasser-Programm der Wärmepumpe', sgActH: 'Beim Preis kann statt SG-Ready nur das Warmwasser-Programm gestartet werden (ein) und danach wieder auf Normal gesetzt werden (aus). Sonne startet immer SG-Ready.', sgDhwOut: 'Warmwasser-Programm setzen über', sgDhwFlows: 'Flows (ein / zurück auf Normal, z. B. Modbus-Betriebsart)', sgDhwCap: 'App-Funktion (Capability eines Geräts)', sgDhwOn: 'Flow Warmwasser-Programm ein', sgDhwOff: 'Flow zurück auf Normal', sgDhwDev: 'Gerät und Capability der App-Funktion', sgDhwOnV: 'Wert für ein', sgDhwOffV: 'Wert für zurück auf Normal', sgDhwH: 'Werte als Text, true/false für Schalter. Beim Ende wird zurück auf Normal gesetzt, aber nur, wenn die Steuerung das Programm selbst gestartet hat.',
       sgPriceBelow: 'Preis-Start nur unter Warmwasser (°C)', sgPriceBelowH: 'Per Preis wird nur geheizt, wenn das Warmwasser unter diesem Wert liegt (0 = immer). Ohne Temperatur-Messwert kein Preis-Start.',
       sgPvBelow: 'Sonnen-Start nur unter Warmwasser (°C)', sgPvBelowH: 'Optional: auch mit Sonne nur starten, wenn das Warmwasser unter diesem Wert liegt (0 = immer, Standard).',
       sgSkipPv: 'Preis-Start auslassen, wenn die Sonne reicht', sgSkipPvKwh: 'Sonne reicht ab Prognose (kWh, Rest heute)', sgSkipPvH: 'Lohnt sich nicht, per Preis zu starten, wenn die Sonne heute noch genug liefert. Gilt nur, solange der Sonnen-Start noch offen ist (vor der spätesten Startzeit).',
@@ -124,7 +125,7 @@
       sgOutH: 'Relais: Normal = beide aus, Empfehlung (0:1) = Relais 1 an, Zwangsladung (1:1) = beide an. Flows: ein eigener Flow je Zustand, z. B. Modbus-Register schreiben.',
       sgRecRelay: 'Relais Empfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgFlowNormal: 'Flow Normalbetrieb (0:0)', sgFlowBoost: 'Flow Empfehlung (0:1)', sgFlowForced: 'Flow Zwangsladung (1:1)',
       sgLive: 'SG-Ready live (sonst nur simulieren)',
-      sgLiveHint: 'Live schaltet die Steuerung wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)' },
+      sgLiveHint: 'Live schaltet die Steuerung wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)', dhw: 'Warmwasser-Programm' },
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
       fuseNow: 'Hausanschluss', fuseOf: 'von', fuseLoad: 'Belastung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
@@ -277,6 +278,7 @@
       sgStopDelay: 'Switch-off delay (min)', sgStopDelayH: 'If the conditions drop after the minimum run time, wait this long before returning to normal operation.',
       sgCooldown: 'Cool-down after end (min)', sgCooldownH: 'Pause after a boost ends before a new one may start.',
       sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgPriceH: 'Also starts the boost at a cheap price, independent of sun and time of day.',
+      sgPriceAct: 'What does the price start?', sgActSg: 'SG Ready recommendation (like with sun)', sgActDhw: 'Only the heat pump hot-water program', sgActH: 'On price, only the hot-water program can be started (on) instead of SG Ready and set back to normal afterwards (off). Sun always starts SG Ready.', sgDhwOut: 'Set the hot-water program via', sgDhwFlows: 'Flows (on / back to normal, e.g. Modbus operating mode)', sgDhwCap: 'App function (capability of a device)', sgDhwOn: 'Flow hot-water program on', sgDhwOff: 'Flow back to normal', sgDhwDev: 'Device and capability of the app function', sgDhwOnV: 'Value for on', sgDhwOffV: 'Value for back to normal', sgDhwH: 'Values as text, true/false for switches. At the end it is set back to normal, but only if the control started the program itself.',
       sgPriceBelow: 'Price start only below hot water (°C)', sgPriceBelowH: 'Heats on price only if the hot water is below this value (0 = always). Without a temperature reading there is no price start.',
       sgPvBelow: 'Sun start only below hot water (°C)', sgPvBelowH: 'Optional: also with sun, only start if the hot water is below this value (0 = always, default).',
       sgSkipPv: 'Skip price start when the sun is enough', sgSkipPvKwh: 'Sun is enough from forecast (kWh, rest of today)', sgSkipPvH: 'Starting on price is pointless if the sun will still deliver enough today. Only applies while the sun start is still open (before the latest start time).',
@@ -287,7 +289,7 @@
       sgOutH: 'Relays: normal = both off, recommendation (0:1) = relay 1 on, forced (1:1) = both on. Flows: one flow per state, e.g. writing Modbus registers.',
       sgRecRelay: 'Relay recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgFlowNormal: 'Flow normal operation (0:0)', sgFlowBoost: 'Flow recommendation (0:1)', sgFlowForced: 'Flow forced charging (1:1)',
       sgLive: 'SG Ready live (otherwise simulate only)',
-      sgLiveHint: 'Live, the control really switches. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)' },
+      sgLiveHint: 'Live, the control really switches. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)', dhw: 'Hot-water program' },
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
       fuseNow: 'House connection', fuseOf: 'of', fuseLoad: 'load', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
@@ -1069,6 +1071,15 @@
   function sgFlowSel(label, id, cur) {
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + id + '">' + flowOptions(cur) + '</select></label></div>';
   }
+  function sgDhwHtml(g) {
+    var cap = g.dhwOutput === 'capability';
+    var d = g.dhwDevice || { deviceId: '', capability: '', onValue: '', offValue: '' };
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + '</span><select id="ems-sg-dhwout" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label></div>'
+      + (cap
+        ? sgDevPair(S.sgDhwDev, 'ems-sg-dhwdev', d.deviceId, d.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-sg-dhwonv', d.onValue, 'text') + field(S.sgDhwOffV, 'ems-sg-dhwoffv', d.offValue, 'text') + '</div>'
+        : sgFlowSel(S.sgDhwOn, 'ems-sg-dhwon', g.dhwFlowOn) + sgFlowSel(S.sgDhwOff, 'ems-sg-dhwoff', g.dhwFlowOff))
+      + sgHint(S.sgDhwH);
+  }
   function sgBody() {
     var g = sgCfg();
     var flows = g.output === 'flows';
@@ -1086,6 +1097,8 @@
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
       + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', S.sgPriceH)
       + sgFld(S.sgPriceBelow, 'ems-sg-pricebelow', g.priceBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPriceBelowH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgPriceAct) + '</span><select id="ems-sg-priceaction" data-ems-sgdev="1"><option value="sgready"' + (g.priceAction === 'dhw' ? '' : ' selected') + '>' + esc(S.sgActSg) + '</option><option value="dhw"' + (g.priceAction === 'dhw' ? ' selected' : '') + '>' + esc(S.sgActDhw) + '</option></select></label></div>' + sgHint(S.sgActH)
+      + (g.priceAction === 'dhw' ? sgDhwHtml(g) : '')
       + '<div class="ems-row">' + check(S.sgSkipPv, 'ems-sg-skippv', g.priceSkipPv) + (g.priceSkipPv ? field(S.sgSkipPvKwh, 'ems-sg-skippvkwh', g.priceSkipPvKwh, 'number', ' step="1" min="0"') : '') + '</div>' + sgHint(S.sgSkipPvH)
       + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
       + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/) + sgHint(S.sgSensorH)
@@ -1113,6 +1126,15 @@
     g.usePrice = chk('ems-sg-useprice'); g.maxPriceRp = num('ems-sg-maxprice', g.maxPriceRp);
     g.priceBelowTemp = num('ems-sg-pricebelow', g.priceBelowTemp); g.pvBelowTemp = num('ems-sg-pvbelow', g.pvBelowTemp);
     g.priceSkipPv = chk('ems-sg-skippv');
+    g.priceAction = val('ems-sg-priceaction', g.priceAction) === 'dhw' ? 'dhw' : 'sgready';
+    if ($('ems-sg-dhwout')) g.dhwOutput = val('ems-sg-dhwout', g.dhwOutput) === 'capability' ? 'capability' : 'flows';
+    if ($('ems-sg-dhwon')) g.dhwFlowOn = pickFlow($('ems-sg-dhwon').value || '', g.dhwFlowOn);
+    if ($('ems-sg-dhwoff')) g.dhwFlowOff = pickFlow($('ems-sg-dhwoff').value || '', g.dhwFlowOff);
+    if ($('ems-sg-dhwdev-dev')) {
+      g.dhwDevice = {
+        deviceId: val('ems-sg-dhwdev-dev', ''), capability: val('ems-sg-dhwdev-cap', ''), onValue: String(($('ems-sg-dhwonv') || { value: '' }).value || ''), offValue: String(($('ems-sg-dhwoffv') || { value: '' }).value || ''),
+      };
+    }
     if ($('ems-sg-skippvkwh')) g.priceSkipPvKwh = num('ems-sg-skippvkwh', g.priceSkipPvKwh);
     g.allowForced = chk('ems-sg-forced');
     if ($('ems-sg-forcedw')) g.forcedMinW = num('ems-sg-forcedw', g.forcedMinW);

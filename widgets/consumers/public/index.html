@@ -110,7 +110,7 @@
 
     function sgHtml(Homey, sg) {
       if (!sg) return '';
-      var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced' };
+      var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
       var state = sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting'));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) : '';

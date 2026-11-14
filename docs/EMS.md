@@ -479,3 +479,9 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   heutigen PV-Prognose mindestens so hoch ist und der Sonnen-Start noch offen ist (vor `windowTo`). Prognose unbekannt = kein Überspringen.
 - **Widget «Verbraucher»:** zeigt den SG-Ready-Block (Zustand, Warmwasser-Temperatur, Grund, «bis HH:MM» bei Mindestlaufzeit/Abkühlpause,
   Testmodus-Chip) unter dem E-Auto, nur wenn die Steuerung eingeschaltet ist.
+- **Preis-Start als Warmwasser-Programm (14.11.2026):** `priceAction: 'dhw'` startet beim reinen Preis-Auslöser statt SG-Ready nur das
+  Warmwasser-Programm der Wärmepumpe (Zustand `dhw`: SG-Ready-Relais/-Flows bleiben auf Normal). Gesetzt per Flow (`dhwFlowOn`/`dhwFlowOff`,
+  z. B. Modbus-Betriebsart) oder per Capability einer App (`dhwDevice`: Gerät, Capability, Wert ein/aus; `true`/`false` als Text für Schalter).
+  Zurück auf Normal beim Ende, aber nur, wenn die Steuerung das Programm selbst gestartet hat (auch nach einem App-Neustart mitten im Programm).
+  Sonne hat Vorrang: kommt sie während des Programms dazu, übernimmt SG-Ready (`boost`). Das Programm hält nur per Preis.
+- Standard für beide Mindest-Temperaturen (`priceBelowTemp`, `pvBelowTemp`): 45 °C (0 = keine Prüfung).

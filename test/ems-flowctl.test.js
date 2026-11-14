@@ -472,3 +472,32 @@ test('Anzeige: SG-Ready - Erklärtexte, Betriebsart, Ausgabe über Relais oder F
   assert.equal(relays.ctx.window.EmsUi._collect().ems.sgready.modeOkValue, 'Automatik');
   assert.ok(h1.indexOf('SG-Ready-Steuerung') > h1.indexOf('Verbraucher') && h1.indexOf('SG-Ready-Steuerung') < h1.indexOf('Hausanschluss-Schutz'), 'Boiler steht unter den Verbrauchern, vor dem Hausanschluss');
 });
+
+test('Anzeige: SG-Ready - Preis startet nur das Warmwasser-Programm, per Flow oder App-Funktion', async () => {
+  const flows = await startUi({ sgready: { enabled: true, priceAction: 'dhw', dhwFlowOn: { id: 'f1', name: 'Sauna an' } } });
+  flows.click({ 'data-ems-open': 'sg' });
+  const h = flows.setup();
+  assert.match(h, /Flow Warmwasser-Programm ein/);
+  assert.match(h, /Flow zurück auf Normal/);
+  assert.doesNotMatch(h, /Gerät und Capability der App-Funktion/);
+  assert.equal(flows.ctx.window.EmsUi._collect().ems.sgready.dhwFlowOn.id, 'f1');
+  const cap = await startUi({
+    sgready: {
+      enabled: true,
+      priceAction: 'dhw',
+      dhwOutput: 'capability',
+      dhwDevice: {
+        deviceId: 'lamp', capability: 'onoff', onValue: 'true', offValue: 'false',
+      },
+    },
+  });
+  cap.click({ 'data-ems-open': 'sg' });
+  const h2 = cap.setup();
+  assert.match(h2, /Gerät und Capability der App-Funktion/);
+  assert.match(h2, /Wert für zurück auf Normal/);
+  assert.doesNotMatch(h2, /Flow Warmwasser-Programm ein/);
+  assert.equal(cap.ctx.window.EmsUi._collect().ems.sgready.dhwDevice.offValue, 'false');
+  const plain = await startUi({ sgready: { enabled: true } });
+  plain.click({ 'data-ems-open': 'sg' });
+  assert.doesNotMatch(plain.setup(), /Warmwasser-Programm ein/, 'Standard: SG-Ready-Empfehlung, keine Zusatzfelder');
+});

@@ -140,6 +140,7 @@
     "sgNormal": "Normalbetrieb",
     "sgBoost": "Empfehlung (Boost)",
     "sgForced": "Zwangsladung",
+    "sgDhw": "Warmwasser-Programm",
     "sgWaiting": "Wartet auf den ersten Lauf",
     "sgTemp": "Warmwasser {t} °C",
     "sgUntil": "bis {time}",
