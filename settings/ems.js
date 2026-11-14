@@ -156,8 +156,8 @@
         useGate: 'Bei schwacher Sonnenprognose keine neuen Starts, damit der Akku für den Abend Ladung behält.',
         pgSurplus: 'Ab so viel Einspeisung startet das Programm sofort.',
         pgSustain: 'So lange muss dieser Überschuss am Stück anliegen.',
-        pgFrom: 'Ab dieser Uhrzeit wird der günstigste Moment gesucht, falls vorher kein Überschuss kam.',
-        pgWait: 'Am Ende dieses Zeitfensters wird spätestens gestartet. Solche Zeitplan-Starts gibt es höchstens einmal pro Tag.',
+        pgFrom: 'Optional. Der günstige Block wird erst ab dieser Uhrzeit gesucht, auch wenn die Automatik früher eingeschaltet wird (zum Beispiel mittags beladen, aber erst abends laufen lassen). Leer: sofort ab dem Einschalten der Automatik. Bei PV-Überschuss startet es immer sofort.',
+        pgWait: 'So lange wartet die Automatik höchstens auf Überschuss oder den günstigsten Block, danach startet sie auf jeden Fall. Beim Einschalten im Widget kannst du eine andere Wartezeit wählen, zum Beispiel 8 Stunden, wenn du abends einschaltest und es morgens um 04:00 starten soll.',
         pgDuration: 'Übliche Laufzeit. So lange nach einem Start startet die Automatik nicht nochmals.',
         pgStartVal: 'Dieser Wert wird an die Start-Capability gesendet (z. B. START).',
         pgRemoteVal: 'Nur wenn die Fernbedienung diesen Wert meldet, darf gestartet werden.',
@@ -191,8 +191,8 @@
       name: 'Name', type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter',
       ctrlDevice: 'Gerät zum Schalten', meterDevice: 'Zähler für die Kosten (kWh)', mode: 'Einschalten',
       modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss', modeProgram: 'Programm starten', noCtrl: 'nur Kostenzähler',
-      programTitle: 'Programm starten', programWindow: 'Zeitfenster ab', programMaxWait: 'Max. Wartezeit (h)', programDuration: 'Programmdauer (h)',
-      programHint: 'Startet sofort bei genug PV-Überschuss. Sonst wird im Zeitfenster der günstigste Moment gewählt, spätestens am Ende gestartet (Preis-Sicherheitsnetz). Höchstens einmal pro Tag.',
+      programTitle: 'Programm starten', programWindow: 'Preis-Start frühestens ab (optional)', programMaxWait: 'Standard-Wartezeit (h)', programDuration: 'Programmdauer (h)',
+      programHint: 'Du schaltest die Automatik im Widget ein, sobald die Maschine beladen ist. Sie startet sofort bei genug PV-Überschuss. Sonst wird bis zur Wartezeit der günstigste Block der Programmdauer gewählt, spätestens am Ende der Wartezeit gestartet (Sicherheitsnetz). Danach geht die Automatik von selbst aus, für den nächsten Lauf schaltest du sie wieder ein. Beliebig viele Läufe pro Tag, auch über Mitternacht.',
       programStartCap: 'Start-Capability', programStartVal: 'Start-Wert', programRemoteCap: 'Fernbedienung-Capability (optional)', programRemoteVal: 'Fernbedienung-Wert (wenn aktiv)',
       programRemoteWarn: 'Ohne Fernbedienung-Capability wird nicht geprüft, ob das Gerät überhaupt geschaltet werden kann - bei manchen Geräten (z. B. Electrolux) zwingend nötig.',
       programDoorCap: 'Tür-Capability (optional)', programDoorVal: 'Tür-Wert «zu» (wenn gewählt)',
@@ -367,8 +367,8 @@
         useGate: 'On a weak sun forecast no new starts, so the battery keeps its charge for the evening.',
         pgSurplus: 'From this much feed-in the program starts right away.',
         pgSustain: 'This surplus must last this long in a row.',
-        pgFrom: 'From this time on the cheapest moment is searched if no surplus came before.',
-        pgWait: 'At the end of this window it starts at the latest. Such scheduled starts happen at most once a day.',
+        pgFrom: 'Optional. The cheap block is only searched from this time on, even if the automatic is switched on earlier (for example loaded at noon but run in the evening). Empty: right away when the automatic is switched on. With PV surplus it always starts immediately.',
+        pgWait: 'This is how long the automatic waits at most for surplus or the cheapest block, then it starts in any case. When switching on in the widget you can choose another wait, for example 8 hours if you switch on in the evening and want it to start at 04:00.',
         pgDuration: 'Usual run time. For this long after a start the automation does not start again.',
         pgStartVal: 'This value is sent to the start capability (e.g. START).',
         pgRemoteVal: 'Only when the remote control reports this value may it start.',
@@ -402,8 +402,8 @@
       name: 'Name', type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier',
       ctrlDevice: 'Device to switch', meterDevice: 'Meter for costs (kWh)', mode: 'Switch on',
       modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus', modeProgram: 'Start a program', noCtrl: 'cost meter only',
-      programTitle: 'Start a program', programWindow: 'Time window from', programMaxWait: 'Max. wait (h)', programDuration: 'Program duration (h)',
-      programHint: 'Starts right away with enough PV surplus. Otherwise picks the cheapest moment within the window, starting at the latest by its end (price safety net). At most once a day.',
+      programTitle: 'Start a program', programWindow: 'Price start earliest from (optional)', programMaxWait: 'Default wait (h)', programDuration: 'Program duration (h)',
+      programHint: 'You switch the automatic on in the widget once the machine is loaded. It starts right away with enough PV surplus. Otherwise it picks the cheapest block of the program duration until the wait is over and starts at the latest then (safety net). Afterwards the automatic switches itself off; switch it on again for the next run. Any number of runs per day, also across midnight.',
       programStartCap: 'Start capability', programStartVal: 'Start value', programRemoteCap: 'Remote-control capability (optional)', programRemoteVal: 'Remote value (when enabled)',
       programRemoteWarn: 'Without a remote-control capability, the app never checks whether the device can even be switched - required for some appliances (e.g. Electrolux).',
       programDoorCap: 'Door capability (optional)', programDoorVal: 'Door value "closed" (when chosen)',
@@ -901,7 +901,7 @@
       humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
       accu: { enabled: false, sensorId: '', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 240 },
       program: {
-        minSurplusW: 2000, startSustainS: 300, windowFrom: '18:00', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', stateCapability: '', stateIdleValue: '', startCapability: 'dishwasher_execute_command', startValue: 'START',
+        minSurplusW: 2000, startSustainS: 300, windowFrom: '', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', stateCapability: '', stateIdleValue: '', startCapability: 'dishwasher_execute_command', startValue: 'START',
       },
       meterDeviceId: '', meterCap: '',
       controlKind: 'device', flowOn: { id: '', advanced: false, name: '' }, flowOff: { id: '', advanced: false, name: '' }, assumedW: 0,
@@ -2747,7 +2747,7 @@
       if ($(p + 'pgSurplus')) {
         var pg0 = r.program || newConsumerRow().program;
         r.program = {
-          minSurplusW: num(p + 'pgSurplus', pg0.minSurplusW), startSustainS: num(p + 'pgSustain', pg0.startSustainS), windowFrom: val(p + 'pgFrom', pg0.windowFrom), maxWaitH: num(p + 'pgWait', pg0.maxWaitH), durationH: num(p + 'pgDuration', pg0.durationH), startCapability: val(p + 'pgStartCap', pg0.startCapability), startValue: val(p + 'pgStartVal', pg0.startValue), remoteCapability: val(p + 'pgRemoteCap', pg0.remoteCapability), remoteOkValue: val(p + 'pgRemoteVal', pg0.remoteOkValue), doorCapability: val(p + 'pgDoorCap', pg0.doorCapability), doorOkValue: val(p + 'pgDoorVal', pg0.doorOkValue), stateCapability: val(p + 'pgStateCap', pg0.stateCapability), stateIdleValue: val(p + 'pgStateVal', pg0.stateIdleValue),
+          minSurplusW: num(p + 'pgSurplus', pg0.minSurplusW), startSustainS: num(p + 'pgSustain', pg0.startSustainS), windowFrom: String(($(p + 'pgFrom') || { value: pg0.windowFrom }).value || ''), maxWaitH: num(p + 'pgWait', pg0.maxWaitH), durationH: num(p + 'pgDuration', pg0.durationH), startCapability: val(p + 'pgStartCap', pg0.startCapability), startValue: val(p + 'pgStartVal', pg0.startValue), remoteCapability: val(p + 'pgRemoteCap', pg0.remoteCapability), remoteOkValue: val(p + 'pgRemoteVal', pg0.remoteOkValue), doorCapability: val(p + 'pgDoorCap', pg0.doorCapability), doorOkValue: val(p + 'pgDoorVal', pg0.doorOkValue), stateCapability: val(p + 'pgStateCap', pg0.stateCapability), stateIdleValue: val(p + 'pgStateVal', pg0.stateIdleValue),
         };
       }
     });

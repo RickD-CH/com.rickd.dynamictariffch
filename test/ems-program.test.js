@@ -24,7 +24,8 @@ test('normalizeProgram: Grenzen und Standardwerte, ungültige Fensterzeit fällt
   assert.equal(p.maxWaitH, 12);
   assert.equal(p.durationH, 0.5);
   assert.equal(p.minSurplusW, 0);
-  assert.equal(p.windowFrom, '18:00');
+  assert.equal(p.windowFrom, '', 'ungültig: leer (sofort ab dem Einschalten)');
+  assert.equal(normalizeProgram({ windowFrom: '18:30' }).windowFrom, '18:30');
   assert.equal(normalizeProgram({}).enabled, false);
 });
 
@@ -181,27 +182,80 @@ test('Kein Tages-Limit: nach Ablauf der Abkühlpause (durationH) darf das Gerät
   const again = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11) + 2 * 3600000 + 1000, tz: TZ,
   });
-  assert.equal(again.start, true, 'nach 2 Stunden (durationH) ist ein neuer automatischer Start erlaubt - Richard will mehrere Läufe pro Tag');
+  assert.equal(again.start, false, 'die Automatik gilt für einen Lauf und ist nach dem Start aus');
+  st.programArmed = true; st.armedAt = at(13);
+  const rearmed = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11) + 2 * 3600000 + 2000, tz: TZ,
+  });
+  assert.equal(rearmed.start, true, 'nach 2 Stunden (durationH) und erneutem Einschalten ist ein weiterer Lauf am selben Tag möglich');
 });
 
-test('Neuer Tag setzt den Zähler zurück, aber auch die Automatik - die muss jeden Tag neu eingeschaltet werden', () => {
-  const p = normalizeProgram({ minSurplusW: 2000, startSustainS: 0 });
-  const st = { programArmed: true };
-  decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(11), tz: TZ,
+test('Automatik gilt über Mitternacht: abends eingeschaltet, startet sie im günstigsten Block um 04:00 (Wartezeit 8 h, vom Einschalten an gerechnet)', () => {
+  const p = normalizeProgram({ maxWaitH: 4, durationH: 1, minSurplusW: 2000, startSustainS: 0 });
+  const st = { programArmed: true, armedAt: at(22), armWaitH: 8 };
+  const day1 = (h, m = 0) => at(22) + ((h * 60 + m) - 22 * 60) * 60000; // h in [22, 30): 30 = 06:00 am nächsten Tag
+  const all = slots(at(22), at(22) + 9 * 3600000, (t) => (t >= day1(28) && t < day1(29) ? 5 : 20)); // 04:00-05:00 günstig
+  const evening = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(23), tz: TZ,
   });
-  assert.ok(st.programStartedAt);
-  const tomorrow = at(11) + 24 * 3600 * 1000;
-  const stillOff = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: tomorrow, tz: TZ,
+  assert.equal(evening.start, false);
+  assert.equal(evening.plannedStartMs, day1(28));
+  assert.equal(evening.deadlineMs, at(22) + 8 * 3600000, 'Start spätestens um 06:00');
+  assert.equal(st.programArmed, true);
+  const morning = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: day1(28), tz: TZ,
   });
-  assert.equal(stillOff.start, false, 'neuer Tag: Automatik ist wieder aus, nicht mehr "schon gestartet"');
-  assert.equal(stillOff.blocked, 'armed');
-  st.programArmed = true;
-  const r = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: tomorrow + 1000, tz: TZ,
+  assert.equal(morning.start, true, 'nach Mitternacht bleibt die Automatik an und startet im günstigen Block');
+  assert.match(morning.reason, /günstigster 1-h-Block/);
+  assert.equal(st.programArmed, false, 'der Lauf beendet die Automatik');
+});
+
+test('Das Fenster beginnt beim Einschalten (mittags startet es nicht erst um 18:00); «frühestens ab» schiebt den Beginn nach hinten', () => {
+  const noon = normalizeProgram({ maxWaitH: 4 });
+  assert.deepEqual(windowOf(noon, at(12, 30), TZ, { armedAt: at(12, 30) }), { fromMs: at(12, 30), toMs: at(16, 30) });
+  const evening = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4 });
+  assert.deepEqual(windowOf(evening, at(12), TZ, { armedAt: at(12) }), { fromMs: at(18), toMs: at(22) }, 'frühestens ab 18:00');
+  assert.deepEqual(windowOf(evening, at(20), TZ, { armedAt: at(20) }), { fromMs: at(20), toMs: at(20) + 4 * 3600000 }, 'schon nach 18:00: sofort');
+  assert.equal(windowOf(noon, at(12), TZ, { armedAt: at(12), armWaitH: 8 }).toMs, at(20), 'die im Widget gewählte Wartezeit gilt');
+});
+
+test('Jeder automatische Start beendet die Automatik (Überschuss, günstiger Block, Frist) und der manuelle ebenfalls; für den nächsten Lauf wieder einschalten', () => {
+  const base = (over) => normalizeProgram({ maxWaitH: 4, durationH: 1, minSurplusW: 2000, startSustainS: 0, ...over });
+  const run = (p, st, o) => decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: [], nowMs: at(12), tz: TZ, ...o,
   });
-  assert.equal(r.start, true, 'nach erneutem Einschalten der Automatik geht es wie gewohnt');
+  const a = { programArmed: true, armedAt: at(12) };
+  assert.equal(run(base(), a, { exportW: 3000 }).start, true);
+  assert.equal(a.programArmed, false, 'Überschuss-Start');
+  const b = { programArmed: true, armedAt: at(12) };
+  assert.equal(run(base(), b, { slots: slots(at(12), at(18), (t) => (t === at(12) ? 3 : 20)), nowMs: at(12) }).start, true);
+  assert.equal(b.programArmed, false, 'Block-Start');
+  const c = { programArmed: true, armedAt: at(12) };
+  assert.equal(run(base(), c, { slots: slots(at(12), at(18), () => 30), nowMs: at(16) }).start, true);
+  assert.equal(c.programArmed, false, 'Frist');
+  const d = { programArmed: true, armedAt: at(12) };
+  assert.equal(run(base(), d, { forceNow: true }).start, true);
+  assert.equal(d.programArmed, false, 'manueller Start');
+  // zweiter Lauf am selben Tag: einschalten, Abkühlpause (1 h) abwarten, wieder Überschuss
+  d.programArmed = true; d.armedAt = at(14);
+  assert.equal(run(base(), d, { exportW: 3000, nowMs: at(14) }).start, true, 'zweiter Lauf am selben Tag');
+});
+
+test('Automatik verfällt, wenn die Wartezeit samt Nachfrist (1 h) ohne Start vorbei ist; vorher bleibt sie auch bei nicht bereiter Maschine an', () => {
+  const p = normalizeProgram({
+    maxWaitH: 2, stateCapability: 'measure_applianceState', stateIdleValue: 'Idle',
+  });
+  const st = { programArmed: true, armedAt: at(12) };
+  const run = (nowMs) => decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Running', exportW: 0, slots: [], nowMs, tz: TZ,
+  });
+  assert.equal(run(at(14, 30)).blocked, 'state');
+  assert.equal(st.programArmed, true, 'noch in der Nachfrist');
+  const expired = run(at(15, 1));
+  assert.equal(expired.disarmed, true);
+  assert.match(expired.reason, /Automatik abgelaufen/);
+  assert.equal(st.programArmed, false);
+  assert.equal(st.armedAt, null);
 });
 
 test('Automatik aus (Standard): PV-Überschuss und Zeitfenster allein starten nichts, nur Fernbedienung reicht nicht', () => {
@@ -317,7 +371,7 @@ test('Runner: Gerät "nicht erreichbar" (z. B. Cloud-Gerät gerade offline) bloc
   assert.equal(runner.consumerCurrent[0].armed, false);
   runner.setProgramArmed('gwa', true);
   await runner.tickCharger(at(19) + 60000);
-  assert.equal(runner.consumerCurrent[0].armed, true, 'Automatik bleibt schaltbar, auch wenn das Gerät gerade nicht erreichbar ist');
+  assert.equal(runner.consumerCurrent[0].armed, false, 'Automatik war schaltbar (sonst gäbe es keinen Start), der Lauf hat sie beendet');
   assert.equal(started.length, 1, 'Fernbedienung/Tür kommen aus den letzten bekannten Werten, Start funktioniert trotzdem');
 });
 
@@ -351,7 +405,12 @@ test('Status-Capability: blockiert nur, solange das Gerät wirklich läuft - kei
   const again = decideProgram({
     cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(10) + 3600000 + 1000, tz: TZ,
   });
-  assert.equal(again.start, true, 'mehrfacher Start am selben Tag ist erlaubt, sobald die Abkühlpause um ist');
+  assert.equal(again.start, false, 'ohne erneutes Einschalten der Automatik kein zweiter Start');
+  st.programArmed = true; st.armedAt = at(11);
+  const rearmed = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, stateValue: 'Idle', exportW: 5000, slots: [], nowMs: at(10) + 3600000 + 2000, tz: TZ,
+  });
+  assert.equal(rearmed.start, true, 'mehrfacher Start am selben Tag ist erlaubt: Abkühlpause um und Automatik wieder eingeschaltet');
 });
 
 test('Status-Capability: "bereit" erlaubt den normalen Ablauf, ohne Capability wird der Ist-Zustand nicht geprüft', () => {
@@ -422,7 +481,7 @@ test('Runner: setProgramArmed schaltet die Automatik gezielt ein und aus (Widget
   runner.setProgramArmed('gwa', true);
   await runner.tickCharger(at(19) + 60000);
   assert.equal(started.length, 1, 'nach bewusstem Einschalten startet die Automatik normal');
-  assert.equal(runner.consumerCurrent[0].armed, true);
+  assert.equal(runner.consumerCurrent[0].armed, false, 'und ist danach wieder aus (gilt für einen Lauf)');
 });
 
 test('Runner: forceProgramStart löst einen manuellen Start aus, unabhängig von der Automatik', async () => {
@@ -461,26 +520,6 @@ test('Runner: «läuft» (isOn) nur innerhalb der üblichen Programmdauer, danac
   assert.equal(runner.consumerCurrent[0].isOn, false, 'nach 4 h (Standarddauer 3 h) ist das Programm vorbei');
 });
 
-test('Frist und günstigster Moment starten höchstens einmal pro Tag - nach der Abkühlpause nur noch PV-Überschuss', () => {
-  const p = normalizeProgram({
-    windowFrom: '18:00', maxWaitH: 4, durationH: 1, minSurplusW: 2000, startSustainS: 0,
-  });
-  const st = { programArmed: true };
-  const first = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: slots(at(18), at(23), () => 45), nowMs: at(22), tz: TZ,
-  });
-  assert.equal(first.start, true, 'Frist erreicht: einmal starten');
-  const later = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: slots(at(18), at(23), () => 45), nowMs: at(23, 30), tz: TZ,
-  });
-  assert.equal(later.start, false, 'nach der Abkühlpause nicht nochmals wegen der Frist');
-  assert.match(later.reason, /heute schon gestartet/);
-  const surplus = decideProgram({
-    cfg: p, st, remoteValue: null, doorValue: null, exportW: 3000, slots: [], nowMs: at(23, 40), tz: TZ,
-  });
-  assert.equal(surplus.start, true, 'PV-Überschuss darf weiterhin auslösen');
-});
-
 test('Fernbedienung und Tür: Gross-/Kleinschreibung des Gerätewerts spielt keine Rolle, ein falscher Wert sperrt weiterhin', () => {
   const p = normalizeProgram({
     remoteCapability: 'measure_remoteControl', remoteOkValue: 'Enabled', doorCapability: 'measure_doorState', doorOkValue: 'Closed',
@@ -492,4 +531,26 @@ test('Fernbedienung und Tür: Gross-/Kleinschreibung des Gerätewerts spielt kei
   assert.notEqual(run(' enabled ', 'closed').blocked, 'door');
   assert.equal(run('Disabled', 'Closed').blocked, 'remote');
   assert.equal(run('Enabled', 'Open').blocked, 'door');
+});
+
+test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis 12 h), ohne Angabe gilt die Standard-Wartezeit; Ausschalten räumt auf', async () => {
+  const { runner } = makeRunner({ armed: false, gridW: 0 });
+  await runner.tickCharger(at(19));
+  runner.setProgramArmed('gwa', true, 8);
+  const st = runner.consumerStates.get('gwa');
+  assert.equal(st.programArmed, true);
+  assert.equal(st.armWaitH, 8);
+  assert.ok(Number.isFinite(st.armedAt));
+  await runner.tickCharger(Date.now());
+  const row = runner.consumerCurrent[0];
+  assert.equal(row.armed, true);
+  assert.equal(row.armWaitH, 8);
+  assert.equal(row.deadlineMs, st.armedAt + 8 * 3600000, 'Start spätestens 8 h nach dem Einschalten');
+  runner.setProgramArmed('gwa', true, 99);
+  assert.equal(st.armWaitH, 12, 'auf 12 h begrenzt');
+  runner.setProgramArmed('gwa', true);
+  assert.equal(st.armWaitH, null, 'ohne Angabe: Standard-Wartezeit des Geräts');
+  runner.setProgramArmed('gwa', false);
+  assert.equal(st.programArmed, false);
+  assert.equal(st.armedAt, null);
 });

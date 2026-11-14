@@ -377,6 +377,23 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   verzögerten Start eingestellt hat). Das deckt die Status-Capability (nur bei «bereit» starten) ab: «Delayed Start» ist nicht «bereit», es wird nichts gesendet.
   Die App verschiebt den Start der Maschine nicht selbst.
 
+## Programm starten: Automatik gilt für einen Lauf (14.11.2026)
+
+Ersetzt die früheren Regeln «Automatik bis Mitternacht» und «Zeitplan-Starts höchstens einmal pro Tag».
+
+- **Ablauf wie beim alten Flow «GWA an bei PV Überschuss»:** Maschine beladen, Fernbedienung an, im Widget die **Automatik einschalten** (vorher die Wartezeit wählen).
+  Die App startet **einmal** (bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit) und schaltet die Automatik danach **von selbst aus**.
+  Für den nächsten Lauf schaltest du sie wieder ein: beliebig viele Läufe pro Tag.
+- **Das Fenster beginnt beim Einschalten** (`st.armedAt`), nicht mehr fest um 18:00. «Preis-Start frühestens ab» (`windowFrom`, optional, Standard leer) schiebt den Beginn bei Bedarf nach hinten
+  (mittags beladen, aber erst abends laufen lassen). PV-Überschuss startet unabhängig davon immer sofort.
+- **Wartezeit im Widget:** Neben dem Automatik-Schalter steht eine Auswahl (1, 2, 4, 6, 8, 10, 12 h, Vorauswahl = «Standard-Wartezeit» des Geräts). Sie gilt ab dem Einschalten
+  (`st.armWaitH`). Läuft die Automatik, zeigt das Widget «Start spätestens HH:MM».
+- **Über Mitternacht:** Die Automatik wird nicht mehr um Mitternacht zurückgesetzt. Abends mit 8 h eingeschaltet, startet die Maschine zum Beispiel im günstigsten Block um 04:00.
+- **Ende der Automatik:** nach jedem Start (auch dem manuellen mit «Starten», damit sie nach der Abkühlpause nicht ein zweites Mal startet) oder wenn die Wartezeit plus 1 Stunde Nachfrist ohne Start vorbei ist
+  (zum Beispiel Maschine nie «bereit»). Im Log: «Automatik abgelaufen».
+- Die **Abkühlpause** (Programmdauer) bleibt: Wer die Automatik direkt nach einem Start wieder einschaltet, wird bis zum Ende der Programmdauer gesperrt («kürzlich gestartet – wieder ab HH:MM möglich»).
+- Nicht persistiert: ein Neustart der App schaltet die Automatik aus (Ausfallsicherheit).
+
 ## Programm starten: Status-Capability gegen Doppelstart (13.11.2026)
 
 - Zusätzliches, **frei wählbares** Feld bei Verbraucher-Typ «Programm starten»: Status-Capability + welcher Wert

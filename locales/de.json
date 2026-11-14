@@ -134,7 +134,8 @@
     "chargeNow": "Sofort laden",
     "start": "Starten",
     "startedToday": "heute {time} gestartet",
-    "untilTime": "bis {time}",
+    "untilTime": "Start spätestens {time}",
+    "waitTitle": "Wie lange die Automatik höchstens wartet (auf Überschuss oder den günstigsten Block), bis sie auf jeden Fall startet",
     "durationInfo": "ca. {h} h",
     "sgTitle": "Boiler (SG-Ready)",
     "sgNormal": "Normalbetrieb",
@@ -158,7 +159,7 @@
     "moduleOff": "Aus",
     "pauseOn": "Läuft automatisch. Ausschalten pausiert und beendet einen laufenden Lauf.",
     "pauseOff": "Pausiert: startet nicht. Einschalten gibt wieder frei.",
-    "autoOn": "Automatik ein: startet selbst bei PV-Überschuss oder im günstigsten Moment",
-    "autoOff": "Automatik aus: startet nur manuell mit «Starten»"
+    "autoOn": "Automatik ein: startet einmal selbst, bei PV-Überschuss oder im günstigsten Block, danach geht sie aus",
+    "autoOff": "Automatik aus: Wartezeit wählen und einschalten, dann startet es einmal selbst. Sonst nur manuell mit «Starten»"
   }
 }

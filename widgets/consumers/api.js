@@ -35,7 +35,7 @@ module.exports = {
   async postArm({ homey, body }) {
     const ems = homey.app && homey.app.ems;
     if (!ems || !ems.hasDevice()) throw new Error('Energiemanagement nicht bereit');
-    await ems.setProgramArmed(body && body.id, body && body.on === true);
+    await ems.setProgramArmed(body && body.id, body && body.on === true, body && body.waitH);
     return { ok: true };
   },
 

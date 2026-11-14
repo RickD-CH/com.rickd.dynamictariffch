@@ -134,7 +134,8 @@
     "chargeNow": "Charge now",
     "start": "Start",
     "startedToday": "started today {time}",
-    "untilTime": "by {time}",
+    "untilTime": "Starts by {time}",
+    "waitTitle": "How long the automatic waits at most (for surplus or the cheapest block) before it starts in any case",
     "durationInfo": "about {h} h",
     "sgTitle": "Boiler (SG Ready)",
     "sgNormal": "Normal operation",
@@ -158,7 +159,7 @@
     "moduleOff": "Off",
     "pauseOn": "Runs automatically. Switching off pauses and ends a running cycle.",
     "pauseOff": "Paused: will not start. Switching on releases it again.",
-    "autoOn": "Auto mode on: starts by itself on PV surplus or at the cheapest moment",
-    "autoOff": "Auto mode off: only starts manually with \"Start\""
+    "autoOn": "Auto mode on: starts by itself once, on PV surplus or in the cheapest block, then it switches off",
+    "autoOff": "Auto mode off: choose the wait and switch on, then it starts by itself once. Otherwise only manually with \"Start\""
   }
 }

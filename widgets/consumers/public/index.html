@@ -38,6 +38,7 @@
     .chip { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 999px; background: var(--cw-test-bg); color: var(--cw-test); white-space: nowrap; }
     .btn { font: inherit; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 7px; border: none; background: var(--cw-accent); color: #fff; cursor: pointer; flex: 0 0 auto; }
     .btn:disabled { background: var(--cw-disabled); color: var(--cw-muted); cursor: default; }
+    select.wait { font: inherit; font-size: 11px; padding: 4px 4px; border-radius: 7px; border: 1px solid var(--cw-border); background: var(--cw-bg); color: var(--cw-text); cursor: pointer; }
     .item.citem { display: block; }
     .citem .ctop { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .citem .cgrp { display: flex; align-items: center; gap: 8px; margin-left: auto; }
@@ -87,6 +88,7 @@
       aquarium: 'M3 6h18v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM6 14c2-3 5-3 7 0-2 3-5 3-7 0zM13 14l3-2v4zM16 9h.01M18 11h.01',
     };
     var lastJson = null;
+    var waitChoice = {}; // gewählte Wartezeit je Gerät (bleibt beim Neuzeichnen erhalten)
     var HomeyRef = null;
 
     function esc(str) {
@@ -171,7 +173,7 @@
       var sub = esc(c.reason || '');
       var extra = [];
       if (c.startedToday) extra.push(esc(fill(Homey.__('consumersWidget.startedToday'), { time: c.startedAtHm })));
-      if (!c.startedToday && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
+      if (c.armed && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
       if (c.durationH) extra.push(esc(fill(Homey.__('consumersWidget.durationInfo'), { h: c.durationH })));
       var btn = '';
       var auto = '';
@@ -181,7 +183,16 @@
         var disabled = (!!c.blocked && c.blocked !== 'armed' && c.blocked !== 'cooldown') || !c.live;
         btn = '<button class="btn" data-id="' + esc(c.id) + '"' + (disabled ? ' disabled title="' + sub + '"' : '') + '>' + esc(Homey.__('consumersWidget.start')) + '</button>';
         var autoTitle = esc(c.armed ? Homey.__('consumersWidget.autoOn') : Homey.__('consumersWidget.autoOff'));
-        auto = '<label class="sw" title="' + autoTitle + '">'
+        // Wartezeit für diesen Lauf (nur solange die Automatik aus ist): gilt ab dem Einschalten, z. B. abends 8 h für einen Start um 04:00
+        var waitSel = '';
+        if (!c.armed) {
+          var curW = waitChoice[c.id] || c.maxWaitH || 4;
+          var opts = [1, 2, 4, 6, 8, 10, 12];
+          if (opts.indexOf(curW) < 0) { opts.push(curW); opts.sort(function (a, b) { return a - b; }); }
+          waitSel = '<select class="wait" data-wait="' + esc(c.id) + '" title="' + esc(Homey.__('consumersWidget.waitTitle')) + '">'
+            + opts.map(function (h) { return '<option value="' + h + '"' + (h === curW ? ' selected' : '') + '>' + h + ' h</option>'; }).join('') + '</select>';
+        }
+        auto = waitSel + '<label class="sw" title="' + autoTitle + '">'
           + '<input type="checkbox" data-arm="' + esc(c.id) + '"' + (c.armed ? ' checked' : '') + '>'
           + '<span class="slider"></span></label>';
       }
@@ -227,12 +238,15 @@
           Homey.api('POST', '/pause', { module: inp.getAttribute('data-pause'), paused: !on }).then(function () { load(Homey); }).catch(function () { inp.disabled = false; inp.checked = !on; });
         });
       });
+      root.querySelectorAll('select[data-wait]').forEach(function (sel) {
+        sel.addEventListener('change', function () { waitChoice[sel.getAttribute('data-wait')] = Number(sel.value); });
+      });
       root.querySelectorAll('input[data-arm]').forEach(function (inp) {
         inp.addEventListener('change', function () {
           var id = inp.getAttribute('data-arm');
           var on = inp.checked;
           inp.disabled = true;
-          Homey.api('POST', '/arm', { id: id, on: on }).then(function () { load(Homey); }).catch(function () { inp.disabled = false; inp.checked = !on; });
+          Homey.api('POST', '/arm', { id: id, on: on, waitH: waitChoice[id] || null }).then(function () { load(Homey); }).catch(function () { inp.disabled = false; inp.checked = !on; });
         });
       });
       fit();

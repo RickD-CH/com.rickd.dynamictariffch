@@ -301,3 +301,17 @@ test('Widget «Verbraucher»: Solaranteil des Autos (sharePct) aus der Rampe', (
   assert.equal(w({ pct: null }).sharePct, null);
   assert.equal(w(null).sharePct, null);
 });
+
+test('Verbraucher-Widget: Programm-Verbraucher liefert die Wartezeit (gewählte, sonst Standard) und die Frist nur bei eingeschalteter Automatik', () => {
+  const shadow = {
+    deviceExists: true,
+    config: { silent: false, consumers: [{ id: 'g', name: 'GWA', enabled: true, mode: 'program', live: true, program: { durationH: 3, maxWaitH: 4 } }] },
+  };
+  const off = consumersWidget({ shadow, consumerCurrent: [{ id: 'g', armed: false, blocked: 'armed', deadlineMs: null }], tz: TZ, nowMs: Date.UTC(2026, 10, 14, 12) }).consumers[0];
+  assert.equal(off.maxWaitH, 4);
+  assert.equal(off.deadlineHm, null);
+  const on = consumersWidget({ shadow, consumerCurrent: [{ id: 'g', armed: true, armWaitH: 8, deadlineMs: Date.UTC(2026, 10, 15, 3) }], tz: TZ, nowMs: Date.UTC(2026, 10, 14, 19) }).consumers[0];
+  assert.equal(on.maxWaitH, 8);
+  assert.equal(on.deadlineHm, '04:00');
+  assert.equal(on.armed, true);
+});
