@@ -591,3 +591,19 @@ Profil passiert nichts. Die Verschiebung wird im Shadow (`shareShift`) und in de
   Punkt = aktueller Batteriestand), der Zeile «Jetzt: Batterie X % → das Auto bekommt Y % des Solarstroms» und dem Prognose-Bonus.
 - **Ausblick → Betrieb:** In der Statuskarte steht «Solaranteil Auto Y %» (mit dem Hinweis auf den Bonus, wenn er wirkt).
 - **Widget «Verbraucher»:** Im E-Auto-Block eine kurze Angabe «Solaranteil Auto Y %», nur wenn das Auto eingesteckt ist.
+
+### Anschluss der Wallbox einstellbar
+
+Unter Einstellungen → Wallbox → «Anschluss der Wallbox» (erscheint, sobald ein Wallbox-Gerät gewählt ist) lässt sich festlegen, wie die Wallbox angesprochen wird. Standard sind die Werte der go-e-Wallbox:
+
+| Einstellung | Standard |
+|---|---|
+| Ladezustand lesen | `evcharger_charging_state` |
+| Ladeleistung lesen | `measure_power` |
+| Phasen lesen (optional, nur für die Umschaltung) | `goe_measure_phase_switching` (1 = eine, 2 = drei Phasen) |
+| Karte «Laden starten» (optional, leer = keine) | `evcharger_charging_start` |
+| Karte «Ladeleistung setzen» | `target_power_set` |
+| Argument der Leistung (W) | `target_power` |
+
+Die Karten stammen aus den Aktionskarten des gewählten Geräts (`GET /ems/device-cards?id=`), die Capabilities aus seiner Liste. Die Leistung wird aus Ampere × Phasen × 230 V berechnet, Stopp = 0 W.
+Konfiguration: `charger.stateCapability`, `powerCapability`, `phaseCapability`, `startCard`, `powerCard`, `powerArg`; Befehle: `Actuators.charger(id, cmd, { live, cards })`.

@@ -207,6 +207,10 @@
       "method": "get",
       "path": "/ems/flows"
     },
+    "getEmsDeviceCards": {
+      "method": "get",
+      "path": "/ems/device-cards"
+    },
     "getEmsBatteryCards": {
       "method": "get",
       "path": "/ems/battery-cards"

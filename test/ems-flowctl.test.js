@@ -317,7 +317,7 @@ async function startUi(extra = {}) {
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
   const config = normalizeConfig({
-    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready, dhw: extra.dhw,
+    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready, dhw: extra.dhw, charger: extra.charger,
   });
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
@@ -721,4 +721,27 @@ test('Inputs: mehrere Lesungen desselben Geräts im selben Takt = eine einzige A
   } finally {
     Date.now = realNow;
   }
+});
+
+test('Wallbox: Anschluss (Capabilities und Flow-Karten) einstellbar - Bereich da, Standardwerte gehen mit dem Speichern mit, eigene Werte ebenfalls', async () => {
+  const none = await startUi();
+  none.click({ 'data-ems-open': 'row0' });
+  assert.doesNotMatch(none.setup(), /Anschluss der Wallbox/, 'ohne gewähltes Gerät kein Bereich (nichts, was beim Speichern überschrieben würde)');
+  const ui = await startUi({ charger: { id: 'lamp', enabled: true } });
+  ui.click({ 'data-ems-open': 'row0' });
+  const h = ui.setup();
+  assert.match(h, /Anschluss der Wallbox \(wie sie angesprochen wird\)/);
+  assert.match(h, /Standard<\/summary>/, 'ohne Änderung: Standard');
+  assert.doesNotMatch(h, /go-e/i, 'neutral: kein Herstellername in den Texten');
+  const c0 = ui.ctx.window.EmsUi._collect().ems.charger;
+  assert.deepEqual(
+    [c0.stateCapability, c0.powerCapability, c0.phaseCapability, c0.startCard, c0.powerCard, c0.powerArg],
+    ['evcharger_charging_state', 'measure_power', 'goe_measure_phase_switching', 'evcharger_charging_start', 'target_power_set', 'target_power'],
+  );
+  ui.set('ems-wb-powercard', 'set_watts');
+  ui.set('ems-wb-powerarg', 'watts');
+  ui.set('ems-wb-startcard', '');
+  ui.set('ems-wb-phase', '');
+  const c1 = ui.ctx.window.EmsUi._collect().ems.charger;
+  assert.deepEqual([c1.powerCard, c1.powerArg, c1.startCard, c1.phaseCapability], ['set_watts', 'watts', '', '']);
 });

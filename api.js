@@ -96,6 +96,10 @@ module.exports = {
     };
   },
 
+  async getEmsDeviceCards({ homey, query }) {
+    return homey.app.ems.deviceCards(query && query.id);
+  },
+
   async getEmsBatteryCards({ homey }) {
     return homey.app.ems.batteryCards();
   },

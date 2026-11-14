@@ -202,7 +202,7 @@
       batFirst: 'Hausbatterie zuerst bis (%)', batFirstPh: 'wie Wallbox', batFirstHint: 'Leer: wie die Wallbox (Hausbatterie hat Vorrang bis zur gemeinsamen Grenze). Eine Zahl: eigene Grenze; darüber nimmt der Verbraucher auch den Strom, der gerade in die Hausbatterie fliesst. Für kleine Verbraucher (eBike) z. B. 0.',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
-      shareAt: 'Batterie ab (%)', shareGets: 'Anteil Solarstrom (%)', shareLowRow: 'Untere Grenze: ab hier bekommt das Auto Solarstrom', shareHighRow: 'Obere Grenze: ab hier bekommt es den vollen Überschuss', shareChartCap: 'So viel vom Solarstrom bekommt das Auto je Batteriestand', shareNow: 'Jetzt: Batterie {soc} % → das Auto bekommt {pct} % des Solarstroms.', shareBonusTitle: 'Prognose-Bonus', shareVal: 'Solaranteil Auto {pct} %', shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareBonus: 'Prognose-Bonus (Prozentpunkte früher)', shareBonusH: 'Optional: Bringt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Sonnenuntergang brauchen, wird die Rampe um bis zu so viele Prozentpunkte nach unten verschoben (das Auto lädt früher). Ohne frische Prognose oder gelerntes Hausprofil passiert nichts. 0 = aus.', shareBonusNow: 'Prognose-Bonus aktiv: Rampe aktuell {n} Punkte früher.', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
+      shareAt: 'Batterie ab (%)', shareGets: 'Anteil Solarstrom (%)', shareLowRow: 'Untere Grenze: ab hier bekommt das Auto Solarstrom', shareHighRow: 'Obere Grenze: ab hier bekommt es den vollen Überschuss', shareChartCap: 'So viel vom Solarstrom bekommt das Auto je Batteriestand', shareNow: 'Jetzt: Batterie {soc} % → das Auto bekommt {pct} % des Solarstroms.', shareBonusTitle: 'Prognose-Bonus', shareVal: 'Solaranteil Auto {pct} %', wbLinkTitle: 'Anschluss der Wallbox (wie sie angesprochen wird)', wbLinkWhy: 'Der Standard passt für Wallboxen mit den Karten «Laden starten» und «Ladeleistung setzen». Bei einer anderen Wallbox hier wählen, was das Gerät liest und welche Flow-Karten es zum Steuern hat. Die Leistung wird aus Ampere, Phasen und 230 V berechnet und in Watt an die Karte «Ladeleistung setzen» übergeben (Stopp = 0 W).', wbState: 'Ladezustand (Capability)', wbPower: 'Ladeleistung (Capability)', wbPhase: 'Phasen (Capability, optional)', wbPhaseH: 'Nur für die Phasenumschaltung. Erwartete Werte: 1 = eine Phase, 2 = drei Phasen.', wbStartCard: 'Karte «Laden starten» (optional)', wbPowerCard: 'Karte «Ladeleistung setzen»', wbPowerArg: 'Argument für die Leistung (W)', wbNone: '– keine –', wbStd: 'Standard', wbCustom: 'Eigene Zuordnung', wbCardsLoading: 'Karten des Geräts werden geladen …', wbNoPowerCard: 'Die gewählte Karte «Ladeleistung setzen» gibt es an diesem Gerät nicht. Die Wallbox kann so nicht geregelt werden.', shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareBonus: 'Prognose-Bonus (Prozentpunkte früher)', shareBonusH: 'Optional: Bringt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Sonnenuntergang brauchen, wird die Rampe um bis zu so viele Prozentpunkte nach unten verschoben (das Auto lädt früher). Ohne frische Prognose oder gelerntes Hausprofil passiert nichts. 0 = aus.', shareBonusNow: 'Prognose-Bonus aktiv: Rampe aktuell {n} Punkte früher.', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
@@ -413,7 +413,7 @@
       batFirst: 'Home battery first up to (%)', batFirstPh: 'like charger', batFirstHint: 'Empty: like the EV charger (home battery first up to the shared limit). A number: own limit; above it the device also takes the power currently flowing into the home battery. For small devices (e-bike) e.g. 0.',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
-      shareAt: 'Battery from (%)', shareGets: 'Solar share (%)', shareLowRow: 'Lower limit: from here the car gets solar power', shareHighRow: 'Upper limit: from here it gets the full surplus', shareChartCap: 'How much of the solar power the car gets per battery level', shareNow: 'Now: battery {soc} % → the car gets {pct} % of the solar power.', shareBonusTitle: 'Forecast bonus', shareVal: 'Solar share car {pct} %', shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareBonus: 'Forecast bonus (percentage points earlier)', shareBonusH: 'Optional: if the solar forecast shows clearly more sun today than the battery needs to fill up and the house until sunset, the ramp moves down by up to this many points (the car charges earlier). Without a fresh forecast or a learned house profile nothing happens. 0 = off.', shareBonusNow: 'Forecast bonus active: ramp currently {n} points earlier.', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
+      shareAt: 'Battery from (%)', shareGets: 'Solar share (%)', shareLowRow: 'Lower limit: from here the car gets solar power', shareHighRow: 'Upper limit: from here it gets the full surplus', shareChartCap: 'How much of the solar power the car gets per battery level', shareNow: 'Now: battery {soc} % → the car gets {pct} % of the solar power.', shareBonusTitle: 'Forecast bonus', shareVal: 'Solar share car {pct} %', wbLinkTitle: 'Wallbox connection (how it is addressed)', wbLinkWhy: 'The default fits wallboxes with the cards "start charging" and "set charging power". For another wallbox choose what the device reports and which flow cards it has for control. The power is calculated from amps, phases and 230 V and passed in watts to the "set charging power" card (stop = 0 W).', wbState: 'Charging state (capability)', wbPower: 'Charging power (capability)', wbPhase: 'Phases (capability, optional)', wbPhaseH: 'Only for phase switching. Expected values: 1 = one phase, 2 = three phases.', wbStartCard: 'Card "start charging" (optional)', wbPowerCard: 'Card "set charging power"', wbPowerArg: 'Argument for the power (W)', wbNone: '– none –', wbStd: 'Default', wbCustom: 'Custom mapping', wbCardsLoading: 'Loading the device cards …', wbNoPowerCard: 'The chosen "set charging power" card does not exist on this device. The wallbox cannot be controlled like this.', shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareBonus: 'Forecast bonus (percentage points earlier)', shareBonusH: 'Optional: if the solar forecast shows clearly more sun today than the battery needs to fill up and the house until sunset, the ramp moves down by up to this many points (the car charges earlier). Without a fresh forecast or a learned house profile nothing happens. 0 = off.', shareBonusNow: 'Forecast bonus active: ramp currently {n} points earlier.', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', drop: 'Drop', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
@@ -961,6 +961,69 @@
   }
 
   // Hausbatterie-Schutz: wie viel vom Solarstrom das Auto in Abhängigkeit vom Batteriestand bekommt (gilt auch für Geräte ohne eigene Grenze)
+  // ------------------------------------------------------------ Anschluss der Wallbox (Capabilities und Flow-Karten)
+  var WB_DEFAULT = { stateCapability: 'evcharger_charging_state', powerCapability: 'measure_power', phaseCapability: 'goe_measure_phase_switching', startCard: 'evcharger_charging_start', powerCard: 'target_power_set', powerArg: 'target_power' };
+
+  function loadChargerCards(devId) {
+    if (!devId || state.chargerCardsLoading || (state.chargerCards && state.chargerCards.deviceId === devId)) return;
+    state.chargerCardsLoading = true;
+    api('GET', '/ems/device-cards?id=' + encodeURIComponent(devId)).then(function (r) {
+      state.chargerCards = { deviceId: devId, cards: (r && r.cards) || [] };
+      state.chargerCardsLoading = false;
+      renderSetup();
+    }).catch(function () { state.chargerCards = { deviceId: devId, cards: [] }; state.chargerCardsLoading = false; renderSetup(); });
+  }
+
+  function wbCardOpts(cards, current, allowNone) {
+    var list = (cards || []).slice();
+    var has = list.some(function (c) { return c.id === current; });
+    var html = allowNone ? '<option value=""' + (current ? '' : ' selected') + '>' + esc(S.wbNone) + '</option>' : '';
+    if (current && !has) html += '<option value="' + esc(current) + '" selected>' + esc(current) + '</option>';
+    return html + list.map(function (c) { return '<option value="' + esc(c.id) + '"' + (c.id === current ? ' selected' : '') + '>' + esc(c.title ? c.title + ' (' + c.id + ')' : c.id) + '</option>'; }).join('');
+  }
+
+  function wbLinkBox(r, p) {
+    var c = (state.cfg && state.cfg.charger) || {};
+    var cur = {};
+    Object.keys(WB_DEFAULT).forEach(function (k) { cur[k] = c[k] === undefined ? WB_DEFAULT[k] : c[k]; });
+    var isStd = Object.keys(WB_DEFAULT).every(function (k) { return cur[k] === WB_DEFAULT[k]; });
+    var devId = r.deviceId;
+    if (!devId) return ''; // ohne gewähltes Gerät gibt es nichts zuzuordnen (und nichts, was beim Speichern überschrieben würde)
+    state.wbShown = !!state.open[p.slice(0, -1)]; // nur wenn die Zeile aufgeklappt ist, steht der Bereich wirklich auf der Seite
+    var cards = devId && state.chargerCards && state.chargerCards.deviceId === devId ? state.chargerCards.cards : null;
+    if (devId && !cards) loadChargerCards(devId);
+    var capSel = function (id, label, value, none, hint) {
+      var opts = (none ? '<option value=""' + (value ? '' : ' selected') + '>' + esc(S.wbNone) + '</option>' : '') + capOptions(devId, /./, value);
+      return '<label class="ems-f ems-wide"><span>' + esc(label) + (hint ? tipI(id) : '') + '</span><select id="' + id + '">' + opts + '</select></label>' + (hint ? tipT(id, hint) : '');
+    };
+    var pc = (cards || []).filter(function (x) { return x.id === cur.powerCard; })[0];
+    var numArgs = pc ? (pc.args || []).filter(function (a) { return a.type === 'number' || a.type === 'range'; }) : [];
+    var argOpts = numArgs.length ? numArgs.map(function (a) { return '<option value="' + esc(a.name) + '"' + (a.name === cur.powerArg ? ' selected' : '') + '>' + esc(a.title || a.name) + ' (' + esc(a.name) + ')</option>'; }).join('')
+      + (numArgs.some(function (a) { return a.name === cur.powerArg; }) ? '' : '<option value="' + esc(cur.powerArg) + '" selected>' + esc(cur.powerArg) + '</option>')
+      : '<option value="' + esc(cur.powerArg) + '" selected>' + esc(cur.powerArg) + '</option>';
+    var body = '<p class="ems-why">' + esc(S.wbLinkWhy) + '</p>'
+      + '<div class="ems-row">' + capSel('ems-wb-state', S.wbState, cur.stateCapability, false) + capSel('ems-wb-power', S.wbPower, cur.powerCapability, false) + '</div>'
+      + '<div class="ems-row">' + capSel('ems-wb-phase', S.wbPhase, cur.phaseCapability, true, S.wbPhaseH) + '</div>'
+      + (cards === null && devId ? '<p class="ems-why">' + esc(S.wbCardsLoading) + '</p>' : '')
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.wbStartCard) + '</span><select id="ems-wb-startcard">' + wbCardOpts(cards, cur.startCard, true) + '</select></label></div>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.wbPowerCard) + '</span><select id="ems-wb-powercard" data-ems-sgdev="1">' + wbCardOpts(cards, cur.powerCard, false) + '</select></label>'
+      + '<label class="ems-f"><span>' + esc(S.wbPowerArg) + '</span><select id="ems-wb-powerarg">' + argOpts + '</select></label></div>'
+      + (cards && cards.length && !pc ? '<p class="warn">' + esc(S.wbNoPowerCard) + '</p>' : '');
+    return '<details class="ems-adv"' + (state.open[p + 'link'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'link">' + esc(S.wbLinkTitle) + ' · ' + esc(isStd ? S.wbStd : S.wbCustom) + '</summary>' + body + '</details>';
+  }
+
+  /** Auswahl aus den Feldern in die Konfiguration übernehmen (nur wenn der Bereich gezeichnet ist). */
+  function syncWb() {
+    if (!state.cfg || !state.wbShown || !$('ems-wb-state')) return;
+    var c = state.cfg.charger;
+    c.stateCapability = val('ems-wb-state', c.stateCapability) || WB_DEFAULT.stateCapability;
+    c.powerCapability = val('ems-wb-power', c.powerCapability) || WB_DEFAULT.powerCapability;
+    c.phaseCapability = ($('ems-wb-phase') || { value: c.phaseCapability }).value || '';
+    c.startCard = ($('ems-wb-startcard') || { value: c.startCard }).value || '';
+    c.powerCard = val('ems-wb-powercard', c.powerCard) || WB_DEFAULT.powerCard;
+    c.powerArg = val('ems-wb-powerarg', c.powerArg) || WB_DEFAULT.powerArg;
+  }
+
   /** Kleines Diagramm der Rampe: Batteriestand (x) gegen Anteil Solarstrom fürs Auto (y), mit Markierung «jetzt» und ggf. der Verschiebung durch den Bonus. */
   function shareChart(sh, info) {
     var X = function (v) { return 14 + v * 0.9; };
@@ -1029,6 +1092,7 @@
         + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
         + meterRow + lastTxt
         + shareBox()
+        + wbLinkBox(r, p)
         + '<div class="ems-row">' + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
         + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label>';
     }
@@ -1431,6 +1495,7 @@
   function renderSetup() {
     var host = $('ems-view-devices');
     if (!host) return;
+    state.wbShown = false; // wird beim Zeichnen des Wallbox-Anschlusses wieder gesetzt
     var head = $('h2-emsdev');
     if (noDevice()) {
       host.innerHTML = previewBannerHtml() + '<p class="warn">' + esc(S.noDevice) + '</p>';
@@ -2370,6 +2435,7 @@
     syncFuse();
     syncSg();
     syncDhw();
+    syncWb();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-target')) {
@@ -2486,7 +2552,7 @@
         backupReserve: { soc: c.battery.backupReserve ? c.battery.backupReserve.soc : 50 }, // active geht nur über «Heute» oder einen Flow, nie über diesen Speichern-Knopf
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
-      charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false },
+      charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false, stateCapability: c.charger.stateCapability, powerCapability: c.charger.powerCapability, phaseCapability: c.charger.phaseCapability, startCard: c.charger.startCard, powerCard: c.charger.powerCard, powerArg: c.charger.powerArg },
       pv: { factor: c.pv ? c.pv.factor : 1, source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
       car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
       share: shareCollect(c.share),

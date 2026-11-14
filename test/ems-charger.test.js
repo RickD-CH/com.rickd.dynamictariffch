@@ -145,3 +145,45 @@ test('Schattenmodus: Ist-Zustand wird aus der Messung übernommen, kein Anlauf-A
   run(st, ch, e, t0 + 700_000, true);
   assert.equal(st.currentAmps >= 6, true);
 });
+
+test('Wallbox-Befehle: Karten und Leistungs-Argument aus den Einstellungen, Standard bleibt der bisherige, leere Start-Karte = keine', async () => {
+  const { Actuators } = require('../lib/ems/Actuators'); // eslint-disable-line global-require
+  const a = new Actuators({}, () => {});
+  const calls = [];
+  a._runCard = async (id, args) => {
+    calls.push([id, args]);
+  };
+  await a.charger('wb', { type: 'set', amps: 10, phases: 3 }, { live: true });
+  await a.charger('wb', { type: 'start' }, { live: true });
+  assert.deepEqual(calls, [
+    ['homey:device:wb:target_power_set', { target_power: 6900 }],
+    ['homey:device:wb:evcharger_charging_start', undefined],
+  ], 'Standard wie bisher');
+  calls.length = 0;
+  const cards = { startCard: '', powerCard: 'set_watts', powerArg: 'watts' };
+  await a.charger('x', { type: 'set', amps: 6, phases: 1 }, { live: true, cards });
+  await a.charger('x', { type: 'start' }, { live: true, cards });
+  await a.charger('x', { type: 'stop' }, { live: true, cards });
+  assert.deepEqual(calls, [
+    ['homey:device:x:set_watts', { watts: 1380 }],
+    ['homey:device:x:set_watts', { watts: 0 }],
+  ], 'eigene Karte und Argument, ohne Start-Karte kein Start-Aufruf, Stopp = 0 W');
+  calls.length = 0;
+  await a.charger('x', { type: 'set', amps: 6, phases: 1 }, { live: false, cards });
+  assert.equal(calls.length, 0, 'Trockenlauf sendet nichts');
+});
+
+test('Config: Anschluss der Wallbox (Capabilities, Karten, Argument) mit Standardwerten und leerem Start', () => {
+  const { normalizeConfig } = require('../lib/ems/Config'); // eslint-disable-line global-require
+  const d = normalizeConfig({}).charger;
+  assert.deepEqual(
+    [d.stateCapability, d.powerCapability, d.phaseCapability, d.startCard, d.powerCard, d.powerArg],
+    ['evcharger_charging_state', 'measure_power', 'goe_measure_phase_switching', 'evcharger_charging_start', 'target_power_set', 'target_power'],
+  );
+  const c = normalizeConfig({ charger: { stateCapability: ' x_state ', phaseCapability: '', startCard: '', powerCard: '', powerArg: 'watts' } }).charger;
+  assert.equal(c.stateCapability, 'x_state');
+  assert.equal(c.phaseCapability, '', 'Phasen-Capability darf leer sein');
+  assert.equal(c.startCard, '', 'leere Start-Karte bleibt leer');
+  assert.equal(c.powerCard, 'target_power_set', 'ohne Leistungs-Karte der Standard');
+  assert.equal(c.powerArg, 'watts');
+});
