@@ -102,6 +102,12 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
+      sgTitle: 'BOILER / WÄRMEPUMPE (SG-READY)', sgRow: 'SG-Ready-Steuerung', sgOff: 'aus', sgOn: 'SG-Ready steuern', sgWhy: 'Schaltet die Einschaltempfehlung (0:1) der Wärmepumpe über ein Relais, wenn Sonne oder ein günstiger Preis das Warmwasser bezahlen. Normalbetrieb (0:0) ist der Ausgangszustand.',
+      sgBasis: 'Steuerungsbasis', sgBasisPv: 'Solarleistung (PV-Produktion)', sgBasisExport: 'Netzeinspeisung', sgMinSolar: 'Mindest-Solarleistung für Start (W)', sgMinSoc: 'Mindest-Hausakku für Start (%)', sgHyst: 'Akku-Hysterese beim Halten (%)',
+      sgTemp: 'Ziel-Warmwassertemperatur (°C)', sgTo: 'Späteste Startzeit (PV)', sgStartDelay: 'Einschaltverzögerung (Min.)', sgMinRun: 'Mindestlaufzeit (Min.)', sgStopDelay: 'Ausschaltverzögerung (Min.)', sgCooldown: 'Abkühlpause nach Ende (Min.)',
+      sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgHoliday: 'Ferienmodus der Wärmepumpe respektieren', sgForced: 'Zwangsladung (1:1, Heizstab) erlauben', sgForcedW: 'Schwelle Zwangsladung (W)',
+      sgSensor: 'Warmwasser-Temperatur (Gerät und Wert)', sgHolidayDev: 'Ferienmodus (Gerät und Wert, optional)', sgRecRelay: 'Relais Einschaltempfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgLive: 'SG-Ready live (sonst nur simulieren)',
+      sgLiveHint: 'Live schaltet die Steuerung die gewählten Relais wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)' },
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
       fuseNow: 'Hausanschluss', fuseOf: 'von', fuseLoad: 'Belastung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
@@ -242,6 +248,12 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
+      sgTitle: 'BOILER / HEAT PUMP (SG READY)', sgRow: 'SG Ready control', sgOff: 'off', sgOn: 'Control SG Ready', sgWhy: 'Switches the heat pump switch-on recommendation (0:1) via a relay when sun or a cheap price pays for the hot water. Normal operation (0:0) is the base state.',
+      sgBasis: 'Control basis', sgBasisPv: 'Solar power (PV production)', sgBasisExport: 'Grid feed-in', sgMinSolar: 'Minimum solar power to start (W)', sgMinSoc: 'Minimum house battery to start (%)', sgHyst: 'Battery hysteresis while holding (%)',
+      sgTemp: 'Target hot-water temperature (°C)', sgTo: 'Latest start time (PV)', sgStartDelay: 'Switch-on delay (min)', sgMinRun: 'Minimum run time (min)', sgStopDelay: 'Switch-off delay (min)', sgCooldown: 'Cool-down after end (min)',
+      sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgHoliday: 'Respect the heat pump holiday mode', sgForced: 'Allow forced charging (1:1, heating rod)', sgForcedW: 'Forced charging threshold (W)',
+      sgSensor: 'Hot-water temperature (device and value)', sgHolidayDev: 'Holiday mode (device and value, optional)', sgRecRelay: 'Relay switch-on recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgLive: 'SG Ready live (otherwise simulate only)',
+      sgLiveHint: 'Live, the control really switches the selected relays. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)' },
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
       fuseNow: 'House connection', fuseOf: 'of', fuseLoad: 'load', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
@@ -1002,6 +1014,62 @@
     f.live = chk('ems-fuse-live');
   }
 
+  // ---------------------------------------------------------------- SG-Ready (Boiler/Wärmepumpe)
+
+  function sgCfg() {
+    if (!state.cfg.sgready) state.cfg.sgready = { enabled: false, live: false, recommendRelay: { deviceId: '', capability: 'onoff' }, forceRelay: { deviceId: '', capability: 'onoff' } };
+    return state.cfg.sgready;
+  }
+  function sgSummary() {
+    var g = sgCfg();
+    if (!g.enabled) return { text: S.sgOff, cls: 'muted' };
+    var cur = state.shadow && state.shadow.sgready;
+    return { text: cur ? (S.sgState[cur.state] || cur.state) + ' - ' + cur.reason : S.sgRow, cls: 'ok' };
+  }
+  function sgDevPair(label, idBase, devId, cap, re) {
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idBase + '-dev" data-ems-sgdev="1">' + deviceOptions(devId, hasCap(re), S.pick) + '</select></label>'
+      + '<label class="ems-f ems-wide"><span>&nbsp;</span><select id="' + idBase + '-cap">' + capOptions(devId, re, cap) + '</select></label></div>';
+  }
+  function sgBody() {
+    var g = sgCfg();
+    var html = '<p class="ems-why">' + esc(S.sgWhy) + '</p><div class="ems-row">' + check(S.sgOn, 'ems-sg-on', g.enabled) + '</div>';
+    if (!g.enabled) return html;
+    return html
+      + '<div class="ems-row"><label class="ems-f"><span>' + esc(S.sgBasis) + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label>'
+      + field(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"') + field(S.sgMinSoc, 'ems-sg-minsoc', g.minSoc, 'number', ' step="1" min="0" max="100"') + field(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"') + '</div>'
+      + '<div class="ems-row">' + field(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"') + field(S.sgTo, 'ems-sg-to', g.windowTo, 'time') + '</div>'
+      + '<div class="ems-row">' + field(S.sgStartDelay, 'ems-sg-startdelay', g.startDelayMin, 'number', ' step="1" min="0"') + field(S.sgMinRun, 'ems-sg-minrun', g.minRunMin, 'number', ' step="5" min="0"')
+      + field(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"') + field(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"') + '</div>'
+      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + field(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"') + '</div>'
+      + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>'
+      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/)
+      + '<div class="ems-row">' + check(S.sgHoliday, 'ems-sg-holiday', g.respectHoliday) + '</div>'
+      + (g.respectHoliday ? sgDevPair(S.sgHolidayDev, 'ems-sg-hol', g.holidayId, g.holidayCapability, /./) : '')
+      + sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
+      + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : '')
+      + '<div class="ems-row">' + check(S.sgLive, 'ems-sg-live', g.live) + '</div><p class="ems-why ems-warn">' + esc(S.sgLiveHint) + '</p>';
+  }
+  function syncSg() {
+    if (!state.cfg || !state.open.sg || !$('ems-sg-on')) return;
+    var g = sgCfg();
+    g.enabled = chk('ems-sg-on');
+    if (!g.enabled || !$('ems-sg-basis')) return;
+    g.basis = val('ems-sg-basis', g.basis) === 'export' ? 'export' : 'pv';
+    g.minSolarW = num('ems-sg-minsolar', g.minSolarW); g.minSoc = num('ems-sg-minsoc', g.minSoc); g.socHysteresis = num('ems-sg-hyst', g.socHysteresis);
+    g.targetTemp = num('ems-sg-temp', g.targetTemp); g.windowTo = val('ems-sg-to', g.windowTo);
+    g.startDelayMin = num('ems-sg-startdelay', g.startDelayMin); g.minRunMin = num('ems-sg-minrun', g.minRunMin);
+    g.stopDelayMin = num('ems-sg-stopdelay', g.stopDelayMin); g.cooldownMin = num('ems-sg-cooldown', g.cooldownMin);
+    g.usePrice = chk('ems-sg-useprice'); g.maxPriceRp = num('ems-sg-maxprice', g.maxPriceRp);
+    g.allowForced = chk('ems-sg-forced');
+    if ($('ems-sg-forcedw')) g.forcedMinW = num('ems-sg-forcedw', g.forcedMinW);
+    g.sensorId = val('ems-sg-sensor-dev', g.sensorId); g.tempCapability = val('ems-sg-sensor-cap', g.tempCapability);
+    g.respectHoliday = chk('ems-sg-holiday');
+    if ($('ems-sg-hol-dev')) { g.holidayId = val('ems-sg-hol-dev', g.holidayId); g.holidayCapability = val('ems-sg-hol-cap', g.holidayCapability); }
+    g.recommendRelay = { deviceId: val('ems-sg-rec-dev', g.recommendRelay.deviceId), capability: val('ems-sg-rec-cap', g.recommendRelay.capability) };
+    if ($('ems-sg-frc-dev')) g.forceRelay = { deviceId: val('ems-sg-frc-dev', g.forceRelay.deviceId), capability: val('ems-sg-frc-cap', g.forceRelay.capability) };
+    g.live = chk('ems-sg-live');
+  }
+
   function listRow(key, ic, color, title, tagHtmlStr, summary, body) {
     var open = !!state.open[key];
     return '<div class="ems-item' + (open ? ' open' : '') + '"><div class="ems-item-h" data-ems-open="' + esc(key) + '">'
@@ -1065,6 +1133,7 @@
       + '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + rows
       + '<div class="ems-item ems-add" data-ems-add="1"><span class="ems-ic" style="background:var(--st-seg-bg);color:var(--st-text)">' + icon('plus', 17) + '</span><span class="ems-item-n">' + esc(S.addConsumer) + '</span></div></div>'
       + '<p class="lbl">' + esc(S.fuseTitle) + '</p><div class="ems-list">' + listRow('fuse', 'bolt', '#c0392b', S.fuseRow, '', fuseSummary(), fuseBody()) + '</div>'
+      + '<p class="lbl">' + esc(S.sgTitle) + '</p><div class="ems-list">' + listRow('sg', 'boiler', '#e67e22', S.sgRow, '', sgSummary(), sgBody()) + '</div>'
       + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
       + '<p><button class="ems-save" data-ems-save="1">' + esc(S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
   }
@@ -1974,6 +2043,7 @@
   function sync() {
     if (!state.cfg || noDevice()) return;
     syncFuse();
+    syncSg();
     SOURCES.forEach(function (s) {
       if (s.key === 'price' || s.key === 'fc') return;
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bp-target')) {
@@ -2090,6 +2160,7 @@
       refreshS: Number(c.refreshS) || 0,
       tickMinutes: Number(c.tickMinutes) || 5,
       fuse: c.fuse ? JSON.parse(JSON.stringify(c.fuse)) : undefined,
+      sgready: c.sgready ? JSON.parse(JSON.stringify(c.sgready)) : undefined,
       consumers: consumers,
     };
     var cost = state.rows.filter(function (r) { return r.name && r.meterDeviceId && r.meterCap; }).map(function (r) {
@@ -2378,6 +2449,7 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
+    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || t.id === 'ems-sg-holiday' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
     var fuseShedKind = g('data-ems-fuseshedkind');
     if (fuseShedKind !== null) {
       sync();

@@ -1,0 +1,396 @@
+'use strict';
+
+// SG-Ready-Steuerung (Wärmepumpe/Boiler): zwei Relais, drei Zustände (0:0/0:1/1:1), siehe lib/ems/planner/sgready.js.
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {
+  normalizeSgReady, decideSgReady, makeSgReadyState, relaysFor,
+} = require('../lib/ems/planner/sgready');
+const { fromLocal } = require('../lib/time');
+
+const TZ = 'Europe/Zurich';
+const at = (h, m = 0) => fromLocal(2026, 11, 13, h, m).getTime();
+const MIN = 60000;
+
+function base(over) {
+  const o = over || {};
+  return {
+    st: makeSgReadyState(),
+    pvW: 0,
+    exportW: 0,
+    soc: null,
+    hasBattery: false,
+    priceNow: null,
+    tempWW: null,
+    holiday: false,
+    nowMs: at(12),
+    tz: TZ,
+    ...o,
+    cfg: normalizeSgReady(o.cfg),
+  };
+}
+
+test('normalizeSgReady: Grenzen und Standardwerte, ungültige Fensterzeit und Basis fallen zurück', () => {
+  const p = normalizeSgReady({
+    minSoc: 150, socHysteresis: -5, windowTo: 'kaputt', basis: 'unsinn',
+  });
+  assert.equal(p.minSoc, 100);
+  assert.equal(p.socHysteresis, 0);
+  assert.equal(p.windowTo, '17:00');
+  assert.equal(p.basis, 'pv');
+  assert.equal(normalizeSgReady({}).enabled, false);
+  assert.equal(normalizeSgReady({}).allowForced, false);
+});
+
+test('relaysFor: Empfehlungs-Relais bei boost und forced an, Zwangs-Relais nur bei forced', () => {
+  assert.deepEqual(relaysFor('off'), { recommend: false, force: false });
+  assert.deepEqual(relaysFor('boost'), { recommend: true, force: false });
+  assert.deepEqual(relaysFor('forced'), { recommend: true, force: true });
+});
+
+test('Globale Abbruchbedingung: Zieltemperatur erreicht beendet sofort, auch mitten in der Mindestlaufzeit, und startet den Cooldown', () => {
+  const x = base({ pvW: 2000, nowMs: at(10) });
+  decideSgReady(x); // off -> okSince
+  x.nowMs = at(10) + 10 * MIN;
+  const started = decideSgReady(x);
+  assert.equal(started.state, 'boost');
+  x.nowMs += 5 * MIN;
+  x.tempWW = 56;
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.match(r.reason, /Zieltemperatur/);
+  assert.equal(x.st.cooldownUntil, x.nowMs + x.cfg.cooldownMin * MIN);
+});
+
+test('Globale Abbruchbedingung: Ferienmodus beendet sofort einen laufenden Betrieb und startet den Cooldown', () => {
+  const x = base({
+    cfg: { minSolarW: 1500, startDelayMin: 0 }, pvW: 1600, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(x).state, 'boost');
+  x.nowMs += 5 * MIN;
+  x.holiday = true;
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.match(r.reason, /Ferienmodus/);
+  assert.ok(x.st.cooldownUntil);
+});
+
+test('Ferienmodus (im Voraus aktiv): verhindert einen Start erst gar nicht nur sofort, sondern dauerhaft', () => {
+  const x = base({ pvW: 2000, holiday: true });
+  const r1 = decideSgReady(x);
+  assert.equal(r1.state, 'off');
+  assert.match(r1.reason, /Ferienmodus/);
+});
+
+test('Ferienmodus respektieren = aus: blockiert nicht mehr', () => {
+  const x = base({
+    cfg: { respectHoliday: false }, pvW: 2000, holiday: true, nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs += x.cfg.startDelayMin * MIN;
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+});
+
+test('Start (Trigger A, PV/Akku): erst nach startDelayMin am Stück, vor windowTo', () => {
+  const x = base({
+    cfg: { minSolarW: 1500, startDelayMin: 10 }, pvW: 1600, nowMs: at(10),
+  });
+  let r = decideSgReady(x);
+  assert.equal(r.state, 'off', 'Bedingung gerade erst erfüllt');
+  x.nowMs = at(10) + 9 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'off', 'noch nicht 10 Minuten');
+  x.nowMs = at(10) + 10 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+  assert.match(r.reason, /PV-Überschuss/);
+  assert.equal(r.deadlineMs, x.st.boostStartedAt + x.cfg.minRunMin * MIN);
+});
+
+test('Start (Trigger A): ohne Hausakku spielt der SoC keine Rolle, mit Akku muss er über minSoc liegen', () => {
+  const noBattery = base({
+    cfg: { minSolarW: 1500, startDelayMin: 0 }, pvW: 1600, hasBattery: false, soc: 10, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(noBattery).state, 'boost', 'kein Akku konfiguriert - SoC wird ignoriert');
+  const lowSoc = base({
+    cfg: { minSolarW: 1500, minSoc: 98, startDelayMin: 0 }, pvW: 1600, hasBattery: true, soc: 80, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(lowSoc).state, 'off', 'Akku vorhanden, aber noch nicht voll genug');
+  const fullSoc = base({
+    cfg: { minSolarW: 1500, minSoc: 98, startDelayMin: 0 }, pvW: 1600, hasBattery: true, soc: 98, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(fullSoc).state, 'boost');
+});
+
+test('Start (Trigger A): nach windowTo kein neuer Start mehr, auch mit PV und vollem Akku', () => {
+  const x = base({
+    cfg: { minSolarW: 1500, windowTo: '17:00', startDelayMin: 0 }, pvW: 3000, nowMs: at(18),
+  });
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.match(r.reason, /wartet/);
+});
+
+test('Start (Trigger B, Preis): unabhängig von windowTo - startet auch nach 17:00', () => {
+  const x = base({
+    cfg: {
+      usePrice: true, maxPriceRp: 15, windowTo: '17:00', startDelayMin: 0,
+    },
+    priceNow: 12,
+    nowMs: at(22),
+  });
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+  assert.match(r.reason, /günstig/);
+});
+
+test('Start: Preis zu teuer und PV/Akku ungenügend -> kein Start', () => {
+  const x = base({
+    cfg: {
+      usePrice: true, maxPriceRp: 15, minSolarW: 1500, startDelayMin: 0,
+    },
+    priceNow: 20,
+    pvW: 200,
+    nowMs: at(10),
+  });
+  assert.equal(decideSgReady(x).state, 'off');
+});
+
+test('Sonderfall: Akku-SoC springt frisch über die Schwelle bei bereits ausreichender Solarleistung -> sofortiger Start ohne Einschaltverzögerung', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, minSoc: 98, startDelayMin: 10,
+    },
+    pvW: 1600,
+    hasBattery: true,
+    soc: 90,
+    nowMs: at(10),
+  });
+  // Solarleistung steht schon lange an (SoC allein fehlt) - kein Start, aber okSince läuft nicht an, weil
+  // triggerA insgesamt falsch ist (SoC fehlt).
+  assert.equal(decideSgReady(x).state, 'off');
+  x.nowMs += 5 * MIN;
+  x.soc = 98; // SoC springt frisch über die Schwelle
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'kein Warten nötig - der PV-Teil stand schon an');
+});
+
+test('Ohne SoC-Sprung (schon vorher über der Schwelle): normale Einschaltverzögerung gilt', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, minSoc: 98, startDelayMin: 10,
+    },
+    pvW: 1600,
+    hasBattery: true,
+    soc: 99,
+    nowMs: at(10),
+  });
+  assert.equal(decideSgReady(x).state, 'off', 'beide Bedingungen neu, Verzögerung muss trotzdem ablaufen');
+  x.nowMs += 5 * MIN;
+  assert.equal(decideSgReady(x).state, 'off');
+  x.nowMs = at(10) + 10 * MIN;
+  assert.equal(decideSgReady(x).state, 'boost');
+});
+
+test('Während der Mindestlaufzeit fest verriegelt: Wolken oder sinkender SoC brechen nicht ab', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, minRunMin: 90, startDelayMin: 0,
+    },
+    pvW: 1600,
+    nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs = at(10) + 30 * MIN;
+  x.pvW = 0; // Wolke
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'Mindestlaufzeit (90 Min.) noch nicht um');
+  assert.match(r.reason, /Mindestlaufzeit/);
+});
+
+test('Halten nach der Mindestlaufzeit: SoC-Hysterese lässt ein leichtes Absinken zu', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, minSoc: 98, socHysteresis: 10, minRunMin: 90, stopDelayMin: 8, startDelayMin: 0,
+    },
+    pvW: 1600,
+    hasBattery: true,
+    soc: 98,
+    nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs = at(10) + 91 * MIN;
+  x.soc = 90; // unter minSoc, aber über minSoc - socHysteresis (88)
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'hält dank Hysterese weiter');
+});
+
+test('Beenden nach der Mindestlaufzeit: Bedingungen fehlen für stopDelayMin -> zurück zu off, Cooldown startet', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, minRunMin: 90, stopDelayMin: 8, cooldownMin: 30, startDelayMin: 0,
+    },
+    pvW: 1600,
+    nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs = at(10) + 91 * MIN;
+  x.pvW = 0;
+  let r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'Ausschaltverzögerung läuft noch');
+  x.nowMs += 7 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'noch nicht 8 Minuten ohne Bedingung');
+  x.nowMs += 2 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.equal(r.deadlineMs, x.st.cooldownUntil);
+  // Cooldown blockiert einen sofortigen Neustart, auch mit PV.
+  x.pvW = 3000;
+  x.nowMs += 1000;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.match(r.reason, /Abkühlpause/);
+  x.nowMs = x.st.cooldownUntil + 1000;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'Cooldown um, PV reicht - startet wieder (startDelayMin hier 0)');
+});
+
+test('Eskalation zu "forced" (1:1): nur wenn erlaubt, erst nach startDelayMin über forcedMinW', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, allowForced: true, forcedMinW: 4500, startDelayMin: 10, minRunMin: 0,
+    },
+    pvW: 1600,
+    nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs = at(10) + 10 * MIN; // startDelayMin abgelaufen -> off -> boost
+  let r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+  x.pvW = 5000; // jetzt auch über forcedMinW - forcedOkSince wird in diesem Lauf erst gesetzt
+  x.nowMs += 1000;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'boost', 'noch nicht 10 Minuten über forcedMinW');
+  x.nowMs += 10 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'forced');
+});
+
+test('allowForced = aus (Standard): eskaliert nie, auch bei sehr viel PV', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, forcedMinW: 4500, startDelayMin: 0, minRunMin: 0,
+    },
+    pvW: 6000,
+    nowMs: at(10),
+  });
+  decideSgReady(x);
+  x.nowMs += 20 * MIN;
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+});
+
+test('Rückfall von "forced" zu "boost": nach stopDelayMin unter forcedMinW, Mindestlaufzeit läuft nahtlos weiter', () => {
+  const x = base({
+    cfg: {
+      minSolarW: 1500, allowForced: true, forcedMinW: 4500, startDelayMin: 0, stopDelayMin: 8, minRunMin: 90,
+    },
+    pvW: 5000,
+    nowMs: at(10),
+  });
+  decideSgReady(x); // boost
+  x.nowMs += 1000;
+  let r = decideSgReady(x);
+  assert.equal(r.state, 'forced');
+  const startedAt = x.st.boostStartedAt;
+  x.nowMs += 5 * MIN;
+  x.pvW = 1600; // unter forcedMinW, aber weiterhin genug für boost
+  r = decideSgReady(x);
+  assert.equal(r.state, 'forced', 'Ausschaltverzögerung für die Eskalation läuft noch');
+  x.nowMs += 8 * MIN;
+  r = decideSgReady(x);
+  assert.equal(r.state, 'boost');
+  assert.equal(x.st.boostStartedAt, startedAt, 'die ursprüngliche Mindestlaufzeit bleibt bestehen');
+});
+
+// ---------------------------------------------------------------- Runner (Relais schalten, nur bei Wechsel)
+
+const { normalizeConfig } = require('../lib/ems/Config');
+const { EmsRunner } = require('../lib/ems/EmsRunner');
+const { ShadowLog } = require('../lib/ems/ShadowLog');
+const { PriceFeed } = require('../lib/ems/PriceFeed');
+const { PvFeed } = require('../lib/ems/PvFeed');
+
+function makeRunner(sgOver = {}, tempRef = { v: 40 }) {
+  const config = normalizeConfig({
+    enabled: true,
+    silent: false,
+    devices: { meter: { id: 'm' } },
+    charger: { enabled: false },
+    sgready: {
+      enabled: true,
+      live: true,
+      startDelayMin: 0,
+      minRunMin: 0,
+      sensorId: 'ww',
+      recommendRelay: { deviceId: 'rel2', capability: 'onoff' },
+      forceRelay: { deviceId: 'rel1', capability: 'onoff' },
+      ...sgOver,
+    },
+  });
+  const calls = [];
+  const runner = new EmsRunner({
+    getConfig: () => config,
+    prices: new PriceFeed(() => null),
+    pv: new PvFeed(null, () => {}, { get: async () => ({ slots: [], stale: true }) }),
+    inputs: {
+      chargerInputs: async () => ({
+        gridW: -2500, houseW: 300, pvW: 3000, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+      }),
+      consumerStates: async () => new Map(),
+      readNumber: async () => tempRef.v,
+      readValue: async () => null,
+    },
+    actuators: {
+      charger: async () => ({}),
+      program: async (deviceId, capability, value, { live }) => {
+        calls.push([deviceId, capability, value, live]);
+        return { cmd: 'program', live };
+      },
+    },
+    shadowLog: new ShadowLog({ get() {}, set() {} }),
+    store: null,
+  });
+  return { runner, calls, tempRef };
+}
+
+test('Config: sgready wird normalisiert und ist standardmässig aus', () => {
+  assert.equal(normalizeConfig({}).sgready.enabled, false);
+  assert.equal(normalizeConfig({ sgready: { enabled: true, minRunMin: 5000 } }).sgready.minRunMin, 480);
+});
+
+test('Runner: schaltet das Empfehlungs-Relais nur beim Wechsel, Zieltemperatur schaltet wieder aus', async () => {
+  const { runner, calls, tempRef } = makeRunner();
+  await runner.tickCharger(at(10));
+  assert.deepEqual(calls, [['rel2', 'onoff', true, true]], 'Start: nur Empfehlungs-Relais, Zwang ist nicht erlaubt');
+  assert.equal(runner.sgReadyCurrent.state, 'boost');
+  await runner.tickCharger(at(10) + 30000);
+  assert.equal(calls.length, 1, 'keine Wiederholung ohne Wechsel');
+  tempRef.v = 57;
+  await runner.tickCharger(at(10) + 60000);
+  assert.deepEqual(calls[1], ['rel2', 'onoff', false, true]);
+  assert.equal(runner.sgReadyCurrent.state, 'off');
+});
+
+test('Runner: ausgeschaltet oder Silent-Modus schaltet nichts (simuliert nur)', async () => {
+  const off = makeRunner({ enabled: false });
+  await off.runner.tickCharger(at(10));
+  assert.equal(off.calls.length, 0);
+  assert.equal(off.runner.sgReadyCurrent, null);
+  const dry = makeRunner({ live: false });
+  await dry.runner.tickCharger(at(10));
+  assert.deepEqual(dry.calls, [['rel2', 'onoff', true, false]], 'nicht live: Befehl nur simuliert (live=false)');
+});

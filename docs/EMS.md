@@ -447,3 +447,21 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   braucht. `lib/ems/planner/fuse.js` (`normalizeShed`): `offFlow` jetzt auch bei `kind:'charger'` möglich;
   `EmsRunner` löst ihn über `Actuators.shed(null, { offFlow })` aus (dieselbe Methode wie bei den Geräte-Einträgen,
   ohne Geräte-Id, da die Wallbox über ihren Flow läuft, nicht über eine Capability).
+
+## SG-Ready-Steuerung für Boiler/Wärmepumpe (14.11.2026)
+
+- Eigenes EMS-Modul (`cfg.sgready`, wie Batterie/Hausanschluss), nicht in der Verbraucher-Liste: zwei Relais und drei
+  Zustände statt Ein/Aus. Reine Logik in `lib/ems/planner/sgready.js` (`decideSgReady`), Ausführung in
+  `EmsRunner._runSgReady` (im schnellen Lauf, `tickCharger`). Einstellungen: «Einrichten» → «Boiler / Wärmepumpe (SG-Ready)».
+- Zustände: `off` (0:0 Normalbetrieb), `boost` (0:1 Einschaltempfehlung), `forced` (1:1, nur wenn erlaubt, Standard aus).
+  Zwei Relais-Referenzen (Gerät + Capability, frei wählbar, nicht auf «Eingang 1/2» festgelegt): `recommendRelay`
+  (an bei `boost` und `forced`) und `forceRelay` (nur bei `forced`). Relais werden nur bei einem Wechsel geschrieben.
+- Start (aus `off`): Trigger A = Solarleistung (oder Netzeinspeisung, `basis`) ≥ `minSolarW` und, falls Hausakku
+  vorhanden, SoC ≥ `minSoc`, nur vor `windowTo`; Trigger B = aktueller Preis ≤ `maxPriceRp`, unabhängig von `windowTo`.
+  Erst nach `startDelayMin` am Stück; springt der SoC frisch über die Schwelle bei schon reichender Leistung, sofort.
+- Danach `minRunMin` fest verriegelt; nur Zieltemperatur (`targetTemp`) oder Ferienmodus beenden sofort (aus jeder Phase).
+  Nach der Mindestlaufzeit hält `boost` mit SoC-Hysterese; fehlen die Bedingungen `stopDelayMin`, zurück auf `off`,
+  dann `cooldownMin` Abkühlpause. Eskalation zu `forced` und Rückfall nutzen `startDelayMin`/`stopDelayMin`.
+- Standard `live: false` und Silent-Modus hat Vorrang: ohne beides wird nur simuliert. Der bisherige Flow
+  («WW Bereitung dynamisch») läuft parallel weiter, bis Richard ihn abschaltet. Der Zustand wird gespeichert
+  (`sgReadyState`), damit Mindestlaufzeit/Abkühlpause einen App-Neustart überstehen.

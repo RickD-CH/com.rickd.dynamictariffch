@@ -430,3 +430,16 @@ test('Symbol-Wahl eines Verbrauchers speichert sofort (kein Speichern-Knopf nöt
   assert.equal(puts[0].consumers[0].icon, 'washer');
   await Promise.resolve().then(() => {}).then(() => {}).then(() => {}); // Promise-Kette von save() sauber auslaufen lassen
 });
+
+test('Anzeige: SG-Ready-Bereich ist da, standardmässig aus, und die Einstellungen gehen mit dem Speichern mit', async () => {
+  const ui = await startUi();
+  assert.match(ui.setup(), /BOILER \/ WÄRMEPUMPE \(SG-READY\)/);
+  assert.match(ui.setup(), /SG-Ready-Steuerung/);
+  ui.click({ 'data-ems-open': 'sg' });
+  const html = ui.setup();
+  assert.match(html, /SG-Ready steuern/);
+  assert.doesNotMatch(html, /Mindestlaufzeit/, 'solange aus, keine weiteren Felder');
+  const sg = ui.ctx.window.EmsUi._collect().ems.sgready;
+  assert.equal(sg.enabled, false);
+  assert.equal(sg.minRunMin, 90);
+});
