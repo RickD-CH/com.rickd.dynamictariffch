@@ -607,3 +607,9 @@ Unter Einstellungen → Wallbox → «Anschluss der Wallbox» (erscheint, sobald
 
 Die Karten stammen aus den Aktionskarten des gewählten Geräts (`GET /ems/device-cards?id=`), die Capabilities aus seiner Liste. Die Leistung wird aus Ampere × Phasen × 230 V berechnet, Stopp = 0 W.
 Konfiguration: `charger.stateCapability`, `powerCapability`, `phaseCapability`, `startCard`, `powerCard`, `powerArg`; Befehle: `Actuators.charger(id, cmd, { live, cards })`.
+
+### Einklappteile öffnen sich bei Bedarf
+
+- Beim ersten Öffnen der Einrichtung wird die **erste nicht eingerichtete Pflichtquelle** (z. B. Netzzähler) aufgeklappt. Danach entscheidet nur noch der Benutzer.
+- **«Anschluss der Wallbox»** ist von Anfang an offen, wenn die gewählte Karte «Ladeleistung setzen» am Gerät fehlt; die Titelzeile zeigt «⚠ Karte fehlt». Sonst bleibt er zu.
+- Alle übrigen Bereiche bleiben zu.

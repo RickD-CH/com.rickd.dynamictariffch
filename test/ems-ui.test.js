@@ -112,7 +112,8 @@ test('Setup: Datenquellen nach Wichtigkeit sortiert, mit Pflicht/Empfohlen/Optio
 test('Setup: zugeklappt keine Dropdown-Wand, Kopf meldet fehlende Pflicht-Quelle', async () => {
   const env = await start(scenario());
   const html = setup(env);
-  assert.equal((html.match(/<select/g) || []).length, 0, 'keine Auswahlfelder, solange nichts aufgeklappt ist');
+  assert.match(html, /id="src-grid-dev"/, 'die erste fehlende Pflichtquelle (Netzzähler) ist von selbst aufgeklappt');
+  assert.doesNotMatch(html, /id="src-pv-dev"/, 'die übrigen Quellen bleiben zu');
   assert.match(html, /Es fehlt noch: Netzzähler/);
   assert.match(html, /nicht gewählt/);
   assert.match(env.els.get('h2-emsdev').innerHTML, /st-open/);
@@ -123,6 +124,8 @@ test('Setup: zugeklappt keine Dropdown-Wand, Kopf meldet fehlende Pflicht-Quelle
 test('Setup: aufklappen per Klick auf ein Kind der Zeile, Geräte nach Fähigkeit gefiltert, Werte mit Titeln', async () => {
   const env = await start(scenario());
   const header = target({ 'data-ems-open': 'src-grid' });
+  click(env, 'ems-view-devices', {}, header); // schliesst die von selbst aufgeklappte erste Pflichtquelle
+  assert.doesNotMatch(setup(env), /id="src-grid-dev"/);
   click(env, 'ems-view-devices', {}, header); // Klick auf ein Kind: Eltern tragen das Attribut
   const html = setup(env);
   assert.match(html, /id="src-grid-dev"/);

@@ -317,7 +317,7 @@ async function startUi(extra = {}) {
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
   const config = normalizeConfig({
-    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready, dhw: extra.dhw, charger: extra.charger,
+    enabled: true, devices: extra.noMeter ? {} : { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready, dhw: extra.dhw, charger: extra.charger,
   });
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
@@ -331,6 +331,7 @@ async function startUi(extra = {}) {
       }],
     },
     'GET /ems/flows': { flows: extra.noFlows ? [] : flows },
+    'GET /ems/device-cards?id=lamp': extra.deviceCards,
     'GET /meters': extra.meters || null,
   };
   await ctx.window.EmsUi.init((m, p, body) => {
@@ -771,4 +772,29 @@ test('Wallbox-Zeile: «Anschluss der Wallbox» steht über dem «Hausbatterie-Sc
   const a = h.indexOf('Anschluss der Wallbox (wie sie angesprochen wird)');
   const b = h.indexOf('Hausbatterie-Schutz: wie viel Solarstrom');
   assert.ok(a > 0 && b > 0 && a < b, 'Anschluss zuerst, dann Hausbatterie-Schutz');
+});
+
+test('Einklappteile öffnen sich selbst, wenn Aufmerksamkeit nötig ist: erste fehlende Pflichtquelle, fehlende Wallbox-Karte; sonst bleiben sie zu', async () => {
+  const ok = await startUi({ charger: { id: 'lamp', enabled: true } });
+  assert.doesNotMatch(ok.setup(), /id="src-grid-dev"/, 'Netzzähler gewählt: Quelle zu');
+  assert.doesNotMatch(ok.setup(), /<details class="ems-adv" open>/, 'nichts offen, wenn alles in Ordnung ist');
+  const bare = await startUi({ noMeter: true });
+  assert.match(bare.setup(), /id="src-grid-dev"/, 'Netzzähler fehlt (Pflicht): die erste fehlende Pflichtquelle ist aufgeklappt');
+  assert.doesNotMatch(bare.setup(), /id="src-pv-dev"/, 'nur die erste');
+  const missing = await startUi({
+    charger: { id: 'lamp', enabled: true },
+    deviceCards: { cards: [{ id: 'other_card', title: 'Andere Karte', args: [] }] },
+  });
+  missing.click({ 'data-ems-open': 'row0' });
+  await missing.flush();
+  const h = missing.setup();
+  assert.match(h, /<details class="ems-adv" open><summary data-ems-adv="row0-link">[^<]*<span class="ems-warn">⚠ Karte fehlt/, 'Anschluss offen, Warnung in der Titelzeile');
+  const fine = await startUi({
+    charger: { id: 'lamp', enabled: true },
+    deviceCards: { cards: [{ id: 'target_power_set', title: 'Leistung', args: [{ name: 'target_power', type: 'number', title: 'W' }] }] },
+  });
+  fine.click({ 'data-ems-open': 'row0' });
+  await fine.flush();
+  assert.doesNotMatch(fine.setup(), /data-ems-adv="row0-link">[^<]*<span class="ems-warn">/, 'Karte vorhanden: keine Warnung');
+  assert.doesNotMatch(fine.setup(), /<details class="ems-adv" open><summary data-ems-adv="row0-link"/, 'und der Bereich bleibt zu');
 });
