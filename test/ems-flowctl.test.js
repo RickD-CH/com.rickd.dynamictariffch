@@ -282,6 +282,7 @@ async function startUi(extra = {}) {
         id,
         innerHTML: '',
         textContent: '',
+        style: {},
         get value() {
           if ('value' in own) return own.value;
           const t = tag();
@@ -611,19 +612,18 @@ test('Anzeige: Zieltemperatur fest oder aus der Wärmepumpe (WW-Soll), Betriebsa
   assert.equal(c.sgready.targetSource, 'device');
 });
 
-test('Automatisch speichern: kurz nach der letzten Eingabe, nur ein Speichern bei mehreren Eingaben, Schalter mit eigenem Speichern lösen es nicht aus', async () => {
+test('Kein Auto-Speichern: Eingaben speichern nichts, der Knopf zeigt «Änderungen speichern ●», Speichern setzt ihn zurück; Schalter mit eigenem Speichern zählen nicht', async () => {
   const ui = await startUi({ dhw: { enabled: true } });
   ui.click({ 'data-ems-open': 'dhw' });
   const puts = () => ui.calls.filter(([m, p]) => m === 'PUT' && p === '/ems/config');
   const before = puts().length;
   ui.set('ems-dhw-cheap', '3');
   ui.input({ id: 'ems-dhw-cheap' });
-  ui.input({ id: 'ems-dhw-cheap' });
-  assert.equal(puts().length, before, 'nicht sofort');
   await ui.flush();
-  assert.equal(puts().length, before + 1, 'ein einziges Speichern');
-  assert.equal(puts()[puts().length - 1][2].dhw.cheapHours, 3);
-  ui.input({ 'data-ems-enable': '1' });
-  await ui.flush();
-  assert.equal(puts().length, before + 1, 'Schalter speichern selbst');
+  assert.equal(puts().length, before, 'es wird nie von selbst gespeichert');
+  assert.match(ui.ctx.document.getElementById('ems-savebtn').textContent, /Änderungen speichern/);
+  assert.match(ui.ctx.document.getElementById('ems-msg').textContent, /Noch nicht gespeichert/);
+  const clean = await startUi({ dhw: { enabled: true } });
+  clean.input({ 'data-ems-enable': '1' });
+  assert.doesNotMatch(clean.ctx.document.getElementById('ems-savebtn').textContent, /Änderungen/);
 });
