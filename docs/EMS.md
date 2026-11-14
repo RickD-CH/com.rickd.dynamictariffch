@@ -592,6 +592,11 @@ und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10
   Der Auslöser wird nur live gefeuert (im Trockenlauf nur in der Anzeige).
 - Die frühere Flow-Ausgabe (Flows «ein» und «zurück auf Normal») bleibt bestehen.
 
+### Aktuelle Werte als Hilfe in den Einstellungen
+
+Neben jeder Auswahl «Gerät und Wert» (Datenquellen, Warmwasser-Sensor und -Soll, Zähler, Akku-Sensor) steht der **aktuelle Wert** der gewählten Capability, nur lesen, mit Einheit (zum Beispiel «47,3 °C»). Unbekannt zeigt «–».
+Die Werte kommen mit der Geräteliste und werden beim Aufklappen eines Bereichs aufgefrischt, höchstens alle 30 Sekunden (kein ständiges Abfragen).
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App

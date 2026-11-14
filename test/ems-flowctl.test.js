@@ -974,3 +974,17 @@ test('Warmwasser-Ausgabe «Auslöser mit Wert»: erklärt den Flow, zeigt nur di
   assert.equal(d.setpoint.programC, 50);
   assert.equal(d.setpoint.delayC, 30);
 });
+
+test('Hilfe: neben Gerät und Wert steht der aktuelle Wert (nur lesen), mit Einheit; unbekannt = «–»', async () => {
+  const ui = await startUi({
+    dhw: { enabled: true, targetSource: 'device', targetId: 'wp', targetCapability: 'measure_temperature.number2', sensorId: 'wp', tempCapability: 'measure_temperature' },
+    devices: [{
+      id: 'wp', name: 'Wärmepumpe', cls: 'heatpump', caps: ['measure_temperature', 'measure_temperature.number2'], values: { measure_temperature: 47.3, 'measure_temperature.number2': 48 }, units: { measure_temperature: '°C', 'measure_temperature.number2': '°C' },
+    }],
+  });
+  ui.click({ 'data-ems-open': 'dhw' });
+  const h = ui.setup();
+  assert.match(h, /data-ems-cur="wp\|measure_temperature">47[.,]3 °C</);
+  assert.match(h, /data-ems-cur="wp\|measure_temperature.number2">48 °C</);
+  assert.match(h, /<span>Aktuell<\/span>/);
+});
