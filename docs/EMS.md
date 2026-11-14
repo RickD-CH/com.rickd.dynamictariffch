@@ -648,6 +648,17 @@ Beim Verbraucher gibt es unter «Feuchte-Notlauf» die Option **«Im günstigste
 - **Kritische Feuchte** (optional, Standard 75 %, nie unter «ein»): ab diesem Wert startet der Notlauf immer **sofort**. Ohne vollständige Preise für den Rest des Tages startet er ebenfalls sofort. Ein nicht lesbarer Sensor löst weiterhin nichts aus.
 - Fällt die Feuchte beim Warten unter «ein», entsteht kein Notlauf; steigt sie wieder, wird erneut gewartet.
 
+### eBike: Sicherheits-Stopp melden und eingefrorenen Ladestand erkennen
+
+Der Sicherheits-Timer des alten Flows «Cube eBike laden mit PV» steckt in der Akku-Funktion des Verbrauchers (Höchstdauer am Stück, Standard 240 min). Neu:
+
+- **Meldung:** Greift die Höchstdauer, löst die App den Flow-Auslöser **«Ein Fehler ist aufgetreten»** aus (Bereich «consumer», Text zum Beispiel «eBike: Sicherheit: 240 min am Stück geladen, Ladestand unverändert 40 % (Sensor/Bridge prüfen)»),
+  einmal je Sperre (`EmsRunner.safetyStops`, `EmsController._fireEvents`). Ein normaler Stopp bei der Ladegrenze ist keine Störung und wird nicht gemeldet. Eine Push-Nachricht hängst du wie bisher an diesen Flow. Eine Vorwarnung vor dem Stopp gibt es bewusst nicht.
+- **Anzeige:** Beim Laden steht im Grund «… · Sicherheits-Stopp um HH:MM» (Widget und Anzeige).
+- **Eingefrorener Ladestand:** Bleibt der Ladestand während der ganzen Ladung gleich (zum Beispiel weil die Bridge getrennt ist und der letzte Wert stehen bleibt), bleibt die Sperre nach dem Stopp bestehen. Früher galt «Ladestand bekannt und unter 75 %: wieder frei», dann hätte die App im Kreis weitere 240 Minuten geladen.
+  Frei wird erst, wenn sich der Wert ändert (der Sensor lebt wieder), er unbekannt wird oder 12 Stunden vergangen sind. Ändert sich der Wert während der Ladung, gilt wie bisher: frei unter «Freigabe unter» (75 %).
+- Der Zustand der Sperre überlebt einen Neustart der App nicht (wie bisher).
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App
