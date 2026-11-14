@@ -903,7 +903,7 @@ test('Warmwasser verzögern: Option mit allen Einstellungen, standardmässig aus
   const h = ui.setup();
   assert.match(h, /Warmwasser verzögern \(PV zuerst\)/);
   assert.match(h, /Komfortgrenze/);
-  assert.match(h, /Preisoptimierung ab \(Datum\)/);
+  assert.match(h, /Preisoptimierung ab \(Datum, optional\)/);
   const c0 = ui.ctx.window.EmsUi._collect().ems.dhw;
   assert.equal(c0.delay.enabled, false, 'standardmässig aus');
   assert.equal(c0.delay.minForecastKwh, 15);
