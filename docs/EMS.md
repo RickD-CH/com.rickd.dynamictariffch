@@ -657,7 +657,8 @@ Der Sicherheits-Timer des alten Flows «Cube eBike laden mit PV» steckt in der 
 - **Anzeige:** Beim Laden steht im Grund «… · Sicherheits-Stopp um HH:MM» (Widget und Anzeige).
 - **Eingefrorener Ladestand:** Bleibt der Ladestand während der ganzen Ladung gleich (zum Beispiel weil die Bridge getrennt ist und der letzte Wert stehen bleibt), bleibt die Sperre nach dem Stopp bestehen. Früher galt «Ladestand bekannt und unter 75 %: wieder frei», dann hätte die App im Kreis weitere 240 Minuten geladen.
   Frei wird erst, wenn sich der Wert ändert (der Sensor lebt wieder), er unbekannt wird oder 12 Stunden vergangen sind. Ändert sich der Wert während der Ladung, gilt wie bisher: frei unter «Freigabe unter» (75 %).
-- Der Zustand der Sperre überlebt einen Neustart der App nicht (wie bisher).
+- **Neustart der App:** Sperre (`accuFull`, `accuLockedAt`), eingefrorener Ladestand (`accuStale`), Ladebeginn (`accuOnSince`, `accuStartV`) und der Tiefentladeschutz (`accuLow`) werden mit den Verbraucher-Zuständen gespeichert.
+  Die Höchstdauer läuft nach einem Neustart also weiter, und eine Sperre bleibt bestehen. Die Meldung «Ein Fehler ist aufgetreten» kommt nach einem Neustart nicht nochmals.
 
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 

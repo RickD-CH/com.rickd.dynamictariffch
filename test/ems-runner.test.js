@@ -367,6 +367,9 @@ test('Runner: Akku-Verbraucher zeigt beim Laden «Sicherheits-Stopp um HH:MM» u
   assert.equal(on.isOn, true);
   assert.match(on.reason, /Sicherheits-Stopp um 1[23]:\d\d/, 'Frist wird angezeigt');
   assert.equal(runner.safetyStops.size, 0);
+  const during = runner._load('consumerStates', {}).dev1;
+  assert.ok(Number.isFinite(during.accuOnSince), 'Ladebeginn gespeichert: die Höchstdauer läuft nach einem Neustart weiter');
+  assert.equal(during.accuStartV, 40);
   await runner.tickCharger(at(13) + 600_000);
   state.consumers.set('dev1', { actualOn: false, powerW: 0, available: true });
   const stopped = runner.consumerCurrent.find((c) => c.id === 'dev1');
@@ -375,6 +378,20 @@ test('Runner: Akku-Verbraucher zeigt beim Laden «Sicherheits-Stopp um HH:MM» u
   assert.equal(runner.safetyStops.get('dev1'), 'eBike: Sicherheit: 60 min am Stück geladen, Ladestand unverändert 40 % (Sensor/Bridge prüfen)', 'Meldung gemerkt (für den Fehler-Auslöser)');
   await runner.tickCharger(at(13) + 900_000);
   assert.equal(runner.safetyStops.size, 1, 'bleibt gemerkt, solange die Sperre gilt');
+  // Neustart der App: Sperre, eingefrorener Ladestand und Ladebeginn werden aus dem Speicher wiederhergestellt
+  const saved = runner._load('consumerStates', {}).dev1;
+  assert.equal(saved.accuFull, true);
+  assert.equal(saved.accuStale.v, 40);
+  const second = Object.create(EmsRunner.prototype);
+  second.consumerStates = new Map();
+  second._load = (k, fb) => runner._load(k, fb);
+  second._loadConsumerStates();
+  const restored = second.consumerStates.get('dev1');
+  assert.equal(restored.accuFull, true, 'Sperre bleibt nach dem Neustart');
+  assert.deepEqual(restored.accuStale, saved.accuStale);
+  assert.equal(restored.accuLockedAt, saved.accuLockedAt);
+  assert.equal(restored.accuStartV, 40);
+  assert.equal(second.consumerStates.get('dev1').isOn, false);
   bike(70); // unter «frei unter» 75 %: Sperre vorbei
   await runner.tickCharger(at(14));
   assert.equal(runner.safetyStops.size, 0, 'nach der Freigabe wieder leer');
