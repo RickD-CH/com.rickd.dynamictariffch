@@ -1340,11 +1340,11 @@ test('Ausgabe «Auslöser mit Wert»: Verzögerung, Programm und Freigabe feuern
   });
   t.runner.actuators.trigger = async (id, tokens, { live }) => { fired.push({ id, tokens, live }); return { cmd: 'trigger' }; };
   await t.runner.tickCharger(at(7));
-  assert.deepEqual(JSON.parse(JSON.stringify(fired[0])), { id: 'ems_dhw_setpoint', tokens: { setpoint: 29, kind: 'delay' }, live: true });
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[0])), { id: 'ems_dhw_setpoint', tokens: { setpoint: 29, tenths: 290, kind: 'delay' }, live: true });
   assert.equal(t.runner.dhwDelay.active, true);
   await t.runner.tickCharger(at(17));
-  assert.deepEqual(JSON.parse(JSON.stringify(fired[1].tokens)), { setpoint: 48, kind: 'normal' }, 'zurück auf den gemerkten Soll 48 °C');
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[1].tokens)), { setpoint: 48, tenths: 480, kind: 'normal' }, 'zurück auf den gemerkten Soll 48 °C');
   await t.runner._dhwApply({ output: 'trigger', setpoint: { programC: 51, normalC: 47 } }, true, true, []);
-  assert.deepEqual(JSON.parse(JSON.stringify(fired[2].tokens)), { setpoint: 51, kind: 'program' });
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[2].tokens)), { setpoint: 51, tenths: 510, kind: 'program' });
   assert.deepEqual(t.fired, [], 'kein Flow gestartet');
 });

@@ -616,9 +616,11 @@ und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10
 - **Zurück auf Normal:** der vor dem Programm bzw. der Verzögerung gelesene Soll (die App merkt ihn sich); ist er unbekannt oder grösser/gleich dem Programm-Soll, gilt der eingestellte
   «Normale Soll» (Standard 48 °C). Dadurch braucht es weder die Flows «Programm ein», «verzögern» und «zurück auf Normal» noch die Variable `WW_Dyn_WW-CONSTSOLLTAG` noch den Flow «Normalwert merken».
 - Schutz: Es werden nur Werte von 10 bis 60 °C geschrieben. Im Trockenlauf (Silent oder «Befehle senden» aus) wird nichts gesendet.
-- **Für jede andere Wärmepumpe: «Auslöser mit Wert».** Die App löst den Flow-Auslöser «Der Warmwasser-Soll soll gesetzt werden» aus, mit den Werten **Soll (°C)** und **Art** (`program`, `delay`, `normal`).
+- **Für jede andere Wärmepumpe: «Auslöser mit Wert».** Die App löst den Flow-Auslöser «Der Warmwasser-Soll soll gesetzt werden» aus, mit den Werten **Soll (°C)**, **Soll in Zehntelgrad** (`tenths`, z. B. 480, direkt für Zehntelgrad-Register) und **Art** (`program`, `delay`, `normal`).
   Ein einziger Flow genügt: *Wenn* dieser Auslöser, *dann* schreibe den Soll an die Wärmepumpe (Modbus, Cloud-App, Relais). Der normale Soll wird vor Programm bzw. Verzögerung gemerkt.
   Der Auslöser wird nur live gefeuert (im Trockenlauf nur in der Anzeige).
+- Beispiel bei Richard: Flow «WP WW-Soll: setzen (App-Auslöser mit Wert)» (Auslöser + «Holding Register 1012 schreiben» mit dem Token «Soll in Zehntelgrad»). Er ersetzt die drei Flows mit festen Werten
+  («Programm ein», «verzögern», «zurück auf Normal») und den Merk-Flow; diese gelten nur für die Flow-Ausgabe und schreiben immer den im Flow festgelegten Wert, nicht die Einstellungen der App.
 - Die frühere Flow-Ausgabe (Flows «ein» und «zurück auf Normal») bleibt bestehen.
 
 ### Aktuelle Werte als Hilfe in den Einstellungen

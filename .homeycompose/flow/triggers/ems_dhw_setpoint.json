@@ -18,6 +18,15 @@
       "example": 48
     },
     {
+      "name": "tenths",
+      "type": "number",
+      "title": {
+        "en": "Setpoint in tenths of a degree (e.g. 480)",
+        "de": "Soll in Zehntelgrad (z. B. 480)"
+      },
+      "example": 480
+    },
+    {
       "name": "kind",
       "type": "string",
       "title": {
