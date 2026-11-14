@@ -1132,3 +1132,40 @@ test('Speichern nur bei Änderung: derselbe Zustand wird nicht jeden Takt erneut
   await runner.tickCharger(at(10) + 90000);
   assert.equal(writes.filter((k) => k === 'dhwState').length, dhwBefore, 'unveränderter Zustand wird nicht erneut geschrieben');
 });
+
+test('Korrekturfaktor automatisch: trägt die Empfehlung einmal pro Tag selbst ein, nur ab genug Tagen, nur bei spürbarer Abweichung, nur wenn eingeschaltet', async () => {
+  const { PvAccuracy } = require('../lib/ems/PvAccuracy'); // eslint-disable-line global-require
+  const acc = new PvAccuracy(null, 'Europe/Zurich');
+  const mk = (k) => ({
+    act: 16, gap: 0, last: 1, first: 1, firstH: 6, fc: 20, f: 1, fcAt: 1, k,
+  });
+  for (let d = 1; d <= 7; d++) acc.days[`2026-11-0${d}`] = mk(d); // 7 vollständige Tage, Verhältnis 0.8
+  const { runner } = makeRunner();
+  runner.pvAccuracy = acc;
+  const set = [];
+  runner.onAutoFactor = (f, rec) => set.push([f, rec.days]);
+  const cfg = runner.getConfig();
+  cfg.pv.factor = 1;
+  cfg.pv.factorAuto = false;
+  await runner.tickCharger(at(10));
+  assert.deepEqual(set, [], 'ausgeschaltet: nichts');
+  cfg.pv.factorAuto = true;
+  await runner.tickCharger(at(10) + 60000);
+  assert.deepEqual(set, [[0.8, 7]], 'eingeschaltet: Empfehlung eingetragen');
+  await runner.tickCharger(at(10) + 120000);
+  assert.equal(set.length, 1, 'am selben Tag nicht nochmals');
+  cfg.pv.factor = 0.8;
+  await runner.tickCharger(at(10) + 24 * 3600000);
+  assert.equal(set.length, 1, 'am nächsten Tag: schon gleich (Abweichung unter 0.03), nichts zu tun');
+  // zu wenig Tage: nichts
+  const few = new PvAccuracy(null, 'Europe/Zurich');
+  for (let d = 1; d <= 6; d++) few.days[`2026-11-0${d}`] = mk(d);
+  const r2 = makeRunner();
+  r2.runner.pvAccuracy = few;
+  const set2 = [];
+  r2.runner.onAutoFactor = (f) => set2.push(f);
+  r2.runner.getConfig().pv.factorAuto = true;
+  r2.runner.getConfig().pv.factor = 1;
+  await r2.runner.tickCharger(at(10));
+  assert.deepEqual(set2, [], 'unter 7 Tagen keine Empfehlung');
+});

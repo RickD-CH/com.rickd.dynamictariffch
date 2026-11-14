@@ -323,7 +323,7 @@ async function startUi(extra = {}) {
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
     'GET /ems/shadow': {
-      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null }, dhwPrices: extra.dhwPrices,
+      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null }, dhwPrices: extra.dhwPrices, pvAccuracy: extra.pvAccuracy,
     },
     'GET /ems/consumers': { current: [], events: [] },
     'GET /ems/devices': {
@@ -859,4 +859,32 @@ test('Priorität: Pfeile und Nummer nur bei «Bei Überschuss», nicht bei Progr
   assert.equal((h.match(/class="ems-tag ems-tag-prio"/g) || []).length, 2);
   const one = await startUi({ consumers: [{ id: 'lamp', name: 'Allein', enabled: true, mode: 'surplus' }, { id: 'lamp2', name: 'Spüler', enabled: true, mode: 'program' }] });
   assert.doesNotMatch(one.setup(), /data-ems-move=/, 'ein einziger Überschuss-Verbraucher: nichts zu ordnen, keine Pfeile');
+});
+
+test('Solarprognose: Empfehlung für den Korrekturfaktor aus den letzten Tagen, Verlauf, «Übernehmen» und Automatik-Schalter', async () => {
+  const rec = {
+    recommend: { factor: 0.82, days: 9, needed: 7, p25: 0.75, p75: 0.9 },
+    rows: [
+      { day: '2026-11-13', forecastKwh: 18.2, actualKwh: 15.1, ratio: 0.83, today: false, counted: true },
+      { day: '2026-11-14', forecastKwh: 24.6, actualKwh: 6.3, ratio: null, today: true, counted: false },
+    ],
+  };
+  const ui = await startUi({ pvAccuracy: rec });
+  ui.click({ 'data-ems-open': 'src-fc' });
+  const h = ui.setup();
+  assert.match(h, /Empfehlung aus den letzten Tagen/);
+  assert.match(h, /Empfehlung: 0\.82 \(Median aus 9 Tagen, meist zwischen 0\.75 und 0\.90\)/);
+  assert.match(h, /13\.11<\/td><td>18\.2<\/td><td>15\.1<\/td><td>0\.83/, 'Verlauf mit Prognose, Messung und Verhältnis');
+  assert.match(h, /14\.11 \(heute\)/);
+  assert.match(h, /data-ems-pvapply="0\.82"/, 'Übernehmen-Knopf, weil der Faktor (1.00) abweicht');
+  assert.match(h, /id="ems-pv-auto"/);
+  ui.click({ 'data-ems-pvapply': '0.82' });
+  assert.equal(ui.ctx.window.EmsUi._collect().ems.pv.factor, 0.82, 'Empfehlung ist im Feld');
+  assert.match(ui.ctx.document.getElementById('ems-msg').textContent, /Noch nicht gespeichert/);
+  ui.ctx.document.getElementById('ems-pv-auto').checked = true;
+  assert.equal(ui.ctx.window.EmsUi._collect().ems.pv.factorAuto, true, 'Automatik wird gespeichert');
+  const few = await startUi({ pvAccuracy: { recommend: { factor: null, days: 3, needed: 7, p25: null, p75: null }, rows: [] } });
+  few.click({ 'data-ems-open': 'src-fc' });
+  assert.match(few.setup(), /Noch zu wenig Daten: 3 von mindestens 7 vollständigen Tagen/);
+  assert.doesNotMatch(few.setup(), /data-ems-pvapply/, 'ohne Empfehlung kein Übernehmen-Knopf');
 });

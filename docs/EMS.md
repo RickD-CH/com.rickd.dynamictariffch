@@ -634,3 +634,12 @@ Die Reihenfolge der Verbraucher mit «Bei Überschuss» in den Einstellungen ist
 - **Ausschalten:** Fehlt Überschuss, bleibt ein höher priorisierter Verbraucher an (höchstens 3 Minuten), solange ein niedriger priorisierter noch läuft; der niedrige geht zuerst aus.
 - **Unberührt:** Schutz-Grenzen (Schutz-SoC, Akku voll, Feuchte-Notlauf, Aufträge, Hausanschluss-Schutz) werden nie zurückgehalten. Die Modi nach Batterie und die Wallbox haben ihre eigene Regel.
 - Planer: `evaluateConsumer` (`env.holdStart`, `env.holdStop`), Anbindung in `EmsRunner._runConsumers`.
+
+### Solarprognose: Genauigkeit und Empfehlung für den Korrekturfaktor
+
+Die App führt eine Tagesbilanz (`lib/ems/PvAccuracy.js`, Speicher `pvAccuracy`, die letzten 100 Tage):
+- **Morgens** (ab 06:00, nur wenn der Tag schon seit dem Morgen beobachtet wurde) wird die Prognose des ganzen Tages festgehalten, samt dem damals angewendeten Faktor.
+- **Tagsüber** wird die Solarproduktion aus den Leistungsmesswerten aufsummiert (ein Messwert zählt höchstens 15 Minuten; mehr als 1 Stunde Messlücke macht den Tag unbrauchbar).
+- **Empfehlung:** Median von (gemessen ÷ Prognose ohne Faktor) über die letzten 30 vollständigen Tage mit mindestens 2 kWh Prognose, erst ab 7 solchen Tagen, begrenzt auf 0.3 bis 2. Der Faktor der Prognose von damals wird herausgerechnet, die Empfehlung ist also immer ein absoluter Faktor.
+- **Einstellungen → Solarprognose:** Empfehlung mit Streuung (25-75 %-Bereich), Knopf «Übernehmen» und der Verlauf der letzten 14 Tage.
+- **«Korrekturfaktor automatisch»:** trägt die Empfehlung einmal pro Tag (und beim Einschalten) selbst als Faktor ein, wenn sie mindestens 0.03 abweicht. Das Feld zeigt dann den aktuellen Wert.
