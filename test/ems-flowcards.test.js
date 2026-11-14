@@ -276,3 +276,20 @@ test('Aktionen «jetzt aufheizen» / «jetzt starten»: Dateien (de/en), an den 
     assert.ok(app.includes(`getActionCard('${id}')`) && app.includes(`startModuleNow('${mod}')`), `${id} in app.js`);
   }
 });
+
+test('Sicherheits-Stopp eines Akku-Verbrauchers (eBike nach der Höchstdauer): als Fehler-Auslöser einmal je Sperre, nach der Freigabe wieder möglich', () => {
+  const { ctrl, fired } = makeCtrl();
+  const r = ctrl.runner;
+  r.safetyStops = new Map();
+  ctrl._fireEvents();
+  assert.deepEqual(fired, []);
+  r.safetyStops.set('bike', 'eBike: Sicherheit: 240 min am Stück geladen');
+  ctrl._fireEvents();
+  ctrl._fireEvents();
+  assert.deepEqual(fired, [['error', 'consumer', 'eBike: Sicherheit: 240 min am Stück geladen']], 'einmal, auch wenn die Sperre weiter gilt');
+  r.safetyStops.delete('bike');
+  ctrl._fireEvents();
+  r.safetyStops.set('bike', 'eBike: Sicherheit: 240 min am Stück geladen');
+  ctrl._fireEvents();
+  assert.equal(fired.length, 2, 'nach der Freigabe und einem neuen Stopp wieder gemeldet');
+});

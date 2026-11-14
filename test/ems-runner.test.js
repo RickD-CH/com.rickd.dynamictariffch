@@ -348,3 +348,34 @@ test('Runner._humidityBlock: günstigster Block der Notlaufdauer im Rest des Tag
   assert.equal(EmsRunner.prototype._humidityBlock.call(self, c, { forceUntil: now + 1000 }, 68, now), null, 'Notlauf läuft schon');
   assert.equal(EmsRunner.prototype._humidityBlock.call({ prices: { range: () => [] }, tz: TZ }, c, {}, 68, now), null, 'ohne Preise');
 });
+
+test('Runner: Akku-Verbraucher zeigt beim Laden «Sicherheits-Stopp um HH:MM» und merkt sich einen Sicherheits-Stopp bis zur Freigabe', async () => {
+  const consumer = {
+    id: 'dev1', name: 'eBike', mode: 'surplus', live: true, minRunMin: 0, minOffMin: 0, startSustainS: 0, batteryFirstSoc: 0,
+    accu: { enabled: true, sensorId: 'bike', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 60 },
+  };
+  const { runner, state } = setup({ cfg: { consumers: [consumer] } });
+  const bike = (v) => state.consumers.set('bike', {
+    actualOn: null, powerW: null, available: true, values: { measure_battery: v }, raw: { measure_battery: v },
+  });
+  bike(40);
+  await runner.tickCharger(at(12));
+  await runner.tickCharger(at(12) + 300_000); // startet
+  state.consumers.set('dev1', { actualOn: true, powerW: 60, available: true }); // das Gerät folgt dem Befehl
+  await runner.tickCharger(at(12) + 360_000); // ab dem nächsten Lauf läuft die Höchstdauer
+  const on = runner.consumerCurrent.find((c) => c.id === 'dev1');
+  assert.equal(on.isOn, true);
+  assert.match(on.reason, /Sicherheits-Stopp um 1[23]:\d\d/, 'Frist wird angezeigt');
+  assert.equal(runner.safetyStops.size, 0);
+  await runner.tickCharger(at(13) + 600_000);
+  state.consumers.set('dev1', { actualOn: false, powerW: 0, available: true });
+  const stopped = runner.consumerCurrent.find((c) => c.id === 'dev1');
+  assert.equal(stopped.isOn, false);
+  assert.match(stopped.reason, /Sicherheit: 60 min am Stück geladen/);
+  assert.equal(runner.safetyStops.get('dev1'), 'eBike: Sicherheit: 60 min am Stück geladen, Ladestand unverändert 40 % (Sensor/Bridge prüfen)', 'Meldung gemerkt (für den Fehler-Auslöser)');
+  await runner.tickCharger(at(13) + 900_000);
+  assert.equal(runner.safetyStops.size, 1, 'bleibt gemerkt, solange die Sperre gilt');
+  bike(70); // unter «frei unter» 75 %: Sperre vorbei
+  await runner.tickCharger(at(14));
+  assert.equal(runner.safetyStops.size, 0, 'nach der Freigabe wieder leer');
+});

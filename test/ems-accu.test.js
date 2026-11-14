@@ -207,3 +207,42 @@ test('Hausbatterie zuerst: ohne Angabe gilt die gemeinsame Regel, mit eigener Gr
   assert.equal(normalizeConfig({ consumers: [{ id: 'p', batteryFirstSoc: 0 }] }).consumers[0].batteryFirstSoc, 0);
   assert.equal(normalizeConfig({ consumers: [{ id: 'p', batteryFirstSoc: 150 }] }).consumers[0].batteryFirstSoc, 100);
 });
+
+test('Akku: nur der Sicherheits-Stopp (Höchstdauer) trägt das Flag safetyStop, der normale Stopp bei der Ladegrenze nicht', () => {
+  const st = makeConsumerState();
+  step(st, T0, { accu: 40 });
+  step(st, T0 + 5 * MIN, { accu: 40 });
+  const normal = step(st, T0 + 30 * MIN, { accu: 81 });
+  assert.equal(normal.wantOn, false);
+  assert.equal(!!normal.safetyStop, false, 'Ladegrenze erreicht ist keine Störung');
+  const st2 = makeConsumerState();
+  step(st2, T0, { accu: 40 });
+  step(st2, T0 + 5 * MIN, { accu: 40 });
+  const safety = step(st2, T0 + 250 * MIN, { accu: 50 });
+  assert.equal(safety.safetyStop, true);
+  assert.match(safety.reason, /Sicherheit: 240 min am Stück geladen/);
+});
+
+test('Akku: eingefrorener Ladestand (Bridge getrennt) - nach dem Sicherheits-Stopp bleibt die Sperre, bis sich der Wert ändert, er unbekannt wird oder 12 h vergehen', () => {
+  const st = makeConsumerState();
+  step(st, T0, { accu: 40 });
+  step(st, T0 + 5 * MIN, { accu: 40 });
+  const stop = step(st, T0 + 250 * MIN, { accu: 40 });
+  assert.equal(stop.wantOn, false);
+  assert.equal(stop.safetyStop, true);
+  assert.match(stop.reason, /Ladestand unverändert 40 % \(Sensor\/Bridge prüfen\)/);
+  assert.equal(step(st, T0 + 255 * MIN, { accu: 40, gridW: -3000 }).wantOn, false, 'kein neuer Start im Kreis, obwohl 40 % unter 75 % liegt');
+  assert.equal(st.accuFull, true);
+  const alive = step(st, T0 + 260 * MIN, { accu: 41, gridW: -3000 });
+  assert.equal(st.accuFull, false, 'der Wert ändert sich: der Sensor lebt wieder, die Sperre ist vorbei');
+  assert.ok(alive);
+  // nach 12 Stunden ohne Änderung ebenfalls frei
+  const st2 = makeConsumerState();
+  step(st2, T0, { accu: 40 });
+  step(st2, T0 + 5 * MIN, { accu: 40 });
+  step(st2, T0 + 250 * MIN, { accu: 40 });
+  step(st2, T0 + 400 * MIN, { accu: 40 });
+  assert.equal(st2.accuFull, true);
+  step(st2, T0 + 250 * MIN + 12 * 60 * MIN + MIN, { accu: 40 });
+  assert.equal(st2.accuFull, false, 'nach 12 h wieder frei');
+});
