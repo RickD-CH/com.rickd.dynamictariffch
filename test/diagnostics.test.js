@@ -153,3 +153,12 @@ test('buildReport: Hinweise der Laufzeit fallen weg, gleiche Zeilen werden zusam
   assert.match(text, /jetzt ist der Testmodus an: es wird nichts gesendet/);
   assert.equal(/jetzt ist der Testmodus an/.test(buildReport({ config: { silent: false } })), false);
 });
+
+test('RingLog: Laufzeit-Hinweise werden gar nicht erst gespeichert und verdrängen keine echten Zeilen', () => {
+  const ring = new RingLog(3);
+  ring.add('log', ['echt 1']);
+  for (let i = 0; i < 10; i += 1) ring.add('log', ['Device.zoneName is deprecated.']);
+  ring.add('log', ['echt 2']);
+  assert.deepEqual(ring.recent().map((l) => l.text), ['echt 1', 'echt 2']);
+  assert.match(buildReport({ logs: [{ ts: 1, level: 'log', text: 'Device.zoneName is deprecated.' }] }), /Letzte Meldungen \(0\)\n\(keine\)/);
+});
