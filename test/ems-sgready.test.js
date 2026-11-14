@@ -657,7 +657,7 @@ test('Warmwasser-Programm per App-Capability (true/false oder Text), «aus» nie
   assert.deepEqual(sets[1], ['wp', 'dhw_mode', 'Automatik', true]);
 });
 
-test('Warmwasser-Programm: Sonne hat Vorrang - übernimmt SG-Ready im Boost, wird das Programm beendet; nicht live nur simuliert', async () => {
+test('Warmwasser-Programm und SG-Ready schliessen sich gegenseitig aus: wer läuft, behält den Lauf; nicht live nur simuliert', async () => {
   const fired = [];
   const { runner } = makeRunner({ minSolarW: 1500, startDelayMin: 0, minRunMin: 0 }, { v: 40 }, {
     ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'WW an' }, flowOff: { id: 'off', advanced: false, name: 'WW aus' },
@@ -673,12 +673,12 @@ test('Warmwasser-Programm: Sonne hat Vorrang - übernimmt SG-Ready im Boost, wir
   });
   await runner.tickCharger(at(10)); // keine Sonne, günstiger Preis
   assert.equal(runner.dhwCurrent.on, true);
-  pv = 3000; // Sonne kommt dazu
+  pv = 3000; // Sonne kommt dazu: SG-Ready startet NICHT, solange das Warmwasser-Programm läuft
   await runner.tickCharger(at(10) + 60000);
-  assert.equal(runner.sgReadyCurrent.state, 'boost');
-  assert.equal(runner.dhwCurrent.on, false);
-  assert.match(runner.dhwCurrent.reason, /SG-Ready/);
-  assert.deepEqual(fired.map((f) => f[0]), ['on', 'off']);
+  assert.equal(runner.sgReadyCurrent.state, 'off');
+  assert.match(runner.sgReadyCurrent.reason, /Warmwasser-Programm läuft/);
+  assert.equal(runner.dhwCurrent.on, true);
+  assert.deepEqual(fired.map((f) => f[0]), ['on']);
 
   const dry = makeRunner({ enabled: false }, { v: 40 }, { ...dhwBase, live: false, flowOn: { id: 'on', advanced: false, name: 'x' } });
   dry.runner.prices = { getSlots: cheapAt22 };
@@ -964,4 +964,45 @@ test('Runner: Start von Hand wird einmal verbraucht; Controller meldet Start und
   assert.deepEqual(fired, ['on'], 'von Hand gestartet');
   assert.equal(dhw.runner._manual.dhw, false, 'Anforderung verbraucht');
   assert.throws(() => dhw.runner.requestManualStart('x'));
+});
+
+test('Gegenseitiger Ausschluss, umgekehrt und von Hand: läuft SG-Ready, startet das Warmwasser-Programm nicht; Start von Hand des anderen wird abgewiesen', async () => {
+  const fired = [];
+  const { runner } = makeRunner({ minSolarW: 1500, startDelayMin: 0, minRunMin: 0 }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'WW an' }, flowOff: { id: 'off', advanced: false, name: 'WW aus' },
+  });
+  runner.prices = { getSlots: () => dayPrices(at(10), at(12)) };
+  runner.actuators.consumer = async (id, on, { live, flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on', live };
+  };
+  runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: 3000, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  await runner.tickCharger(at(10)); // Sonne UND günstiger Preis im selben Takt: SG-Ready (läuft zuerst) gewinnt
+  assert.equal(runner.sgReadyCurrent.state, 'boost');
+  assert.equal(runner.dhwCurrent.on, false);
+  assert.match(runner.dhwCurrent.reason, /SG-Ready läuft/);
+  assert.deepEqual(fired, [], 'das Warmwasser-Programm wurde nie gestartet');
+  runner.requestManualStart('dhw');
+  await runner.tickCharger(at(10) + 60000);
+  assert.equal(runner.dhwCurrent.on, false, 'Start von Hand wird abgewiesen');
+  assert.deepEqual(fired, []);
+
+  // umgekehrt: Warmwasser-Programm läuft, SG-Ready lässt sich von Hand nicht starten
+  const b = makeRunner({ minSolarW: 1500, startDelayMin: 0, minRunMin: 0 }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  b.runner.prices = { getSlots: cheapAt22 };
+  b.runner.actuators.consumer = async () => ({ cmd: 'on' });
+  b.runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  await b.runner.tickCharger(at(22));
+  assert.equal(b.runner.dhwCurrent.on, true);
+  b.runner.requestManualStart('sgready');
+  await b.runner.tickCharger(at(22) + 60000);
+  assert.equal(b.runner.sgReadyCurrent.state, 'off');
+  assert.match(b.runner.sgReadyCurrent.reason, /Warmwasser-Programm läuft/);
+  assert.equal(b.runner.dhwCurrent.on, true, 'läuft ungestört weiter');
 });

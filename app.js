@@ -104,11 +104,15 @@ class DynamicTariffApp extends Homey.App {
 
     this.homey.flow.getActionCard('ems_sgready_start')
       .registerRunListener(async () => {
-        await this.ems.startModuleNow('sgready'); return true;
+        const r = await this.ems.startModuleNow('sgready');
+        if (!r.started) throw new Error(`Nicht gestartet: ${r.reason}`);
+        return true;
       });
     this.homey.flow.getActionCard('ems_dhw_start')
       .registerRunListener(async () => {
-        await this.ems.startModuleNow('dhw'); return true;
+        const r = await this.ems.startModuleNow('dhw');
+        if (!r.started) throw new Error(`Nicht gestartet: ${r.reason}`);
+        return true;
       });
 
     this.homey.flow.getActionCard('ems_set_silent')

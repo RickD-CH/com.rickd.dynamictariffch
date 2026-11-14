@@ -258,3 +258,21 @@ test('Widget «Verbraucher»: Start-Knopf (canStart) nur bei eingeschaltetem, ni
   assert.equal(mk({}, { on: false }, true).canStart, false, 'Testmodus (silent): kein Knopf');
   assert.equal(mk({ live: false }, { on: false }).canStart, false, 'Modul nicht live: kein Knopf');
 });
+
+test('Widget «Verbraucher»: kein Start-Knopf für das eine Modul, solange das andere läuft', () => {
+  const w = (sgState, dhwOn) => consumersWidget({
+    shadow: {
+      deviceExists: true,
+      silent: false,
+      config: { consumers: [], silent: false, sgready: { enabled: true, live: true }, dhw: { enabled: true, live: true, flowOn: { id: 'f' } } },
+      sgready: { state: sgState, reason: 'x' },
+      dhw: { on: dhwOn, reason: 'x' },
+    },
+    consumerCurrent: [],
+    tz: TZ,
+  });
+  assert.equal(w('off', false).sgready.canStart, true);
+  assert.equal(w('off', false).dhw.canStart, true);
+  assert.equal(w('boost', false).dhw.canStart, false, 'SG-Ready läuft: kein Warmwasser-Knopf');
+  assert.equal(w('off', true).sgready.canStart, false, 'Warmwasser läuft: kein SG-Ready-Knopf');
+});

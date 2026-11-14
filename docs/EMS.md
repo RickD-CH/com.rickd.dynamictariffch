@@ -483,7 +483,7 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Warmwasser-Programm der Wärmepumpe (Zustand `dhw`: SG-Ready-Relais/-Flows bleiben auf Normal). Gesetzt per Flow (`dhwFlowOn`/`dhwFlowOff`,
   z. B. Modbus-Betriebsart) oder per Capability einer App (`dhwDevice`: Gerät, Capability, Wert ein/aus; `true`/`false` als Text für Schalter).
   Zurück auf Normal beim Ende, aber nur, wenn die Steuerung das Programm selbst gestartet hat (auch nach einem App-Neustart mitten im Programm).
-  Sonne hat Vorrang: kommt sie während des Programms dazu, übernimmt SG-Ready (`boost`). Das Programm hält nur per Preis.
+  SG-Ready und das Programm schliessen sich gegenseitig aus (siehe unten). Das Programm hält nur per Preis.
 - Standard für beide Mindest-Temperaturen (`priceBelowTemp`, `pvBelowTemp`): 45 °C (0 = keine Prüfung).
 
 ## Programm starten: Korrekturen aus den Live-Daten (14.11.2026)
@@ -511,7 +511,7 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   gespeicherten Zustand (`dhwState`): Höchstpreis, «nur starten unter Warmwasser» (Standard 45 °C), «nicht starten, wenn die Sonne reicht» (Rest-Prognose
   ab 6 kWh, nur bis zu einer eigenen Uhrzeit), Zieltemperatur, Betriebsart, Einschaltverzögerung, Mindestlaufzeit, Ausschaltverzögerung, Abkühlpause.
 - Ein/aus per Flow (`flowOn`/`flowOff`, z. B. Modbus-Betriebsart) oder Capability einer App (`device`); «zurück auf Normal» nur, wenn das Modul das
-  Programm selbst gestartet hat. **Sonne hat Vorrang:** läuft SG-Ready im Boost/Zwang, wird das Programm beendet (`externalBlock`).
+  Programm selbst gestartet hat. **Gegenseitig ausschliessend:** läuft SG-Ready (Boost/Zwang), startet das Programm nicht; läuft das Programm, startet SG-Ready nicht (`externalBlock`, auch bei Start von Hand). Wer zuerst läuft, behält den Lauf; kommt die Sonne während des Programms, wartet SG-Ready bis zu dessen Ende.
 - SG-Ready ignoriert einen gespeicherten Preis-Auslöser (`usePrice` wird im Runner auf aus gesetzt). Im Verbraucher-Widget gibt es einen eigenen Block.
 - **Günstigste Stunden statt festem Preis (14.11.2026):** das Warmwasser-Programm startet, wenn die aktuelle Viertelstunde zu den `cheapHours` (Standard 2 h,
   Viertelstunden-Raster) günstigsten des **lokalen Tages** gehört (`cheapestOfDay` in `dhw.js`; nicht zwingend zusammenhängend, Zeiträume werden zusammengefasst;
