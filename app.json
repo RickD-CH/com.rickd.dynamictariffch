@@ -563,6 +563,44 @@
       },
       {
         "title": {
+          "en": "The hot-water program started or ended",
+          "de": "Das Warmwasser-Programm wurde gestartet oder beendet"
+        },
+        "hint": {
+          "en": "Fires when the hot-water program on a cheap price starts or ends. Also in test mode (then only simulated).",
+          "de": "Wird ausgelöst, wenn das Warmwasser-Programm bei günstigem Preis startet oder endet. Auch im Testmodus (dann nur simuliert)."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "running",
+            "type": "boolean",
+            "title": {
+              "en": "Running",
+              "de": "Läuft"
+            },
+            "example": true
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Reason",
+              "de": "Grund"
+            },
+            "example": "Start: günstiger Strompreis (Warmwasser-Programm)"
+          }
+        ],
+        "id": "ems_dhw_changed"
+      },
+      {
+        "title": {
           "en": "An error occurred",
           "de": "Ein Fehler ist aufgetreten"
         },
@@ -692,6 +730,44 @@
           }
         ],
         "id": "ems_mode_changed"
+      },
+      {
+        "title": {
+          "en": "The SG Ready state changed",
+          "de": "Der SG-Ready-Zustand hat gewechselt"
+        },
+        "hint": {
+          "en": "Fires when the boiler/heat pump control changes between normal operation, recommendation and forced charging. Also in test mode (then only simulated).",
+          "de": "Wird ausgelöst, wenn die Boiler-/Wärmepumpen-Steuerung zwischen Normalbetrieb, Empfehlung und Zwangsladung wechselt. Auch im Testmodus (dann nur simuliert)."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "state",
+            "type": "string",
+            "title": {
+              "en": "State (normal, boost, forced)",
+              "de": "Zustand (normal, boost, forced)"
+            },
+            "example": "boost"
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "Reason",
+              "de": "Grund"
+            },
+            "example": "Start: PV-Überschuss/Akku voll"
+          }
+        ],
+        "id": "ems_sgready_changed"
       },
       {
         "title": {
@@ -1040,6 +1116,20 @@
       },
       {
         "title": {
+          "en": "The hot-water program !{{is|isn't}} running",
+          "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_dhw_is_running"
+      },
+      {
+        "title": {
           "en": "Energy management mode !{{is|isn't}}...",
           "de": "Modus des Energiemanagements !{{ist|ist nicht}}..."
         },
@@ -1114,6 +1204,55 @@
           }
         ],
         "id": "ems_mode_is"
+      },
+      {
+        "title": {
+          "en": "SG Ready state !{{is|isn't}}...",
+          "de": "SG-Ready-Zustand !{{ist|ist nicht}}..."
+        },
+        "titleFormatted": {
+          "en": "SG Ready state !{{is|isn't}} [[state]]",
+          "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "title": {
+              "en": "State",
+              "de": "Zustand"
+            },
+            "values": [
+              {
+                "id": "normal",
+                "label": {
+                  "en": "Normal operation (0:0)",
+                  "de": "Normalbetrieb (0:0)"
+                }
+              },
+              {
+                "id": "boost",
+                "label": {
+                  "en": "Recommendation (0:1)",
+                  "de": "Empfehlung (0:1)"
+                }
+              },
+              {
+                "id": "forced",
+                "label": {
+                  "en": "Forced charging (1:1)",
+                  "de": "Zwangsladung (1:1)"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ems_sgready_is"
       },
       {
         "title": {
