@@ -27,3 +27,20 @@ test('Zähler: Symbol des Kostenzählers wird übernommen, Unbrauchbares wird le
   }).consumers;
   assert.deepEqual(c.map((x) => x.icon), ['heatpump', '', '']);
 });
+
+test('Symbole: jedes Verbraucher-Symbol hat eine Zeichnung in den Einstellungen und im Widget sowie einen deutschen und englischen Namen', () => {
+  const fs = require('fs'); // eslint-disable-line global-require
+  const path = require('path'); // eslint-disable-line global-require
+  const cfg = fs.readFileSync(path.join(__dirname, '../lib/ems/Config.js'), 'utf8');
+  const list = /const CONSUMER_ICONS = \[([^\]]*)\]/.exec(cfg)[1].split(',').map((x) => x.trim().replace(/'/g, '')).filter(Boolean);
+  const settings = fs.readFileSync(path.join(__dirname, '../settings/ems.js'), 'utf8');
+  const widget = fs.readFileSync(path.join(__dirname, '../widgets/consumers/public/index.html'), 'utf8');
+  const uiList = /var CONSUMER_ICONS = \[([^\]]*)\]/.exec(settings)[1].split(',').map((x) => x.trim().replace(/'/g, '')).filter(Boolean);
+  assert.deepEqual(uiList, list, 'Liste in den Einstellungen = Liste in der Konfiguration');
+  assert.ok(list.length >= 19);
+  for (const k of list) {
+    assert.match(settings, new RegExp(`[\\s{,]${k}: 'M`), `Zeichnung ${k} in den Einstellungen`);
+    assert.match(widget, new RegExp(`[\\s{,]${k}: 'M`), `Zeichnung ${k} im Widget`);
+    assert.equal((settings.match(new RegExp(`iconNames: \\{[^}]*\\b${k}: '`, 'g')) || []).length, 2, `Name ${k} auf Deutsch und Englisch`);
+  }
+});
