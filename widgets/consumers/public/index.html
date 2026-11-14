@@ -127,7 +127,7 @@
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
       if (sg.reason && !sg.paused) sub.push(esc(sg.reason));
-      if (sg.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
+      if (sg.untilHm && !sg.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
       if (sg.reported && !sg.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
       if (sg.mismatch) sub.push('<b style="color:var(--cw-warn)">' + esc(Homey.__('consumersWidget.sgMismatch')) + '</b>');
       return '<div class="car">'
@@ -145,7 +145,7 @@
       var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
       if (dh.reason && !dh.paused) sub.push(esc(dh.reason));
-      if (dh.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
+      if (dh.untilHm && !dh.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'
         + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + pauseSwitch(Homey, 'dhw', dh.paused) + '</div>'
@@ -167,7 +167,7 @@
         var disabled = (!!c.blocked && c.blocked !== 'armed' && c.blocked !== 'cooldown') || !c.live;
         btn = '<button class="btn" data-id="' + esc(c.id) + '"' + (disabled ? ' disabled title="' + sub + '"' : '') + '>' + esc(Homey.__('consumersWidget.start')) + '</button>';
         var autoTitle = esc(c.armed ? Homey.__('consumersWidget.autoOn') : Homey.__('consumersWidget.autoOff'));
-        auto = '<label class="sw" title="' + autoTitle + '">'
+        auto = '<label class="sw" style="margin-left:auto" title="' + autoTitle + '">'
           + '<input type="checkbox" data-arm="' + esc(c.id) + '"' + (c.armed ? ' checked' : '') + '>'
           + '<span class="slider"></span></label>';
       }
@@ -177,10 +177,11 @@
         // Eigene Reihe, statt wie bei den übrigen Verbrauchern neben dem Namen: Automatik-Schalter und
         // Starten-Knopf brauchen hier Platz und sollen nicht mit dem (oft längeren) Status-Text um die Breite
         // konkurrieren.
+        // Automatik-Schalter oben rechts (wie bei Boiler und Warmwasser), «Starten» nur, wenn live gestartet werden kann
         return '<div class="item citem"><div class="ctop"><span class="ic">' + icon(c.icon) + '</span>'
-          + '<span class="name">' + esc(c.name) + testChip + '</span></div>'
+          + '<span class="name">' + esc(c.name) + testChip + '</span>' + auto + '</div>'
           + subHtml
-          + '<div class="cctrl">' + auto + btn + '</div></div>';
+          + (c.live ? '<div class="cctrl">' + btn + '</div>' : '') + '</div>';
       }
       return '<div class="item"><span class="ic">' + icon(c.icon) + '</span>'
         + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>' + subHtml + '</span></div>';
