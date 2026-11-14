@@ -276,3 +276,15 @@ test('Widget «Verbraucher»: kein Start-Knopf für das eine Modul, solange das 
   assert.equal(w('boost', false).dhw.canStart, false, 'SG-Ready läuft: kein Warmwasser-Knopf');
   assert.equal(w('off', true).sgready.canStart, false, 'Warmwasser läuft: kein SG-Ready-Knopf');
 });
+
+test('Widget «Verbraucher»: meldet die Wärmepumpe Empfehlung/Zwang, obwohl wir nichts geschaltet haben, steht «extern» (external)', () => {
+  const w = (cur) => consumersWidget({
+    shadow: { deviceExists: true, silent: false, config: { consumers: [], sgready: { enabled: true, live: true } }, sgready: cur },
+    consumerCurrent: [],
+    tz: TZ,
+  }).sgready;
+  assert.equal(w({ state: 'off', reported: '3 EMPFEHLUNG', reportedState: 'boost' }).external, true);
+  assert.equal(w({ state: 'boost', reported: '3 EMPFEHLUNG', reportedState: 'boost' }).external, false, 'eigener Lauf');
+  assert.equal(w({ state: 'off', reported: '2 NORMAL', reportedState: 'off' }).external, false);
+  assert.equal(w(null).external, false);
+});

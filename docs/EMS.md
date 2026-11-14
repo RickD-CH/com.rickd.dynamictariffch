@@ -561,3 +561,9 @@ startet bei Soll minus Hysterese und stoppt bei Soll plus Hysterese. Darum steue
 - Wird ein Modul **während eines Laufs ausgeschaltet**, beendet die App den Lauf sauber (Relais aus bzw. «zurück auf Normal»-Flow).
 - Selten gebrauchte Felder (Verzögerungen, Betriebsart-Prüfung, Rückmeldung, Zwangsladung) stehen in den Einstellungen unter «Erweitert».
 - Fernbedienung und Tür der Programm-Verbraucher werden ohne Beachtung der Gross-/Kleinschreibung verglichen.
+
+### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
+
+Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App
+selbst nichts geschaltet hat, zeigt das Widget «Läuft (extern)», und das Warmwasser-Programm startet nicht bzw. wird beendet (gegenseitiger Ausschluss).
+Die Warnung «Weicht ab!» gibt es weiterhin nur live.

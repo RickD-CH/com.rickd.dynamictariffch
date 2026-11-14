@@ -123,13 +123,13 @@
       if (!sg) return '';
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
       if (!sg.enabled) sg.paused = true;
-      var state = sg.paused ? esc(Homey.__('consumersWidget.moduleOff')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
+      var state = sg.external ? esc(Homey.__('consumersWidget.sgExternal')) : sg.paused ? esc(Homey.__('consumersWidget.moduleOff')) : (sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting')));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
       if (sg.reason && !sg.paused) sub.push(esc(sg.reason));
       if (sg.untilHm && !sg.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
-      if (sg.reported && !sg.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
+      if (sg.reported) sub.push(esc(fill(Homey.__('consumersWidget.sgReported'), { v: sg.reported })));
       if (sg.mismatch) sub.push('<b style="color:var(--cw-warn)">' + esc(Homey.__('consumersWidget.sgMismatch')) + '</b>');
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('boiler') + '</span>' + esc(Homey.__('consumersWidget.sgTitle')) + testChip + '</div>'

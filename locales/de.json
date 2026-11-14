@@ -141,6 +141,7 @@
     "sgBoost": "Empfehlung (Boost)",
     "sgForced": "Zwangsladung",
     "sgDhw": "Warmwasser-Programm",
+    "sgExternal": "Läuft (extern)",
     "sgReported": "Wärmepumpe meldet: {v}",
     "sgMismatch": "Weicht ab!",
     "dhwTitle": "Warmwasser-Programm",

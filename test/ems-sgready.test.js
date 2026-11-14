@@ -1057,3 +1057,31 @@ test('Warmwasser-Programm: der vom eigenen Flow erhöhte WW-Soll verändert das 
   await runner.tickCharger(at(22) + 180000); // der erhöhte Wert wird noch gemeldet, darf nicht zur Basis werden
   assert.equal(runner.dhwCurrent.target, 55, 'ohne Schutz wäre es 52 + 4 - 1');
 });
+
+test('Externer SG-Ready-Lauf (z. B. der bisherige Flow schaltet das Relais): Rückmeldung «3 EMPFEHLUNG» sperrt das Warmwasser-Programm und beendet ein laufendes', async () => {
+  let reported = '2 NORMAL';
+  const fired = [];
+  const { runner } = makeRunner({ feedbackId: 'wp', feedbackCapability: 'sg', minSolarW: 99999 }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.inputs.readValue = async (id, cap) => (cap === 'sg' ? reported : null);
+  runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  await runner.tickCharger(at(22));
+  assert.equal(runner.sgReadyCurrent.reportedState, 'off');
+  assert.equal(runner.dhwCurrent.on, true, 'Normalbetrieb: Programm startet');
+  reported = '3 EMPFEHLUNG'; // der bisherige Flow hat das Relais eingeschaltet
+  await runner.tickCharger(at(22) + 60000);
+  assert.equal(runner.sgReadyCurrent.state, 'off', 'wir selbst haben nichts gestartet');
+  assert.equal(runner.sgReadyCurrent.reportedState, 'boost');
+  assert.equal(runner.dhwCurrent.on, false, 'läuft nicht neben dem SG-Ready-Lauf');
+  assert.deepEqual(fired, ['on', 'off']);
+  await runner.tickCharger(at(22) + 3600000);
+  assert.equal(runner.dhwCurrent.on, false, 'startet auch später nicht, solange es gemeldet wird');
+});

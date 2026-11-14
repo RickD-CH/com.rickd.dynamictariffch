@@ -141,6 +141,7 @@
     "sgBoost": "Recommendation (boost)",
     "sgForced": "Forced charging",
     "sgDhw": "Hot-water program",
+    "sgExternal": "Running (external)",
     "sgReported": "Heat pump reports: {v}",
     "sgMismatch": "Differs!",
     "dhwTitle": "Hot-water program",
