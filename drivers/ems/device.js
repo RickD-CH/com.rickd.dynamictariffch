@@ -92,6 +92,20 @@ class EmsDevice extends Homey.Device {
     }
   }
 
+  /** SG-Ready-Zustand gewechselt (normal, boost, forced). */
+  fireSgReady(state, status) {
+    this.homey.flow.getDeviceTriggerCard('ems_sgready_changed')
+      .trigger(this, { state: String(state || ''), status: String(status || '') })
+      .catch((err) => this.error('Trigger ems_sgready_changed:', err && err.message));
+  }
+
+  /** Warmwasser-Programm gestartet oder beendet. */
+  fireDhw(running, status) {
+    this.homey.flow.getDeviceTriggerCard('ems_dhw_changed')
+      .trigger(this, { running: running === true, status: String(status || '') })
+      .catch((err) => this.error('Trigger ems_dhw_changed:', err && err.message));
+  }
+
   /** Ein neues Problem (einmal je Problem). */
   fireError(area, message) {
     this.homey.flow.getDeviceTriggerCard('ems_error')

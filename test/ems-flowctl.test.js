@@ -294,7 +294,7 @@ async function startUi(extra = {}) {
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
     'GET /ems/shadow': {
-      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null },
+      enabled: true, deviceExists: true, shadow: true, config, pv: {}, current: null, charger: { current: null }, dhwPrices: extra.dhwPrices,
     },
     'GET /ems/consumers': { current: [], events: [] },
     'GET /ems/devices': {
@@ -473,24 +473,34 @@ test('Anzeige: SG-Ready - Erklärtexte, Betriebsart, Ausgabe über Relais oder F
   assert.ok(h1.indexOf('SG-Ready-Steuerung') > h1.indexOf('Verbraucher') && h1.indexOf('SG-Ready-Steuerung') < h1.indexOf('Hausanschluss-Schutz'), 'Boiler steht unter den Verbrauchern, vor dem Hausanschluss');
 });
 
-test('Anzeige: Warmwasser-Programm bei günstigem Preis - eigener Bereich unabhängig von SG-Ready, per Flow oder App-Funktion', async () => {
+test('Anzeige: Warmwasser-Programm - günstigste Stunden statt Preis, mit Vorschau für heute und morgen, per Flow oder App-Funktion', async () => {
   const off = await startUi();
   assert.match(off.setup(), /WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS/);
   off.click({ 'data-ems-open': 'dhw' });
   const h0 = off.setup();
   assert.match(h0, /Warmwasser-Programm bei günstigem Preis starten/);
   assert.doesNotMatch(h0, /Nur starten unter Warmwasser/, 'solange aus keine weiteren Felder');
-  const flows = await startUi({ dhw: { enabled: true, flowOn: { id: 'f1', name: 'Sauna an' }, maxPriceRp: 12 } });
+  // Preise: heute 02:00-03:00 für 8 Rp., sonst 30 Rp.; morgen 05:00-07:00 günstig
+  const day = (d0, cheapFrom, cheapTo) => Array.from({ length: 96 }, (_, k) => [d0 + k * 900000, d0 + k * 900000 >= cheapFrom && d0 + k * 900000 < cheapTo ? 8 : 30]);
+  const d0 = Date.UTC(2026, 10, 13, 0, 0) - 3600000; // 00:00 Zürich
+  const prices = { today: day(d0, d0 + 2 * 3600000, d0 + 3 * 3600000), tomorrow: day(d0 + 86400000, d0 + 86400000 + 5 * 3600000, d0 + 86400000 + 7 * 3600000) };
+  const flows = await startUi({ dhw: { enabled: true, flowOn: { id: 'f1', name: 'Sauna an' }, cheapHours: 1 }, dhwPrices: prices });
   flows.click({ 'data-ems-open': 'dhw' });
   const h = flows.setup();
+  assert.match(h, /Günstigste Stunden pro Tag/);
+  assert.doesNotMatch(h, /Höchster Preis/, 'kein fester Preis mehr');
+  assert.match(h, /Vorschau: <b>Heute:<\/b> 02:00-03:00 \(Ø 8\.0 Rp\.\)/);
+  assert.match(h, /<b>Morgen:<\/b> 05:00-06:00 \(Ø 8\.0 Rp\.\)/, '1 h von den 2 günstigen Morgenstunden: die früheste bei Gleichstand');
   assert.match(h, /Nur starten unter Warmwasser/);
   assert.match(h, /Flow Warmwasser-Programm ein/);
-  assert.match(h, /Flow zurück auf Normal/);
   assert.doesNotMatch(h, /Gerät und Capability der App-Funktion/);
   const c1 = flows.ctx.window.EmsUi._collect().ems;
   assert.equal(c1.dhw.flowOn.id, 'f1');
-  assert.equal(c1.dhw.maxPriceRp, 12);
+  assert.equal(c1.dhw.cheapHours, 1);
   assert.equal(c1.dhw.belowTemp, 45, 'Standard 45 °C');
+  const none = await startUi({ dhw: { enabled: true }, dhwPrices: { today: [], tomorrow: [] } });
+  none.click({ 'data-ems-open': 'dhw' });
+  assert.match(none.setup(), /Vorschau: noch keine Preise für heute/);
   const cap = await startUi({
     dhw: {
       enabled: true,
@@ -506,7 +516,6 @@ test('Anzeige: Warmwasser-Programm bei günstigem Preis - eigener Bereich unabh�
   assert.match(h2, /Wert für zurück auf Normal/);
   assert.doesNotMatch(h2, /Flow Warmwasser-Programm ein/);
   assert.equal(cap.ctx.window.EmsUi._collect().ems.dhw.device.offValue, 'false');
-  // SG-Ready selbst kennt keinen Preis mehr
   const sg = await startUi({ sgready: { enabled: true } });
   sg.click({ 'data-ems-open': 'sg' });
   assert.doesNotMatch(sg.setup(), /Preis-Start|günstigem Strompreis|Was startet der Preis/, 'der Preis gehört zum eigenen Bereich');

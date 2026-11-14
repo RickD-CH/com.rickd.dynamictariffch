@@ -1,0 +1,13 @@
+{
+  "title": {
+    "en": "The hot-water program !{{is|isn't}} running",
+    "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ]
+}

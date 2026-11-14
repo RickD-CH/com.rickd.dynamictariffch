@@ -8,6 +8,7 @@ const {
   normalizeSgReady, decideSgReady, makeSgReadyState, relaysFor, parseSgReadyState,
 } = require('../lib/ems/planner/sgready');
 const { fromLocal } = require('../lib/time');
+const { cheapestOfDay, cheapestPreview, priceDays } = require('../lib/ems/planner/dhw');
 
 const TZ = 'Europe/Zurich';
 const at = (h, m = 0) => fromLocal(2026, 11, 13, h, m).getTime();
@@ -599,9 +600,13 @@ test('Runner: Rückmeldung ohne live warnt nie (es wird ja nichts geschaltet)', 
 });
 
 const dhwBase = {
-  enabled: true, live: true, maxPriceRp: 100, belowTemp: 45, skipPv: false, startDelayMin: 0, minRunMin: 0, stopDelayMin: 0, sensorId: 'ww',
+  enabled: true, live: true, cheapHours: 2, belowTemp: 45, skipPv: false, startDelayMin: 0, minRunMin: 0, stopDelayMin: 0, sensorId: 'ww',
 };
-const cheapAt22 = () => [{ start: Math.floor(at(22) / 900000) * 900000, end: at(22) + 900000, price: 10 }];
+const dayPrices = (fromMs, toMs) => Array.from({ length: 96 }, (_, k) => {
+  const t = at(0) + k * 900000;
+  return { start: t, end: t + 900000, price: t >= fromMs && t < toMs ? 10 : 30 };
+});
+const cheapAt22 = () => dayPrices(at(22), at(0) + 86400000); // die günstigsten 2 Stunden: 22:00 bis 24:00
 
 test('Warmwasser-Programm (eigenes Modul) per Flow: ein beim Start, zurück auf Normal beim Ende, SG-Ready bleibt unberührt', async () => {
   const fired = [];
@@ -655,7 +660,7 @@ test('Warmwasser-Programm: Sonne hat Vorrang - übernimmt SG-Ready im Boost, wir
   const { runner } = makeRunner({ minSolarW: 1500, startDelayMin: 0, minRunMin: 0 }, { v: 40 }, {
     ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'WW an' }, flowOff: { id: 'off', advanced: false, name: 'WW aus' },
   });
-  runner.prices = { getSlots: () => [{ start: Math.floor(at(10) / 900000) * 900000, end: at(10) + 900000, price: 10 }] };
+  runner.prices = { getSlots: () => dayPrices(at(10), at(12)) };
   runner.actuators.consumer = async (id, on, { live, flow }) => {
     fired.push([flow.id, live]);
     return { cmd: 'on', live };
@@ -682,4 +687,74 @@ test('Warmwasser-Programm: Sonne hat Vorrang - übernimmt SG-Ready im Boost, wir
   };
   await dry.runner.tickCharger(at(22));
   assert.deepEqual(seen, [false], 'nicht live: Flow nur simuliert');
+});
+
+test('priceCheap ersetzt den Preisvergleich: günstige Stunde startet, auch wenn der Preis hoch wäre; false blockiert; null fällt auf den Preis zurück', () => {
+  const cfg = {
+    usePrice: true, maxPriceRp: 15, priceBelowTemp: 0, startDelayMin: 0, priceSkipPv: false,
+  };
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 40, priceCheap: true, nowMs: at(22),
+  })).state, 'boost');
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 5, priceCheap: false, nowMs: at(22),
+  })).state, 'off');
+  assert.equal(decideSgReady(base({
+    cfg, priceNow: 5, priceCheap: null, nowMs: at(22),
+  })).state, 'boost');
+});
+
+test('cheapestOfDay: die günstigsten N Stunden des lokalen Tages, zusammenhängende Viertelstunden werden zu Zeiträumen', () => {
+  const slots = [];
+  for (let k = 0; k < 96; k += 1) {
+    const t = at(0) + k * 900000;
+    // 03:00-04:00 für 5, 14:00-14:30 für 6, sonst 30
+    const price = (t >= at(3) && t < at(4)) ? 5 : ((t >= at(14) && t < at(14, 30)) ? 6 : 30);
+    slots.push({ start: t, end: t + 900000, price });
+  }
+  const c = cheapestOfDay(slots, at(12), TZ, 1.5);
+  assert.equal(c.count, 6);
+  assert.deepEqual(c.ranges, [{ startMs: at(3), endMs: at(4) }, { startMs: at(14), endMs: at(14, 30) }]);
+  assert.equal(Math.round(c.avgRp * 100) / 100, Math.round(((4 * 5 + 2 * 6) / 6) * 100) / 100);
+  assert.equal(cheapestOfDay(slots, at(12), TZ, 1.5, 1), null, 'morgen noch keine Preise');
+  assert.equal(cheapestOfDay(slots.slice(0, 3), at(12), TZ, 2), null, 'zu wenige Preise');
+  const pre = cheapestPreview(slots, at(3, 20), TZ, 1);
+  assert.equal(pre.nowCheap, true);
+  assert.equal(pre.tomorrow, null);
+  assert.equal(cheapestPreview(slots, at(12), TZ, 1).nowCheap, false);
+  assert.equal(priceDays(slots, at(12), TZ).today.length, 96);
+  assert.equal(priceDays(slots, at(12), TZ).tomorrow.length, 0);
+});
+
+test('Runner: das Warmwasser-Programm startet nur in den günstigsten Stunden und nicht ohne Tagespreise', async () => {
+  const fired = [];
+  const { runner } = makeRunner({ enabled: false }, { v: 40 }, { ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' } });
+  runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  runner.prices = { getSlots: () => dayPrices(at(2), at(4)) };
+  await runner.tickCharger(at(12)); // teure Zeit
+  assert.equal(fired.length, 0);
+  assert.equal(runner.dhwCurrent.window.today.ranges.length, 1);
+  assert.match(runner.dhwCurrent.reason, /günstigsten Stunden/);
+  await runner.tickCharger(at(2) + 60000); // günstigste Zeit
+  assert.deepEqual(fired, ['on']);
+  runner.prices = { getSlots: () => [] };
+  await runner.tickCharger(at(12) + 3600000);
+  assert.equal(runner.dhwCurrent.window.today, null, 'ohne Preise: kein Start');
+});
+
+test('Runner: «günstigste Stunden des Tages» rechnet mit dem ganzen Tag (auch Vergangenes), sonst gehörte abends jede Viertelstunde dazu', async () => {
+  const fired = [];
+  const { runner } = makeRunner({ enabled: false }, { v: 40 }, { ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' } });
+  runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  const full = dayPrices(at(2), at(4)); // günstig war es nachts
+  runner.prices = { getSlots: (now) => full.filter((s) => s.end > now), range: () => full };
+  await runner.tickCharger(at(22)); // abends: nur noch teure Preise kommen, aber der Tag war nachts günstiger
+  assert.equal(fired.length, 0);
+  assert.equal(runner.dhwCurrent.window.nowCheap, false);
 });

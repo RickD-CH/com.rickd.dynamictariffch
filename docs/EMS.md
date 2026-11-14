@@ -513,3 +513,11 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Ein/aus per Flow (`flowOn`/`flowOff`, z. B. Modbus-Betriebsart) oder Capability einer App (`device`); «zurück auf Normal» nur, wenn das Modul das
   Programm selbst gestartet hat. **Sonne hat Vorrang:** läuft SG-Ready im Boost/Zwang, wird das Programm beendet (`externalBlock`).
 - SG-Ready ignoriert einen gespeicherten Preis-Auslöser (`usePrice` wird im Runner auf aus gesetzt). Im Verbraucher-Widget gibt es einen eigenen Block.
+- **Günstigste Stunden statt festem Preis (14.11.2026):** das Warmwasser-Programm startet, wenn die aktuelle Viertelstunde zu den `cheapHours` (Standard 2 h,
+  Viertelstunden-Raster) günstigsten des **lokalen Tages** gehört (`cheapestOfDay` in `dhw.js`; nicht zwingend zusammenhängend, Zeiträume werden zusammengefasst;
+  ohne die Preise des Tages kein Start). Die Einstellungen zeigen eine Vorschau für heute und morgen (`shadow.dhwPrices`, dieselbe Auswahl clientseitig, ändert sich
+  sofort beim Anpassen der Stunden). Hält das Programm per Preis, solange die Viertelstunde zu den günstigsten gehört. Im Planner ersetzt `priceCheap`
+  (true/false) den Preisvergleich; SG-Ready selbst braucht das nicht.
+- **Flow-Karten (14.11.2026):** Auslöser «Der SG-Ready-Zustand hat gewechselt» (Token `state` normal/boost/forced, `status`) und «Das Warmwasser-Programm wurde gestartet
+  oder beendet» (Token `running`, `status`), Bedingungen «SG-Ready-Zustand ist ...» und «Das Warmwasser-Programm läuft». Ausgelöst nur bei echtem Wechsel (nicht beim ersten
+  beobachteten Zustand, nicht beim Ein-/Ausschalten des Moduls), auch im Testmodus.

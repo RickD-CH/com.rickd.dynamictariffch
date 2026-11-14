@@ -103,8 +103,9 @@
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
             dhwTitle: 'WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS', dhwRow: 'Warmwasser-Programm', dhwOff: 'aus', dhwRunning: 'läuft', dhwWaiting: 'wartet',
-      dhwOnLbl: 'Warmwasser-Programm bei günstigem Preis starten', dhwWhy: 'Unabhängig von SG-Ready: ist der Strom günstig und das Warmwasser unter dem Mindestwert, startet das Warmwasser-Programm der Wärmepumpe (Flow oder App-Funktion) und danach wieder zurück auf Normal. Sonne und SG-Ready haben Vorrang.',
-      dhwPriceH: 'Das Programm startet, wenn der aktuelle Preis höchstens so hoch ist.',
+      dhwOnLbl: 'Warmwasser-Programm bei günstigem Preis starten', dhwWhy: 'Unabhängig von SG-Ready: liegt die Zeit in den günstigsten Stunden des Tages und das Warmwasser unter dem Mindestwert, startet das Warmwasser-Programm der Wärmepumpe (Flow oder App-Funktion) und danach wieder zurück auf Normal. Sonne und SG-Ready haben Vorrang.',
+      dhwCheapHours: 'Günstigste Stunden pro Tag (h)', dhwCheapH: 'Das Programm startet in den günstigsten N Stunden des Tages (nach den Viertelstunden-Preisen von heute). Die Vorschau zeigt, wann das heute und morgen wäre.',
+      dhwPreview: 'Vorschau', dhwToday: 'Heute', dhwTomorrow: 'Morgen', dhwAvg: 'Ø', dhwNoPrices: 'Vorschau: noch keine Preise für heute.',
       dhwBelow: 'Nur starten unter Warmwasser (°C)', dhwBelowH: 'Nur wenn das Warmwasser unter diesem Wert liegt (0 = immer). Ohne Temperatur-Messwert startet es nicht.',
       dhwSkipPv: 'Nicht starten, wenn die Sonne reicht', dhwSkipPvKwh: 'Sonne reicht ab Prognose (kWh, Rest heute)', dhwSkipUntil: 'Sonnenprognose zählt bis', dhwSkipPvH: 'Lohnt sich nicht, per Preis zu starten, wenn die Sonne heute noch genug liefert (Rest-Prognose).', dhwSkipUntilH: 'Bis zu dieser Uhrzeit zählt die Sonnenprognose, danach darf der Preis starten.',
       dhwTarget: 'Beenden ab Warmwasser (°C)', dhwTargetH: 'Erreicht das Warmwasser diese Temperatur, wird zurück auf Normal gesetzt. Der eigentliche Zielwert steht in der Wärmepumpe selbst.', dhwMinRunH: 'Einmal gestartet läuft das Programm mindestens so lange. Nur Zieltemperatur, Betriebsart oder Sonne (SG-Ready) beenden früher.',
@@ -306,8 +307,9 @@
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
             dhwTitle: 'HOT-WATER PROGRAM ON A CHEAP PRICE', dhwRow: 'Hot-water program', dhwOff: 'off', dhwRunning: 'running', dhwWaiting: 'waiting',
-      dhwOnLbl: 'Start the hot-water program on a cheap price', dhwWhy: 'Independent of SG Ready: if power is cheap and the hot water is below the minimum, the heat pump hot-water program starts (flow or app function) and is set back to normal afterwards. Sun and SG Ready take precedence.',
-      dhwPriceH: 'The program starts when the current price is at most this high.',
+      dhwOnLbl: 'Start the hot-water program on a cheap price', dhwWhy: 'Independent of SG Ready: if it is within the cheapest hours of the day and the hot water is below the minimum, the heat pump hot-water program starts (flow or app function) and is set back to normal afterwards. Sun and SG Ready take precedence.',
+      dhwCheapHours: 'Cheapest hours per day (h)', dhwCheapH: 'The program starts during the cheapest N hours of the day (by today quarter-hour prices). The preview shows when that would be today and tomorrow.',
+      dhwPreview: 'Preview', dhwToday: 'Today', dhwTomorrow: 'Tomorrow', dhwAvg: 'avg', dhwNoPrices: 'Preview: no prices for today yet.',
       dhwBelow: 'Only start below hot water (°C)', dhwBelowH: 'Only if the hot water is below this value (0 = always). Without a temperature reading it does not start.',
       dhwSkipPv: 'Do not start if the sun is enough', dhwSkipPvKwh: 'Sun is enough from forecast (kWh, rest of today)', dhwSkipUntil: 'Sun forecast counts until', dhwSkipPvH: 'Starting on price is pointless if the sun will still deliver enough today (remaining forecast).', dhwSkipUntilH: 'Until this time the sun forecast counts, afterwards the price may start.',
       dhwTarget: 'End at hot water (°C)', dhwTargetH: 'When the hot water reaches this temperature it is set back to normal. The real target is set in the heat pump itself.', dhwMinRunH: 'Once started the program runs at least this long. Only target temperature, operating mode or sun (SG Ready) end it earlier.',
@@ -1223,6 +1225,31 @@
     var cur = state.shadow && state.shadow.dhw;
     return { text: cur ? (cur.on ? S.dhwRunning : S.dhwWaiting) + ' - ' + cur.reason : S.dhwRow, cls: 'ok' };
   }
+  // Vorschau: wann wären die günstigsten N Stunden heute und morgen (gleiche Auswahl wie auf dem Server, lib/ems/planner/dhw.js)
+  function dhwCheapestOf(slots, hours) {
+    var n = Math.max(1, Math.round(hours * 4));
+    if (!slots || slots.length < n) return null;
+    var chosen = slots.slice().sort(function (a, b) { return (a[1] - b[1]) || (a[0] - b[0]); }).slice(0, n).sort(function (a, b) { return a[0] - b[0]; });
+    var ranges = [];
+    var sum = 0;
+    chosen.forEach(function (sl) {
+      sum += sl[1];
+      var last = ranges[ranges.length - 1];
+      if (last && last.end === sl[0]) last.end = sl[0] + 900000; else ranges.push({ start: sl[0], end: sl[0] + 900000 });
+    });
+    return { ranges: ranges, avg: sum / n };
+  }
+  function dhwPreviewHtml(hours) {
+    var dp = state.shadow && state.shadow.dhwPrices;
+    if (!dp) return '';
+    var line = function (label, slots) {
+      var c = dhwCheapestOf(slots, hours);
+      if (!c) return '';
+      return '<b>' + esc(label) + ':</b> ' + c.ranges.map(function (r) { return hm(r.start) + '-' + hm(r.end); }).join(', ') + ' (' + S.dhwAvg + ' ' + c.avg.toFixed(1) + ' Rp.)';
+    };
+    var parts = [line(S.dhwToday, dp.today), line(S.dhwTomorrow, dp.tomorrow)].filter(Boolean);
+    return parts.length ? '<p class="ems-why">' + esc(S.dhwPreview) + ': ' + parts.join(' · ') + '</p>' : '<p class="ems-why">' + esc(S.dhwNoPrices) + '</p>';
+  }
   function dhwBody() {
     var d = dhwCfg();
     var cap = d.output === 'capability';
@@ -1230,7 +1257,8 @@
     var html = '<p class="ems-why">' + esc(S.dhwWhy) + '</p><div class="ems-row">' + check(S.dhwOnLbl, 'ems-dhw-on', d.enabled) + '</div>';
     if (!d.enabled) return html;
     return html
-      + sgFld(S.sgMaxPrice, 'ems-dhw-maxprice', d.maxPriceRp, 'number', ' step="0.5" min="0"', S.dhwPriceH)
+      + sgFld(S.dhwCheapHours, 'ems-dhw-cheap', d.cheapHours, 'number', ' step="0.25" min="0.25" max="12" data-ems-sgdev="1"', S.dhwCheapH)
+      + dhwPreviewHtml(d.cheapHours)
       + sgFld(S.dhwBelow, 'ems-dhw-below', d.belowTemp, 'number', ' step="1" min="0" max="90"', S.dhwBelowH)
       + '<div class="ems-row">' + check(S.dhwSkipPv, 'ems-dhw-skippv', d.skipPv, S.dhwSkipPvH) + (d.skipPv ? field(S.dhwSkipPvKwh, 'ems-dhw-skippvkwh', d.skipPvKwh, 'number', ' step="1" min="0"') + field(S.dhwSkipUntil, 'ems-dhw-skipuntil', d.skipPvUntil, 'time', '', S.dhwSkipUntilH) : '') + '</div>'
       + sgDevPair(S.sgSensor, 'ems-dhw-sensor', d.sensorId, d.tempCapability, /^measure_temperature/, S.sgSensorH)
@@ -1251,8 +1279,8 @@
     if (!state.cfg || !state.open.dhw || !$('ems-dhw-on')) return;
     var d = dhwCfg();
     d.enabled = chk('ems-dhw-on');
-    if (!d.enabled || !$('ems-dhw-maxprice')) return;
-    d.maxPriceRp = num('ems-dhw-maxprice', d.maxPriceRp); d.belowTemp = num('ems-dhw-below', d.belowTemp);
+    if (!d.enabled || !$('ems-dhw-cheap')) return;
+    d.cheapHours = num('ems-dhw-cheap', d.cheapHours); d.belowTemp = num('ems-dhw-below', d.belowTemp);
     d.skipPv = chk('ems-dhw-skippv');
     if ($('ems-dhw-skippvkwh')) { d.skipPvKwh = num('ems-dhw-skippvkwh', d.skipPvKwh); d.skipPvUntil = val('ems-dhw-skipuntil', d.skipPvUntil); }
     d.sensorId = val('ems-dhw-sensor-dev', d.sensorId); d.tempCapability = val('ems-dhw-sensor-cap', d.tempCapability);

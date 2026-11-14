@@ -223,3 +223,45 @@ test('Flow-Karten: Dateien vorhanden (de/en) und in app.js registriert', () => {
   const dev = fs.readFileSync(path.join(root, 'drivers/ems/device.js'), 'utf8');
   assert.ok(dev.includes("getDeviceTriggerCard('ems_error')") && dev.includes("getDeviceTriggerCard('ems_car_target_reached')"));
 });
+
+test('SG-Ready und Warmwasser-Programm: Auslöser nur bei echtem Wechsel, nicht beim ersten Zustand und nicht beim Aus-/Einschalten', () => {
+  const { ctrl, fired } = makeCtrl();
+  ctrl.emsDevice.fireSgReady = (s, r) => fired.push(['sg', s, r]);
+  ctrl.emsDevice.fireDhw = (on, r) => fired.push(['dhw', on, r]);
+  const r = ctrl.runner;
+  r.sgReadyCurrent = { state: 'off', reason: 'wartet' };
+  r.dhwCurrent = { on: false, reason: 'wartet' };
+  ctrl._fireEvents();
+  assert.deepEqual(fired, [], 'erster beobachteter Zustand');
+  r.sgReadyCurrent = { state: 'boost', reason: 'Start' };
+  r.dhwCurrent = { on: true, reason: 'Start WW' };
+  ctrl._fireEvents();
+  assert.deepEqual(fired, [['sg', 'boost', 'Start'], ['dhw', true, 'Start WW']]);
+  ctrl._fireEvents();
+  assert.equal(fired.length, 2, 'keine Wiederholung ohne Wechsel');
+  r.sgReadyCurrent = null; // Modul ausgeschaltet
+  r.dhwCurrent = null;
+  ctrl._fireEvents();
+  r.sgReadyCurrent = { state: 'off', reason: 'wartet' }; // wieder eingeschaltet: das ist kein Wechsel
+  r.dhwCurrent = { on: false, reason: 'wartet' };
+  ctrl._fireEvents();
+  assert.equal(fired.length, 2);
+  r.sgReadyCurrent = { state: 'forced', reason: 'Zwang' };
+  ctrl._fireEvents();
+  assert.deepEqual(fired[2], ['sg', 'forced', 'Zwang']);
+});
+
+test('SG-Ready/Warmwasser-Flow-Karten: Dateien (de/en), an den EMS-Treiber gebunden, Bedingungen in app.js, Auslöser im Gerät', () => {
+  const root = path.join(__dirname, '..');
+  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  for (const [dir, id] of [['triggers', 'ems_sgready_changed'], ['triggers', 'ems_dhw_changed'], ['conditions', 'ems_sgready_is'], ['conditions', 'ems_dhw_is_running']]) {
+    const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow', dir, `${id}.json`), 'utf8'));
+    assert.ok(card.title.de && card.title.en, id);
+    assert.equal(card.args[0].filter, 'driver_id=ems', id);
+    if (dir === 'conditions') assert.ok(app.includes(`'${id}'`), `${id} in app.js`);
+  }
+  const dev = fs.readFileSync(path.join(root, 'drivers/ems/device.js'), 'utf8');
+  assert.ok(dev.includes("getDeviceTriggerCard('ems_sgready_changed')") && dev.includes("getDeviceTriggerCard('ems_dhw_changed')"));
+  const cond = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow/conditions/ems_sgready_is.json'), 'utf8'));
+  assert.deepEqual(cond.args[1].values.map((v) => v.id), ['normal', 'boost', 'forced']);
+});
