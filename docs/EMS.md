@@ -536,3 +536,14 @@ Quellen: Bedienungsanleitung und Montageanleitung LWZ 5-8 CS Premium / LWZ 5 S P
   (2) die **Betriebsart-Prüfung** erlaubt während des Programms zusätzlich den Programm-Wert (`modeProgramValue`, z. B. WARMWASSER), sonst bricht unser eigenes Umschalten sofort ab;
   (3) die Schaltzeiten des WW-Programms sollten die günstigen Stunden abdecken.
 - Nicht in den Anleitungen gefunden: eine einmalige «Sofort-Warmwasser»-Funktion und die SG-Ready-Anhebung (steht in der ISG-Dokumentation, nicht im LWZ-Handbuch).
+
+### Start von Hand (Widget-Knopf und Flow-Aktion)
+
+SG-Ready («Jetzt aufheizen») und das Warmwasser-Programm («Jetzt starten») lassen sich von Hand starten: im Widget «Verbraucher»
+(Knopf im jeweiligen Block, nur bei eingeschaltetem, nicht pausiertem und gerade nicht laufendem Modul) oder per Flow-Aktion
+«Boiler / Wärmepumpe jetzt aufheizen (SG-Ready)» bzw. «Warmwasser-Programm jetzt starten».
+
+- Startet sofort: ohne Sonne, Preis oder Einschaltverzögerung und auch mitten in der Abkühlpause.
+- Hält, bis die Zieltemperatur erreicht ist oder die Höchstdauer abläuft (ohne eigene Einstellung 180 Min.). Ist das Ziel schon erreicht, passiert nichts.
+- Der Pause-Schalter (Widget) beendet den Lauf jederzeit und sperrt neue Starts.
+- Im Testmodus wird nur simuliert (Chip «Testmodus»), geschaltet wird erst live.

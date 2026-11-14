@@ -241,3 +241,18 @@ test('Widget «Verbraucher»: eingerichtete, aber ausgeschaltete Module erschein
   assert.equal(set.sgready.enabled, false);
   assert.equal(set.dhw.known, false);
 });
+
+test('Widget «Verbraucher»: Start-Knopf (canStart) nur bei eingeschaltetem, nicht pausiertem und gerade nicht laufendem Modul', () => {
+  const mk = (cfg, cur) => consumersWidget({
+    shadow: {
+      deviceExists: true, silent: true, config: { consumers: [], dhw: { enabled: true, flowOn: { id: 'f' }, ...cfg } }, dhw: cur,
+    },
+    consumerCurrent: [],
+    tz: TZ,
+  }).dhw;
+  assert.equal(mk({}, { on: false, reason: 'x' }).canStart, true);
+  assert.equal(mk({}, { on: true, reason: 'x' }).canStart, false, 'läuft schon');
+  assert.equal(mk({}, { on: false, paused: true }).canStart, false, 'pausiert');
+  assert.equal(mk({}, null).canStart, false, 'noch kein Zustand');
+  assert.equal(mk({ enabled: false }, null).canStart, false, 'ausgeschaltet');
+});

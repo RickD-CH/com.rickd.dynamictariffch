@@ -265,3 +265,14 @@ test('SG-Ready/Warmwasser-Flow-Karten: Dateien (de/en), an den EMS-Treiber gebun
   const cond = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow/conditions/ems_sgready_is.json'), 'utf8'));
   assert.deepEqual(cond.args[1].values.map((v) => v.id), ['normal', 'boost', 'forced']);
 });
+
+test('Aktionen «jetzt aufheizen» / «jetzt starten»: Dateien (de/en), an den EMS-Treiber gebunden, in app.js verdrahtet', () => {
+  const root = path.join(__dirname, '..');
+  const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+  for (const [id, mod] of [['ems_sgready_start', 'sgready'], ['ems_dhw_start', 'dhw']]) {
+    const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose/flow/actions', `${id}.json`), 'utf8'));
+    assert.ok(card.title.de && card.title.en && card.hint.de && card.hint.en, id);
+    assert.equal(card.args[0].filter, 'driver_id=ems', id);
+    assert.ok(app.includes(`getActionCard('${id}')`) && app.includes(`startModuleNow('${mod}')`), `${id} in app.js`);
+  }
+});

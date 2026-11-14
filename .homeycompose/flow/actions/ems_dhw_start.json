@@ -1,0 +1,17 @@
+{
+  "title": {
+    "en": "Start the hot-water program now",
+    "de": "Warmwasser-Programm jetzt starten"
+  },
+  "hint": {
+    "en": "Starts the hot-water program right now, regardless of the cheapest hours. Ends at the target temperature or the maximum run time. Only works if the module is on and not paused.",
+    "de": "Startet das Warmwasser-Programm sofort, unabhängig von den günstigsten Stunden. Endet bei der Zieltemperatur oder der Höchstdauer. Funktioniert nur, wenn das Modul eingeschaltet und nicht pausiert ist."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ]
+}

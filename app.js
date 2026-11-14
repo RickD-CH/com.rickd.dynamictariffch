@@ -102,6 +102,15 @@ class DynamicTariffApp extends Homey.App {
         this.ems.setPvFactor(args.factor); return true;
       });
 
+    this.homey.flow.getActionCard('ems_sgready_start')
+      .registerRunListener(async () => {
+        await this.ems.startModuleNow('sgready'); return true;
+      });
+    this.homey.flow.getActionCard('ems_dhw_start')
+      .registerRunListener(async () => {
+        await this.ems.startModuleNow('dhw'); return true;
+      });
+
     this.homey.flow.getActionCard('ems_set_silent')
       .registerRunListener(async (args) => {
         this.ems.setSilent(args.mode === 'on'); return true;

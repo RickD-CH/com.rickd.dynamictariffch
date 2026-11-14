@@ -913,3 +913,55 @@ test('Hysterese der Wärmepumpe (optional, von Hand): Ziel = WW-Soll + Hysterese
   await none.runner.tickCharger(at(10));
   assert.equal(none.runner.sgReadyCurrent.target, 47, 'ohne Hysterese wie bisher');
 });
+
+test('Start von Hand: sofort, ohne Sonne/Preis/Verzögerung und mitten in der Abkühlpause; hält bis Ziel oder Höchstdauer (180 min, auch ohne Einstellung); Pause und «Ziel erreicht» weisen ab', () => {
+  const cfg = {
+    minSolarW: 1500, startDelayMin: 10, minRunMin: 0, targetTemp: 58, pvBelowTemp: 0, cooldownMin: 30,
+  };
+  const x = base({ cfg, pvW: 0, tempWW: 50, nowMs: at(20) });
+  assert.equal(decideSgReady(x).state, 'off', 'ohne Sonne passiert nichts');
+  x.st.cooldownUntil = x.nowMs + 20 * MIN;
+  const r = decideSgReady({ ...x, manualStart: true, manualKind: 'boost' });
+  assert.equal(r.state, 'boost');
+  assert.match(r.reason, /von Hand/);
+  assert.equal(x.st.manual, true);
+  x.nowMs += 60 * MIN;
+  assert.equal(decideSgReady(x).state, 'boost', 'hält ohne Sonne (kein Ausschalten wegen weggefallener Bedingung)');
+  x.nowMs += 121 * MIN;
+  const e = decideSgReady(x);
+  assert.equal(e.state, 'off');
+  assert.match(e.reason, /Höchstdauer erreicht \(180 min\)/);
+  assert.equal(x.st.manual, false);
+  // Ziel schon erreicht -> keine Hektik
+  const done = base({ cfg, pvW: 0, tempWW: 59, nowMs: at(20) });
+  const d = decideSgReady({ ...done, manualStart: true });
+  assert.equal(d.state, 'off');
+  assert.match(d.reason, /Zieltemperatur erreicht/);
+  // Pause sperrt
+  const blk = base({ cfg, pvW: 0, tempWW: 50, nowMs: at(20) });
+  const b = decideSgReady({ ...blk, manualStart: true, externalBlock: 'Pausiert (Schalter im Widget)' });
+  assert.equal(b.state, 'off');
+  assert.match(b.reason, /Pausiert/);
+  // Warmwasser-Programm
+  const w = base({ cfg: { ...cfg, priceAction: 'dhw' }, pvW: 0, tempWW: 40, nowMs: at(20) });
+  assert.equal(decideSgReady({ ...w, manualStart: true, manualKind: 'dhw' }).state, 'dhw');
+});
+
+test('Runner: Start von Hand wird einmal verbraucht; Controller meldet Start und Grund; ausgeschaltetes Modul wird abgewiesen', async () => {
+  const dhw = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  const fired = [];
+  dhw.runner.prices = { getSlots: () => [] };
+  dhw.runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  await dhw.runner.tickCharger(at(12));
+  assert.deepEqual(fired, [], 'ohne günstige Stunde kein Start');
+  dhw.runner.requestManualStart('dhw');
+  await dhw.runner.tickCharger(at(12) + 60000);
+  assert.deepEqual(fired, ['on'], 'von Hand gestartet');
+  assert.equal(dhw.runner._manual.dhw, false, 'Anforderung verbraucht');
+  assert.throws(() => dhw.runner.requestManualStart('x'));
+});

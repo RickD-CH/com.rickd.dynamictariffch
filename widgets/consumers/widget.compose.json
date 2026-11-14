@@ -15,6 +15,10 @@
       "method": "POST",
       "path": "/start"
     },
+    "postStartModule": {
+      "method": "POST",
+      "path": "/start-module"
+    },
     "postPause": {
       "method": "POST",
       "path": "/pause"

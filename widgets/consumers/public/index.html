@@ -113,6 +113,11 @@
         + '<input type="checkbox" data-pause="' + mod + '"' + (paused ? '' : ' checked') + '><span class="slider"></span></label>';
     }
 
+    function startBtn(Homey, mod, can, key) {
+      if (!can) return '';
+      return '<div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn" data-mod="' + mod + '">' + esc(Homey.__(key)) + '</button></div>';
+    }
+
     function sgHtml(Homey, sg) {
       if (!sg) return '';
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
@@ -129,7 +134,7 @@
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('boiler') + '</span>' + esc(Homey.__('consumersWidget.sgTitle')) + testChip + '</div>'
         + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + pauseSwitch(Homey, 'sgready', sg.paused) + '</div>'
         + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
-        + '</div>';
+        + startBtn(Homey, 'sgready', sg.canStart, 'consumersWidget.sgStart') + '</div>';
     }
 
     function dhwHtml(Homey, dh) {
@@ -145,7 +150,7 @@
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'
         + '<div class="top"><span class="soc" style="font-size:15px">' + state + '</span>' + (temp ? '<span class="badge">' + temp + '</span>' : '') + pauseSwitch(Homey, 'dhw', dh.paused) + '</div>'
         + (sub.length ? '<div class="sub" style="white-space:normal">' + sub.join(' · ') + '</div>' : '')
-        + '</div>';
+        + startBtn(Homey, 'dhw', dh.canStart, 'consumersWidget.dhwStart') + '</div>';
     }
 
     function consumerHtml(Homey, c) {
@@ -192,6 +197,12 @@
         b.addEventListener('click', function () {
           b.disabled = true;
           Homey.api('POST', '/start', { id: b.getAttribute('data-id') }).then(function () { load(Homey); }).catch(function () { b.disabled = false; });
+        });
+      });
+      root.querySelectorAll('button[data-mod]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          b.disabled = true;
+          Homey.api('POST', '/start-module', { module: b.getAttribute('data-mod') }).then(function () { load(Homey); }).catch(function () { b.disabled = false; });
         });
       });
       root.querySelectorAll('input[data-pause]').forEach(function (inp) {

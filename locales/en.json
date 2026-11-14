@@ -150,6 +150,8 @@
     "sgTemp": "Hot water {t} °C",
     "sgUntil": "until {time}",
     "paused": "Paused",
+    "sgStart": "Heat now",
+    "dhwStart": "Start now",
     "moduleOff": "Off",
     "pauseOn": "Runs automatically. Switching off pauses and ends a running cycle.",
     "pauseOff": "Paused: will not start. Switching on releases it again.",

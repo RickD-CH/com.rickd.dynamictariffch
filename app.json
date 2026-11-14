@@ -1782,6 +1782,24 @@
       },
       {
         "title": {
+          "en": "Start the hot-water program now",
+          "de": "Warmwasser-Programm jetzt starten"
+        },
+        "hint": {
+          "en": "Starts the hot-water program right now, regardless of the cheapest hours. Ends at the target temperature or the maximum run time. Only works if the module is on and not paused.",
+          "de": "Startet das Warmwasser-Programm sofort, unabhängig von den günstigsten Stunden. Endet bei der Zieltemperatur oder der Höchstdauer. Funktioniert nur, wenn das Modul eingeschaltet und nicht pausiert ist."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_dhw_start"
+      },
+      {
+        "title": {
           "en": "Set the solar forecast factor",
           "de": "Korrekturfaktor der PV-Prognose setzen"
         },
@@ -1892,6 +1910,24 @@
           }
         ],
         "id": "ems_set_silent"
+      },
+      {
+        "title": {
+          "en": "Heat the boiler / heat pump now (SG Ready)",
+          "de": "Boiler / Wärmepumpe jetzt aufheizen (SG-Ready)"
+        },
+        "hint": {
+          "en": "Starts a SG Ready heating run right now, without waiting for sun or price. Ends at the target temperature or the maximum run time (180 min if none is set). Only works if the module is on and not paused.",
+          "de": "Startet sofort einen SG-Ready-Lauf, ohne auf Sonne oder Preis zu warten. Endet bei der Zieltemperatur oder der Höchstdauer (180 Min., falls keine eingestellt ist). Funktioniert nur, wenn das Modul eingeschaltet und nicht pausiert ist."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=ems"
+          }
+        ],
+        "id": "ems_sgready_start"
       },
       {
         "title": {
@@ -2959,6 +2995,10 @@
         "postStart": {
           "method": "POST",
           "path": "/start"
+        },
+        "postStartModule": {
+          "method": "POST",
+          "path": "/start-module"
         },
         "postPause": {
           "method": "POST",
