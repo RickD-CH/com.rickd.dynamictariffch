@@ -608,3 +608,10 @@ test('Runner: Warmwasser-Programm per App-Capability (Werte true/false oder Text
   await runner.tickCharger(at(22) + 60000);
   assert.deepEqual(sets.filter((s) => s[1] === 'dhw_mode')[1], ['wp', 'dhw_mode', 'Automatik', true]);
 });
+
+test('Runner: Betriebsart-Vergleich ignoriert Gross-/Kleinschreibung und Leerzeichen (AUTOMATIK = Automatik)', async () => {
+  const r = makeRunner({ modeId: 'wp', modeCapability: 'mode', modeOkValue: 'Automatik' });
+  r.runner.inputs.readValue = async () => ' AUTOMATIK ';
+  await r.runner.tickCharger(at(10));
+  assert.equal(r.runner.sgReadyCurrent.modeBlocked, false);
+});
