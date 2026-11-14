@@ -888,3 +888,11 @@ test('Solarprognose: Empfehlung für den Korrekturfaktor aus den letzten Tagen, 
   assert.match(few.setup(), /Noch zu wenig Daten: 3 von mindestens 7 vollständigen Tagen/);
   assert.doesNotMatch(few.setup(), /data-ems-pvapply/, 'ohne Empfehlung kein Übernehmen-Knopf');
 });
+
+test('Solarprognose: zusätzlich der Wert der letzten 14 Tage als Vergleich', async () => {
+  const ui = await startUi({
+    pvAccuracy: { recommend: { factor: 0.78, days: 28, needed: 7, p25: 0.46, p75: 0.98, recent: { factor: 0.53, days: 14 } }, rows: [] },
+  });
+  ui.click({ 'data-ems-open': 'src-fc' });
+  assert.match(ui.setup(), /Empfehlung: 0\.78 \(Median aus 28 Tagen, meist zwischen 0\.46 und 0\.98\)\. Nur die letzten 14 Tage: 0\.53\./);
+});

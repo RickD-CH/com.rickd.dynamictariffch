@@ -96,6 +96,10 @@ module.exports = {
     };
   },
 
+  async putEmsPvHistory({ homey, body }) {
+    return homey.app.ems.importPvHistory(body && body.days);
+  },
+
   async getEmsDeviceCards({ homey, query }) {
     return homey.app.ems.deviceCards(query && query.id);
   },

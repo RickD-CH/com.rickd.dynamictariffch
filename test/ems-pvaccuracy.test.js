@@ -92,3 +92,25 @@ test('Speichern und Aufräumen: übersteht Neustart, höchstens 100 Tage', () =>
   big.record({ nowMs: at(20, 8), pvW: 0, remainingKwh: 0, factor: 1 });
   assert.ok(Object.keys(big.days).length <= DAYS_KEPT, 'älteste Tage fallen weg');
 });
+
+test('Import früherer Tagesbilanzen: übernimmt gültige Tage, lässt vorhandene und ungültige aus, zählt für die Empfehlung, «letzte 14 Tage» als Vergleich', () => {
+  const store = mem();
+  const acc = new PvAccuracy(store, TZ);
+  day(acc, 9, { rawKwh: 20, kw: 1.6 }); // eigener Tag, Verhältnis 0.8
+  const list = [];
+  for (let d = 1; d <= 8; d++) list.push({ day: `2026-10-${String(d).padStart(2, '0')}`, forecastKwh: 10, actualKwh: 5 }); // Verhältnis 0.5
+  list.push({ day: '2026-11-09', forecastKwh: 99, actualKwh: 1 }); // gibt es schon: bleibt
+  list.push({ day: 'kaputt', forecastKwh: 5, actualKwh: 5 });
+  list.push({ day: '2026-10-20', forecastKwh: 0, actualKwh: 5 });
+  list.push({ day: '2026-10-21', forecastKwh: 5, actualKwh: -1 });
+  const r = acc.importDays(list);
+  assert.deepEqual(r, { added: 8, skipped: 4 });
+  assert.equal(acc.days['2026-11-09'].fc, 20, 'vorhandener Tag unverändert');
+  const v = acc.view(at(11, 8));
+  assert.equal(v.recommend.days, 9, '8 importierte + 1 eigener Tag');
+  assert.equal(v.recommend.factor, 0.5, 'Median der 9 Tage');
+  assert.equal(v.recommend.recent.days, 9);
+  assert.equal(new PvAccuracy(store, TZ).days['2026-10-03'].imported, true, 'bleibt nach einem Neustart');
+  assert.deepEqual(acc.importDays(list), { added: 0, skipped: 12 }, 'zweiter Import ändert nichts');
+  assert.deepEqual(acc.importDays(null), { added: 0, skipped: 0 });
+});

@@ -207,6 +207,10 @@
       "method": "get",
       "path": "/ems/flows"
     },
+    "putEmsPvHistory": {
+      "method": "put",
+      "path": "/ems/pv-history"
+    },
     "getEmsDeviceCards": {
       "method": "get",
       "path": "/ems/device-cards"
