@@ -209,8 +209,8 @@ test('Setup: Verbraucher aufklappen, Modus und Erweitert, Feuchte-Notlauf nur be
   assert.match(html, /id="row1-mode"/);
   assert.match(html, /Ab Batterie-SoC/);
   assert.match(html, /id="row1-socOn" type="number" value="85"/);
-  assert.match(html, /<summary[^>]*>Erweitert<\/summary>/);
-  assert.match(html, /Feuchte-Notlauf/);
+  assert.match(html, /<summary[^>]*>Erweitert \(Laufzeiten, Schutz-Ladestand, Prognose-Sperre\)<\/summary>/);
+  assert.match(html, /<summary[^>]*>Feuchte-Notlauf \(optional\) · ein<\/summary>/, 'eigener Bereich ausserhalb von Erweitert, mit ein/aus im Titel');
   assert.match(html, /id="row1-humOn" type="number" value="70"/);
   assert.match(html, /id="row1-humRun" type="number" value="45"/);
   const humSel = html.match(/id="row1-humSensor">([\s\S]*?)<\/select>/)[1];

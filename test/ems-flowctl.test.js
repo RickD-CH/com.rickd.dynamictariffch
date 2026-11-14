@@ -1009,3 +1009,14 @@ test('Feuchte-Notlauf: Option «Im günstigsten Block starten» und «Kritische 
   assert.equal(c2.waitForCheap, false);
   assert.equal(c2.criticalAbove, 70);
 });
+
+test('«Erweitert»-Bereiche nennen ihre Inhalte als Stichworte (SG-Ready, Warmwasser-Programm, Warmwasser verzögern)', async () => {
+  const ui = await startUi({ dhw: { enabled: true, delay: { enabled: true } }, sgready: { enabled: true } });
+  ui.click({ 'data-ems-open': 'sg' });
+  assert.match(ui.setup(), /<summary[^>]*>Erweitert \(Hysterese, Verzögerungen, Mindestlaufzeit, Abkühlpause, Betriebsart-Prüfung, Rückmeldung\)<\/summary>/);
+  ui.click({ 'data-ems-open': 'dhw' });
+  const h = ui.setup();
+  assert.match(h, /<summary[^>]*>Erweitert \(Betriebsart-Prüfung, Verzögerungen, Mindest- und Höchstdauer, Abkühlpause\)<\/summary>/);
+  assert.match(h, /<summary[^>]*>Erweitert \(Freigabe bei wenig Sonne, Marge\)<\/summary>/);
+  assert.equal(/<summary[^>]*>Erweitert<\/summary>/.test(h), false, 'kein nacktes «Erweitert» mehr');
+});

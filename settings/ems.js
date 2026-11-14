@@ -207,7 +207,7 @@
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', dehumidifier: 'Luftentfeuchter', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe', pool: 'Pool', ac: 'Klimaanlage', heater: 'Heizstab', sauna: 'Sauna', freezer: 'Kühlgerät', pump: 'Pumpe', light: 'Licht', mower: 'Rasenroboter', purifier: 'Luftreiniger', aquarium: 'Aquarium' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
       accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
-      humWait: 'Im günstigsten Block starten (statt sofort)', humCritical: 'Kritische Feuchte (%, optional)', humWaitHint: 'Statt sofort bei {on} % wartet der Notlauf auf den günstigsten Block der Notlaufdauer im Rest des Tages. Dazwischen läuft das Gerät wie sonst bei PV-Überschuss. Ohne Preise startet er sofort. Ab der kritischen Feuchte startet er immer sofort.', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
+      humWait: 'Im günstigsten Block starten (statt sofort)', humCritical: 'Kritische Feuchte (%, optional)', humWaitHint: 'Statt sofort bei {on} % wartet der Notlauf auf den günstigsten Block der Notlaufdauer im Rest des Tages. Dazwischen läuft das Gerät wie sonst bei PV-Überschuss. Ohne Preise startet er sofort. Ab der kritischen Feuchte startet er immer sofort.', advConsumer: 'Erweitert (Laufzeiten, Schutz-Ladestand, Prognose-Sperre)', advSg: 'Erweitert (Hysterese, Verzögerungen, Mindestlaufzeit, Abkühlpause, Betriebsart-Prüfung, Rückmeldung)', advDly: 'Erweitert (Freigabe bei wenig Sonne, Marge)', advDhw: 'Erweitert (Betriebsart-Prüfung, Verzögerungen, Mindest- und Höchstdauer, Abkühlpause)', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
       save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', saveDirty: 'Änderungen speichern ●', saveSec: 'Speichern', unsavedTag: '● ungespeichert', unsaved: 'Noch nicht gespeichert: bitte «Speichern» drücken.', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
@@ -418,7 +418,7 @@
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', dehumidifier: 'Dehumidifier', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump', pool: 'Pool', ac: 'Air conditioning', heater: 'Heating element', sauna: 'Sauna', freezer: 'Fridge / freezer', pump: 'Pump', light: 'Light', mower: 'Robot mower', purifier: 'Air purifier', aquarium: 'Aquarium' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
       accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
-      humWait: 'Start in the cheapest block (instead of right away)', humCritical: 'Critical humidity (%, optional)', humWaitHint: 'Instead of right away at {on} % the emergency run waits for the cheapest block of its run time in the rest of the day. In between the device runs on PV surplus as usual. Without prices it starts right away. From the critical humidity on it always starts right away.', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
+      humWait: 'Start in the cheapest block (instead of right away)', humCritical: 'Critical humidity (%, optional)', humWaitHint: 'Instead of right away at {on} % the emergency run waits for the cheapest block of its run time in the rest of the day. In between the device runs on PV surplus as usual. Without prices it starts right away. From the critical humidity on it always starts right away.', advConsumer: 'Advanced (run times, protect level, forecast gate)', advSg: 'Advanced (hysteresis, delays, minimum run time, cool-down, operating-mode check, feedback)', advDly: 'Advanced (release with little sun, margin)', advDhw: 'Advanced (operating-mode check, delays, minimum and maximum duration, cool-down)', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
       save: 'Save energy management settings', saved: 'Saved', saveDirty: 'Save changes ●', saveSec: 'Save', unsavedTag: '● unsaved', unsaved: 'Not saved yet: please press "Save".', error: 'Error', toggleFailed: 'Could not set the switch',
@@ -1183,11 +1183,12 @@
     if (viaFlow ? !!(r.flowOn && r.flowOn.id) : !!r.deviceId) {
       var h = r.humidity;
       var hum = true
-        ? '<div class="ems-box"><b>' + esc(S.humTitle) + '</b><div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
+        ? '<details class="ems-adv"' + (state.open[p + 'hum'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'hum">' + esc(S.humTitle) + ' (' + esc(String(S.tagOptional).toLowerCase()) + ') · ' + esc(h.enabled ? S.curOn : S.curOff) + '</summary>'
+          + '<div class="ems-box"><div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
           + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.humSensor) + '</span><select id="' + p + 'humSensor">' + deviceOptions(h.sensorId, hasCap(/^measure_humidity$/), S.none) + '</select></label>'
           + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div><p class="ems-why">' + esc(S.humHint) + '</p>'
           + '<div class="ems-row">' + check(S.humWait, p + 'humWait', h.waitForCheap === true) + field(S.humCritical, p + 'humCrit', h.criticalAbove === undefined ? 75 : h.criticalAbove, 'number', ' step="1" min="10" max="100"') + '</div>'
-          + '<p class="ems-why">' + esc(S.humWaitHint.replace('{on}', String(h.onAbove))) + '</p></div>'
+          + '<p class="ems-why">' + esc(S.humWaitHint.replace('{on}', String(h.onAbove))) + '</p></div></details>'
         : '';
       var ac = r.accu || newConsumerRow().accu;
       var accu = '<div class="ems-box"><b>' + esc(S.accuTitle) + '</b><div class="ems-row">' + check(S.accuEnable, p + 'accuEnable', ac.enabled) + '</div>'
@@ -1215,9 +1216,9 @@
       ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + tipI(p + 'mode') + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label>' + tipT(p + 'mode', S.tips.mode) + '</div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
         + (r.mode === 'program' ? program : ('<div class="ems-row">' + params + '</div>' + (r.mode === 'surplus' && hasBattery() ? '<p class="ems-why">' + esc(S.batFirstHint) + '</p>' : '') + accu
-          + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
+          + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advConsumer) + '</summary><div class="ems-row">'
           + field(S.minRun, p + 'minRunMin', r.minRunMin) + field(S.minOff, p + 'minOffMin', r.minOffMin) + field(S.protect, p + 'protectSoc', r.protectSoc) + '</div>'
-          + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div>' + hum + '</details>'));
+          + '<div class="ems-row">' + check(S.useGate, p + 'useGate', r.useForecastGate) + '</div></details>' + hum));
     }
     return '<div class="ems-row">'
       + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
@@ -1423,7 +1424,7 @@
         ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
         : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
           + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : ''))
-      + '<details class="ems-adv"' + (state.open['sg-adv'] ? ' open' : '') + '><summary data-ems-adv="sg-adv">' + esc(S.advanced) + '</summary>'
+      + '<details class="ems-adv"' + (state.open['sg-adv'] ? ' open' : '') + '><summary data-ems-adv="sg-adv">' + esc(S.advSg) + '</summary>'
       + sgFld(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"', S.sgHystH)
       + sgFld(S.sgTo, 'ems-sg-to', g.windowTo, 'time', '', S.sgToH)
       + sgFld(S.sgStartDelay, 'ems-sg-startdelay', g.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
@@ -1522,7 +1523,7 @@
       + '<div class="ems-row">' + field(S.dlyForecast, 'ems-dhw-dly-fc', l.minForecastKwh, 'number', ' step="1" min="0"', S.dlyForecastH) + field(S.dlyComfort, 'ems-dhw-dly-comfort', l.comfortTemp, 'number', ' step="1" min="10" max="60"', S.dlyComfortH) + '</div>'
       + '<div class="ems-row">' + field(S.dlyRelWd, 'ems-dhw-dly-rwd', l.releaseWeekday, 'time') + field(S.dlyRelWe, 'ems-dhw-dly-rwe', l.releaseWeekend, 'time') + '</div>'
       + (viaCardD ? '' : sgFlowSel(S.dlyFlow, 'ems-dhw-dly-flow', l.flowDelay))
-      + '<details class="ems-adv"' + (state.open['dhw-dly-adv'] ? ' open' : '') + '><summary data-ems-adv="dhw-dly-adv">' + esc(S.advanced) + '</summary>'
+      + '<details class="ems-adv"' + (state.open['dhw-dly-adv'] ? ' open' : '') + '><summary data-ems-adv="dhw-dly-adv">' + esc(S.advDly) + '</summary>'
       + '<div class="ems-row">' + field(S.dlyRelLow, 'ems-dhw-dly-rlow', l.releaseLow, 'time', '', S.dlyRelLowH) + field(S.dlyMargin, 'ems-dhw-dly-margin', l.startMargin, 'number', ' step="0.5" min="0" max="10"', S.dlyMarginH) + '</div></details></div>';
   }
   function syncDelay(d) {
@@ -1635,7 +1636,7 @@
       + (viaTrig ? '<p class="ems-why">' + esc(S.spTrigWhy) + '</p>' + spTemps(spCfg(d)) : viaCard ? spBox(d) : cap
         ? sgDevPair(S.sgDhwDev, 'ems-dhw-dev', dev.deviceId, dev.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-dhw-onv', dev.onValue, 'text') + field(S.sgDhwOffV, 'ems-dhw-offv', dev.offValue, 'text') + '</div>'
         : sgFlowSel(S.sgDhwOn, 'ems-dhw-flowon', d.flowOn) + sgFlowSel(S.sgDhwOff, 'ems-dhw-flowoff', d.flowOff))
-      + '<details class="ems-adv"' + (state.open['dhw-adv'] ? ' open' : '') + '><summary data-ems-adv="dhw-adv">' + esc(S.advanced) + '</summary>'
+      + '<details class="ems-adv"' + (state.open['dhw-adv'] ? ' open' : '') + '><summary data-ems-adv="dhw-adv">' + esc(S.advDhw) + '</summary>'
       + sgDevPair(S.sgMode, 'ems-dhw-mode', d.modeId, d.modeCapability, /./, S.sgModeH)
       + (d.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-dhw-modeok', d.modeOkValue, 'text') + field(S.dhwModeProgram, 'ems-dhw-modeprog', d.modeProgramValue, 'text', '', S.dhwModeProgramH) + '</div>' : '')
       + sgFld(S.sgStartDelay, 'ems-dhw-startdelay', d.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
