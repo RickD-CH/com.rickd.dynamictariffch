@@ -349,10 +349,10 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   `lib/ems/planner/program.js` (`decideProgram`), läuft in `EmsRunner._runProgram` statt `evaluateConsumer`
   (kein Ein/Aus, kein Akku-/Feuchte-Block).
 - **Ablauf pro Tag:** genug PV-Überschuss (`minSurplusW`, `startSustainS` am Stück) startet sofort. Sonst gilt ab
-  `windowFrom` ein Zeitfenster von `maxWaitH` Stunden: darin wird die günstigste bekannte Viertelstunde gewählt,
-  am Fensterende wird notfalls gestartet (Preis-Sicherheitsnetz, egal zu welchem Preis). Höchstens einmal pro Tag
-  (`st.programDay`/`st.programStartedAt`, übersteht einen Neustart der App). `durationH` ist nur Information
-  (keine Mehrfach-Fenster-Planung wie bei Aufträgen - das Gerät managt seine Laufzeit selbst).
+  `windowFrom` ein Zeitfenster von `maxWaitH` Stunden: darin wird der **günstigste zusammenhängende Block der Programmdauer**
+  (`durationH`, Standard 3 h) gewählt (siehe unten), am Fensterende wird notfalls gestartet (Preis-Sicherheitsnetz, egal zu welchem
+  Preis). Höchstens einmal pro Tag (`st.programDay`/`st.programStartedAt`, übersteht einen Neustart der App). Das Gerät managt seine
+  Laufzeit selbst; `durationH` bestimmt die Blocklänge der Preiswahl und die Abkühlpause.
 - **Fernbedienung-Capability (`remoteCapability`/`remoteOkValue`):** zwingende Voraussetzung bei manchen Geräten
   (z. B. Electrolux Geschirrspüler: ohne «Fernbedienung» auf `Enabled` kommt gar kein Befehl an). Blockiert den
   Start unabhängig von allem anderen, wenn gesetzt und nicht erfüllt. Ohne Auswahl keine Prüfung (Warnung in der
@@ -364,6 +364,18 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Türsicherung sowie der Preis-Fallback mit unseren eigenen «günstigster Block»-Karten waren dort schon vorhanden;
   neu ist, dass alles an einem Ort konfiguriert ist (feste Werte statt Push-Rückfragen für Programmdauer/Wartezeit,
   auf Wunsch).
+
+## Programm starten: günstigster Block statt günstigster Viertelstunde (14.11.2026)
+
+- Der Preisfallback wählt den **günstigsten zusammenhängenden Block** von `durationH` Stunden (Durchschnittspreis). Vorher zählte nur die einzelne
+  billigste Viertelstunde, das Programm lief dann womöglich in teuren Stunden weiter.
+- Der **Start** des Blocks muss im Zeitfenster liegen (`windowFrom` bis `windowFrom` + `maxWaitH`), der Block darf über das Fensterende hinausreichen.
+  Es zählen nur vollständige Blöcke (alle Viertelstunden mit Preis); ohne vollständigen Block heisst es «wartet auf PV-Überschuss oder Preise für das Zeitfenster»,
+  die Frist bleibt das Sicherheitsnetz. Bei gleichem Durchschnitt gewinnt der frühere Block.
+- Die Anzeige nennt den geplanten Block: «wartet auf PV-Überschuss oder den günstigsten Block (20:30-23:30, Ø 12.4 Rp.)». Gestartet wird, sobald der Blockanfang erreicht ist.
+- **«Delayed Start» (zeitverzögerter Start an der Maschine):** Der alte Flow nutzt ihn nur als Schutz (nicht eingreifen, wenn jemand an der Maschine selbst einen
+  verzögerten Start eingestellt hat). Das deckt die Status-Capability (nur bei «bereit» starten) ab: «Delayed Start» ist nicht «bereit», es wird nichts gesendet.
+  Die App verschiebt den Start der Maschine nicht selbst.
 
 ## Programm starten: Status-Capability gegen Doppelstart (13.11.2026)
 

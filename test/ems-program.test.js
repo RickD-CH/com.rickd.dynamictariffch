@@ -86,20 +86,61 @@ test('Vor dem Zeitfenster: warten, auch ohne PV und ohne Preise', () => {
   assert.match(r.reason, /Zeitfenster ab 18:00/);
 });
 
-test('Im Zeitfenster: startet in der günstigsten Viertelstunde bis zur Frist', () => {
-  const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4 });
-  const all = slots(at(18), at(22), (t) => (t === at(20, 30) ? 8 : 25));
+test('Im Zeitfenster: startet am Anfang des günstigsten Blocks der Programmdauer (nicht in der einzelnen billigsten Viertelstunde)', () => {
+  const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4, durationH: 1 });
+  const all = slots(at(18), at(23), (t) => (t >= at(20, 30) && t < at(21, 30) ? 8 : 25));
   let r = decideProgram({
     cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(18), tz: TZ,
   });
-  assert.equal(r.start, false, 'die günstigste Viertelstunde kommt erst um 20:30');
+  assert.equal(r.start, false, 'der günstigste Block beginnt erst um 20:30');
+  assert.equal(r.plannedStartMs, at(20, 30));
+  assert.match(r.reason, /20:30-21:30, Ø 8\.0 Rp\./);
   const st2 = { programArmed: true };
   r = decideProgram({
     cfg: p, st: st2, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(20, 30), tz: TZ,
   });
   assert.equal(r.start, true);
-  assert.match(r.reason, /günstigster Moment/);
+  assert.match(r.reason, /günstigster 1-h-Block/);
   assert.equal(st2.programStartedAt, at(20, 30));
+});
+
+test('Block statt Einzel-Slot: eine einzelne billige Viertelstunde mitten in teuren Stunden gewinnt nicht gegen einen durchgehend günstigen 3-h-Block', () => {
+  const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4, durationH: 3 });
+  // 19:00 eine Viertelstunde für 1 Rp., sonst 30; ab 21:00 für 3 Stunden durchgehend 10 Rp. (der Block darf über das Fensterende 22:00 hinausreichen)
+  const all = slots(at(18), at(18) + 8 * 3600000, (t) => (t === at(19) ? 1 : (t >= at(21) && t < at(21) + 3 * 3600000 ? 10 : 30)));
+  const early = decideProgram({
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(19), tz: TZ,
+  });
+  assert.equal(early.start, false, 'um 19:00 nicht starten, obwohl die Viertelstunde dort am billigsten ist');
+  assert.equal(early.plannedStartMs, at(21));
+  const st = { programArmed: true };
+  const on = decideProgram({
+    cfg: p, st, remoteValue: null, doorValue: null, exportW: 0, slots: all, nowMs: at(21), tz: TZ,
+  });
+  assert.equal(on.start, true);
+  assert.match(on.reason, /21:00-00:00, Ø 10\.0 Rp\./);
+});
+
+test('Block: unvollständige Preise (Block nicht bis zum Ende bekannt) zählen nicht; ohne vollständigen Block wird gewartet, die Frist bleibt das Sicherheitsnetz', () => {
+  const p = normalizeProgram({ windowFrom: '18:00', maxWaitH: 4, durationH: 3 });
+  const short = slots(at(18), at(20), () => 10); // nur 2 h Preise, ein 3-h-Block passt nirgends
+  const r = decideProgram({
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: short, nowMs: at(18), tz: TZ,
+  });
+  assert.equal(r.start, false);
+  assert.match(r.reason, /Preise für das Zeitfenster/);
+  const net = decideProgram({
+    cfg: p, st: { programArmed: true }, remoteValue: null, doorValue: null, exportW: 0, slots: short, nowMs: at(22), tz: TZ,
+  });
+  assert.equal(net.start, true, 'Frist: Sicherheitsnetz');
+});
+
+test('Block: bei gleichem Preis der früheste; der Start liegt im Zeitfenster, auch wenn es danach noch günstiger wird', () => {
+  const { cheapestBlock } = require('../lib/ems/planner/program');
+  const flat = slots(at(18), at(24), () => 20);
+  assert.equal(cheapestBlock(flat, at(18), at(20) - Q, 1).start, at(18), 'Gleichstand: der früheste');
+  const cheapLate = slots(at(18), at(24), (t) => (t >= at(21) ? 1 : 20));
+  assert.equal(cheapestBlock(cheapLate, at(18), at(20) - Q, 1).start, at(18), 'ab 21:00 günstiger, aber der Start muss vor 20:00 liegen');
 });
 
 test('Frist erreicht (Fensterende): startet als Sicherheitsnetz, egal zu welchem Preis', () => {
