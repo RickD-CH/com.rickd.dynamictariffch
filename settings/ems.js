@@ -128,7 +128,7 @@
       sgStopDelay: 'Ausschaltverzögerung (Min.)', sgStopDelayH: 'Fallen die Bedingungen nach der Mindestlaufzeit weg, wird noch so lange gewartet, bevor zurück auf Normalbetrieb geschaltet wird.',
       sgCooldown: 'Abkühlpause nach Ende (Min.)', sgCooldownH: 'Pause nach dem Ende eines Boosts, bevor ein neuer starten darf.',
       sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgPriceH: 'Startet den Boost auch bei günstigem Preis, unabhängig von Sonne und Uhrzeit.',
-      sgPriceAct: 'Was startet der Preis?', sgActSg: 'SG-Ready-Empfehlung (wie bei Sonne)', sgActDhw: 'Nur das Warmwasser-Programm der Wärmepumpe', sgActH: 'Beim Preis kann statt SG-Ready nur das Warmwasser-Programm gestartet werden (ein) und danach wieder auf Normal gesetzt werden (aus). Sonne startet immer SG-Ready.', sgDhwOut: 'Warmwasser-Programm setzen über', sgDhwFlows: 'Flows (ein / zurück auf Normal, z. B. Modbus-Betriebsart)', sgDhwCap: 'App-Funktion (Capability eines Geräts)', sgDhwOn: 'Flow Warmwasser-Programm ein', sgDhwOff: 'Flow zurück auf Normal', sgDhwDev: 'Gerät und Capability der App-Funktion', sgDhwOnV: 'Wert für ein', sgDhwOffV: 'Wert für zurück auf Normal', sgDhwH: 'Werte als Text, true/false für Schalter. Beim Ende wird zurück auf Normal gesetzt, aber nur, wenn die Steuerung das Programm selbst gestartet hat.',
+      sgPriceAct: 'Was startet der Preis?', sgActSg: 'SG-Ready-Empfehlung (wie bei Sonne)', sgActDhw: 'Nur das Warmwasser-Programm der Wärmepumpe', sgActH: 'Beim Preis kann statt SG-Ready nur das Warmwasser-Programm gestartet werden (ein) und danach wieder auf Normal gesetzt werden (aus). Sonne startet immer SG-Ready.', sgDhwOut: 'Warmwasser-Programm setzen über', sgDhwFlows: 'Flows (ein / zurück auf Normal, z. B. WW-Soll per Modbus)', sgDhwCap: 'App-Funktion (Capability eines Geräts)', sgDhwOn: 'Flow Warmwasser-Programm ein', sgDhwOff: 'Flow zurück auf Normal', sgDhwDev: 'Gerät und Capability der App-Funktion', sgDhwOnV: 'Wert für ein', sgDhwOffV: 'Wert für zurück auf Normal', sgDhwH: 'Werte als Text, true/false für Schalter. Beim Ende wird zurück auf Normal gesetzt, aber nur, wenn die Steuerung das Programm selbst gestartet hat.',
       sgPriceBelow: 'Preis-Start nur unter Warmwasser (°C)', sgPriceBelowH: 'Per Preis wird nur geheizt, wenn das Warmwasser unter diesem Wert liegt (0 = immer). Ohne Temperatur-Messwert kein Preis-Start.',
       sgPvBelow: 'Sonnen-Start nur unter Warmwasser (°C)', sgPvBelowH: 'Optional: auch mit Sonne nur starten, wenn das Warmwasser unter diesem Wert liegt (0 = immer, Standard).',
       sgSkipPv: 'Preis-Start auslassen, wenn die Sonne reicht', sgSkipPvKwh: 'Sonne reicht ab Prognose (kWh, Rest heute)', sgSkipPvH: 'Lohnt sich nicht, per Preis zu starten, wenn die Sonne heute noch genug liefert. Gilt nur, solange der Sonnen-Start noch offen ist (vor der spätesten Startzeit).',
@@ -338,7 +338,7 @@
       sgStopDelay: 'Switch-off delay (min)', sgStopDelayH: 'If the conditions drop after the minimum run time, wait this long before returning to normal operation.',
       sgCooldown: 'Cool-down after end (min)', sgCooldownH: 'Pause after a boost ends before a new one may start.',
       sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgPriceH: 'Also starts the boost at a cheap price, independent of sun and time of day.',
-      sgPriceAct: 'What does the price start?', sgActSg: 'SG Ready recommendation (like with sun)', sgActDhw: 'Only the heat pump hot-water program', sgActH: 'On price, only the hot-water program can be started (on) instead of SG Ready and set back to normal afterwards (off). Sun always starts SG Ready.', sgDhwOut: 'Set the hot-water program via', sgDhwFlows: 'Flows (on / back to normal, e.g. Modbus operating mode)', sgDhwCap: 'App function (capability of a device)', sgDhwOn: 'Flow hot-water program on', sgDhwOff: 'Flow back to normal', sgDhwDev: 'Device and capability of the app function', sgDhwOnV: 'Value for on', sgDhwOffV: 'Value for back to normal', sgDhwH: 'Values as text, true/false for switches. At the end it is set back to normal, but only if the control started the program itself.',
+      sgPriceAct: 'What does the price start?', sgActSg: 'SG Ready recommendation (like with sun)', sgActDhw: 'Only the heat pump hot-water program', sgActH: 'On price, only the hot-water program can be started (on) instead of SG Ready and set back to normal afterwards (off). Sun always starts SG Ready.', sgDhwOut: 'Set the hot-water program via', sgDhwFlows: 'Flows (on / back to normal, e.g. DHW setpoint via Modbus)', sgDhwCap: 'App function (capability of a device)', sgDhwOn: 'Flow hot-water program on', sgDhwOff: 'Flow back to normal', sgDhwDev: 'Device and capability of the app function', sgDhwOnV: 'Value for on', sgDhwOffV: 'Value for back to normal', sgDhwH: 'Values as text, true/false for switches. At the end it is set back to normal, but only if the control started the program itself.',
       sgPriceBelow: 'Price start only below hot water (°C)', sgPriceBelowH: 'Heats on price only if the hot water is below this value (0 = always). Without a temperature reading there is no price start.',
       sgPvBelow: 'Sun start only below hot water (°C)', sgPvBelowH: 'Optional: also with sun, only start if the hot water is below this value (0 = always, default).',
       sgSkipPv: 'Skip price start when the sun is enough', sgSkipPvKwh: 'Sun is enough from forecast (kWh, rest of today)', sgSkipPvH: 'Starting on price is pointless if the sun will still deliver enough today. Only applies while the sun start is still open (before the latest start time).',
@@ -1193,6 +1193,14 @@
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgBasis) + tipI('sg-basis') + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label>' + tipT('sg-basis', S.sgBasisH) + '</div>'
       + sgFld(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"', S.sgMinSolarH)
       + sgFld(S.sgMinSoc, 'ems-sg-minsoc', g.minSoc, 'number', ' step="1" min="0" max="100"', S.sgMinSocH)
+      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/, S.sgSensorH)
+      + targetBlock('ems-sg', g, 'ems-sg-temp', S.sgTemp, S.sgTempH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + tipI('sg-output') + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label>' + tipT('sg-output', S.sgOutH) + '</div>'
+      + (flows
+        ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
+        : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
+          + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : ''))
+      + '<details class="ems-adv"' + (state.open['sg-adv'] ? ' open' : '') + '><summary data-ems-adv="sg-adv">' + esc(S.advanced) + '</summary>'
       + sgFld(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"', S.sgHystH)
       + sgFld(S.sgTo, 'ems-sg-to', g.windowTo, 'time', '', S.sgToH)
       + sgFld(S.sgStartDelay, 'ems-sg-startdelay', g.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
@@ -1200,17 +1208,11 @@
       + sgFld(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
       + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
-      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/, S.sgSensorH)
-      + targetBlock('ems-sg', g, 'ems-sg-temp', S.sgTemp, S.sgTempH)
       + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./, S.sgModeH)
       + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '')
       + sgDevPair(S.sgFeedback, 'ems-sg-fbk', g.feedbackId, g.feedbackCapability, /./, S.sgFeedbackH)
       + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced, S.sgForcedH) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>'
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + tipI('sg-output') + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label>' + tipT('sg-output', S.sgOutH) + '</div>'
-      + (flows
-        ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
-        : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
-          + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : ''))
+      + '</details>'
       + '<div class="ems-row">' + check(S.sgLive, 'ems-sg-live', g.live) + '</div><p class="ems-why ems-warn">' + esc(S.sgLiveHint) + '</p>';
   }
   function syncSg() {
@@ -1290,6 +1292,11 @@
       + '<div class="ems-row">' + check(S.dhwSkipPv, 'ems-dhw-skippv', d.skipPv, S.dhwSkipPvH) + (d.skipPv ? field(S.dhwSkipPvKwh, 'ems-dhw-skippvkwh', d.skipPvKwh, 'number', ' step="1" min="0"') + field(S.dhwSkipUntil, 'ems-dhw-skipuntil', d.skipPvUntil, 'time', '', S.dhwSkipUntilH) : '') + '</div>'
       + sgDevPair(S.sgSensor, 'ems-dhw-sensor', d.sensorId, d.tempCapability, /^measure_temperature/, S.sgSensorH)
       + targetBlock('ems-dhw', d, 'ems-dhw-target', S.dhwTarget, S.dhwTargetH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('dhw-out') + '</span><select id="ems-dhw-out" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('dhw-out', S.sgDhwH) + '</div>'
+      + (cap
+        ? sgDevPair(S.sgDhwDev, 'ems-dhw-dev', dev.deviceId, dev.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-dhw-onv', dev.onValue, 'text') + field(S.sgDhwOffV, 'ems-dhw-offv', dev.offValue, 'text') + '</div>'
+        : sgFlowSel(S.sgDhwOn, 'ems-dhw-flowon', d.flowOn) + sgFlowSel(S.sgDhwOff, 'ems-dhw-flowoff', d.flowOff))
+      + '<details class="ems-adv"' + (state.open['dhw-adv'] ? ' open' : '') + '><summary data-ems-adv="dhw-adv">' + esc(S.advanced) + '</summary>'
       + sgDevPair(S.sgMode, 'ems-dhw-mode', d.modeId, d.modeCapability, /./, S.sgModeH)
       + (d.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-dhw-modeok', d.modeOkValue, 'text') + field(S.dhwModeProgram, 'ems-dhw-modeprog', d.modeProgramValue, 'text', '', S.dhwModeProgramH) + '</div>' : '')
       + sgFld(S.sgStartDelay, 'ems-dhw-startdelay', d.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
@@ -1297,10 +1304,7 @@
       + sgFld(S.dhwMaxRun, 'ems-dhw-maxrun', d.maxRunMin, 'number', ' step="10" min="0"', S.dhwMaxRunH)
       + sgFld(S.sgStopDelay, 'ems-dhw-stopdelay', d.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-dhw-cooldown', d.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('dhw-out') + '</span><select id="ems-dhw-out" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('dhw-out', S.sgDhwH) + '</div>'
-      + (cap
-        ? sgDevPair(S.sgDhwDev, 'ems-dhw-dev', dev.deviceId, dev.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-dhw-onv', dev.onValue, 'text') + field(S.sgDhwOffV, 'ems-dhw-offv', dev.offValue, 'text') + '</div>'
-        : sgFlowSel(S.sgDhwOn, 'ems-dhw-flowon', d.flowOn) + sgFlowSel(S.sgDhwOff, 'ems-dhw-flowoff', d.flowOff))
+      + '</details>'
       + '<div class="ems-row">' + check(S.dhwLive, 'ems-dhw-live', d.live) + '</div><p class="ems-why ems-warn">' + esc(S.dhwLiveHint) + '</p>';
   }
   function syncDhw() {

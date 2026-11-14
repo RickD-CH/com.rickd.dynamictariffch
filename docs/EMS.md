@@ -547,3 +547,17 @@ SG-Ready («SG-Ready jetzt starten») und das Warmwasser-Programm («Warmwasser 
 - Hält, bis die Zieltemperatur erreicht ist oder die Höchstdauer abläuft (ohne eigene Einstellung 180 Min.). Ist das Ziel schon erreicht, passiert nichts.
 - Der Pause-Schalter (Widget) beendet den Lauf jederzeit und sperrt neue Starts.
 - Im Testmodus wird nur simuliert (Chip «Testmodus»), geschaltet wird erst live.
+
+### Warmwasser-Programm: WW-Soll statt Betriebsart (Stiebel LWZ)
+
+Geprüft am Stiebel-Handbuch und am ISG-Modbus-Dokument: Die Betriebsart «Warmwasser» (Register 1001 = 5) heizt **nur innerhalb der WW-Schaltzeiten**
+der Wärmepumpe und schaltet die Heizung ab, sie erzwingt keinen Lauf. Der übliche Weg ist der **WW-Soll Tag (Register 1012)**: Die Wärmepumpe
+startet bei Soll minus Hysterese und stoppt bei Soll plus Hysterese. Darum steuern die mitgelieferten Flows «WP WW-Soll: Programm ein (extern)»
+(1012 = 52 °C) und «WP WW-Soll: zurück auf Normal (extern)» (1012 = Variable `WW_Dyn_WW-CONSTSOLLTAG`, nur wenn grösser als 150) das Programm.
+
+- Das **Ziel** («Aus der Wärmepumpe») rechnet mit dem WW-Soll **vor** dem Programm (Basis), weil der Flow den Soll während des Laufs erhöht.
+  Nach dem Ende wird der gemeldete Soll 30 Minuten lang nicht übernommen (das Gerät meldet den zurückgesetzten Wert verzögert).
+- Die Betriebsart-Flows («WP Betriebsart: …», je ein Flow pro Betriebsart) bleiben für andere Zwecke erhalten.
+- Wird ein Modul **während eines Laufs ausgeschaltet**, beendet die App den Lauf sauber (Relais aus bzw. «zurück auf Normal»-Flow).
+- Selten gebrauchte Felder (Verzögerungen, Betriebsart-Prüfung, Rückmeldung, Zwangsladung) stehen in den Einstellungen unter «Erweitert».
+- Fernbedienung und Tür der Programm-Verbraucher werden ohne Beachtung der Gross-/Kleinschreibung verglichen.

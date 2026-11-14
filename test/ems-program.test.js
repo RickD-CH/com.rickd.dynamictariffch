@@ -439,3 +439,16 @@ test('Frist und günstigster Moment starten höchstens einmal pro Tag - nach der
   });
   assert.equal(surplus.start, true, 'PV-Überschuss darf weiterhin auslösen');
 });
+
+test('Fernbedienung und Tür: Gross-/Kleinschreibung des Gerätewerts spielt keine Rolle, ein falscher Wert sperrt weiterhin', () => {
+  const p = normalizeProgram({
+    remoteCapability: 'measure_remoteControl', remoteOkValue: 'Enabled', doorCapability: 'measure_doorState', doorOkValue: 'Closed',
+  });
+  const run = (remoteValue, doorValue) => decideProgram({
+    cfg: p, st: {}, remoteValue, doorValue, exportW: 5000, slots: [], nowMs: at(19), tz: TZ,
+  });
+  assert.notEqual(run('ENABLED', 'CLOSED').blocked, 'remote');
+  assert.notEqual(run(' enabled ', 'closed').blocked, 'door');
+  assert.equal(run('Disabled', 'Closed').blocked, 'remote');
+  assert.equal(run('Enabled', 'Open').blocked, 'door');
+});

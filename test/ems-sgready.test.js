@@ -1006,3 +1006,54 @@ test('Gegenseitiger Ausschluss, umgekehrt und von Hand: läuft SG-Ready, startet
   assert.match(b.runner.sgReadyCurrent.reason, /Warmwasser-Programm läuft/);
   assert.equal(b.runner.dhwCurrent.on, true, 'läuft ungestört weiter');
 });
+
+test('Modul ausgeschaltet während eines Laufs: SG-Ready geht sauber zurück auf Normal (Relais aus), das Warmwasser-Programm startet seinen «aus»-Flow', async () => {
+  const sg = makeRunner();
+  await sg.runner.tickCharger(at(10));
+  assert.equal(sg.runner.sgReadyCurrent.state, 'boost');
+  assert.deepEqual(sg.calls, [['rel2', 'onoff', true, true]]);
+  sg.runner.getConfig().sgready.enabled = false;
+  await sg.runner.tickCharger(at(10) + 30000);
+  assert.deepEqual(sg.calls[1], ['rel2', 'onoff', false, true], 'Relais wieder aus');
+  assert.equal(sg.runner.sgReadyState.state, 'off');
+  await sg.runner.tickCharger(at(10) + 60000);
+  assert.equal(sg.calls.length, 2, 'danach nichts mehr');
+
+  const fired = [];
+  const d = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  d.runner.prices = { getSlots: cheapAt22 };
+  d.runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  await d.runner.tickCharger(at(22));
+  assert.deepEqual(fired, ['on']);
+  d.runner.getConfig().dhw.enabled = false;
+  await d.runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(fired, ['on', 'off'], 'ausgeschaltet während des Programms: zurück auf Normal');
+  await d.runner.tickCharger(at(22) + 120000);
+  assert.deepEqual(fired, ['on', 'off'], 'nur einmal');
+});
+
+test('Warmwasser-Programm: der vom eigenen Flow erhöhte WW-Soll verändert das Ziel nicht (Basis-Soll vor dem Programm), nach dem Ende kurz nicht übernehmen', async () => {
+  let soll = 48;
+  const { runner, tempRef } = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, targetSource: 'device', targetId: 'wp', targetCapability: 'soll', targetTol: 1, targetHyst: 4, flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.actuators.consumer = async () => ({ cmd: 'on' });
+  runner.inputs.readNumber = async (id) => (id === 'wp' ? soll : tempRef.v);
+  await runner.tickCharger(at(22));
+  assert.equal(runner.dhwCurrent.on, true);
+  assert.equal(runner.dhwCurrent.target, 51, '48 + 4 - 1');
+  soll = 52; // der Flow hat den Soll erhöht
+  await runner.tickCharger(at(22) + 60000);
+  assert.equal(runner.dhwCurrent.target, 51, 'unverändert: Basis zählt');
+  tempRef.v = 51.5;
+  await runner.tickCharger(at(22) + 120000);
+  assert.equal(runner.dhwCurrent.on, false, 'Ende bei 51');
+  await runner.tickCharger(at(22) + 180000); // der erhöhte Wert wird noch gemeldet, darf nicht zur Basis werden
+  assert.equal(runner.dhwCurrent.target, 55, 'ohne Schutz wäre es 52 + 4 - 1');
+});
