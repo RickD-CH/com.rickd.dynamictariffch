@@ -212,3 +212,33 @@ test('Ohne Batterie (hasBattery=false): Überschuss-Modus ohne Hartstopp, Batter
     assert.match(x.reason, /Keine Hausbatterie/);
   }
 });
+
+test('Priorität: holdStart hält einen Start zurück (die Wartezeit läuft weiter), danach startet er sofort; holdStop hält einen Verbraucher an, bis der niedriger priorisierte aus ist', () => {
+  const cfg = { mode: 'surplus', minSurplusW: 300, startSustainS: 60, stopGraceS: 60, minRunMin: 0, minOffMin: 0 };
+  const e = (o = {}) => env({ gridW: -1500, ...o });
+  // Start: Wartezeit abgelaufen, aber ein anderer Verbraucher ist gerade gestartet
+  const st = makeConsumerState();
+  run(cfg, st, e(), t0);
+  const held = run(cfg, st, e({ holdStart: true }), t0 + 90_000);
+  assert.deepEqual(held.commands, [], 'kein Start, solange gehalten');
+  assert.match(held.reason, /wartet: ein anderer Verbraucher ist gerade gestartet/);
+  assert.equal(st.isOn, false);
+  assert.ok(st.okSince, 'die Wartezeit läuft weiter');
+  const go = run(cfg, st, e(), t0 + 100_000);
+  assert.deepEqual(go.commands, [{ type: 'on' }], 'ohne Halten startet er sofort');
+  // Stopp: Überschuss fehlt, Karenz abgelaufen
+  const lack = (o = {}) => env({ gridW: 500, ...o });
+  run(cfg, st, lack(), t0 + 200_000);
+  const stay = run(cfg, st, lack({ holdStop: true }), t0 + 270_000);
+  assert.equal(stay.wantOn, true, 'bleibt an, solange ein niedriger priorisierter noch läuft');
+  assert.deepEqual(stay.commands, []);
+  assert.match(stay.reason, /niedriger priorisierter Verbraucher geht zuerst aus/);
+  const off = run(cfg, st, lack(), t0 + 280_000);
+  assert.deepEqual(off.commands, [{ type: 'off' }], 'ohne Halten geht er aus');
+  // Nicht betroffen: Schutz-SoC geht immer vor
+  const prot = makeConsumerState();
+  run({ ...cfg, protectSoc: 20 }, prot, e(), t0);
+  prot.isOn = true; prot.startedAt = t0 - 1_000_000;
+  const p = run({ ...cfg, protectSoc: 20 }, prot, e({ soc: 10, holdStop: true }), t0 + 5000);
+  assert.deepEqual(p.commands, [{ type: 'off' }], 'Schutz-SoC wird nie gehalten');
+});

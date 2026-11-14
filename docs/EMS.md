@@ -625,3 +625,12 @@ Ist die Mindestlaufzeit allein durch Überschuss erreicht, ist der Auftrag erled
 ### Weitere Symbole
 
 Für Verbraucher stehen zusätzlich **Pool**, **Klimaanlage** und **Heizstab** zur Auswahl (Einstellungen und Widget).
+
+### Priorität der Verbraucher bei Überschuss
+
+Die Reihenfolge der Verbraucher in den Einstellungen ist ihre Priorität (Pfeile «nach oben/nach unten» in der Zeile, in der Titelzeile steht «Priorität N», sobald mindestens zwei Verbraucher auf «Bei Überschuss» stehen). Wer weiter oben steht, startet zuerst und geht zuletzt aus.
+
+- **Starten:** Nach einem Start (jedes Verbrauchers, auch eines Programms) startet 90 Sekunden lang kein weiterer Überschuss-Verbraucher; seine Wartezeit läuft weiter, er startet danach sofort, wenn der gemessene Überschuss noch reicht. So wird derselbe Überschuss nicht doppelt verplant.
+- **Ausschalten:** Fehlt Überschuss, bleibt ein höher priorisierter Verbraucher an (höchstens 3 Minuten), solange ein niedriger priorisierter noch läuft; der niedrige geht zuerst aus.
+- **Unberührt:** Schutz-Grenzen (Schutz-SoC, Akku voll, Feuchte-Notlauf, Aufträge, Hausanschluss-Schutz) werden nie zurückgehalten. Die Modi nach Batterie und die Wallbox haben ihre eigene Regel.
+- Planer: `evaluateConsumer` (`env.holdStart`, `env.holdStop`), Anbindung in `EmsRunner._runConsumers`.

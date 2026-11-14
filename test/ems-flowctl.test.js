@@ -819,3 +819,25 @@ test('Automatisch vorschlagen: eingetragene Zeilen sind farblich getönt und mit
   again.click({ 'data-ems-suggest': '1' });
   assert.doesNotMatch(again.setup(), /class="ems-tag ems-tag-sug"/, 'Netzzähler war schon gewählt: nichts markiert');
 });
+
+test('Priorität der Verbraucher: Nummer in der Titelzeile (nur bei Überschuss und mindestens zwei), Pfeile verschieben die Reihenfolge, offen bleibt der verschobene, Speichern übernimmt sie', async () => {
+  const ui = await startUi({
+    consumers: [
+      { id: 'lamp', name: 'Erster', enabled: true, mode: 'surplus' },
+      { id: 'lamp2', name: 'Zweiter', enabled: true, mode: 'surplus' },
+      { id: 'lamp3', name: 'Dritter', enabled: true, mode: 'full' },
+    ],
+  });
+  const h0 = ui.setup();
+  assert.equal((h0.match(/class="ems-tag ems-tag-prio"/g) || []).length, 2, 'nur die zwei Überschuss-Verbraucher tragen eine Priorität');
+  assert.match(h0, /Priorität 1/);
+  assert.match(h0, /Priorität 2/);
+  ui.click({ 'data-ems-open': 'row2' });
+  assert.match(ui.setup(), /data-ems-move="2:-1"/, 'Pfeil nach oben beim zweiten');
+  ui.click({ 'data-ems-open': 'row1' });
+  assert.match(ui.setup(), /data-ems-move="1:-1" disabled/, 'beim ersten ist «nach oben» gesperrt');
+  ui.click({ 'data-ems-move': '2:-1' });
+  const names = ui.ctx.window.EmsUi._collect().ems.consumers.map((c) => c.name);
+  assert.equal(JSON.stringify(names), JSON.stringify(['Zweiter', 'Erster', 'Dritter']), 'Reihenfolge getauscht');
+  assert.match(ui.ctx.document.getElementById('ems-msg').textContent, /Noch nicht gespeichert/);
+});

@@ -259,3 +259,28 @@ test('Runner: _countJobQuarter zählt die laufende Viertelstunde einmal, nicht v
   assert.equal(js.get('dry').ran.length, 2, 'nach der Frist nicht mehr');
   runner._countJobQuarter('gibt-es-nicht', at(1, 5));
 });
+
+test('Runner: Überschuss-Verbraucher nach Priorität - nur einer startet pro Messung, der untere geht zuerst aus', async () => {
+  const cons = [
+    { id: 'a', name: 'Oben', mode: 'surplus', live: false, startSustainS: 0, stopGraceS: 0, minOffMin: 0, minRunMin: 0, minSurplusW: 300, useForecastGate: false },
+    { id: 'b', name: 'Unten', mode: 'surplus', live: false, startSustainS: 0, stopGraceS: 0, minOffMin: 0, minRunMin: 0, minSurplusW: 300, useForecastGate: false },
+  ];
+  const { runner, state } = setup({ consumers: cons });
+  Object.assign(state.i, { gridW: -1500, pvW: 4000, batterySoc: 99, batteryW: 0 });
+  await runner.tickCharger(at(12));
+  const row = (id) => runner.consumerCurrent.find((c) => c.id === id);
+  assert.equal(row('a').isOn, true, 'der obere startet');
+  assert.equal(row('b').isOn, false, 'der untere wartet (nicht gleichzeitig)');
+  assert.match(row('b').reason, /wartet: ein anderer Verbraucher ist gerade gestartet/);
+  await runner.tickCharger(at(12, 1));
+  assert.equal(row('b').isOn, false, 'auch 60 s später noch nicht (Messung soll erst zeigen, was übrig ist)');
+  await runner.tickCharger(at(12, 3));
+  assert.equal(row('b').isOn, true, 'nach der Beruhigungszeit startet der zweite');
+  // Überschuss fehlt: der untere geht zuerst aus, der obere bleibt in diesem Lauf an
+  Object.assign(state.i, { gridW: 800, pvW: 500 });
+  await runner.tickCharger(at(12, 10));
+  assert.equal(row('b').isOn, false, 'unten geht zuerst aus');
+  assert.equal(row('a').isOn, true, 'oben bleibt vorerst an');
+  await runner.tickCharger(at(12, 11));
+  assert.equal(row('a').isOn, false, 'danach geht auch der obere aus');
+});

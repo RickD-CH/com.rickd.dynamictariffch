@@ -92,7 +92,7 @@
       pvSavedOk: 'Auftrag übernommen',
       setupReady: 'Bereit: alle Pflicht-Quellen sind gewählt', setupMissing: 'Es fehlt noch:',
       setupNoBat: 'Ohne Hausbatterie läuft das Energiemanagement trotzdem: Wallbox und Verbraucher laden nach Überschuss. Modi nach Batteriestand sind dann nicht möglich.',
-      suggestedTag: 'Vorschlag', suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
+      prioRow: 'Priorität (Reihenfolge bei Überschuss)', prioUp: 'nach oben', prioDown: 'nach unten', prioTag: 'Priorität {n}', prioWhy: 'Bei «Bei Überschuss»: Der Verbraucher weiter oben startet zuerst und geht zuletzt aus. Es startet immer nur einer pro Messung, damit der Überschuss nicht doppelt verplant wird. Die Reihenfolge wird mit «Speichern» übernommen.', suggestedTag: 'Vorschlag', suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
       tagRequired: 'Pflicht', tagRecommended: 'Empfohlen', tagOptional: 'Optional', tagAuto: 'Automatisch',
       notChosen: 'nicht gewählt', device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- keines -', pickFirst: '- zuerst Gerät wählen -',
       fuseTitle: 'HAUSANSCHLUSS', fuseRow: 'Hausanschluss-Schutz', fuseOff: 'aus', fuseOn: 'Hausanschluss schützen',
@@ -303,7 +303,7 @@
       pvSavedOk: 'Job applied',
       setupReady: 'Ready: all required sources are chosen', setupMissing: 'Still missing:',
       setupNoBat: 'Without a home battery energy management still works: the EV charger and consumers charge from surplus. Modes by battery level are then not possible.',
-      suggestedTag: 'Suggested', suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
+      prioRow: 'Priority (order for surplus)', prioUp: 'up', prioDown: 'down', prioTag: 'Priority {n}', prioWhy: 'For "On surplus": the device higher up starts first and switches off last. Only one starts per measurement so the surplus is not planned twice. The order is applied with "Save".', suggestedTag: 'Suggested', suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
       tagRequired: 'Required', tagRecommended: 'Recommended', tagOptional: 'Optional', tagAuto: 'Automatic',
       notChosen: 'not chosen', device: 'Device', value: 'Value', pick: '- choose device -', none: '- none -', pickFirst: '- choose a device first -',
       fuseTitle: 'HOUSE CONNECTION', fuseRow: 'Main fuse protection', fuseOff: 'off', fuseOn: 'Protect the main fuse',
@@ -942,6 +942,27 @@
     state.rows = rows;
   }
 
+  // Priorität bei Überschuss = Reihenfolge der gesteuerten Verbraucher in der Liste (oben startet zuerst und geht zuletzt aus)
+  function prioList() {
+    var out = [];
+    state.rows.forEach(function (r, i) { if (r.kind === 'consumer' && r.control !== false && r.deviceId) out.push({ r: r, i: i }); });
+    return out;
+  }
+  function prioRank(i) {
+    var n = 0; var rank = 0; var total = 0;
+    prioList().forEach(function (x) { if (x.r.mode === 'surplus') { total += 1; if (x.i === i) rank = total; } n += 1; });
+    return total >= 2 && rank ? rank : 0;
+  }
+  function prioRow(i) {
+    var list = prioList(); var pos = -1;
+    list.forEach(function (x, k) { if (x.i === i) pos = k; });
+    if (list.length < 2 || pos < 0) return '';
+    return '<div class="ems-row"><span class="ems-f" style="flex-basis:100%">' + esc(S.prioRow) + '</span>'
+      + '<button class="btn" data-ems-move="' + i + ':-1"' + (pos === 0 ? ' disabled' : '') + '>▲ ' + esc(S.prioUp) + '</button>'
+      + '<button class="btn" data-ems-move="' + i + ':1"' + (pos === list.length - 1 ? ' disabled' : '') + '>▼ ' + esc(S.prioDown) + '</button></div>'
+      + '<p class="ems-why">' + esc(S.prioWhy) + '</p>';
+  }
+
   function rowSub(r) {
     if (r.kind === 'charger') return r.deviceId ? (r.live ? S.modeLiveTag : S.modeTest) : S.notChosen;
     if (!r.control || !r.deviceId) return S.noCtrl;
@@ -1172,6 +1193,7 @@
       + '<div class="ems-row" style="gap:4px"><span class="ems-f" style="flex-basis:100%">' + esc(S.iconLbl) + '</span>' + CONSUMER_ICONS.map(function (k) {
         return '<button class="ic-pick' + (rowIcon(r) === k ? ' on' : '') + '" data-ems-icon="' + i + ':' + k + '" title="' + esc(S.iconNames[k] || k) + '">' + icon(k, 18) + '</button>';
       }).join('') + '</div>'
+      + prioRow(i)
       + ctrl + ctrlBody + meterRow + lastTxt
       + '<div class="ems-row"><button class="btn" data-ems-remove="' + i + '">' + esc(S.remove) + '</button></div>';
   }
@@ -1535,7 +1557,8 @@
     }).join('');
     var rows = state.rows.map(function (r, i) {
       var name = r.kind === 'charger' ? S.wallbox + (r.name ? ' (' + r.name + ')' : '') : (r.name || S.consumers.charAt(0) + S.consumers.slice(1).toLowerCase());
-      return listRow('row' + i, rowIcon(r), rowColor(r), name, '', { text: rowSub(r), cls: r.deviceId && r.control !== false ? 'ok' : 'muted' }, rowBody(r, i));
+      var pr = prioRank(i);
+      return listRow('row' + i, rowIcon(r), rowColor(r), name, pr ? '<span class="ems-tag ems-tag-prio">' + esc(S.prioTag.replace('{n}', pr)) + '</span>' : '', { text: rowSub(r), cls: r.deviceId && r.control !== false ? 'ok' : 'muted' }, rowBody(r, i));
     }).join('');
     host.innerHTML = styleHtml()
       + setupHeadHtml()
@@ -1569,6 +1592,7 @@
       + '.ems-f input,.ems-f select{font:inherit;padding:5px 7px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 200px}.ems-wide select{width:100%}'
       + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
       + '.ems-adv{margin:8px 0}.ems-adv summary{cursor:pointer;font-size:12px;color:var(--st-muted)}'
+      + '.ems-tag-prio{background:var(--st-chip-bg);color:var(--st-muted)}'
       + '.ems-item.ems-sug{background:var(--st-lv-cheap-bg)}.ems-tag-sug{background:var(--st-switch-on);color:#fff}'
       + '.share-svg{width:100%;max-width:440px;height:auto;display:block;margin:2px 0}'
       + '.ems-dirty{color:#b9770e;font-size:11px;font-weight:600}.ems-save-sec{margin-top:12px}'
@@ -2776,6 +2800,21 @@
     if (up(t, 'data-ems-carcalopen')) { state.carCalOpen = !state.carCalOpen; return; }
     if (up(t, 'data-ems-previewon')) { state.previewNoEms = true; writePreview(true); render(); return; }
     if (up(t, 'data-ems-previewoff')) { state.previewNoEms = false; writePreview(false); render(); return; }
+    var mv = up(t, 'data-ems-move');
+    if (mv) {
+      sync();
+      var mp = mv.split(':'); var mFrom = Number(mp[0]); var mDir = Number(mp[1]);
+      var mList = prioList(); var mPos = -1;
+      mList.forEach(function (x, k) { if (x.i === mFrom) mPos = k; });
+      var mTo = mList[mPos + mDir];
+      if (mPos >= 0 && mTo) {
+        var tmp = state.rows[mFrom]; state.rows[mFrom] = state.rows[mTo.i]; state.rows[mTo.i] = tmp;
+        var oa = state.open['row' + mFrom]; state.open['row' + mFrom] = state.open['row' + mTo.i]; state.open['row' + mTo.i] = oa;
+        markDirty();
+      }
+      renderSetup();
+      return;
+    }
     var icPick = up(t, 'data-ems-icon');
     if (icPick) {
       sync();
