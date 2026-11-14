@@ -925,7 +925,7 @@
     meters.forEach(function (m) {
       if (used[m.name]) return;
       var r = newConsumerRow();
-      r.control = false; r.name = m.name; r.meterDeviceId = m.deviceId; r.meterCap = m.capability;
+      r.control = false; r.name = m.name; r.meterDeviceId = m.deviceId; r.meterCap = m.capability; r.icon = m.icon || '';
       rows.push(r);
     });
     state.rows = rows;
@@ -2564,7 +2564,7 @@
       consumers: consumers,
     };
     var cost = state.rows.filter(function (r) { return r.name && r.meterDeviceId && r.meterCap; }).map(function (r) {
-      return { name: r.name, deviceId: r.meterDeviceId, capability: r.meterCap };
+      return { name: r.name, deviceId: r.meterDeviceId, capability: r.meterCap, icon: r.icon || '' };
     });
     return { ems: ems, meters: { consumers: cost } };
   }
@@ -2755,7 +2755,8 @@
       // Symbol-Wahl ist ein einzelner Klick, kein Formular - direkt speichern statt den Button zu verlangen. Aber
       // nur für einen schon vollständigen Verbraucher (Gerät gewählt) - sonst fliegt die Zeile beim Speichern
       // komplett raus (collect() verlangt ein Gerät) und die Auswahl geht dadurch sofort wieder verloren.
-      if (icRow && icRow.deviceId) save();
+      // Auch ein reiner Kostenzähler (ohne steuerbares Gerät) speichert das Symbol bei den Zählern, wenn Name und Zähler gewählt sind
+      if (icRow && (icRow.deviceId || (icRow.name && icRow.meterDeviceId && icRow.meterCap))) save();
       return;
     }
     var fuseAdd = up(t, 'data-ems-fuseadd');

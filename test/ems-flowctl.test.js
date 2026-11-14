@@ -331,7 +331,7 @@ async function startUi(extra = {}) {
       }],
     },
     'GET /ems/flows': { flows: extra.noFlows ? [] : flows },
-    'GET /meters': null,
+    'GET /meters': extra.meters || null,
   };
   await ctx.window.EmsUi.init((m, p, body) => {
     calls.push([m, p, body]);
@@ -744,4 +744,22 @@ test('Wallbox: Anschluss (Capabilities und Flow-Karten) einstellbar - Bereich da
   ui.set('ems-wb-phase', '');
   const c1 = ui.ctx.window.EmsUi._collect().ems.charger;
   assert.deepEqual([c1.powerCard, c1.powerArg, c1.startCard, c1.phaseCapability], ['set_watts', 'watts', '', '']);
+});
+
+test('Kostenzähler ohne steuerbares Gerät (z. B. Wärmepumpe): die Symbol-Wahl wird gespeichert und beim Neuladen wieder angezeigt', async () => {
+  const meters = {
+    config: { enabled: true, consumers: [{ name: 'Wärmepumpe', deviceId: 'lamp', capability: 'meter_power', icon: '' }], sources: {} }, status: {}, devices: [],
+  };
+  const ui = await startUi({ meters });
+  ui.click({ 'data-ems-open': 'row1' });
+  ui.click({ 'data-ems-icon': '1:heatpump' });
+  await ui.flush();
+  const put = ui.calls.filter(([m, p]) => m === 'PUT' && p === '/meters').pop();
+  assert.ok(put, 'es wird gespeichert, nicht erst mit dem Speichern-Knopf');
+  assert.equal(put[2].consumers[0].icon, 'heatpump');
+  assert.equal(put[2].consumers[0].name, 'Wärmepumpe');
+  // wieder laden: das Symbol kommt aus der gespeicherten Konfiguration
+  const again = await startUi({ meters: { ...meters, config: { ...meters.config, consumers: [{ ...meters.config.consumers[0], icon: 'heatpump' }] } } });
+  again.click({ 'data-ems-open': 'row1' });
+  assert.match(again.setup(), /ic-pick on" data-ems-icon="1:heatpump"/);
 });
