@@ -31,8 +31,32 @@ test('RingLog.attach: log und error schreiben mit und rufen das Original weiter 
   obj.error('fehler');
   assert.deepEqual(calls, [['log', ['hallo', 1]], ['error', ['fehler']]]);
   assert.deepEqual(ring.recent().map((l) => [l.level, l.text]), [['log', 'hallo 1'], ['error', 'fehler']]);
-  assert.equal(ring.attach(null), null, 'null und Objekte ohne log/error werden ignoriert');
-  assert.deepEqual(ring.attach({}), {});
+  assert.equal(ring.attach(null), false, 'null und Objekte ohne log/error werden ignoriert');
+  assert.equal(ring.attach({}), false);
+});
+
+test('attach/attachConsole: schreibgeschützte oder kaputte Objekte werfen nie (die App darf deswegen nicht abstürzen)', () => {
+  const ring = new RingLog();
+  const frozen = Object.freeze({ log: () => {}, error: () => {} });
+  assert.doesNotThrow(() => ring.attach(frozen));
+  assert.equal(ring.attach(frozen), false);
+  const getterOnly = {};
+  Object.defineProperty(getterOnly, 'log', { get() { return () => {}; } });
+  Object.defineProperty(getterOnly, 'error', { get() { return () => {}; } });
+  assert.doesNotThrow(() => ring.attach(getterOnly));
+  assert.equal(ring.attachConsole(Object.freeze({ log() {}, error() {} })), false);
+  assert.equal(ring.attachConsole(null), false);
+});
+
+test('attachConsole: schreibt console.log/info/warn/error mit und gibt die Meldung weiter; ein zweites Mal ändert nichts', () => {
+  const seen = [];
+  const con = { log: (...a) => seen.push(['log', a]), info: (...a) => seen.push(['info', a]), warn: (...a) => seen.push(['warn', a]), error: (...a) => seen.push(['error', a]) };
+  const ring = new RingLog();
+  assert.equal(ring.attachConsole(con), true);
+  assert.equal(ring.attachConsole(con), false);
+  con.log('a'); con.info('b'); con.warn('c'); con.error('d');
+  assert.deepEqual(seen.map((x) => x[0]), ['log', 'info', 'warn', 'error']);
+  assert.deepEqual(ring.recent().map((l) => [l.level, l.text]), [['log', 'a'], ['log', 'b'], ['log', 'c'], ['error', 'd']]);
 });
 
 test('makeRedactor: Namen, Token, Bearer, IDs, IP, E-Mail, lange Zahlen und Schlüssel verschwinden; kurze Namen werden nicht ersetzt', () => {
@@ -110,4 +134,22 @@ test('buildReport: ohne Konfiguration und ohne Meldungen bricht nichts', () => {
   assert.match(text, /Gekoppelte Geräte: 0/);
   assert.match(text, /Letzte Meldungen \(0\)/);
   assert.match(text, /\(keine\)/);
+});
+
+test('buildReport: Hinweise der Laufzeit fallen weg, gleiche Zeilen werden zusammengefasst, im Testmodus steht, dass nichts gesendet wird', () => {
+  const text = buildReport({
+    config: { silent: true },
+    logs: [
+      { ts: 1, level: 'log', text: 'Device.zoneName is deprecated.' },
+      { ts: 2, level: 'log', text: 'gleich' },
+      { ts: 3, level: 'log', text: 'gleich' },
+      { ts: 4, level: 'log', text: 'gleich' },
+      { ts: 5, level: 'error', text: 'gleich' },
+    ],
+  });
+  assert.equal(/zoneName/.test(text), false);
+  assert.match(text, /\[log\] gleich \(3×\)/);
+  assert.match(text, /\[FEHLER\] gleich(\n|$)/);
+  assert.match(text, /jetzt ist der Testmodus an: es wird nichts gesendet/);
+  assert.equal(/jetzt ist der Testmodus an/.test(buildReport({ config: { silent: false } })), false);
 });

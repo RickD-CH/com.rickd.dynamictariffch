@@ -1,7 +1,6 @@
 'use strict';
 
 const Homey = require('homey');
-const { diagLog } = require('../../lib/Diagnostics');
 
 /**
  * Gerät "Energiemanagement": zeigt den Zustand des EMS-Moduls und schaltet es ein/aus.
@@ -17,7 +16,6 @@ const CAPABILITIES = [
 
 class EmsDevice extends Homey.Device {
   async onInit() {
-    diagLog.attach(this);
     for (const cap of CAPABILITIES) {
       if (!this.hasCapability(cap)) await this.addCapability(cap).catch((err) => this.error(`Capability ${cap} ergänzen:`, err && err.message));
     }

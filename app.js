@@ -8,7 +8,8 @@ const { diagLog } = require('./lib/Diagnostics');
 class DynamicTariffApp extends Homey.App {
 
   async onInit() {
-    diagLog.attach(this); // letzte Meldungen für den Diagnose-Bericht (nur im Arbeitsspeicher)
+    // Letzte Meldungen für den Diagnose-Bericht (nur im Arbeitsspeicher); darf die App nie am Starten hindern
+    try { diagLog.attachConsole(); } catch (err) { /* ohne Diagnose-Log weiter */ }
     this.log('Dynamischer Stromtarif CH gestartet');
     this._registerFlowCards();
     this.ems = new EmsController(this);
