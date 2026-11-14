@@ -958,3 +958,19 @@ test('Warmwasser-Ausgabe «Aktionskarte»: Gerät, Karte, Argumente und Temperat
   assert.equal(sp.delayC, 30);
   assert.equal(ui.ctx.window.EmsUi._collect().ems.dhw.output, 'card');
 });
+
+test('Warmwasser-Ausgabe «Auslöser mit Wert»: erklärt den Flow, zeigt nur die drei Temperaturen, kein Gerät und keine Karte; das Verzögern warnt nicht', async () => {
+  const ui = await startUi({ dhw: { enabled: true, output: 'trigger', delay: { enabled: true } } });
+  ui.click({ 'data-ems-open': 'dhw' });
+  const h = ui.setup();
+  assert.match(h, /Auslöser mit Wert/);
+  assert.match(h, /Der Warmwasser-Soll soll gesetzt werden/);
+  assert.match(h, /id="ems-dhw-sp-normal"/);
+  assert.doesNotMatch(h, /id="ems-dhw-sp-dev"/);
+  assert.doesNotMatch(h, /Zum Verzögern fehlt/);
+  ui.set('ems-dhw-sp-prog', '50');
+  const d = JSON.parse(JSON.stringify(ui.ctx.window.EmsUi._collect().ems.dhw));
+  assert.equal(d.output, 'trigger');
+  assert.equal(d.setpoint.programC, 50);
+  assert.equal(d.setpoint.delayC, 30);
+});

@@ -1328,3 +1328,23 @@ test('Ausgabe «Aktionskarte»: Verzögerung schreibt delayC, Freigabe den gemer
   // Schutz: Werte ausserhalb 10..60 °C werden nicht geschrieben
   await assert.rejects(() => t.runner._writeSetpoint({ deviceId: 'wp', card: 'c', valueArg: 'value', scale: 10, args: {} }, 75, true), /ausserhalb/);
 });
+
+test('Ausgabe «Auslöser mit Wert»: Verzögerung, Programm und Freigabe feuern ems_dhw_setpoint mit Soll und Art - kein Flow, keine Karte nötig', async () => {
+  const fired = [];
+  const t = delayRunner({
+    output: 'trigger',
+    flowOn: { id: '', advanced: false, name: '' },
+    flowOff: { id: '', advanced: false, name: '' },
+    delay: { enabled: true, minForecastKwh: 15 },
+    setpoint: { programC: 51, delayC: 29, normalC: 47 },
+  });
+  t.runner.actuators.trigger = async (id, tokens, { live }) => { fired.push({ id, tokens, live }); return { cmd: 'trigger' }; };
+  await t.runner.tickCharger(at(7));
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[0])), { id: 'ems_dhw_setpoint', tokens: { setpoint: 29, kind: 'delay' }, live: true });
+  assert.equal(t.runner.dhwDelay.active, true);
+  await t.runner.tickCharger(at(17));
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[1].tokens)), { setpoint: 48, kind: 'normal' }, 'zurück auf den gemerkten Soll 48 °C');
+  await t.runner._dhwApply({ output: 'trigger', setpoint: { programC: 51, normalC: 47 } }, true, true, []);
+  assert.deepEqual(JSON.parse(JSON.stringify(fired[2].tokens)), { setpoint: 51, kind: 'program' });
+  assert.deepEqual(t.fired, [], 'kein Flow gestartet');
+});

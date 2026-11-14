@@ -587,7 +587,10 @@ und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10
 - **Zurück auf Normal:** der vor dem Programm bzw. der Verzögerung gelesene Soll (die App merkt ihn sich); ist er unbekannt oder grösser/gleich dem Programm-Soll, gilt der eingestellte
   «Normale Soll» (Standard 48 °C). Dadurch braucht es weder die Flows «Programm ein», «verzögern» und «zurück auf Normal» noch die Variable `WW_Dyn_WW-CONSTSOLLTAG` noch den Flow «Normalwert merken».
 - Schutz: Es werden nur Werte von 10 bis 60 °C geschrieben. Im Trockenlauf (Silent oder «Befehle senden» aus) wird nichts gesendet.
-- Die Flow-Ausgabe bleibt für Geräte, die sich nicht über eine Karte ansprechen lassen.
+- **Für jede andere Wärmepumpe: «Auslöser mit Wert».** Die App löst den Flow-Auslöser «Der Warmwasser-Soll soll gesetzt werden» aus, mit den Werten **Soll (°C)** und **Art** (`program`, `delay`, `normal`).
+  Ein einziger Flow genügt: *Wenn* dieser Auslöser, *dann* schreibe den Soll an die Wärmepumpe (Modbus, Cloud-App, Relais). Der normale Soll wird vor Programm bzw. Verzögerung gemerkt.
+  Der Auslöser wird nur live gefeuert (im Trockenlauf nur in der Anzeige).
+- Die frühere Flow-Ausgabe (Flows «ein» und «zurück auf Normal») bleibt bestehen.
 
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
