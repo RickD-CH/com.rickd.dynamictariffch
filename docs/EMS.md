@@ -626,6 +626,16 @@ und übergibt den Soll als Argument (°C × Faktor, bei Zehntelgrad-Registern 10
 Neben jeder Auswahl «Gerät und Wert» (Datenquellen, Warmwasser-Sensor und -Soll, Zähler, Akku-Sensor) steht der **aktuelle Wert** der gewählten Capability, nur lesen, mit Einheit (zum Beispiel «47,3 °C»). Unbekannt zeigt «–».
 Die Werte kommen mit der Geräteliste und werden beim Aufklappen eines Bereichs aufgefrischt, höchstens alle 30 Sekunden (kein ständiges Abfragen).
 
+### Diagnose zum Kopieren (Fehler melden)
+
+Im Reiter «Heute», unter «Status», gibt es die Karte **Diagnose**: Der Knopf «Diagnose erstellen» erzeugt einen Text (Kopieren-Knopf und Link auf ein neues GitHub-Issue).
+Die App selbst sendet nichts: Der Nutzer liest den Text und fügt ihn selbst ein (`lib/Diagnostics.js`, Endpunkt `GET /diagnostics`).
+
+- **Inhalt:** App- und Homey-Version, Sprache, Zeitzone, Zusammenfassung der Einrichtung (welche Module ein, live, Ausgabe-Art, Verbraucher mit Typ) und die letzten 120 Log-Zeilen der App und der Geräte (nur im Arbeitsspeicher, höchstens 200 Zeilen à 300 Zeichen).
+- **Anonymisiert:** Geräte-, Flow- und Verbrauchernamen sind durch Nummern ersetzt («Verbraucher 1», «Gerät 7», «Flow 2»). Token, Messpunktnummer, UUIDs, IP-Adressen, E-Mail-Adressen, Bearer-Zeichenfolgen, lange Zahlen (9+ Stellen) und lange Schlüssel (24+ Zeichen) sind entfernt.
+  Einstellungen der Preis-App erscheinen ohne alles, was nach Token, Passwort, Code oder Secret heisst. Stacktraces tragen nur Dateiname und Zeile.
+- Tests: `test/diagnostics.test.js` prüft, dass weder Token noch Messpunktnummer noch Namen im Bericht stehen.
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App

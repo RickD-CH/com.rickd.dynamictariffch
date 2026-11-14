@@ -403,6 +403,11 @@
       <summary><h2 id="h2-status"></h2><div class="st-line"><span class="st-dot" id="status-dot"></span><span id="status-summary"></span></div></summary>
       <div id="status-body"></div>
     </details>
+
+    <details class="card sec" id="diag-card">
+      <summary><h2 id="h2-diag">Diagnose</h2></summary>
+      <div id="diag-root"></div>
+    </details>
   </div>
 
   <div class="panel" id="panel-costs">
@@ -637,6 +642,7 @@
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <script type="text/javascript" src="ems.js"></script>
   <script type="text/javascript" src="meters.js"></script>
+  <script type="text/javascript" src="diag.js"></script>
   <script type="text/javascript" src="setupnav.js"></script>
   <script type="text/javascript">
     var LANG = (function () {
@@ -1739,6 +1745,7 @@
       apiFn = apiCall;
       if (window.EmsUi) window.EmsUi.init(apiCall, LANG);
       if (window.MetersUi) window.MetersUi.init(apiCall, LANG);
+      if (window.DiagUi) window.DiagUi.init(apiCall, LANG);
       if (window.SetupNav) window.SetupNav.init(LANG);
 
       // Appearance is stored in the app settings so it survives reopening and follows the user.

@@ -1,6 +1,7 @@
 'use strict';
 
 const Homey = require('homey');
+const { diagLog } = require('../../lib/Diagnostics');
 const { InnostromClient, InnostromError } = require('../../lib/InnostromClient');
 const { PriceStore } = require('../../lib/PriceStore');
 const {
@@ -60,6 +61,7 @@ function isAtOrAfterLocal(now, tz, { hour, minute }) {
 class InnostromDevice extends Homey.Device {
 
   async onInit() {
+    diagLog.attach(this);
     await this._migrateCapabilities();
 
     this.tz = this.homey.clock.getTimezone() || 'Europe/Zurich';

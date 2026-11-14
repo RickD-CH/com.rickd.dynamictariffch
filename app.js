@@ -3,10 +3,12 @@
 const Homey = require('homey');
 const { EmsController } = require('./lib/ems/EmsController');
 const { MeterReader } = require('./lib/MeterReader');
+const { diagLog } = require('./lib/Diagnostics');
 
 class DynamicTariffApp extends Homey.App {
 
   async onInit() {
+    diagLog.attach(this); // letzte Meldungen für den Diagnose-Bericht (nur im Arbeitsspeicher)
     this.log('Dynamischer Stromtarif CH gestartet');
     this._registerFlowCards();
     this.ems = new EmsController(this);

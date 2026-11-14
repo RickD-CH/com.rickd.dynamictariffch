@@ -162,6 +162,10 @@
       "method": "get",
       "path": "/ems/shadow"
     },
+    "getDiagnostics": {
+      "method": "get",
+      "path": "/diagnostics"
+    },
     "getEmsPlan": {
       "method": "get",
       "path": "/ems/plan"
