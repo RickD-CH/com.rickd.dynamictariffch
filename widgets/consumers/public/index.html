@@ -99,6 +99,7 @@
       if (car.targetSoc !== null) sub.push(esc(Homey.__('consumersWidget.target')) + ' ' + car.targetSoc + '%' + (car.departureTime ? ' · ' + esc(car.departureDate || '') + ' ' + esc(car.departureTime) : ''));
       if (car.window) sub.push(esc(Homey.__('consumersWidget.window')) + ' ' + esc(car.window.from) + '–' + esc(car.window.to));
       if (car.needKwh !== null) sub.push(esc(fill(Homey.__('consumersWidget.needKwh'), { kwh: car.needKwh })));
+      if (car.connected && car.sharePct !== null && car.sharePct !== undefined) sub.push(esc(fill(Homey.__('consumersWidget.carShare'), { pct: car.sharePct })));
       var testChip = !car.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('car') + '</span>' + esc(Homey.__('consumersWidget.car')) + '</div>'

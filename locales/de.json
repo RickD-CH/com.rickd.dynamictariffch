@@ -151,6 +151,7 @@
     "sgTemp": "Warmwasser {t} °C",
     "sgUntil": "bis {time}",
     "paused": "Pausiert",
+    "carShare": "Solaranteil Auto {pct} %",
     "sgStart": "SG-Ready jetzt starten",
     "dhwStart": "Warmwasser jetzt bereiten",
     "moduleOff": "Aus",

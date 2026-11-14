@@ -202,7 +202,7 @@
       batFirst: 'Hausbatterie zuerst bis (%)', batFirstPh: 'wie Wallbox', batFirstHint: 'Leer: wie die Wallbox (Hausbatterie hat Vorrang bis zur gemeinsamen Grenze). Eine Zahl: eigene Grenze; darüber nimmt der Verbraucher auch den Strom, der gerade in die Hausbatterie fliesst. Für kleine Verbraucher (eBike) z. B. 0.',
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
-      shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareBonus: 'Prognose-Bonus (Prozentpunkte früher)', shareBonusH: 'Optional: Bringt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Sonnenuntergang brauchen, wird die Rampe um bis zu so viele Prozentpunkte nach unten verschoben (das Auto lädt früher). Ohne frische Prognose oder gelerntes Hausprofil passiert nichts. 0 = aus.', shareBonusNow: 'Prognose-Bonus aktiv: Rampe aktuell {n} Punkte früher.', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
+      shareAt: 'Batterie ab (%)', shareGets: 'Anteil Solarstrom (%)', shareLowRow: 'Untere Grenze: ab hier bekommt das Auto Solarstrom', shareHighRow: 'Obere Grenze: ab hier bekommt es den vollen Überschuss', shareChartCap: 'So viel vom Solarstrom bekommt das Auto je Batteriestand', shareNow: 'Jetzt: Batterie {soc} % → das Auto bekommt {pct} % des Solarstroms.', shareBonusTitle: 'Prognose-Bonus', shareVal: 'Solaranteil Auto {pct} %', shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareBonus: 'Prognose-Bonus (Prozentpunkte früher)', shareBonusH: 'Optional: Bringt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Sonnenuntergang brauchen, wird die Rampe um bis zu so viele Prozentpunkte nach unten verschoben (das Auto lädt früher). Ohne frische Prognose oder gelerntes Hausprofil passiert nichts. 0 = aus.', shareBonusNow: 'Prognose-Bonus aktiv: Rampe aktuell {n} Punkte früher.', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
       maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', drop: 'Tropfen', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
@@ -413,7 +413,7 @@
       batFirst: 'Home battery first up to (%)', batFirstPh: 'like charger', batFirstHint: 'Empty: like the EV charger (home battery first up to the shared limit). A number: own limit; above it the device also takes the power currently flowing into the home battery. For small devices (e-bike) e.g. 0.',
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
-      shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareBonus: 'Forecast bonus (percentage points earlier)', shareBonusH: 'Optional: if the solar forecast shows clearly more sun today than the battery needs to fill up and the house until sunset, the ramp moves down by up to this many points (the car charges earlier). Without a fresh forecast or a learned house profile nothing happens. 0 = off.', shareBonusNow: 'Forecast bonus active: ramp currently {n} points earlier.', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
+      shareAt: 'Battery from (%)', shareGets: 'Solar share (%)', shareLowRow: 'Lower limit: from here the car gets solar power', shareHighRow: 'Upper limit: from here it gets the full surplus', shareChartCap: 'How much of the solar power the car gets per battery level', shareNow: 'Now: battery {soc} % → the car gets {pct} % of the solar power.', shareBonusTitle: 'Forecast bonus', shareVal: 'Solar share car {pct} %', shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareBonus: 'Forecast bonus (percentage points earlier)', shareBonusH: 'Optional: if the solar forecast shows clearly more sun today than the battery needs to fill up and the house until sunset, the ramp moves down by up to this many points (the car charges earlier). Without a fresh forecast or a learned house profile nothing happens. 0 = off.', shareBonusNow: 'Forecast bonus active: ramp currently {n} points earlier.', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
       maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', drop: 'Drop', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
@@ -961,15 +961,45 @@
   }
 
   // Hausbatterie-Schutz: wie viel vom Solarstrom das Auto in Abhängigkeit vom Batteriestand bekommt (gilt auch für Geräte ohne eigene Grenze)
+  /** Kleines Diagramm der Rampe: Batteriestand (x) gegen Anteil Solarstrom fürs Auto (y), mit Markierung «jetzt» und ggf. der Verschiebung durch den Bonus. */
+  function shareChart(sh, info) {
+    var X = function (v) { return 14 + v * 0.9; };
+    var Y = function (v) { return 42 - v * 0.38; };
+    var line = function (lo, hi, pl, ph, attrs) {
+      var p = [[0, 0], [lo, 0], [lo, pl], [hi, ph], [100, ph]].map(function (a) { return X(a[0]).toFixed(1) + ',' + Y(a[1]).toFixed(1); }).join(' ');
+      return '<polyline points="' + p + '" fill="none" ' + attrs + '/>';
+    };
+    var eff = info && info.lo !== undefined ? { lo: info.lo, hi: info.hi, pl: info.pctLow, ph: info.pctHigh } : { lo: sh.socLow, hi: sh.socHigh, pl: sh.pctLow, ph: sh.pctHigh };
+    var svg = '<svg viewBox="0 0 108 54" class="share-svg" role="img" aria-label="' + esc(S.shareChartCap) + '">'
+      + '<line x1="14" y1="42" x2="104" y2="42" stroke="var(--st-border)" stroke-width="1" vector-effect="non-scaling-stroke"/><line x1="14" y1="4" x2="14" y2="42" stroke="var(--st-border)" stroke-width="1" vector-effect="non-scaling-stroke"/>';
+    if (info && info.shift > 0) svg += line(sh.socLow, sh.socHigh, sh.pctLow, sh.pctHigh, 'stroke="var(--st-muted)" stroke-width="1.2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"');
+    svg += line(eff.lo, eff.hi, eff.pl, eff.ph, 'stroke="var(--st-accent)" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"');
+    if (info && info.soc !== null && info.soc !== undefined && info.pct !== null && info.pct !== undefined) {
+      svg += '<line x1="' + X(info.soc).toFixed(1) + '" y1="4" x2="' + X(info.soc).toFixed(1) + '" y2="42" stroke="var(--st-text)" stroke-width="1" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>'
+        + '<circle cx="' + X(info.soc).toFixed(1) + '" cy="' + Y(info.pct).toFixed(1) + '" r="1.6" fill="var(--st-text)"/>';
+    }
+    [0, 25, 50, 75, 100].forEach(function (v) { svg += '<text x="' + X(v).toFixed(1) + '" y="49.5" font-size="3.4" text-anchor="middle" fill="var(--st-muted)">' + v + '</text>'; });
+    svg += '<text x="12" y="6.5" font-size="3.4" text-anchor="end" fill="var(--st-muted)">100 %</text><text x="12" y="43.5" font-size="3.4" text-anchor="end" fill="var(--st-muted)">0 %</text></svg>';
+    return svg;
+  }
+
+  // Hausbatterie-Schutz: wie viel vom Solarstrom das Auto in Abhängigkeit vom Batteriestand bekommt (gilt auch für Geräte ohne eigene Grenze)
   function shareBox() {
     var sh = (state.cfg && state.cfg.share) || { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100 };
+    var info = state.shadow && state.shadow.shareInfo;
     var num0 = ' step="5" min="0" max="100"';
-    return '<div class="ems-box"><b>' + esc(S.shareTitle) + '</b><p class="ems-why">' + esc(S.shareWhy) + '</p><div class="ems-row">'
-      + field(S.shareLo, 'ems-share-lo', sh.socLow, 'number', num0) + field(S.sharePctLo, 'ems-share-pctlo', sh.pctLow, 'number', num0)
-      + field(S.shareHi, 'ems-share-hi', sh.socHigh, 'number', num0) + field(S.sharePctHi, 'ems-share-pcthi', sh.pctHigh, 'number', num0) + '</div>'
-      + '<div class="ems-row">' + field(S.shareBonus, 'ems-share-bonus', sh.forecastBonus || 0, 'number', ' step="5" min="0" max="40"', S.shareBonusH) + '</div>'
-      + (state.shadow && state.shadow.shareShift > 0 ? '<p class="ems-why ems-ok">' + esc(S.shareBonusNow.replace('{n}', state.shadow.shareShift)) + '</p>' : '')
-      + '<p class="ems-why">' + esc(S.shareEx) + '</p></div>';
+    var now = info && info.pct !== null && info.pct !== undefined && info.soc !== null && info.soc !== undefined
+      ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareNow.replace('{soc}', info.soc).replace('{pct}', info.pct)) + '</p>' : '';
+    var bonusNow = state.shadow && state.shadow.shareShift > 0 ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareBonusNow.replace('{n}', state.shadow.shareShift)) + '</p>' : '';
+    return '<div class="ems-box"><b>' + esc(S.shareTitle) + '</b><p class="ems-why">' + esc(S.shareWhy) + '</p>'
+      + '<div class="ems-row"><span class="ems-f" style="flex-basis:100%">' + esc(S.shareLowRow) + '</span>'
+      + field(S.shareAt, 'ems-share-lo', sh.socLow, 'number', num0) + field(S.shareGets, 'ems-share-pctlo', sh.pctLow, 'number', num0) + '</div>'
+      + '<div class="ems-row"><span class="ems-f" style="flex-basis:100%">' + esc(S.shareHighRow) + '</span>'
+      + field(S.shareAt, 'ems-share-hi', sh.socHigh, 'number', num0) + field(S.shareGets, 'ems-share-pcthi', sh.pctHigh, 'number', num0) + '</div>'
+      + '<div style="margin:8px 0 2px"><span class="ems-f">' + esc(S.shareChartCap) + '</span>' + shareChart(sh, info) + now + '</div>'
+      + '<p class="ems-why">' + esc(S.shareEx) + '</p>'
+      + '<div class="ems-box" style="margin:8px 0 0"><b>' + esc(S.shareBonusTitle) + '</b>'
+      + '<div class="ems-row">' + field(S.shareBonus, 'ems-share-bonus', sh.forecastBonus || 0, 'number', ' step="5" min="0" max="40"', S.shareBonusH) + '</div>' + bonusNow + '</div></div>';
   }
 
   function rowBody(r, i) {
@@ -1435,6 +1465,7 @@
       + '.ems-f input,.ems-f select{font:inherit;padding:5px 7px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text);min-width:90px}.ems-wide{flex:1 1 200px}.ems-wide select{width:100%}'
       + '.ems-c{display:flex;align-items:center;gap:6px;font-size:13px}.ems-box{border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;margin:8px 0}'
       + '.ems-adv{margin:8px 0}.ems-adv summary{cursor:pointer;font-size:12px;color:var(--st-muted)}'
+      + '.share-svg{width:100%;max-width:440px;height:auto;display:block;margin:2px 0}'
       + '.ems-dirty{color:#b9770e;font-size:11px;font-weight:600}.ems-save-sec{margin-top:12px}'
       + '.ems-save{display:block;width:100%;padding:11px;border:0;border-radius:8px;background:var(--st-accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}'
       + '.ems-cards{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.ems-card{flex:1 1 140px;border:1px solid var(--st-border);border-radius:8px;padding:8px 10px;background:var(--st-card-bg)}'
@@ -1751,6 +1782,8 @@
       if (ch.pvW !== null && ch.pvW !== undefined) vals.push(S.pvLbl + ' ' + Math.round(ch.pvW) + ' W');
       if (ch.gridW !== null && ch.gridW !== undefined) vals.push(S.gridLbl + ' ' + Math.round(ch.gridW) + ' W');
       if (hasBattery() && ch.batterySoc !== null && ch.batterySoc !== undefined) vals.push(S.batLbl + ' ' + Math.round(ch.batterySoc) + ' %');
+      var si = sh.shareInfo;
+      if (cfg.charger && cfg.charger.id && si && si.pct !== null && si.pct !== undefined) vals.push(S.shareVal.replace('{pct}', si.pct) + (si.shift > 0 ? ' (' + S.shareBonusTitle + ' −' + si.shift + ')' : ''));
       if (ch.carSoc !== null && ch.carSoc !== undefined) vals.push(S.carSocLbl + ' ' + Math.round(ch.carSoc) + ' %');
     }
     var head = '<div class="card"><div class="ems-st"><span class="ems-dot" style="background:' + dot + '"></span><b>' + esc(title) + '</b>'

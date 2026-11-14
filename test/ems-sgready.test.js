@@ -1103,3 +1103,18 @@ test('Runner: wirksame Rampe mit Prognose-Bonus (Rest-Prognose, Batterie bis vol
   assert.equal(n, share);
   assert.equal(runner._computeShare({ ...cfg, share: { ...share, forecastBonus: 0 } }, { batterySoc: 40 }, at(10)).socLow, 50);
 });
+
+test('Runner: shareInfo für die Anzeige (Anteil jetzt, Batteriestand, wirksame Rampe, Verschiebung)', () => {
+  const { runner } = makeRunner();
+  const cfg = { share: { socLow: 50, socHigh: 80, pctLow: 0, pctHigh: 100, forecastBonus: 0 }, battery: { deviceId: 'b', capacityKwh: 10 } };
+  runner._computeShare(cfg, { batterySoc: 65 }, at(10));
+  assert.deepEqual(
+    (({ pct, soc, lo, hi, shift }) => ({ pct, soc, lo, hi, shift }))(runner.shareInfo),
+    { pct: 50, soc: 65, lo: 50, hi: 80, shift: 0 },
+    'Mitte der Rampe: 50 %',
+  );
+  runner._computeShare(cfg, { batterySoc: 30 }, at(10));
+  assert.equal(runner.shareInfo.pct, 0, 'unter der Rampe: 0 %');
+  runner._computeShare(cfg, { batterySoc: null }, at(10));
+  assert.equal(runner.shareInfo.pct, null, 'Batteriestand unbekannt');
+});

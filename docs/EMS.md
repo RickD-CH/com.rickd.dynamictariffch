@@ -584,3 +584,10 @@ der Sonne brauchen, wird die Rampe nach unten verschoben, das Auto (und Geräte 
 
 Der Hausverbrauch kommt aus dem gelernten Profil, das Ende der Sonne aus der Prognose. Defensiv: ohne frische Prognose, Kapazität, Ladestand oder gelerntes
 Profil passiert nichts. Die Verschiebung wird im Shadow (`shareShift`) und in den Einstellungen angezeigt. Logik: `lib/ems/planner/shareBonus.js`, Anbindung `EmsRunner._computeShare`.
+
+### Wo man die Rampe sieht
+
+- **Einstellungen → Wallbox:** Kasten «Hausbatterie-Schutz» mit zwei Zeilen (untere und obere Grenze), Mini-Diagramm (gestrichelt = eingestellte Rampe, durchgezogen = wirksame Rampe mit Prognose-Bonus,
+  Punkt = aktueller Batteriestand), der Zeile «Jetzt: Batterie X % → das Auto bekommt Y % des Solarstroms» und dem Prognose-Bonus.
+- **Ausblick → Betrieb:** In der Statuskarte steht «Solaranteil Auto Y %» (mit dem Hinweis auf den Bonus, wenn er wirkt).
+- **Widget «Verbraucher»:** Im E-Auto-Block eine kurze Angabe «Solaranteil Auto Y %», nur wenn das Auto eingesteckt ist.

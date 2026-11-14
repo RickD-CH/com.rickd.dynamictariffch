@@ -288,3 +288,16 @@ test('Widget «Verbraucher»: meldet die Wärmepumpe Empfehlung/Zwang, obwohl wi
   assert.equal(w({ state: 'off', reported: '2 NORMAL', reportedState: 'off' }).external, false);
   assert.equal(w(null).external, false);
 });
+
+test('Widget «Verbraucher»: Solaranteil des Autos (sharePct) aus der Rampe', () => {
+  const w = (shareInfo) => consumersWidget({
+    shadow: {
+      deviceExists: true, silent: true, config: { consumers: [], charger: { id: 'wb', live: false } }, car: { connected: true }, charger: { current: { mine: {} } }, shareInfo,
+    },
+    consumerCurrent: [],
+    tz: TZ,
+  }).car;
+  assert.equal(w({ pct: 40 }).sharePct, 40);
+  assert.equal(w({ pct: null }).sharePct, null);
+  assert.equal(w(null).sharePct, null);
+});

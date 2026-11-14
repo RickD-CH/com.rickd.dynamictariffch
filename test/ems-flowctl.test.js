@@ -661,7 +661,10 @@ test('Wallbox: Hausbatterie-Schutz (Rampe) einstellbar - Felder sichtbar, Werte 
   ui.click({ 'data-ems-open': 'row0' });
   const h = ui.setup();
   assert.match(h, /Hausbatterie-Schutz/);
-  assert.match(h, /Auto lädt ab Batterie \(%\)/);
+  assert.match(h, /Untere Grenze: ab hier bekommt das Auto Solarstrom/);
+  assert.match(h, /Obere Grenze: ab hier bekommt es den vollen Überschuss/);
+  assert.match(h, /<svg viewBox="0 0 108 54" class="share-svg"/, 'Mini-Diagramm der Rampe');
+  assert.match(h, /Prognose-Bonus/);
   assert.deepEqual(
     { lo: ui.ctx.window.EmsUi._collect().ems.share.socLow, hi: ui.ctx.window.EmsUi._collect().ems.share.socHigh, plo: ui.ctx.window.EmsUi._collect().ems.share.pctLow },
     { lo: 50, hi: 80, plo: 0 },
