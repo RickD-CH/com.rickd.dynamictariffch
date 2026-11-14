@@ -49,6 +49,7 @@
     .pv .lbl { position: absolute; left: 0; top: 0; font-size: 9.5px; color: var(--pw-muted); background: var(--pw-bg); padding: 0 2px; border-radius: 3px; opacity: .9; }
     .band { display: flex; gap: 1px; height: 7px; margin-top: 3px; }
     .band i { flex: 1 1 0; min-width: 0; display: block; border-radius: 1px; }
+    .blbl { font-size: 9.5px; color: var(--pw-muted); margin-top: 5px; letter-spacing: .02em; }
     .ticks { position: relative; height: 12px; margin-top: 2px; font-size: 9.5px; color: var(--pw-muted); }
     .ticks span { position: absolute; transform: translateX(-50%); }
     .detail { margin-top: 6px; font-size: 11px; color: var(--pw-muted); min-height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -143,10 +144,10 @@
           + '<span class="lbl">PV ' + f1(d.pvMaxKw) + ' kW · ' + f1(d.pvKwh) + ' kWh</span></div>';
       }
       if (d.hasBattery) {
-        html += '<div class="band">' + d.slots.map(function (s) { return '<i style="background:' + (s.bat ? COLS[s.bat] || COLS.normal : 'transparent') + '"></i>'; }).join('') + '</div>';
+        html += '<div class="blbl">' + esc(Homey.__('planWidget.battery')) + '</div><div class="band">' + d.slots.map(function (s) { return '<i style="background:' + (s.bat ? COLS[s.bat] || COLS.normal : 'transparent') + '"></i>'; }).join('') + '</div>';
       }
       if (d.hasCharger) {
-        html += '<div class="band">' + d.slots.map(function (s) { return '<i style="background:' + (s.car ? 'var(--pw-car)' : 'var(--pw-chip)') + '"></i>'; }).join('') + '</div>';
+        html += '<div class="blbl">' + esc(Homey.__('planWidget.charger')) + '</div><div class="band">' + d.slots.map(function (s) { return '<i style="background:' + (s.car ? 'var(--pw-car)' : 'var(--pw-chip)') + '"></i>'; }).join('') + '</div>';
       }
       html += '<div class="ticks">' + d.ticks.map(function (t) { return '<span style="left:' + ((t.i + 0.5) / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
       html += '<div class="detail" id="detail">' + detailHtml(Homey, d, sel) + '</div>';
