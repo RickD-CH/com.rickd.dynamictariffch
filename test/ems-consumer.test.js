@@ -242,3 +242,46 @@ test('Priorität: holdStart hält einen Start zurück (die Wartezeit läuft weit
   const p = run({ ...cfg, protectSoc: 20 }, prot, e({ soc: 10, holdStop: true }), t0 + 5000);
   assert.deepEqual(p.commands, [{ type: 'off' }], 'Schutz-SoC wird nie gehalten');
 });
+
+// ---------------------------------------------------------------- Feuchte-Notlauf: im günstigsten Block starten
+
+const waitCfg = (o = {}) => hcfg({ humidity: { ...hum, waitForCheap: true, criticalAbove: 75, ...o } });
+const blockAt = (min) => ({ start: t0 + min * MIN, end: t0 + (min + 60) * MIN, avg: 11.2, label: '14:00-15:00 (Ø 11.2 Rp.)' });
+
+test('Feuchte-Notlauf mit Option: wartet auf den günstigsten Block (Grund nennt ihn), das Gerät bleibt aus', () => {
+  const st = makeConsumerState();
+  const r = run(waitCfg(), st, he(68, { humidityBlock: blockAt(180) }), t0);
+  assert.equal(r.wantOn, false);
+  assert.match(r.reason, /Feuchte 68% \(ab 65%\): Notlauf wartet auf den günstigsten Block 14:00-15:00/);
+  assert.equal(st.forceUntil || null, null, 'noch kein Notlauf');
+  assert.equal(r.commands.length, 0);
+});
+
+test('Feuchte-Notlauf mit Option: zu Beginn des Blocks startet er und läuft wie bisher (bis Feuchte unter «aus» oder Zeit um)', () => {
+  const st = makeConsumerState();
+  run(waitCfg(), st, he(68, { humidityBlock: blockAt(180) }), t0);
+  const start = run(waitCfg(), st, he(68, { humidityBlock: { ...blockAt(0), start: t0 + 180 * MIN } }), t0 + 180 * MIN);
+  assert.equal(start.wantOn, true);
+  assert.match(start.reason, /Feuchte-Notlauf gestartet \(Feuchte 68% >= 65%\)/);
+  assert.equal(start.commands[0].type, 'on');
+  const ended = run(waitCfg(), st, he(60, { humidityBlock: null }), t0 + 200 * MIN);
+  assert.match(ended.reason, /Notlauf beendet \(Feuchte 60% < 61%\)/);
+});
+
+test('Feuchte-Notlauf mit Option: ab der kritischen Feuchte sofort, ohne Preise sofort, ohne Option sofort', () => {
+  const crit = run(waitCfg(), makeConsumerState(), he(76, { humidityBlock: blockAt(180) }), t0);
+  assert.equal(crit.wantOn, true);
+  assert.match(crit.reason, /kritisch 75%: sofort/);
+  const noPrices = run(waitCfg(), makeConsumerState(), he(68, { humidityBlock: null }), t0);
+  assert.equal(noPrices.wantOn, true, 'ohne Preise nicht warten');
+  const off = run(hcfg(), makeConsumerState(), he(68, { humidityBlock: blockAt(180) }), t0);
+  assert.equal(off.wantOn, true, 'ohne die Option wie bisher sofort');
+});
+
+test('Feuchte-Notlauf mit Option: fällt die Feuchte während des Wartens unter die Schwelle, gibt es keinen Notlauf; steigt sie wieder, wird erneut gewartet', () => {
+  const st = makeConsumerState();
+  assert.equal(run(waitCfg(), st, he(68, { humidityBlock: blockAt(180) }), t0).wantOn, false);
+  assert.equal(run(waitCfg(), st, he(60, { humidityBlock: null }), t0 + 30 * MIN).wantOn, false);
+  const again = run(waitCfg(), st, he(67, { humidityBlock: blockAt(150) }), t0 + 60 * MIN);
+  assert.match(again.reason, /wartet auf den günstigsten Block/);
+});

@@ -207,7 +207,7 @@
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', dehumidifier: 'Luftentfeuchter', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe', pool: 'Pool', ac: 'Klimaanlage', heater: 'Heizstab', sauna: 'Sauna', freezer: 'Kühlgerät', pump: 'Pumpe', light: 'Licht', mower: 'Rasenroboter', purifier: 'Luftreiniger', aquarium: 'Aquarium' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
       accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
-      humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
+      humWait: 'Im günstigsten Block starten (statt sofort)', humCritical: 'Kritische Feuchte (%, optional)', humWaitHint: 'Statt sofort bei {on} % wartet der Notlauf auf den günstigsten Block der Notlaufdauer im Rest des Tages. Dazwischen läuft das Gerät wie sonst bei PV-Überschuss. Ohne Preise startet er sofort. Ab der kritischen Feuchte startet er immer sofort.', humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
       save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', saveDirty: 'Änderungen speichern ●', saveSec: 'Speichern', unsavedTag: '● ungespeichert', unsaved: 'Noch nicht gespeichert: bitte «Speichern» drücken.', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
@@ -418,7 +418,7 @@
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', dehumidifier: 'Dehumidifier', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump', pool: 'Pool', ac: 'Air conditioning', heater: 'Heating element', sauna: 'Sauna', freezer: 'Fridge / freezer', pump: 'Pump', light: 'Light', mower: 'Robot mower', purifier: 'Air purifier', aquarium: 'Aquarium' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
       accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
-      humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
+      humWait: 'Start in the cheapest block (instead of right away)', humCritical: 'Critical humidity (%, optional)', humWaitHint: 'Instead of right away at {on} % the emergency run waits for the cheapest block of its run time in the rest of the day. In between the device runs on PV surplus as usual. Without prices it starts right away. From the critical humidity on it always starts right away.', humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
       save: 'Save energy management settings', saved: 'Saved', saveDirty: 'Save changes ●', saveSec: 'Save', unsavedTag: '● unsaved', unsaved: 'Not saved yet: please press "Save".', error: 'Error', toggleFailed: 'Could not set the switch',
@@ -898,7 +898,7 @@
     return {
       kind: 'consumer', name: '', control: true, deviceId: '', type: 'generic', mode: hasBattery() ? 'full' : 'surplus', fullSoc: 98, socOn: 80, hysteresis: 5,
       minSurplusW: 300, startSustainS: 60, stopGraceS: 120, minRunMin: 30, minOffMin: 10, protectSoc: 20, useForecastGate: true, live: false,
-      humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60 },
+      humidity: { enabled: false, sensorId: '', capability: 'measure_humidity', onAbove: 65, offBelow: 61, runMin: 60, waitForCheap: false, criticalAbove: 75 },
       accu: { enabled: false, sensorId: '', capability: 'measure_battery', stopAt: 80, resumeBelow: 75, chargeBelow: 20, maxRunMin: 240 },
       program: {
         minSurplusW: 2000, startSustainS: 300, windowFrom: '', maxWaitH: 4, durationH: 3, remoteCapability: '', remoteOkValue: 'Enabled', doorCapability: '', doorOkValue: 'Closed', stateCapability: '', stateIdleValue: '', startCapability: 'dishwasher_execute_command', startValue: 'START',
@@ -1185,7 +1185,9 @@
       var hum = true
         ? '<div class="ems-box"><b>' + esc(S.humTitle) + '</b><div class="ems-row">' + check(S.humEnable, p + 'humEnable', h.enabled) + '</div>'
           + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.humSensor) + '</span><select id="' + p + 'humSensor">' + deviceOptions(h.sensorId, hasCap(/^measure_humidity$/), S.none) + '</select></label>'
-          + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div><p class="ems-why">' + esc(S.humHint) + '</p></div>'
+          + field(S.humOn, p + 'humOn', h.onAbove) + field(S.humOff, p + 'humOff', h.offBelow) + field(S.humRun, p + 'humRun', h.runMin) + '</div><p class="ems-why">' + esc(S.humHint) + '</p>'
+          + '<div class="ems-row">' + check(S.humWait, p + 'humWait', h.waitForCheap === true) + field(S.humCritical, p + 'humCrit', h.criticalAbove === undefined ? 75 : h.criticalAbove, 'number', ' step="1" min="10" max="100"') + '</div>'
+          + '<p class="ems-why">' + esc(S.humWaitHint.replace('{on}', String(h.onAbove))) + '</p></div>'
         : '';
       var ac = r.accu || newConsumerRow().accu;
       var accu = '<div class="ems-box"><b>' + esc(S.accuTitle) + '</b><div class="ems-row">' + check(S.accuEnable, p + 'accuEnable', ac.enabled) + '</div>'
@@ -2742,6 +2744,7 @@
         r.humidity = {
           enabled: chk(p + 'humEnable'), sensorId: val(p + 'humSensor', r.humidity.sensorId), capability: r.humidity.capability || 'measure_humidity',
           onAbove: num(p + 'humOn', r.humidity.onAbove), offBelow: num(p + 'humOff', r.humidity.offBelow), runMin: num(p + 'humRun', r.humidity.runMin),
+          waitForCheap: chk(p + 'humWait'), criticalAbove: num(p + 'humCrit', r.humidity.criticalAbove === undefined ? 75 : r.humidity.criticalAbove),
         };
       }
       if ($(p + 'pgSurplus')) {

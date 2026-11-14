@@ -988,3 +988,24 @@ test('Hilfe: neben Gerät und Wert steht der aktuelle Wert (nur lesen), mit Einh
   assert.match(h, /data-ems-cur="wp\|measure_temperature.number2">48 °C</);
   assert.match(h, /<span>Aktuell<\/span>/);
 });
+
+test('Feuchte-Notlauf: Option «Im günstigsten Block starten» und «Kritische Feuchte (optional)» werden angezeigt und gespeichert', async () => {
+  const ui = await startUi({
+    consumers: [{
+      id: 'lamp', name: 'Entfeuchter', enabled: true, mode: 'surplus', type: 'dehumidifier', humidity: { enabled: true, sensorId: 'lamp', onAbove: 65, waitForCheap: true, criticalAbove: 80 },
+    }],
+  });
+  ui.click({ 'data-ems-open': 'row1' });
+  const h = ui.setup();
+  assert.match(h, /Im günstigsten Block starten \(statt sofort\)/);
+  assert.match(h, /Kritische Feuchte \(%, optional\)/);
+  assert.match(h, /Statt sofort bei 65 %/);
+  const c = JSON.parse(JSON.stringify(ui.ctx.window.EmsUi._collect().ems.consumers[0].humidity));
+  assert.equal(c.waitForCheap, true);
+  assert.equal(c.criticalAbove, 80);
+  ui.ctx.document.getElementById('row1-humWait').checked = false;
+  ui.set('row1-humCrit', '70');
+  const c2 = JSON.parse(JSON.stringify(ui.ctx.window.EmsUi._collect().ems.consumers[0].humidity));
+  assert.equal(c2.waitForCheap, false);
+  assert.equal(c2.criticalAbove, 70);
+});

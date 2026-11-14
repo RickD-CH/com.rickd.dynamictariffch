@@ -638,6 +638,16 @@ Die App selbst sendet nichts: Der Nutzer liest den Text und fügt ihn selbst ein
   Einstellungen der Preis-App erscheinen ohne alles, was nach Token, Passwort, Code oder Secret heisst. Stacktraces tragen nur Dateiname und Zeile.
 - Tests: `test/diagnostics.test.js` prüft, dass weder Token noch Messpunktnummer noch Namen im Bericht stehen.
 
+### Feuchte-Notlauf im günstigsten Block (Option)
+
+Beim Verbraucher gibt es unter «Feuchte-Notlauf» die Option **«Im günstigsten Block starten (statt sofort)»** (Standard aus, wie im alten DryFy-Flow bei aktivem dynamischem Tarif).
+
+- Steigt die Feuchte auf «ein» (65 %), wartet der Notlauf auf den **günstigsten Block der Notlaufdauer** (Standard 60 min) im **Rest des heutigen Tages** (`EmsRunner._humidityBlock`, nutzt `cheapestBlock` aus `planner/program.js`).
+  Der Grund nennt den Block: «Feuchte 68% (ab 65%): Notlauf wartet auf den günstigsten Block 14:00-15:00 (Ø 11.2 Rp.)». Zu Beginn des Blocks startet er und läuft wie bisher, bis die Feuchte unter «aus» fällt oder die Zeit um ist.
+- Dazwischen läuft das Gerät wie sonst bei **PV-Überschuss**.
+- **Kritische Feuchte** (optional, Standard 75 %, nie unter «ein»): ab diesem Wert startet der Notlauf immer **sofort**. Ohne vollständige Preise für den Rest des Tages startet er ebenfalls sofort. Ein nicht lesbarer Sensor löst weiterhin nichts aus.
+- Fällt die Feuchte beim Warten unter «ein», entsteht kein Notlauf; steigt sie wieder, wird erneut gewartet.
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App

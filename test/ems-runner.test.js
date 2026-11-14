@@ -327,3 +327,24 @@ test('Plan-Verlauf: ohne planLog läuft alles wie vorher', async () => {
   await runner.tickCharger(at(10, 2));
   assert.ok(runner.current);
 });
+
+test('Runner._humidityBlock: günstigster Block der Notlaufdauer im Rest des Tages; ohne Option, ohne Bedarf oder ohne Preise null', () => {
+  const { EmsRunner } = require('../lib/ems/EmsRunner');
+  const { fromLocal, localParts } = require('../lib/time');
+  const TZ = 'Europe/Zurich';
+  const now = fromLocal(2026, 11, 14, 12, 7).getTime();
+  const slots = [];
+  for (let t = Math.floor(now / 900000) * 900000; t < fromLocal(2026, 11, 15, 0, 0).getTime(); t += 900000) {
+    const h = localParts(new Date(t), TZ).hour;
+    slots.push({ start: t, end: t + 900000, price: h === 14 ? 8 : 25 });
+  }
+  const self = { prices: { range: () => slots }, tz: TZ };
+  const c = { humidity: { enabled: true, waitForCheap: true, onAbove: 65, runMin: 60 } };
+  const b = EmsRunner.prototype._humidityBlock.call(self, c, {}, 68, now);
+  assert.equal(b.start, fromLocal(2026, 11, 14, 14, 0).getTime());
+  assert.equal(b.label, '14:00-15:00 (Ø 8.0 Rp.)');
+  assert.equal(EmsRunner.prototype._humidityBlock.call(self, { humidity: { ...c.humidity, waitForCheap: false } }, {}, 68, now), null, 'ohne Option');
+  assert.equal(EmsRunner.prototype._humidityBlock.call(self, c, {}, 60, now), null, 'Feuchte unter der Schwelle: kein Bedarf');
+  assert.equal(EmsRunner.prototype._humidityBlock.call(self, c, { forceUntil: now + 1000 }, 68, now), null, 'Notlauf läuft schon');
+  assert.equal(EmsRunner.prototype._humidityBlock.call({ prices: { range: () => [] }, tz: TZ }, c, {}, 68, now), null, 'ohne Preise');
+});

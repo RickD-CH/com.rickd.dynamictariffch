@@ -44,3 +44,16 @@ test('Symbole: jedes Verbraucher-Symbol hat eine Zeichnung in den Einstellungen 
     assert.equal((settings.match(new RegExp(`iconNames: \\{[^}]*\\b${k}: '`, 'g')) || []).length, 2, `Name ${k} auf Deutsch und Englisch`);
   }
 });
+
+test('Feuchte-Notlauf: Option «im günstigsten Block» (Standard aus) und kritische Feuchte (nicht unter «ein», höchstens 100)', () => {
+  const { normalizeConfig } = require('../lib/ems/Config');
+  const mk = (h) => normalizeConfig({ consumers: [{ id: 'x', name: 'E', deviceId: 'x', mode: 'surplus', enabled: true, humidity: { enabled: true, sensorId: 's', ...h } }] }).consumers[0].humidity;
+  const d = mk({});
+  assert.equal(d.waitForCheap, false);
+  assert.equal(d.criticalAbove, 75);
+  const w = mk({ waitForCheap: true, onAbove: 70, criticalAbove: 50 });
+  assert.equal(w.waitForCheap, true);
+  assert.equal(w.criticalAbove, 70, 'nie unter «ein»');
+  assert.equal(mk({ criticalAbove: 400 }).criticalAbove, 100);
+  assert.equal(mk({ waitForCheap: 'ja' }).waitForCheap, false, 'nur echtes true zählt');
+});
