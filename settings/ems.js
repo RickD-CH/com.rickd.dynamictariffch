@@ -126,6 +126,37 @@
       sgRecRelay: 'Relais Empfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgFlowNormal: 'Flow Normalbetrieb (0:0)', sgFlowBoost: 'Flow Empfehlung (0:1)', sgFlowForced: 'Flow Zwangsladung (1:1)',
       sgLive: 'SG-Ready live (sonst nur simulieren)',
       sgLiveHint: 'Live schaltet die Steuerung wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)', dhw: 'Warmwasser-Programm' },
+      tips: {
+        mode: 'Wann das Gerät läuft: bei Überschuss, voller Batterie, ab einem Ladestand oder als Programm mit einem Start.',
+        fullSoc: 'Einschalten, sobald der Hausakku mindestens so voll ist.',
+        socOn: 'Einschalten, sobald der Hausakku mindestens diesen Ladestand hat.',
+        hysteresis: 'Ausgeschaltet wird erst, wenn der Ladestand so viele Prozentpunkte unter die Einschaltschwelle fällt.',
+        minSurplusW: 'So viel Strom muss ins Netz fliessen, bevor das Gerät einschaltet.',
+        startSustainS: 'So lange muss der Überschuss am Stück anliegen, damit kurze Spitzen nicht schalten.',
+        stopGraceS: 'So lange darf der Überschuss fehlen, bevor es ausgeht (fängt kurze Wolken ab).',
+        assumedW: 'Was das Gerät verbraucht. Per Flow lässt es sich nicht messen, die App rechnet mit diesem Wert.',
+        minRunMin: 'Nach dem Einschalten läuft es mindestens so lange, auch wenn der Überschuss wegfällt.',
+        minOffMin: 'Nach dem Ausschalten bleibt es mindestens so lange aus (Schutz vor ständigem Schalten).',
+        protectSoc: 'Fällt der Hausakku unter diesen Wert, geht das Gerät sofort aus, auch in der Mindestlaufzeit.',
+        useGate: 'Bei schwacher Sonnenprognose keine neuen Starts, damit der Akku für den Abend Ladung behält.',
+        pgSurplus: 'Ab so viel Einspeisung startet das Programm sofort.',
+        pgSustain: 'So lange muss dieser Überschuss am Stück anliegen.',
+        pgFrom: 'Ab dieser Uhrzeit wird der günstigste Moment gesucht, falls vorher kein Überschuss kam.',
+        pgWait: 'Am Ende dieses Zeitfensters wird spätestens gestartet. Solche Zeitplan-Starts gibt es höchstens einmal pro Tag.',
+        pgDuration: 'Übliche Laufzeit. So lange nach einem Start startet die Automatik nicht nochmals.',
+        pgStartVal: 'Dieser Wert wird an die Start-Capability gesendet (z. B. START).',
+        pgRemoteVal: 'Nur wenn die Fernbedienung diesen Wert meldet, darf gestartet werden.',
+        pgDoorVal: 'Nur bei diesem Türwert (geschlossen) wird gestartet.',
+        'bp-reserve': 'Für so viele der teuersten Stunden des Tages hält die Batterie Reserve, statt vorher leer zu werden.',
+        'bp-solar': 'Ab dieser erwarteten Solarmenge (kWh heute) wird nicht aus dem Netz nachgeladen.',
+        'bp-bridge': 'Lädt bei Bedarf aus dem Netz nach, damit die Batterie bis zum Sonnenaufgang reicht.',
+        'bp-floor': 'Unter diesem Ladestand wird die Batterie nicht mehr entladen.',
+        'bp-backupsoc': 'So viel bleibt im Akku, wenn die Notstrom-Reserve eingeschaltet ist.',
+        'fuse-pct': 'Anteil der Sicherung, den wir ausnutzen. Der Rest bleibt als Sicherheitsreserve.',
+        'fuse-hold': 'So lange muss eine Überlast anhalten, bevor etwas abgeschaltet wird.',
+        'fuse-restore': 'So lange muss alles unter der Grenze liegen, bevor die Wallbox wieder laden darf.',
+        'pv-factor': 'Skaliert die PV-Prognose hoch oder runter, wenn sie bei dir meist zu hoch oder zu tief liegt.',
+      },
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
       fuseNow: 'Hausanschluss', fuseOf: 'von', fuseLoad: 'Belastung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
@@ -145,7 +176,7 @@
       name: 'Name', type: 'Typ', typeGeneric: 'Allgemeiner Verbraucher', typeDehum: 'Luftentfeuchter',
       ctrlDevice: 'Gerät zum Schalten', meterDevice: 'Zähler für die Kosten (kWh)', mode: 'Einschalten',
       modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss', modeProgram: 'Programm starten', noCtrl: 'nur Kostenzähler',
-      programTitle: 'Programm starten', programWindow: 'Zeitfenster ab', programMaxWait: 'Max. Wartezeit (h)', programDuration: 'Programmdauer (h, nur Info)',
+      programTitle: 'Programm starten', programWindow: 'Zeitfenster ab', programMaxWait: 'Max. Wartezeit (h)', programDuration: 'Programmdauer (h)',
       programHint: 'Startet sofort bei genug PV-Überschuss. Sonst wird im Zeitfenster der günstigste Moment gewählt, spätestens am Ende gestartet (Preis-Sicherheitsnetz). Höchstens einmal pro Tag.',
       programStartCap: 'Start-Capability', programStartVal: 'Start-Wert', programRemoteCap: 'Fernbedienung-Capability', programRemoteVal: 'Fernbedienung-Wert (wenn aktiv)',
       programRemoteWarn: 'Ohne Fernbedienung-Capability wird nicht geprüft, ob das Gerät überhaupt geschaltet werden kann - bei manchen Geräten (z. B. Electrolux) zwingend nötig.',
@@ -290,6 +321,37 @@
       sgRecRelay: 'Relay recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgFlowNormal: 'Flow normal operation (0:0)', sgFlowBoost: 'Flow recommendation (0:1)', sgFlowForced: 'Flow forced charging (1:1)',
       sgLive: 'SG Ready live (otherwise simulate only)',
       sgLiveHint: 'Live, the control really switches. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)', dhw: 'Hot-water program' },
+      tips: {
+        mode: 'When the device runs: on surplus, on a full battery, from a charge level, or as a program with one start.',
+        fullSoc: 'Switch on as soon as the house battery is at least this full.',
+        socOn: 'Switch on as soon as the house battery has at least this charge level.',
+        hysteresis: 'Only switched off once the charge level falls this many percentage points below the switch-on threshold.',
+        minSurplusW: 'This much power must flow into the grid before the device switches on.',
+        startSustainS: 'The surplus must last this long in a row so short peaks do not switch.',
+        stopGraceS: 'The surplus may be missing this long before it switches off (absorbs short clouds).',
+        assumedW: 'What the device consumes. A flow cannot measure it, so the app calculates with this value.',
+        minRunMin: 'After switching on it runs at least this long, even if the surplus disappears.',
+        minOffMin: 'After switching off it stays off at least this long (protects against constant switching).',
+        protectSoc: 'If the house battery falls below this value the device switches off immediately, even during the minimum run time.',
+        useGate: 'On a weak sun forecast no new starts, so the battery keeps its charge for the evening.',
+        pgSurplus: 'From this much feed-in the program starts right away.',
+        pgSustain: 'This surplus must last this long in a row.',
+        pgFrom: 'From this time on the cheapest moment is searched if no surplus came before.',
+        pgWait: 'At the end of this window it starts at the latest. Such scheduled starts happen at most once a day.',
+        pgDuration: 'Usual run time. For this long after a start the automation does not start again.',
+        pgStartVal: 'This value is sent to the start capability (e.g. START).',
+        pgRemoteVal: 'Only when the remote control reports this value may it start.',
+        pgDoorVal: 'Only at this door value (closed) it starts.',
+        'bp-reserve': 'The battery keeps reserve for this many of the most expensive hours of the day instead of running empty before.',
+        'bp-solar': 'From this expected solar amount (kWh today) there is no charging from the grid.',
+        'bp-bridge': 'Charges from the grid if needed so the battery lasts until sunrise.',
+        'bp-floor': 'Below this charge level the battery is no longer discharged.',
+        'bp-backupsoc': 'This much stays in the battery while the backup reserve is switched on.',
+        'fuse-pct': 'Share of the fuse we use. The rest stays as a safety margin.',
+        'fuse-hold': 'An overload must last this long before anything is switched off.',
+        'fuse-restore': 'Everything must stay below the limit this long before the wallbox may charge again.',
+        'pv-factor': 'Scales the PV forecast up or down if it is usually too high or too low for you.',
+      },
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
       fuseNow: 'House connection', fuseOf: 'of', fuseLoad: 'load', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
@@ -309,7 +371,7 @@
       name: 'Name', type: 'Type', typeGeneric: 'Generic consumer', typeDehum: 'Dehumidifier',
       ctrlDevice: 'Device to switch', meterDevice: 'Meter for costs (kWh)', mode: 'Switch on',
       modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus', modeProgram: 'Start a program', noCtrl: 'cost meter only',
-      programTitle: 'Start a program', programWindow: 'Time window from', programMaxWait: 'Max. wait (h)', programDuration: 'Program duration (h, info only)',
+      programTitle: 'Start a program', programWindow: 'Time window from', programMaxWait: 'Max. wait (h)', programDuration: 'Program duration (h)',
       programHint: 'Starts right away with enough PV surplus. Otherwise picks the cheapest moment within the window, starting at the latest by its end (price safety net). At most once a day.',
       programStartCap: 'Start capability', programStartVal: 'Start value', programRemoteCap: 'Remote-control capability', programRemoteVal: 'Remote value (when enabled)',
       programRemoteWarn: 'Without a remote-control capability, the app never checks whether the device can even be switched - required for some appliances (e.g. Electrolux).',
@@ -508,12 +570,18 @@
     return '<span class="ems-tag ems-tag-' + tag + '">' + esc(t) + '</span>';
   }
 
-  function field(label, id, value, type, extra) {
+  // Kurze Erklärung hinter einem ⓘ: eingeklappt, ein Klick zeigt sie. Der Text kommt aus S.tips (Schlüssel = Feld-Id ohne «rowN-»/«ems-»).
+  function tipFor(id) { return (S.tips && S.tips[String(id).replace(/^row\d+-/, '').replace(/^ems-/, '')]) || ''; }
+  function tipI(id) { return ' <i class="ems-tip" data-ems-tip="tip-' + id + '">\u24d8</i>'; }
+  function tipT(id, text) { return '<small class="ems-tiptext" id="tip-' + id + '" hidden>' + esc(text) + '</small>'; }
+  function field(label, id, value, type, extra, tip) {
     var t = type || 'number';
-    return '<label class="ems-f"><span>' + esc(label) + '</span><input id="' + id + '" type="' + t + '" value="' + esc(value) + '"' + (t === 'text' ? ' spellcheck="false" autocomplete="off"' : '') + (extra || '') + '></label>';
+    var tp = tip === undefined ? tipFor(id) : tip;
+    return '<label class="ems-f"><span>' + esc(label) + (tp ? tipI(id) : '') + '</span><input id="' + id + '" type="' + t + '" value="' + esc(value) + '"' + (t === 'text' ? ' spellcheck="false" autocomplete="off"' : '') + (extra || '') + '></label>' + (tp ? tipT(id, tp) : '');
   }
-  function check(label, id, on) {
-    return '<label class="ems-c"><span class="swt"><input class="sw" id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '><i></i></span> <span>' + esc(label) + '</span></label>';
+  function check(label, id, on, tip) {
+    var tp = tip === undefined ? tipFor(id) : tip;
+    return '<label class="ems-c"><span class="swt"><input class="sw" id="' + id + '" type="checkbox"' + (on ? ' checked' : '') + '><i></i></span> <span>' + esc(label) + (tp ? tipI(id) : '') + '</span></label>' + (tp ? tipT(id, tp) : '');
   }
 
   function batteryControlHtml() {
@@ -928,7 +996,7 @@
         + field(S.programStateVal, p + 'pgStateVal', pg.stateIdleValue, 'text', ' style="max-width:115px"') + '</div>'
         + '<p class="ems-why">' + esc(S.programStateHint) + '</p>'
         + '</div>';
-      ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label></div>'
+      ctrlBody = '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.mode) + tipI(p + 'mode') + '</span><select id="' + p + 'mode" data-ems-mode="' + i + '">' + modeOpts + '</select></label>' + tipT(p + 'mode', S.tips.mode) + '</div>'
         + (hasBattery() ? '' : '<p class="ems-why">' + esc(S.noBatMode) + '</p>')
         + (r.mode === 'program' ? program : ('<div class="ems-row">' + params + '</div>' + (r.mode === 'surplus' && hasBattery() ? '<p class="ems-why">' + esc(S.batFirstHint) + '</p>' : '') + accu
           + '<details class="ems-adv"' + (state.open[p + 'adv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'adv">' + esc(S.advanced) + '</summary><div class="ems-row">'
@@ -1062,23 +1130,22 @@
     var cur = state.shadow && state.shadow.sgready;
     return { text: cur ? (S.sgState[cur.state] || cur.state) + ' - ' + cur.reason : S.sgRow, cls: 'ok' };
   }
-  function sgDevPair(label, idBase, devId, cap, re) {
-    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idBase + '-dev" data-ems-sgdev="1">' + deviceOptions(devId, hasCap(re), S.pick) + '</select></label>'
-      + '<label class="ems-f ems-wide"><span>&nbsp;</span><select id="' + idBase + '-cap">' + capOptions(devId, re, cap) + '</select></label></div>';
+  function sgDevPair(label, idBase, devId, cap, re, tip) {
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + (tip ? tipI(idBase) : '') + '</span><select id="' + idBase + '-dev" data-ems-sgdev="1">' + deviceOptions(devId, hasCap(re), S.pick) + '</select></label>'
+      + '<label class="ems-f ems-wide"><span>&nbsp;</span><select id="' + idBase + '-cap">' + capOptions(devId, re, cap) + '</select></label>' + (tip ? tipT(idBase, tip) : '') + '</div>';
   }
-  function sgHint(t) { return '<p class="ems-why">' + esc(t) + '</p>'; }
-  function sgFld(label, id, value, type, extra, hint) { return '<div class="ems-row">' + field(label, id, value, type, extra) + '</div>' + sgHint(hint); }
+  function sgFld(label, id, value, type, extra, hint) { return '<div class="ems-row">' + field(label, id, value, type, extra, hint) + '</div>'; }
   function sgFlowSel(label, id, cur) {
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + id + '">' + flowOptions(cur) + '</select></label></div>';
   }
   function sgDhwHtml(g) {
     var cap = g.dhwOutput === 'capability';
     var d = g.dhwDevice || { deviceId: '', capability: '', onValue: '', offValue: '' };
-    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + '</span><select id="ems-sg-dhwout" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label></div>'
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('sg-dhwout') + '</span><select id="ems-sg-dhwout" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('sg-dhwout', S.sgDhwH) + '</div>'
       + (cap
         ? sgDevPair(S.sgDhwDev, 'ems-sg-dhwdev', d.deviceId, d.capability, /./) + '<div class="ems-row">' + field(S.sgDhwOnV, 'ems-sg-dhwonv', d.onValue, 'text') + field(S.sgDhwOffV, 'ems-sg-dhwoffv', d.offValue, 'text') + '</div>'
         : sgFlowSel(S.sgDhwOn, 'ems-sg-dhwon', g.dhwFlowOn) + sgFlowSel(S.sgDhwOff, 'ems-sg-dhwoff', g.dhwFlowOff))
-      + sgHint(S.sgDhwH);
+      ;
   }
   function sgBody() {
     var g = sgCfg();
@@ -1086,7 +1153,7 @@
     var html = '<p class="ems-why">' + esc(S.sgWhy) + '</p><div class="ems-row">' + check(S.sgOn, 'ems-sg-on', g.enabled) + '</div>';
     if (!g.enabled) return html;
     return html
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgBasis) + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label></div>' + sgHint(S.sgBasisH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgBasis) + tipI('sg-basis') + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label>' + tipT('sg-basis', S.sgBasisH) + '</div>'
       + sgFld(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"', S.sgMinSolarH)
       + sgFld(S.sgMinSoc, 'ems-sg-minsoc', g.minSoc, 'number', ' step="1" min="0" max="100"', S.sgMinSocH)
       + sgFld(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"', S.sgHystH)
@@ -1095,18 +1162,18 @@
       + sgFld(S.sgMinRun, 'ems-sg-minrun', g.minRunMin, 'number', ' step="5" min="0"', S.sgMinRunH)
       + sgFld(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
-      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', S.sgPriceH)
+      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice, S.sgPriceH) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', '')
       + sgFld(S.sgPriceBelow, 'ems-sg-pricebelow', g.priceBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPriceBelowH)
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgPriceAct) + '</span><select id="ems-sg-priceaction" data-ems-sgdev="1"><option value="sgready"' + (g.priceAction === 'dhw' ? '' : ' selected') + '>' + esc(S.sgActSg) + '</option><option value="dhw"' + (g.priceAction === 'dhw' ? ' selected' : '') + '>' + esc(S.sgActDhw) + '</option></select></label></div>' + sgHint(S.sgActH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgPriceAct) + tipI('sg-priceaction') + '</span><select id="ems-sg-priceaction" data-ems-sgdev="1"><option value="sgready"' + (g.priceAction === 'dhw' ? '' : ' selected') + '>' + esc(S.sgActSg) + '</option><option value="dhw"' + (g.priceAction === 'dhw' ? ' selected' : '') + '>' + esc(S.sgActDhw) + '</option></select></label>' + tipT('sg-priceaction', S.sgActH) + '</div>'
       + (g.priceAction === 'dhw' ? sgDhwHtml(g) : '')
-      + '<div class="ems-row">' + check(S.sgSkipPv, 'ems-sg-skippv', g.priceSkipPv) + (g.priceSkipPv ? field(S.sgSkipPvKwh, 'ems-sg-skippvkwh', g.priceSkipPvKwh, 'number', ' step="1" min="0"') : '') + '</div>' + sgHint(S.sgSkipPvH)
+      + '<div class="ems-row">' + check(S.sgSkipPv, 'ems-sg-skippv', g.priceSkipPv, S.sgSkipPvH) + (g.priceSkipPv ? field(S.sgSkipPvKwh, 'ems-sg-skippvkwh', g.priceSkipPvKwh, 'number', ' step="1" min="0"') : '') + '</div>'
       + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
-      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/) + sgHint(S.sgSensorH)
+      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/, S.sgSensorH)
       + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
-      + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./)
-      + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '') + sgHint(S.sgModeH)
-      + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>' + sgHint(S.sgForcedH)
-      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label></div>' + sgHint(S.sgOutH)
+      + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./, S.sgModeH)
+      + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '')
+      + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced, S.sgForcedH) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>'
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + tipI('sg-output') + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label>' + tipT('sg-output', S.sgOutH) + '</div>'
       + (flows
         ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
         : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
@@ -1256,7 +1323,7 @@
       + '.pl-tab{table-layout:auto;width:100%}.pl-tab td{white-space:nowrap}.pl-tab td.pl-what{max-width:0;width:100%;overflow:hidden;text-overflow:ellipsis}.pl-tab td.pl-avg{text-align:right}'
       + '.car-cal td{padding:2px 6px}.car-cal input[type=time]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}.car-cal input[type=number]{font:inherit;padding:3px 5px;border:1px solid var(--st-border);border-radius:6px;background:var(--st-bg);color:var(--st-text)}'
       + '.pl-chip{display:inline;white-space:nowrap;background:var(--st-chip-bg);border:1px solid transparent;border-radius:999px;padding:1px 7px;font-size:11px}.pl-chip-plan{background:transparent;border:1px dashed var(--st-muted)}.pl-cur td{background:var(--st-lv-normal-bg)}.pl-pastrow{opacity:.55}.pl-tab th{color:var(--st-muted);font-weight:500}'
-      + '.fuse-phs{display:flex;gap:16px;margin:10px 0 0 40px}.fuse-ph{flex:1;min-width:0;font-size:13px;white-space:nowrap}.fuse-kw{font-size:11px;margin-top:2px}.fuse-bar{height:4px;border-radius:2px;background:var(--st-seg-bg);margin:4px 0 0;overflow:hidden}.fuse-bar i{display:block;height:100%;border-radius:2px}.car-badge{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:1px;white-space:nowrap}.pl-pricechart .chart{margin-top:0;padding-left:0;padding-right:0;height:110px}.pl-pricechart .chart-labels{display:none}.pl-pvwrap{position:relative}.pl-scale{position:absolute;left:6px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--st-muted);pointer-events:none}.pl-scale span{background:var(--st-chip-bg);padding:0 3px;border-radius:3px;opacity:.88}.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:32px !important;height:32px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
+      + '.fuse-phs{display:flex;gap:16px;margin:10px 0 0 40px}.fuse-ph{flex:1;min-width:0;font-size:13px;white-space:nowrap}.fuse-kw{font-size:11px;margin-top:2px}.fuse-bar{height:4px;border-radius:2px;background:var(--st-seg-bg);margin:4px 0 0;overflow:hidden}.fuse-bar i{display:block;height:100%;border-radius:2px}.car-badge{display:inline-block;font-size:12px;font-weight:500;padding:2px 10px;border-radius:999px;margin-left:8px;vertical-align:1px;white-space:nowrap}.pl-pricechart .chart{margin-top:0;padding-left:0;padding-right:0;height:110px}.pl-pricechart .chart-labels{display:none}.pl-pvwrap{position:relative}.pl-scale{position:absolute;left:6px;top:3px;bottom:3px;display:flex;flex-direction:column;justify-content:space-between;font-size:10px;color:var(--st-muted);pointer-events:none}.pl-scale span{background:var(--st-chip-bg);padding:0 3px;border-radius:3px;opacity:.88}.ems-c span:not(.swt){text-transform:none !important;font-size:13px !important;letter-spacing:normal !important;font-weight:400 !important;color:var(--st-text) !important}.ems-f > span{text-transform:none !important;letter-spacing:normal !important}.ems-tip{font-style:normal;cursor:pointer;color:var(--st-accent);margin-left:4px;font-size:13px;user-select:none}.ems-tiptext{display:block;flex-basis:100%;font-size:11.5px;line-height:1.4;color:var(--st-muted);text-transform:none;letter-spacing:normal;margin:0 0 2px}.ems-tiptext[hidden]{display:none !important}.ic-pick{display:inline-flex !important;align-items:center;justify-content:center;width:32px !important;height:32px !important;min-width:0 !important;padding:0 !important;margin:0 !important;border-radius:8px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.ic-pick.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--st-muted)}.log-f{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.log-f .log-chip{font:inherit !important;font-size:12px !important;line-height:1.4 !important;height:auto !important;min-height:0 !important;min-width:0 !important;width:auto !important;margin:0 !important;padding:3px 10px !important;border-radius:999px !important;border:1px solid var(--st-border) !important;background:var(--st-bg) !important;color:var(--st-text) !important;box-shadow:none !important;cursor:pointer}.log-f .log-chip.on{background:var(--st-accent) !important;border-color:var(--st-accent) !important;color:#fff !important}.log-day td{font-size:11px;color:var(--st-muted);letter-spacing:.04em;padding-top:8px;border-bottom:none}'
       + '.pl-leg{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:10px;color:var(--st-muted);margin-top:3px}.pl-leg span{display:flex;align-items:center;gap:4px}'
       + '.pl-leg i{display:inline-block;width:10px;height:10px;border-radius:2px}.pl-leg i.pl-c{background:var(--st-cheap)}.pl-leg i.pl-n{background:var(--st-normal)}.pl-leg i.pl-e{background:var(--st-expensive)}'
       + '</style>';
@@ -2368,6 +2435,13 @@
   function onClick(ev) {
     var t = ev.target;
     if (!t || !t.getAttribute) return;
+    var tipId = up(t, 'data-ems-tip');
+    if (tipId) {
+      if (ev.preventDefault) ev.preventDefault();
+      var tipEl = $(tipId);
+      if (tipEl) tipEl.hidden = !tipEl.hidden;
+      return;
+    }
     var open = up(t, 'data-ems-open');
     var adv = up(t, 'data-ems-adv');
     var rm = up(t, 'data-ems-remove');

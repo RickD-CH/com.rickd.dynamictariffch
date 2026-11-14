@@ -501,3 +501,20 @@ test('Anzeige: SG-Ready - Preis startet nur das Warmwasser-Programm, per Flow od
   plain.click({ 'data-ems-open': 'sg' });
   assert.doesNotMatch(plain.setup(), /Warmwasser-Programm ein/, 'Standard: SG-Ready-Empfehlung, keine Zusatzfelder');
 });
+
+test('Anzeige: kurze Erklärungen hinter einem ⓘ - eingeklappt, ein Klick klappt sie auf, nur bei erklärungsbedürftigen Feldern', async () => {
+  const ui = await startUi({ consumers: [{ id: 'lamp', name: 'Lampe', mode: 'surplus' }] });
+  ui.click({ 'data-ems-open': 'row1' });
+  const html = ui.setup();
+  assert.match(html, /Mindestlaufzeit \(min\) <i class="ems-tip" data-ems-tip="tip-row1-minRunMin">/);
+  assert.match(html, /<small class="ems-tiptext" id="tip-row1-minRunMin" hidden>Nach dem Einschalten läuft es mindestens so lange/);
+  assert.match(html, /data-ems-tip="tip-row1-mode"/, 'auch die Betriebsart ist erklärt');
+  assert.doesNotMatch(html, /data-ems-tip="tip-row1-name"/, 'selbsterklärende Felder (Name) bekommen keinen Text');
+  ui.click({ 'data-ems-tip': 'tip-row1-minRunMin' }); // schaltet nur um, kein Neuaufbau, kein Fehler
+  const prog = await startUi({ consumers: [{ id: 'gwa', name: 'GWA', mode: 'program' }] });
+  prog.click({ 'data-ems-open': 'row1' });
+  const h2 = prog.setup();
+  assert.match(h2, /Programmdauer \(h\)/);
+  assert.doesNotMatch(h2, /nur Info/, 'die Dauer ist jetzt die Sperrzeit nach einem Start, nicht mehr «nur Info»');
+  assert.match(h2, /startet die Automatik nicht nochmals/);
+});

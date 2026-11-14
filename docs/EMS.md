@@ -491,3 +491,10 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Die Zeitplan-Auslöser (Frist am Fensterende, günstigste Viertelstunde) starten höchstens **einmal pro Tag**. Mit der Abkühlpause statt
   Tages-Limit hätte sonst nach der Frist jedes Mal nach Ablauf der Pause ein weiterer Start gedroht. Nur PV-Überschuss darf mehrmals auslösen.
 - «Läuft» (`isOn`) gilt nur innerhalb der üblichen Programmdauer; vorher blieb ein einmal gestartetes Gerät in der Planansicht für immer «an».
+
+## Erklärtexte hinter einem ⓘ (14.11.2026)
+
+- Kurze Erklärungen (ein Satz) stehen eingeklappt hinter einem ⓘ neben der Beschriftung; ein Klick klappt sie auf. Die Texte stehen in `S.tips`
+  (`settings/ems.js`), der Schlüssel ist die Feld-Id ohne `rowN-`/`ems-`; `field()`/`check()` hängen sie automatisch an. Selbsterklärende Felder
+  (Name, Gerät) haben keinen Text. Neue Felder: einfach einen Eintrag in `S.tips` (DE und EN) ergänzen.
+- Die SG-Ready-Erklärungen sind auf dasselbe Muster umgestellt (vorher dauerhaft sichtbare Absätze).
