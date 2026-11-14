@@ -266,6 +266,8 @@ const emsJs = fs.readFileSync(path.join(__dirname, '../settings/ems.js'), 'utf8'
 async function startUi(extra = {}) {
   const els = new Map();
   const handlers = {};
+  const timers = [];
+  const calls = [];
   const el = (id) => {
     if (!els.has(id)) {
       // Wert und Häkchen kommen aus dem gezeichneten HTML, solange der Test sie nicht selbst setzt (wie im Browser)
@@ -309,7 +311,7 @@ async function startUi(extra = {}) {
     return els.get(id);
   };
   const ctx = {
-    document: { getElementById: el }, window: {}, setInterval: () => 0, console, Object, Promise, Date, Number, isFinite, String, JSON, Math,
+    document: { getElementById: el }, window: {}, setInterval: () => 0, setTimeout: (f) => timers.push(f), clearTimeout: (n) => { timers[n - 1] = null; }, console, Object, Promise, Date, Number, isFinite, String, JSON, Math,
   };
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
@@ -330,15 +332,24 @@ async function startUi(extra = {}) {
     'GET /ems/flows': { flows: extra.noFlows ? [] : flows },
     'GET /meters': null,
   };
-  await ctx.window.EmsUi.init((m, p) => Promise.resolve(res[`${m} ${p}`]), 'de');
+  await ctx.window.EmsUi.init((m, p, body) => {
+    calls.push([m, p, body]);
+    return Promise.resolve(res[`${m} ${p}`]);
+  }, 'de');
   const setup = () => els.get('ems-view-devices').innerHTML;
   const set = (id, value) => {
     el(id).value = value;
   };
   const click = (attrs) => handlers['ems-view-devices:click']({ target: { getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
   const change = (attrs) => handlers['ems-view-devices:change']({ target: { getAttribute: (n) => (n in attrs ? attrs[n] : null), value: '', parentNode: null } });
+  const input = (attrs) => handlers['ems-view-devices:input']({ target: { tagName: 'INPUT', getAttribute: (n) => (n in attrs ? attrs[n] : null), parentNode: null } });
+  const flush = async () => {
+    const fs = timers.splice(0).filter(Boolean);
+    fs.forEach((f) => f());
+    await new Promise((r) => setImmediate(r));
+  };
   return {
-    ctx, setup, set, click, change,
+    ctx, setup, set, click, change, input, flush, calls,
   };
 }
 
@@ -598,4 +609,21 @@ test('Anzeige: Zieltemperatur fest oder aus der Wärmepumpe (WW-Soll), Betriebsa
   assert.equal(c.dhw.targetSource, 'device');
   assert.equal(c.dhw.targetTol, 2);
   assert.equal(c.sgready.targetSource, 'device');
+});
+
+test('Automatisch speichern: kurz nach der letzten Eingabe, nur ein Speichern bei mehreren Eingaben, Schalter mit eigenem Speichern lösen es nicht aus', async () => {
+  const ui = await startUi({ dhw: { enabled: true } });
+  ui.click({ 'data-ems-open': 'dhw' });
+  const puts = () => ui.calls.filter(([m, p]) => m === 'PUT' && p === '/ems/config');
+  const before = puts().length;
+  ui.set('ems-dhw-cheap', '3');
+  ui.input({ id: 'ems-dhw-cheap' });
+  ui.input({ id: 'ems-dhw-cheap' });
+  assert.equal(puts().length, before, 'nicht sofort');
+  await ui.flush();
+  assert.equal(puts().length, before + 1, 'ein einziges Speichern');
+  assert.equal(puts()[puts().length - 1][2].dhw.cheapHours, 3);
+  ui.input({ 'data-ems-enable': '1' });
+  await ui.flush();
+  assert.equal(puts().length, before + 1, 'Schalter speichern selbst');
 });

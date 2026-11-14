@@ -209,7 +209,7 @@
       humTitle: 'Feuchte-Notlauf', humEnable: 'Notlauf bei hoher Luftfeuchtigkeit', humSensor: 'Feuchte-Sensor', humOn: 'Notlauf ein ab (%)', humOff: 'Notlauf aus unter (%)', humRun: 'Höchstdauer (min)',
       humHint: 'Läuft unabhängig von Batterie und Überschuss, bis die Feuchte unter den Aus-Wert fällt oder die Höchstdauer um ist. Danach startet er erst wieder, wenn die Feuchte zwischendurch unter den Ein-Wert gefallen ist.',
       modeTest: 'nicht gesteuert', modeLiveTag: 'gesteuert', costLast: 'Zähler zuletzt', noBatMode: 'Ohne Hausbatterie ist nur «Bei Überschuss» möglich.',
-      save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
+      save: 'EMS-Einstellungen speichern', saved: 'Gespeichert', savedAuto: 'Automatisch gespeichert', error: 'Fehler', toggleFailed: 'Schalter konnte nicht gesetzt werden',
       modeNames: { disabled: 'Aus', idle: 'Bereit', holding: 'Wartet auf Überschuss', solar_ev: 'Lädt mit Solarstrom', instant_ev: 'Lädt mit voller Leistung', battery_priority: 'Batterie hat Vorrang', error: 'Fehler' },
       otherEms: 'Steuert schon ein anderes Energiemanagement diese Wallbox, dort zuerst ausschalten. Sonst steuern zwei Systeme dieselbe Wallbox.',
       cmpIntro: 'Was dieses Energiemanagement tun würde, verglichen mit dem, was das andere Energiemanagement tut. Gleich = beide wählen im selben Lauf denselben Modus.',
@@ -419,7 +419,7 @@
       humTitle: 'Humidity emergency run', humEnable: 'Emergency run at high humidity', humSensor: 'Humidity sensor', humOn: 'Emergency run on from (%)', humOff: 'Emergency run off below (%)', humRun: 'Maximum duration (min)',
       humHint: 'Runs regardless of battery and surplus until humidity drops below the off value or the maximum duration is over. It only starts again after humidity has dropped below the on value in between.',
       modeTest: 'not controlled', modeLiveTag: 'controlled', costLast: 'Meter last', noBatMode: 'Without a home battery only "On surplus" is possible.',
-      save: 'Save energy management settings', saved: 'Saved', error: 'Error', toggleFailed: 'Could not set the switch',
+      save: 'Save energy management settings', saved: 'Saved', savedAuto: 'Saved automatically', error: 'Error', toggleFailed: 'Could not set the switch',
       modeNames: { disabled: 'Off', idle: 'Idle', holding: 'Waiting for surplus', solar_ev: 'Charging from solar', instant_ev: 'Charging at full power', battery_priority: 'Battery first', error: 'Error' },
       otherEms: 'If another energy management already controls this charger, switch it off there first. Otherwise two systems control the same charger.',
       cmpIntro: "What this energy management would do, compared with what the other energy management does. Same = both choose the same mode in the same run.",
@@ -2536,6 +2536,49 @@
     }).catch(function (e) { setMsg(S.error + ': ' + (e && e.message || e)); });
   }
 
+  // Automatisch speichern: kurz nach der letzten Eingabe, ohne die Seite neu zu zeichnen (sonst ginge der Cursor verloren).
+  // Der Speichern-Knopf bleibt für alle, die es lieber bewusst tun.
+  var autoTimer = null;
+  var autoBusy = false;
+  var autoAgain = false;
+  var AUTOSAVE_MS = 1200;
+  var AUTOSAVE_SKIP = ['data-ems-enable', 'data-ems-toggle', 'data-ems-silent', 'data-ems-compare', 'data-ems-draft', 'data-ems-carf', 'data-ems-carcal', 'data-ems-cnlim', 'data-ems-calc'];
+  function autosaveWanted(t) {
+    if (!t || !t.getAttribute) return false;
+    var tag = String(t.tagName || '').toLowerCase();
+    if (tag && tag !== 'input' && tag !== 'select' && tag !== 'textarea') return false;
+    for (var i = 0; i < AUTOSAVE_SKIP.length; i += 1) if (up(t, AUTOSAVE_SKIP[i]) !== null) return false;
+    return true;
+  }
+  function scheduleAutosave() {
+    if (typeof setTimeout !== 'function') return;
+    if (autoTimer) clearTimeout(autoTimer);
+    autoTimer = setTimeout(runAutosave, AUTOSAVE_MS);
+  }
+  function runAutosave() {
+    autoTimer = null;
+    if (autoBusy) { autoAgain = true; return Promise.resolve(); }
+    var b = collect();
+    if (b.ems.consumers.length > MAX_CTRL) { setMsg(S.maxConsumers); return Promise.resolve(); }
+    var metersCfg = state.meters && state.meters.config ? state.meters.config : null;
+    var anyMeter = b.meters.consumers.length > 0;
+    autoBusy = true;
+    setMsg('...');
+    var putMeters = (metersCfg || anyMeter)
+      ? api('PUT', '/meters', { consumers: b.meters.consumers, enabled: metersCfg ? (metersCfg.enabled || anyMeter) : anyMeter }).catch(function () { return null; })
+      : Promise.resolve(null);
+    return api('PUT', '/ems/config', b.ems).then(function () { return putMeters; }).then(function (m) {
+      if (m) state.meters = m;
+      setMsg(S.savedAuto);
+    }).catch(function (e) { setMsg(S.error + ': ' + (e && e.message || e)); }).then(function () {
+      autoBusy = false;
+      if (autoAgain) { autoAgain = false; scheduleAutosave(); }
+    });
+  }
+  function onEdit(ev) {
+    if (autosaveWanted(ev && ev.target)) scheduleAutosave();
+  }
+
   function onToggle(t) {
     var target = t.getAttribute('data-ems-toggle');
     var on = !!t.checked;
@@ -2829,7 +2872,8 @@
     var sub = $('ems-sub'); if (sub) sub.addEventListener('click', onSubClick);
     ['ems-view-main', 'ems-view-plan', 'ems-view-devices', 'ems-view-cmp'].forEach(function (id) {
       var host = $(id);
-      if (host) { host.addEventListener('click', onClick); host.addEventListener('change', onChange); }
+      if (host) { host.addEventListener('click', onClick); host.addEventListener('change', id === 'ems-view-devices' ? function (ev) { onChange(ev); onEdit(ev); } : onChange); }
+      if (host && id === 'ems-view-devices') host.addEventListener('input', onEdit);
     });
     return Promise.all([
       load(),
