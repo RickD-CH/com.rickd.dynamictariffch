@@ -127,8 +127,8 @@
     function consumerHtml(Homey, c) {
       var sub = esc(c.reason || '');
       var extra = [];
-      if (c.startedAt) extra.push(esc(fill(Homey.__('consumersWidget.startedToday'), { time: c.startedAtHm })));
-      if (!c.startedAt && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
+      if (c.startedToday) extra.push(esc(fill(Homey.__('consumersWidget.startedToday'), { time: c.startedAtHm })));
+      if (!c.startedToday && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
       if (c.durationH) extra.push(esc(fill(Homey.__('consumersWidget.durationInfo'), { h: c.durationH })));
       var btn = '';
       var auto = '';

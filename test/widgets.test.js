@@ -5,7 +5,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { buildPlan } = require('../lib/ems/PlanView');
-const { planWidget, fuseWidget, stepFusePeak } = require('../lib/WidgetData');
+const {
+  planWidget, fuseWidget, stepFusePeak, consumersWidget,
+} = require('../lib/WidgetData');
 const { startOfLocalDay, addLocalDays } = require('../lib/time');
 
 const TZ = 'Europe/Zurich';
@@ -148,7 +150,6 @@ test('Widgets: neutrale Namen, Texte in Deutsch und Englisch, jedes Widget hat V
 });
 
 test('Widget «Verbraucher»: SG-Ready-Block nur wenn aktiv, mit Zustand, Warmwasser, Grund und Testmodus', () => {
-  const { consumersWidget } = require('../lib/WidgetData');
   const base = {
     deviceExists: true,
     config: {
@@ -170,4 +171,27 @@ test('Widget «Verbraucher»: SG-Ready-Block nur wenn aktiv, mit Zustand, Warmwa
   assert.equal(w.live, false, 'nicht live: Testmodus');
   const waiting = consumersWidget({ shadow: { ...base, config: on.config }, consumerCurrent: [], tz: TZ }).sgready;
   assert.equal(waiting.state, null, 'noch kein Lauf: Platzhalter statt Absturz');
+});
+
+test('Widget «Verbraucher»: «heute gestartet» nur, wenn der Start wirklich heute war (zuletzt gestartet bleibt über Mitternacht)', () => {
+  const shadow = {
+    deviceExists: true,
+    config: {
+      enabled: true,
+      silent: true,
+      sgready: { enabled: false },
+      consumers: [{
+        id: 'gwa', name: 'Geschirrspüler', enabled: true, mode: 'program', program: { durationH: 3 }, live: false,
+      }],
+    },
+  };
+  const yesterday = NOW - 22 * 3600 * 1000;
+  const old = consumersWidget({
+    shadow, consumerCurrent: [{ id: 'gwa', startedAt: yesterday }], tz: TZ, nowMs: NOW,
+  }).consumers[0];
+  assert.equal(old.startedToday, false);
+  const fresh = consumersWidget({
+    shadow, consumerCurrent: [{ id: 'gwa', startedAt: NOW - 3600000 }], tz: TZ, nowMs: NOW,
+  }).consumers[0];
+  assert.equal(fresh.startedToday, true);
 });
