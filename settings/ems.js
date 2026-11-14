@@ -102,8 +102,9 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
-            tgtSource: 'Zieltemperatur', tgtManual: 'Fest eingestellt', tgtDevice: 'Aus der Wärmepumpe (WW-Soll)', tgtDev: 'Gerät und Wert (WW-Soll der Wärmepumpe)', tgtTol: 'Toleranz unter WW-Soll (K)',
-      tgtSrcH: 'Die Wärmepumpe heizt selbst nur bis zu ihrem WW-Soll (plus Hysterese) und schaltet dann ab. Ein festes Ziel darüber wird nie erreicht. «Aus der Wärmepumpe» beendet bei WW-Soll minus Toleranz. Über ca. 50 °C springt der Heizstab an.',
+            tgtSource: 'Zieltemperatur', tgtManual: 'Fest eingestellt', tgtDevice: 'Aus der Wärmepumpe (WW-Soll)', tgtDev: 'Gerät und Wert (WW-Soll der Wärmepumpe)', tgtTol: 'Toleranz unter WW-Soll (K)', tgtHyst: 'Hysterese der Wärmepumpe (K, optional)',
+      tgtHystH: 'Die Wärmepumpe schaltet das Warmwasser erst bei WW-Soll PLUS Hysterese ab (Parameter «Hysterese», P32 unter Warmwasser/Parameter). Dieser Wert ist per Modbus nicht lesbar: hier von Hand eintragen. 0 = nicht berücksichtigen.',
+      tgtSrcH: 'Die Wärmepumpe heizt selbst nur bis zu ihrem WW-Soll (plus Hysterese) und schaltet dann ab. Ein festes Ziel darüber wird nie erreicht. «Aus der Wärmepumpe» beendet bei WW-Soll plus Hysterese minus Toleranz. Über ca. 50 °C springt der Heizstab an.',
       tgtTolH: 'Beendet, sobald das Warmwasser den WW-Soll minus diese Toleranz erreicht (der Fühler hinkt etwas nach).', tgtFallback: 'Ersatz-Ziel, falls der WW-Soll nicht lesbar ist (°C)', tgtFallbackH: 'Gilt nur, wenn der Wert der Wärmepumpe gerade nicht gelesen werden kann.',
       dhwModeProgram: 'Betriebsart während des Programms (z. B. Warmwasser)', dhwModeProgramH: 'Wert der Betriebsart, solange das Programm läuft. Ohne ihn würde die Prüfung unser eigenes Umschalten sofort abbrechen. Im Warmwasserbetrieb ist die Heizung aus, danach muss es zurück auf Automatik.',
       dhwMaxRun: 'Höchstdauer (Min.)', dhwMaxRunH: 'Sicherheitsgrenze: danach wird zurück auf Normal gesetzt (der Warmwasserbetrieb schaltet die Heizung ab). 0 = unbegrenzt.',
@@ -311,8 +312,9 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
-            tgtSource: 'Target temperature', tgtManual: 'Fixed', tgtDevice: 'From the heat pump (DHW setpoint)', tgtDev: 'Device and value (heat pump DHW setpoint)', tgtTol: 'Tolerance below DHW setpoint (K)',
-      tgtSrcH: 'The heat pump itself only heats up to its DHW setpoint (plus hysteresis) and then stops. A fixed target above it is never reached. "From the heat pump" ends at DHW setpoint minus tolerance. Above about 50 °C the heating rod kicks in.',
+            tgtSource: 'Target temperature', tgtManual: 'Fixed', tgtDevice: 'From the heat pump (DHW setpoint)', tgtDev: 'Device and value (heat pump DHW setpoint)', tgtTol: 'Tolerance below DHW setpoint (K)', tgtHyst: 'Heat pump hysteresis (K, optional)',
+      tgtHystH: 'The heat pump only stops DHW heating at DHW setpoint PLUS hysteresis (parameter "Hysteresis", P32 under DHW/parameters). This value cannot be read via Modbus: enter it by hand. 0 = ignore.',
+      tgtSrcH: 'The heat pump itself only heats up to its DHW setpoint (plus hysteresis) and then stops. A fixed target above it is never reached. "From the heat pump" ends at DHW setpoint plus hysteresis minus tolerance. Above about 50 °C the heating rod kicks in.',
       tgtTolH: 'Ends as soon as the hot water reaches the DHW setpoint minus this tolerance (the sensor lags a little).', tgtFallback: 'Fallback target if the DHW setpoint is not readable (°C)', tgtFallbackH: 'Only used when the heat pump value cannot be read right now.',
       dhwModeProgram: 'Operating mode during the program (e.g. DHW)', dhwModeProgramH: 'Value of the operating mode while the program runs. Without it the check would abort our own switching immediately. In DHW mode heating is off, afterwards it must return to automatic.',
       dhwMaxRun: 'Maximum duration (min)', dhwMaxRunH: 'Safety limit: afterwards it is set back to normal (DHW mode switches the heating off). 0 = unlimited.',
@@ -1170,7 +1172,7 @@
   function targetBlock(pre, c, manualId, label, manualTip) {
     var dev = c.targetSource === 'device';
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.tgtSource) + tipI(pre + '-tgtsrc') + '</span><select id="' + pre + '-tgtsrc" data-ems-sgdev="1"><option value="manual"' + (dev ? '' : ' selected') + '>' + esc(S.tgtManual) + '</option><option value="device"' + (dev ? ' selected' : '') + '>' + esc(S.tgtDevice) + '</option></select></label>' + tipT(pre + '-tgtsrc', S.tgtSrcH) + '</div>'
-      + (dev ? sgDevPair(S.tgtDev, pre + '-tgt', c.targetId, c.targetCapability, /^(measure|target)_temperature/) + '<div class="ems-row">' + field(S.tgtTol, pre + '-tgttol', c.targetTol, 'number', ' step="0.5" min="0" max="10"', S.tgtTolH) + '</div>' : '')
+      + (dev ? sgDevPair(S.tgtDev, pre + '-tgt', c.targetId, c.targetCapability, /^(measure|target)_temperature/) + '<div class="ems-row">' + field(S.tgtHyst, pre + '-tgthyst', c.targetHyst, 'number', ' step="0.5" min="0" max="15"', S.tgtHystH) + field(S.tgtTol, pre + '-tgttol', c.targetTol, 'number', ' step="0.5" min="0" max="10"', S.tgtTolH) + '</div>' : '')
       + sgFld(dev ? S.tgtFallback : label, manualId, c.targetTemp, 'number', ' step="1" min="20" max="90"', dev ? S.tgtFallbackH : manualTip);
   }
   function syncTarget(pre, manualId, c) {
@@ -1181,6 +1183,7 @@
       c.targetCapability = c.targetId ? val(pre + '-tgt-cap', c.targetCapability) : '';
     }
     if ($(pre + '-tgttol')) c.targetTol = num(pre + '-tgttol', c.targetTol);
+    if ($(pre + '-tgthyst')) c.targetHyst = num(pre + '-tgthyst', c.targetHyst);
   }
   function sgBody() {
     var g = sgCfg();

@@ -894,3 +894,22 @@ test('Pause (Widget-Schalter): beendet ein laufendes Warmwasser-Programm sofort,
   runner.setPaused('dhw', false);
   assert.equal(runner.paused.dhw, false);
 });
+
+test('Hysterese der Wärmepumpe (optional, von Hand): Ziel = WW-Soll + Hysterese - Toleranz, Standard 0', async () => {
+  assert.equal(normalizeDhw({}).targetHyst, 0);
+  assert.equal(normalizeSgReady({}).targetHyst, 0);
+  assert.equal(normalizeDhw({ targetHyst: 2 }).targetHyst, 2);
+  const sg = makeRunner({
+    targetSource: 'device', targetId: 'wp', targetCapability: 'soll', targetTol: 1, targetHyst: 2, pvBelowTemp: 0,
+  }, { v: 40 });
+  const baseRead = sg.runner.inputs.readNumber;
+  sg.runner.inputs.readNumber = async (id, cap) => (id === 'wp' ? 48 : baseRead(id, cap));
+  await sg.runner.tickCharger(at(10));
+  assert.equal(sg.runner.sgReadyCurrent.target, 49, '48 + 2 - 1');
+  const none = makeRunner({
+    targetSource: 'device', targetId: 'wp', targetCapability: 'soll', targetTol: 1, pvBelowTemp: 0,
+  }, { v: 40 });
+  none.runner.inputs.readNumber = async (id) => (id === 'wp' ? 48 : 40);
+  await none.runner.tickCharger(at(10));
+  assert.equal(none.runner.sgReadyCurrent.target, 47, 'ohne Hysterese wie bisher');
+});
