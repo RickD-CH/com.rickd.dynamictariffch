@@ -562,6 +562,22 @@ startet bei Soll minus Hysterese und stoppt bei Soll plus Hysterese. Darum steue
 - Selten gebrauchte Felder (Verzögerungen, Betriebsart-Prüfung, Rückmeldung, Zwangsladung) stehen in den Einstellungen unter «Erweitert».
 - Fernbedienung und Tür der Programm-Verbraucher werden ohne Beachtung der Gross-/Kleinschreibung verglichen.
 
+### Warmwasser verzögern (PV zuerst), Option im Warmwasser-Programm
+
+Idee: Die Wärmepumpe soll das Warmwasser **nur einmal** und mit Solarstrom (oder im günstigen Block) aufheizen, statt am Morgen mit Netzstrom
+kurz zu takten und mittags nochmals. Fällt das Warmwasser im Zeitfenster (Standard 05:00 bis 14:00) unter die Startschwelle
+(WW-Soll minus Hysterese plus Marge 3 K), senkt die App den WW-Soll per Flow «verzögern» ab. Die Wärmepumpe startet nicht von selbst.
+Später übernimmt SG-Ready (Sonne) oder das Warmwasser-Programm (günstiger Block) das Aufheizen in einem Lauf.
+
+- **Bis wann:** Prognose >= 15 kWh: Freigabe Mo bis Fr 16:00, Wochenende 15:00. Wenig Sonne und Preisoptimierung aktiv: Beginn des günstigsten Blocks (Standard 1,5 h),
+  spätestens zur Freigabezeit. Wenig Sonne ohne Preise: 10:00.
+- **Freigabe sofort:** Komfortgrenze (32 °C) unterschritten, SG-Ready läuft, Modul pausiert oder ausgeschaltet, neuer Tag, nach 14 Stunden. Startet das Programm selbst, endet die Verzögerung ohne Flow.
+- **Einmal pro Tag.** Die Verzögerung übersteht einen Neustart der App (der Zustand wird gespeichert); die Basis des WW-Soll wird währenddessen nicht überschrieben.
+- Braucht die Flows «verzögern» und «zurück auf Normal» (Ausgabe über Flows). Standardmässig **aus**, im Trockenlauf wird nur simuliert.
+- **Preisoptimierung ab (Datum):** Vor diesem Datum gelten die günstigsten Stunden und der Preis-Block nicht (kein dynamischer Tarif). Leer = sofort.
+  Das Datum gilt nur für das Warmwasser-Modul.
+- Die Schwellen (Prognose 15 kWh, Freigabe 15/16 Uhr) stammen aus dem bisherigen Flow «WW Bereitung dynamisch» und passen zum Frühling. Im Winter eher tiefer ansetzen.
+
 ### Externer SG-Ready-Lauf (bisheriger Flow schaltet das Relais noch)
 
 Die App liest jeden Takt den gemeldeten Zustand der Wärmepumpe («SG Rdy B.Zustand»). Meldet sie Empfehlung (3) oder Zwang (4), obwohl die App

@@ -152,6 +152,7 @@
     "sgUntil": "until {time}",
     "paused": "Paused",
     "carShare": "Solar share car {pct} %",
+    "dhwDelayed": "Delayed until {time} (PV first)",
     "sgStart": "Start SG Ready now",
     "dhwStart": "Heat hot water now",
     "moduleOff": "Off",

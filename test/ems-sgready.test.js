@@ -1186,3 +1186,113 @@ test('Korrekturfaktor automatisch: kommen die Tage erst später (z. B. durch ein
   await runner.tickCharger(at(10) + 60000);
   assert.deepEqual(set, [0.6], 'sofort angewendet, sobald die Empfehlung da ist');
 });
+
+function delayRunner(over = {}) {
+  const fired = [];
+  const r = makeRunner({ enabled: false }, { v: 43 }, {
+    ...dhwBase,
+    targetSource: 'device',
+    targetId: 'wp',
+    targetCapability: 'soll',
+    targetHyst: 4,
+    targetTol: 1,
+    belowTemp: 0,
+    skipPv: false,
+    flowOn: { id: 'on', advanced: false, name: 'ein' },
+    flowOff: { id: 'off', advanced: false, name: 'zurück' },
+    delay: { enabled: true, flowDelay: { id: 'dly', advanced: true, name: 'verzögern' }, minForecastKwh: 15 },
+    ...over,
+  });
+  let soll = 48;
+  r.runner.inputs.readNumber = async (id) => (id === 'wp' ? soll : r.tempRef.v);
+  r.runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    if (flow.id === 'dly') soll = 30;
+    if (flow.id === 'off') soll = 48;
+    return { cmd: 'on' };
+  };
+  r.runner.pv.remainingTodayKwh = () => 20;
+  r.runner.prices = { getSlots: () => [], range: () => [] };
+  r.runner.inputs.chargerInputs = async () => ({
+    gridW: 0, houseW: 300, pvW: 0, batterySoc: null, batteryW: 0, chargerRead: false, chargerConnected: false, chargerPowerW: 0, other: null,
+  });
+  return { ...r, fired, setSoll: (v) => { soll = v; } };
+}
+
+test('Warmwasser verzögern (Option): senkt den Soll bei wenig Wärme und guter Prognose, gibt zur Freigabezeit wieder frei, der Basis-Soll bleibt der normale', async () => {
+  const t = delayRunner();
+  await t.runner.tickCharger(at(7));
+  assert.deepEqual(t.fired, ['dly'], 'Soll abgesenkt');
+  assert.equal(t.runner.dhwDelay.active, true);
+  assert.equal(t.runner.dhwCurrent.delay.releaseAt, at(16));
+  assert.equal(t.runner.dhwCurrent.on, false, 'das Programm läuft nicht');
+  await t.runner.tickCharger(at(9)); // gemeldeter Soll ist jetzt 30
+  assert.equal(t.runner._dhwSollBase, 48, 'der abgesenkte Soll wird nicht zur Basis');
+  assert.deepEqual(t.fired, ['dly'], 'kein zweites Mal');
+  await t.runner.tickCharger(at(16, 1));
+  assert.deepEqual(t.fired, ['dly', 'off'], 'zur Freigabezeit zurück auf Normal');
+  assert.equal(t.runner.dhwDelay.active, false);
+  await t.runner.tickCharger(at(16, 30));
+  assert.deepEqual(t.fired, ['dly', 'off'], 'heute nicht nochmals');
+});
+
+test('Warmwasser verzögern: Komfortgrenze, SG-Ready, Pause und Ausschalten geben frei; ohne Option oder ohne Flows passiert nichts', async () => {
+  const a = delayRunner();
+  await a.runner.tickCharger(at(7));
+  a.tempRef.v = 31;
+  await a.runner.tickCharger(at(8));
+  assert.deepEqual(a.fired, ['dly', 'off'], 'unter der Komfortgrenze sofort frei');
+
+  const b = delayRunner();
+  await b.runner.tickCharger(at(7));
+  b.runner.setPaused('dhw', true);
+  await b.runner.tickCharger(at(8));
+  assert.deepEqual(b.fired, ['dly', 'off'], 'Pause gibt den Soll frei');
+
+  const c = delayRunner();
+  await c.runner.tickCharger(at(7));
+  c.runner.getConfig().dhw.enabled = false;
+  await c.runner.tickCharger(at(8));
+  assert.deepEqual(c.fired, ['dly', 'off'], 'Modul ausgeschaltet: Soll frei');
+
+  const off = delayRunner({ delay: { enabled: false, flowDelay: { id: 'dly', advanced: true, name: 'v' } } });
+  await off.runner.tickCharger(at(7));
+  assert.deepEqual(off.fired, [], 'Option aus: nichts');
+
+  const noFlow = delayRunner({ delay: { enabled: true, flowDelay: { id: '', advanced: false, name: '' } } });
+  await noFlow.runner.tickCharger(at(7));
+  assert.deepEqual(noFlow.fired, []);
+  assert.match(noFlow.runner.dhwCurrent.delay.reason, /braucht die Flows/);
+
+  const cool = delayRunner();
+  cool.tempRef.v = 49; // über der Startschwelle (47)
+  await cool.runner.tickCharger(at(7));
+  assert.deepEqual(cool.fired, [], 'Warmwasser noch warm genug');
+});
+
+test('Warmwasser verzögern: übersteht einen Neustart (Zustand gespeichert), Flow-Fehler beim Absenken verzögert nicht', async () => {
+  const t = delayRunner();
+  const store = new Map();
+  t.runner.store = { get: (k) => store.get(k), set: (k, v) => store.set(k, JSON.parse(JSON.stringify(v))) };
+  await t.runner.tickCharger(at(7));
+  assert.equal(store.get('dhwDelay').active, true);
+  const bad = delayRunner();
+  bad.runner.actuators.consumer = async () => { throw new Error('Flow weg'); };
+  await bad.runner.tickCharger(at(7));
+  assert.equal(bad.runner.dhwDelay.active, false, 'Absenken fehlgeschlagen: nicht als verzögert merken');
+  assert.match(bad.runner.dhwCurrent.delay.reason, /Fehler beim Absenken/);
+});
+
+test('Preisoptimierung ab Datum: vorher keine Preis-Starts (Grund wird genannt), ab dem Datum wie bisher', async () => {
+  const early = delayRunner({ delay: { enabled: false }, priceFrom: '2027-01-01' });
+  early.runner.prices = { getSlots: cheapAt22, range: () => [] };
+  await early.runner.tickCharger(at(22));
+  assert.equal(early.runner.dhwCurrent.on, false);
+  assert.equal(early.runner.dhwCurrent.priceOn, false);
+  assert.match(early.runner.dhwCurrent.reason, /Preisoptimierung erst ab 01\.01\.2027/);
+  const ready = delayRunner({ delay: { enabled: false }, priceFrom: '2026-11-01' });
+  ready.runner.prices = { getSlots: cheapAt22, range: () => [] };
+  await ready.runner.tickCharger(at(22));
+  assert.equal(ready.runner.dhwCurrent.priceOn, true);
+  assert.equal(ready.runner.dhwCurrent.on, true, 'Datum erreicht: günstige Stunde startet das Programm');
+});

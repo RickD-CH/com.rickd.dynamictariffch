@@ -158,6 +158,7 @@
       var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
       if (dh.reason && !dh.paused) sub.push(esc(dh.reason));
+      if (dh.delayUntilHm && !dh.paused) sub.push(esc(fill(Homey.__('consumersWidget.dhwDelayed'), { time: dh.delayUntilHm })));
       if (dh.untilHm && !dh.paused) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));
       return '<div class="car">'
         + '<div class="name" style="margin-bottom:3px"><span class="ic" style="width:18px;height:18px;background:none;color:var(--cw-muted)">' + icon('drop') + '</span>' + esc(Homey.__('consumersWidget.dhwTitle')) + testChip + '</div>'

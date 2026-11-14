@@ -152,6 +152,7 @@
     "sgUntil": "bis {time}",
     "paused": "Pausiert",
     "carShare": "Solaranteil Auto {pct} %",
+    "dhwDelayed": "Verzögert bis {time} (PV zuerst)",
     "sgStart": "SG-Ready jetzt starten",
     "dhwStart": "Warmwasser jetzt bereiten",
     "moduleOff": "Aus",

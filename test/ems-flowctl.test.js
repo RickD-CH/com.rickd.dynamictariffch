@@ -896,3 +896,24 @@ test('Solarprognose: zusätzlich der Wert der letzten 14 Tage als Vergleich', as
   ui.click({ 'data-ems-open': 'src-fc' });
   assert.match(ui.setup(), /Empfehlung: 0\.78 \(Median aus 28 Tagen, meist zwischen 0\.46 und 0\.98\)\. Nur die letzten 14 Tage: 0\.53\./);
 });
+
+test('Warmwasser verzögern: Option mit allen Einstellungen, standardmässig aus, Werte und Preis-Datum werden gesammelt', async () => {
+  const ui = await startUi({ dhw: { enabled: true, output: 'flows' } });
+  ui.click({ 'data-ems-open': 'dhw' });
+  const h = ui.setup();
+  assert.match(h, /Warmwasser verzögern \(PV zuerst\)/);
+  assert.match(h, /Komfortgrenze/);
+  assert.match(h, /Preisoptimierung ab \(Datum\)/);
+  const c0 = ui.ctx.window.EmsUi._collect().ems.dhw;
+  assert.equal(c0.delay.enabled, false, 'standardmässig aus');
+  assert.equal(c0.delay.minForecastKwh, 15);
+  ui.ctx.document.getElementById('ems-dhw-dly-on').checked = true;
+  ui.set('ems-dhw-dly-fc', '8');
+  ui.set('ems-dhw-dly-rwd', '15:30');
+  ui.set('ems-dhw-pricefrom', '2027-01-01');
+  const c = ui.ctx.window.EmsUi._collect().ems.dhw;
+  assert.equal(c.delay.enabled, true);
+  assert.equal(c.delay.minForecastKwh, 8);
+  assert.equal(c.delay.releaseWeekday, '15:30');
+  assert.equal(c.priceFrom, '2027-01-01');
+});
