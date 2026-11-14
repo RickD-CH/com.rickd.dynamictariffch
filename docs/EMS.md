@@ -521,3 +521,18 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Flow-Karten (14.11.2026):** Auslöser «Der SG-Ready-Zustand hat gewechselt» (Token `state` normal/boost/forced, `status`) und «Das Warmwasser-Programm wurde gestartet
   oder beendet» (Token `running`, `status`), Bedingungen «SG-Ready-Zustand ist ...» und «Das Warmwasser-Programm läuft». Ausgelöst nur bei echtem Wechsel (nicht beim ersten
   beobachteten Zustand, nicht beim Ein-/Ausschalten des Moduls), auch im Testmodus.
+
+## Stiebel Eltron LWZ 5-8: was die Wärmepumpe beim Warmwasser selbst macht (14.11.2026)
+
+Quellen: Bedienungsanleitung und Montageanleitung LWZ 5-8 CS Premium / LWZ 5 S Plus / LWZ 5-8 (C)S Trend / LWZ 5 S Smart (Stiebel Eltron, Kap. 4.2 Betriebsarten, 7.3 Warmwasser, 7.10.1).
+
+- **Sie schaltet selbst ab:** Warmwasserbereitung **ein bei WW-Soll minus Hysterese, aus bei WW-Soll plus Hysterese** (Parameter «Hysterese», `MENÜ/WARMWASSER/PARAMETER, P32`).
+  Ein von uns fest eingestelltes Ziel über dem WW-Soll (z. B. 56 bei Soll 48) wird darum nie erreicht. Neu: Zieltemperatur **aus der Wärmepumpe** (`targetSource: 'device'`,
+  Gerät + Capability des WW-Soll, Ende bei **Soll minus Toleranz**, Standard 1 K); nicht lesbar -> das feste Ersatz-Ziel. Für SG-Ready und das Warmwasser-Programm einstellbar.
+- **Verdichter schafft ca. 50 °C:** darüber (und schon ab Tag-Soll über 45 °C, falls der Verdichter es nicht schafft) schaltet die **elektrische Nacherwärmung (Heizstab)** zu
+  (nach «Zeitsperre NE» P33 oder sofort unter «Temp.-Freigabe NE» P34; «WW-Eco» P89 senkt den Soll automatisch). Darum Standard-Ziel des Warmwasser-Programms **50 °C** (SG-Ready bleibt 56).
+- **Betriebsart «Warmwasserbetrieb» (DHW MODE):** nur Warmwasser, **Heizung aus (nur Frostschutz)**; es gilt der WW-Tag-Sollwert nur in den Schaltzeiten des WW-Programms, sonst der Nacht-Sollwert
+  (Bedienungsanleitung 4.2.5 / «WW-Programm»). Folgen: (1) nach dem Programm **muss es zurück auf Automatik** - neu eine **Höchstdauer** (Standard 180 min) als Sicherheitsgrenze;
+  (2) die **Betriebsart-Prüfung** erlaubt während des Programms zusätzlich den Programm-Wert (`modeProgramValue`, z. B. WARMWASSER), sonst bricht unser eigenes Umschalten sofort ab;
+  (3) die Schaltzeiten des WW-Programms sollten die günstigen Stunden abdecken.
+- Nicht in den Anleitungen gefunden: eine einmalige «Sofort-Warmwasser»-Funktion und die SG-Ready-Anhebung (steht in der ISG-Dokumentation, nicht im LWZ-Handbuch).

@@ -113,7 +113,7 @@
       var labels = { off: 'sgNormal', boost: 'sgBoost', forced: 'sgForced', dhw: 'sgDhw' };
       var state = sg.state ? esc(Homey.__('consumersWidget.' + labels[sg.state])) : esc(Homey.__('consumersWidget.sgWaiting'));
       var testChip = !sg.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
-      var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) : '';
+      var temp = sg.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: sg.tempWW })) + (sg.targetTemp ? ' → ' + esc(sg.targetTemp) : '') : '';
       var sub = [];
       if (sg.reason) sub.push(esc(sg.reason));
       if (sg.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: sg.untilHm })));
@@ -130,7 +130,7 @@
       if (!dh) return '';
       var state = !dh.known ? esc(Homey.__('consumersWidget.sgWaiting')) : esc(Homey.__(dh.on ? 'consumersWidget.dhwOn' : 'consumersWidget.dhwIdle'));
       var testChip = !dh.live ? '<span class="chip">' + esc(Homey.__('consumersWidget.test')) + '</span>' : '';
-      var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) : '';
+      var temp = dh.tempWW !== null ? esc(fill(Homey.__('consumersWidget.sgTemp'), { t: dh.tempWW })) + (dh.targetTemp ? ' → ' + esc(dh.targetTemp) : '') : '';
       var sub = [];
       if (dh.reason) sub.push(esc(dh.reason));
       if (dh.untilHm) sub.push(esc(fill(Homey.__('consumersWidget.sgUntil'), { time: dh.untilHm })));

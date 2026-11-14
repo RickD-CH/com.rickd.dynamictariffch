@@ -102,7 +102,12 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
-            dhwTitle: 'WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS', dhwRow: 'Warmwasser-Programm', dhwOff: 'aus', dhwRunning: 'läuft', dhwWaiting: 'wartet',
+            tgtSource: 'Zieltemperatur', tgtManual: 'Fest eingestellt', tgtDevice: 'Aus der Wärmepumpe (WW-Soll)', tgtDev: 'Gerät und Wert (WW-Soll der Wärmepumpe)', tgtTol: 'Toleranz unter WW-Soll (K)',
+      tgtSrcH: 'Die Wärmepumpe heizt selbst nur bis zu ihrem WW-Soll (plus Hysterese) und schaltet dann ab. Ein festes Ziel darüber wird nie erreicht. «Aus der Wärmepumpe» beendet bei WW-Soll minus Toleranz. Über ca. 50 °C springt der Heizstab an.',
+      tgtTolH: 'Beendet, sobald das Warmwasser den WW-Soll minus diese Toleranz erreicht (der Fühler hinkt etwas nach).', tgtFallback: 'Ersatz-Ziel, falls der WW-Soll nicht lesbar ist (°C)', tgtFallbackH: 'Gilt nur, wenn der Wert der Wärmepumpe gerade nicht gelesen werden kann.',
+      dhwModeProgram: 'Betriebsart während des Programms (z. B. Warmwasser)', dhwModeProgramH: 'Wert der Betriebsart, solange das Programm läuft. Ohne ihn würde die Prüfung unser eigenes Umschalten sofort abbrechen. Im Warmwasserbetrieb ist die Heizung aus, danach muss es zurück auf Automatik.',
+      dhwMaxRun: 'Höchstdauer (Min.)', dhwMaxRunH: 'Sicherheitsgrenze: danach wird zurück auf Normal gesetzt (der Warmwasserbetrieb schaltet die Heizung ab). 0 = unbegrenzt.',
+      dhwTitle: 'WARMWASSER-PROGRAMM BEI GÜNSTIGEM PREIS', dhwRow: 'Warmwasser-Programm', dhwOff: 'aus', dhwRunning: 'läuft', dhwWaiting: 'wartet',
       dhwOnLbl: 'Warmwasser-Programm bei günstigem Preis starten', dhwWhy: 'Unabhängig von SG-Ready: liegt die Zeit in den günstigsten Stunden des Tages und das Warmwasser unter dem Mindestwert, startet das Warmwasser-Programm der Wärmepumpe (Flow oder App-Funktion) und danach wieder zurück auf Normal. Sonne und SG-Ready haben Vorrang.',
       dhwCheapHours: 'Günstigste Stunden pro Tag (h)', dhwCheapH: 'Das Programm startet in den günstigsten N Stunden des Tages (nach den Viertelstunden-Preisen von heute). Die Vorschau zeigt, wann das heute und morgen wäre.',
       dhwPreview: 'Vorschau', dhwToday: 'Heute', dhwTomorrow: 'Morgen', dhwAvg: 'Ø', dhwNoPrices: 'Vorschau: noch keine Preise für heute.',
@@ -306,7 +311,12 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
-            dhwTitle: 'HOT-WATER PROGRAM ON A CHEAP PRICE', dhwRow: 'Hot-water program', dhwOff: 'off', dhwRunning: 'running', dhwWaiting: 'waiting',
+            tgtSource: 'Target temperature', tgtManual: 'Fixed', tgtDevice: 'From the heat pump (DHW setpoint)', tgtDev: 'Device and value (heat pump DHW setpoint)', tgtTol: 'Tolerance below DHW setpoint (K)',
+      tgtSrcH: 'The heat pump itself only heats up to its DHW setpoint (plus hysteresis) and then stops. A fixed target above it is never reached. "From the heat pump" ends at DHW setpoint minus tolerance. Above about 50 °C the heating rod kicks in.',
+      tgtTolH: 'Ends as soon as the hot water reaches the DHW setpoint minus this tolerance (the sensor lags a little).', tgtFallback: 'Fallback target if the DHW setpoint is not readable (°C)', tgtFallbackH: 'Only used when the heat pump value cannot be read right now.',
+      dhwModeProgram: 'Operating mode during the program (e.g. DHW)', dhwModeProgramH: 'Value of the operating mode while the program runs. Without it the check would abort our own switching immediately. In DHW mode heating is off, afterwards it must return to automatic.',
+      dhwMaxRun: 'Maximum duration (min)', dhwMaxRunH: 'Safety limit: afterwards it is set back to normal (DHW mode switches the heating off). 0 = unlimited.',
+      dhwTitle: 'HOT-WATER PROGRAM ON A CHEAP PRICE', dhwRow: 'Hot-water program', dhwOff: 'off', dhwRunning: 'running', dhwWaiting: 'waiting',
       dhwOnLbl: 'Start the hot-water program on a cheap price', dhwWhy: 'Independent of SG Ready: if it is within the cheapest hours of the day and the hot water is below the minimum, the heat pump hot-water program starts (flow or app function) and is set back to normal afterwards. Sun and SG Ready take precedence.',
       dhwCheapHours: 'Cheapest hours per day (h)', dhwCheapH: 'The program starts during the cheapest N hours of the day (by today quarter-hour prices). The preview shows when that would be today and tomorrow.',
       dhwPreview: 'Preview', dhwToday: 'Today', dhwTomorrow: 'Tomorrow', dhwAvg: 'avg', dhwNoPrices: 'Preview: no prices for today yet.',
@@ -1156,6 +1166,22 @@
   function sgFlowSel(label, id, cur) {
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + id + '">' + flowOptions(cur) + '</select></label></div>';
   }
+  // Zieltemperatur: fest oder aus der Wärmepumpe (WW-Soll). Die Wärmepumpe schaltet selbst bei Soll + Hysterese ab - ein festes Ziel darüber würde nie erreicht.
+  function targetBlock(pre, c, manualId, label, manualTip) {
+    var dev = c.targetSource === 'device';
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.tgtSource) + tipI(pre + '-tgtsrc') + '</span><select id="' + pre + '-tgtsrc" data-ems-sgdev="1"><option value="manual"' + (dev ? '' : ' selected') + '>' + esc(S.tgtManual) + '</option><option value="device"' + (dev ? ' selected' : '') + '>' + esc(S.tgtDevice) + '</option></select></label>' + tipT(pre + '-tgtsrc', S.tgtSrcH) + '</div>'
+      + (dev ? sgDevPair(S.tgtDev, pre + '-tgt', c.targetId, c.targetCapability, /^(measure|target)_temperature/) + '<div class="ems-row">' + field(S.tgtTol, pre + '-tgttol', c.targetTol, 'number', ' step="0.5" min="0" max="10"', S.tgtTolH) + '</div>' : '')
+      + sgFld(dev ? S.tgtFallback : label, manualId, c.targetTemp, 'number', ' step="1" min="20" max="90"', dev ? S.tgtFallbackH : manualTip);
+  }
+  function syncTarget(pre, manualId, c) {
+    c.targetSource = val(pre + '-tgtsrc', c.targetSource) === 'device' ? 'device' : 'manual';
+    c.targetTemp = num(manualId, c.targetTemp);
+    if ($(pre + '-tgt-dev')) {
+      c.targetId = $(pre + '-tgt-dev').value || '';
+      c.targetCapability = c.targetId ? val(pre + '-tgt-cap', c.targetCapability) : '';
+    }
+    if ($(pre + '-tgttol')) c.targetTol = num(pre + '-tgttol', c.targetTol);
+  }
   function sgBody() {
     var g = sgCfg();
     var flows = g.output === 'flows';
@@ -1173,7 +1199,7 @@
       + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
       + sgFld(S.sgPvBelow, 'ems-sg-pvbelow', g.pvBelowTemp, 'number', ' step="1" min="0" max="90"', S.sgPvBelowH)
       + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/, S.sgSensorH)
-      + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
+      + targetBlock('ems-sg', g, 'ems-sg-temp', S.sgTemp, S.sgTempH)
       + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./, S.sgModeH)
       + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '')
       + sgDevPair(S.sgFeedback, 'ems-sg-fbk', g.feedbackId, g.feedbackCapability, /./, S.sgFeedbackH)
@@ -1192,7 +1218,7 @@
     if (!g.enabled || !$('ems-sg-basis')) return;
     g.basis = val('ems-sg-basis', g.basis) === 'export' ? 'export' : 'pv';
     g.minSolarW = num('ems-sg-minsolar', g.minSolarW); g.minSoc = num('ems-sg-minsoc', g.minSoc); g.socHysteresis = num('ems-sg-hyst', g.socHysteresis);
-    g.targetTemp = num('ems-sg-temp', g.targetTemp); g.windowTo = val('ems-sg-to', g.windowTo);
+    syncTarget('ems-sg', 'ems-sg-temp', g); g.windowTo = val('ems-sg-to', g.windowTo);
     g.startDelayMin = num('ems-sg-startdelay', g.startDelayMin); g.minRunMin = num('ems-sg-minrun', g.minRunMin);
     g.stopDelayMin = num('ems-sg-stopdelay', g.stopDelayMin); g.cooldownMin = num('ems-sg-cooldown', g.cooldownMin);
     g.pvBelowTemp = num('ems-sg-pvbelow', g.pvBelowTemp);
@@ -1262,11 +1288,12 @@
       + sgFld(S.dhwBelow, 'ems-dhw-below', d.belowTemp, 'number', ' step="1" min="0" max="90"', S.dhwBelowH)
       + '<div class="ems-row">' + check(S.dhwSkipPv, 'ems-dhw-skippv', d.skipPv, S.dhwSkipPvH) + (d.skipPv ? field(S.dhwSkipPvKwh, 'ems-dhw-skippvkwh', d.skipPvKwh, 'number', ' step="1" min="0"') + field(S.dhwSkipUntil, 'ems-dhw-skipuntil', d.skipPvUntil, 'time', '', S.dhwSkipUntilH) : '') + '</div>'
       + sgDevPair(S.sgSensor, 'ems-dhw-sensor', d.sensorId, d.tempCapability, /^measure_temperature/, S.sgSensorH)
-      + sgFld(S.dhwTarget, 'ems-dhw-target', d.targetTemp, 'number', ' step="1" min="20" max="90"', S.dhwTargetH)
+      + targetBlock('ems-dhw', d, 'ems-dhw-target', S.dhwTarget, S.dhwTargetH)
       + sgDevPair(S.sgMode, 'ems-dhw-mode', d.modeId, d.modeCapability, /./, S.sgModeH)
-      + (d.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-dhw-modeok', d.modeOkValue, 'text') + '</div>' : '')
+      + (d.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-dhw-modeok', d.modeOkValue, 'text') + field(S.dhwModeProgram, 'ems-dhw-modeprog', d.modeProgramValue, 'text', '', S.dhwModeProgramH) + '</div>' : '')
       + sgFld(S.sgStartDelay, 'ems-dhw-startdelay', d.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
       + sgFld(S.sgMinRun, 'ems-dhw-minrun', d.minRunMin, 'number', ' step="5" min="0"', S.dhwMinRunH)
+      + sgFld(S.dhwMaxRun, 'ems-dhw-maxrun', d.maxRunMin, 'number', ' step="10" min="0"', S.dhwMaxRunH)
       + sgFld(S.sgStopDelay, 'ems-dhw-stopdelay', d.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
       + sgFld(S.sgCooldown, 'ems-dhw-cooldown', d.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgDhwOut) + tipI('dhw-out') + '</span><select id="ems-dhw-out" data-ems-sgdev="1"><option value="flows"' + (cap ? '' : ' selected') + '>' + esc(S.sgDhwFlows) + '</option><option value="capability"' + (cap ? ' selected' : '') + '>' + esc(S.sgDhwCap) + '</option></select></label>' + tipT('dhw-out', S.sgDhwH) + '</div>'
@@ -1284,11 +1311,12 @@
     d.skipPv = chk('ems-dhw-skippv');
     if ($('ems-dhw-skippvkwh')) { d.skipPvKwh = num('ems-dhw-skippvkwh', d.skipPvKwh); d.skipPvUntil = val('ems-dhw-skipuntil', d.skipPvUntil); }
     d.sensorId = val('ems-dhw-sensor-dev', d.sensorId); d.tempCapability = val('ems-dhw-sensor-cap', d.tempCapability);
-    d.targetTemp = num('ems-dhw-target', d.targetTemp);
+    syncTarget('ems-dhw', 'ems-dhw-target', d);
     d.modeId = ($('ems-dhw-mode-dev') || { value: d.modeId }).value || '';
     if ($('ems-dhw-mode-cap')) d.modeCapability = d.modeId ? val('ems-dhw-mode-cap', d.modeCapability) : '';
     if ($('ems-dhw-modeok')) d.modeOkValue = String($('ems-dhw-modeok').value || '');
-    d.startDelayMin = num('ems-dhw-startdelay', d.startDelayMin); d.minRunMin = num('ems-dhw-minrun', d.minRunMin);
+    if ($('ems-dhw-modeprog')) d.modeProgramValue = String($('ems-dhw-modeprog').value || '');
+    d.startDelayMin = num('ems-dhw-startdelay', d.startDelayMin); d.minRunMin = num('ems-dhw-minrun', d.minRunMin); d.maxRunMin = num('ems-dhw-maxrun', d.maxRunMin);
     d.stopDelayMin = num('ems-dhw-stopdelay', d.stopDelayMin); d.cooldownMin = num('ems-dhw-cooldown', d.cooldownMin);
     d.output = val('ems-dhw-out', d.output) === 'capability' ? 'capability' : 'flows';
     if ($('ems-dhw-flowon')) d.flowOn = pickFlow($('ems-dhw-flowon').value || '', d.flowOn);

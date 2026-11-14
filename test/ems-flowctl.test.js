@@ -537,3 +537,38 @@ test('Anzeige: kurze Erklärungen hinter einem ⓘ - eingeklappt, ein Klick klap
   assert.doesNotMatch(h2, /nur Info/, 'die Dauer ist jetzt die Sperrzeit nach einem Start, nicht mehr «nur Info»');
   assert.match(h2, /startet die Automatik nicht nochmals/);
 });
+
+test('Anzeige: Zieltemperatur fest oder aus der Wärmepumpe (WW-Soll), Betriebsart-Wert während des Programms, Höchstdauer', async () => {
+  const man = await startUi({
+    dhw: {
+      enabled: true, modeId: 'lamp', modeCapability: 'onoff', modeOkValue: 'Automatik', modeProgramValue: 'Warmwasser',
+    },
+  });
+  man.click({ 'data-ems-open': 'dhw' });
+  const h = man.setup();
+  assert.match(h, /Zieltemperatur/);
+  assert.match(h, /Fest eingestellt/);
+  assert.doesNotMatch(h, /Toleranz unter WW-Soll/, 'fest: keine Geräte-Felder');
+  assert.match(h, /Betriebsart während des Programms/);
+  assert.match(h, /Höchstdauer \(Min\.\)/);
+  assert.equal(man.ctx.window.EmsUi._collect().ems.dhw.modeProgramValue, 'Warmwasser');
+  assert.equal(man.ctx.window.EmsUi._collect().ems.dhw.targetTemp, 50, 'Standard 50 °C');
+  assert.equal(man.ctx.window.EmsUi._collect().ems.dhw.maxRunMin, 180);
+  const dev = await startUi({
+    dhw: {
+      enabled: true, targetSource: 'device', targetId: 'lamp', targetCapability: 'onoff', targetTol: 2,
+    },
+    sgready: {
+      enabled: true, targetSource: 'device', targetId: 'lamp', targetCapability: 'onoff',
+    },
+  });
+  dev.click({ 'data-ems-open': 'dhw' });
+  const h2 = dev.setup();
+  assert.match(h2, /Aus der Wärmepumpe \(WW-Soll\)/);
+  assert.match(h2, /Toleranz unter WW-Soll/);
+  assert.match(h2, /Ersatz-Ziel, falls der WW-Soll nicht lesbar ist/);
+  const c = dev.ctx.window.EmsUi._collect().ems;
+  assert.equal(c.dhw.targetSource, 'device');
+  assert.equal(c.dhw.targetTol, 2);
+  assert.equal(c.sgready.targetSource, 'device');
+});

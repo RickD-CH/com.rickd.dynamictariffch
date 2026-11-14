@@ -8,7 +8,9 @@ const {
   normalizeSgReady, decideSgReady, makeSgReadyState, relaysFor, parseSgReadyState,
 } = require('../lib/ems/planner/sgready');
 const { fromLocal } = require('../lib/time');
-const { cheapestOfDay, cheapestPreview, priceDays } = require('../lib/ems/planner/dhw');
+const {
+  cheapestOfDay, cheapestPreview, priceDays, normalizeDhw,
+} = require('../lib/ems/planner/dhw');
 
 const TZ = 'Europe/Zurich';
 const at = (h, m = 0) => fromLocal(2026, 11, 13, h, m).getTime();
@@ -757,4 +759,114 @@ test('Runner: «günstigste Stunden des Tages» rechnet mit dem ganzen Tag (auch
   await runner.tickCharger(at(22)); // abends: nur noch teure Preise kommen, aber der Tag war nachts günstiger
   assert.equal(fired.length, 0);
   assert.equal(runner.dhwCurrent.window.nowCheap, false);
+});
+
+test('Zieltemperatur aus der Wärmepumpe: targetOverride ersetzt das feste Ziel, Höchstdauer beendet einen Lauf', () => {
+  const cfg = {
+    minSolarW: 1500, startDelayMin: 0, minRunMin: 0, targetTemp: 56, pvBelowTemp: 0,
+  };
+  const x = base({
+    cfg, pvW: 2000, tempWW: 40, nowMs: at(10),
+  });
+  assert.equal(decideSgReady(x).state, 'boost');
+  x.tempWW = 47.2;
+  x.nowMs += 20 * MIN;
+  assert.equal(decideSgReady(x).state, 'boost', 'ohne Override noch unter dem festen Ziel 56');
+  x.targetOverride = 47; // WW-Soll 48 minus 1 K
+  x.nowMs += 1000;
+  const r = decideSgReady(x);
+  assert.equal(r.state, 'off');
+  assert.match(r.reason, /Zieltemperatur erreicht/);
+  const y = base({
+    cfg: {
+      minSolarW: 1500, startDelayMin: 0, minRunMin: 0, maxRunMin: 60, pvBelowTemp: 0,
+    },
+    pvW: 2000,
+    tempWW: 40,
+    nowMs: at(10),
+  });
+  assert.equal(decideSgReady(y).state, 'boost');
+  y.nowMs += 59 * MIN;
+  assert.equal(decideSgReady(y).state, 'boost');
+  y.nowMs += 2 * MIN;
+  const e = decideSgReady(y);
+  assert.equal(e.state, 'off');
+  assert.match(e.reason, /Höchstdauer erreicht \(60 min\)/);
+  assert.ok(y.st.cooldownUntil, 'danach Abkühlpause');
+});
+
+test('Standardwerte Warmwasser-Programm: Ziel 50 °C (Verdichter-Grenze), Höchstdauer 180 min, Ziel fest', () => {
+  const d = normalizeDhw({});
+  assert.equal(d.targetTemp, 50);
+  assert.equal(d.maxRunMin, 180);
+  assert.equal(d.targetSource, 'manual');
+  assert.equal(d.targetTol, 1);
+  assert.equal(normalizeDhw({
+    targetSource: 'device', targetId: 'wp', targetCapability: 'soll', maxRunMin: 0,
+  }).maxRunMin, 0);
+  assert.equal(normalizeSgReady({}).maxRunMin, 0, 'SG-Ready ohne Höchstdauer');
+});
+
+test('Runner: Ziel aus der Wärmepumpe (WW-Soll minus Toleranz) für SG-Ready und Warmwasser-Programm, nicht lesbar -> festes Ziel', async () => {
+  let soll = 48;
+  const sg = makeRunner({
+    targetSource: 'device', targetId: 'wp', targetCapability: 'soll', targetTol: 1, pvBelowTemp: 0,
+  }, { v: 40 });
+  const baseRead = sg.runner.inputs.readNumber;
+  sg.runner.inputs.readNumber = async (id, cap) => (id === 'wp' ? soll : baseRead(id, cap));
+  await sg.runner.tickCharger(at(10));
+  assert.equal(sg.runner.sgReadyCurrent.state, 'boost');
+  assert.equal(sg.runner.sgReadyCurrent.target, 47);
+  assert.equal(sg.runner.sgReadyCurrent.soll, 48);
+  sg.tempRef.v = 47.1;
+  await sg.runner.tickCharger(at(10) + 60000);
+  assert.equal(sg.runner.sgReadyCurrent.state, 'off', 'Ende schon bei 47 statt bei einem nie erreichten festen Ziel');
+  soll = null; // nicht lesbar
+  const fb = makeRunner({
+    targetSource: 'device', targetId: 'wp', targetCapability: 'soll', targetTemp: 52, pvBelowTemp: 0,
+  }, { v: 40 });
+  fb.runner.inputs.readNumber = async (id) => (id === 'wp' ? null : 40);
+  await fb.runner.tickCharger(at(10));
+  assert.equal(fb.runner.sgReadyCurrent.target, 52, 'Ersatz-Ziel');
+
+  const dhw = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, targetSource: 'device', targetId: 'wp', targetCapability: 'soll', flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  const fired = [];
+  dhw.runner.prices = { getSlots: cheapAt22 };
+  dhw.runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  dhw.runner.inputs.readNumber = async (id) => (id === 'wp' ? 48 : dhw.tempRef.v);
+  await dhw.runner.tickCharger(at(22));
+  assert.deepEqual(fired, ['on']);
+  assert.equal(dhw.runner.dhwCurrent.target, 47);
+  dhw.tempRef.v = 47.5;
+  await dhw.runner.tickCharger(at(22) + 60000);
+  assert.deepEqual(fired, ['on', 'off']);
+});
+
+test('Warmwasser-Programm: Betriebsart-Prüfung bricht das eigene Umschalten nicht ab (Programm-Wert während des Laufs erlaubt)', async () => {
+  const fired = [];
+  let mode = 'AUTOMATIK';
+  const { runner } = makeRunner({ enabled: false }, { v: 40 }, {
+    ...dhwBase, modeId: 'wp', modeCapability: 'mode', modeOkValue: 'Automatik', modeProgramValue: 'Warmwasser', flowOn: { id: 'on', advanced: false, name: 'x' }, flowOff: { id: 'off', advanced: false, name: 'y' },
+  });
+  runner.prices = { getSlots: cheapAt22 };
+  runner.inputs.readValue = async () => mode;
+  runner.actuators.consumer = async (id, on, { flow }) => {
+    fired.push(flow.id);
+    return { cmd: 'on' };
+  };
+  await runner.tickCharger(at(22));
+  assert.deepEqual(fired, ['on']);
+  mode = 'WARMWASSER'; // das Umschalten haben wir selbst gemacht
+  await runner.tickCharger(at(22) + 60000);
+  assert.equal(runner.dhwCurrent.on, true, 'läuft weiter');
+  assert.equal(runner.dhwCurrent.modeBlocked, false);
+  mode = 'KOMFORT'; // jemand anderes stellt etwas anderes ein
+  await runner.tickCharger(at(22) + 120000);
+  assert.equal(runner.dhwCurrent.on, false);
+  assert.match(runner.dhwCurrent.reason, /Betriebsart/);
 });
