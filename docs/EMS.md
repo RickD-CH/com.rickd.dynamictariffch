@@ -539,7 +539,7 @@ Quellen: Bedienungsanleitung und Montageanleitung LWZ 5-8 CS Premium / LWZ 5 S P
 
 ### Start von Hand (Widget-Knopf und Flow-Aktion)
 
-SG-Ready («Jetzt aufheizen») und das Warmwasser-Programm («Jetzt starten») lassen sich von Hand starten: im Widget «Verbraucher»
+SG-Ready («SG-Ready jetzt starten») und das Warmwasser-Programm («Warmwasser jetzt bereiten») lassen sich von Hand starten: im Widget «Verbraucher»
 (Knopf im jeweiligen Block, nur bei eingeschaltetem, nicht pausiertem und gerade nicht laufendem Modul) oder per Flow-Aktion
 «Boiler / Wärmepumpe jetzt aufheizen (SG-Ready)» bzw. «Warmwasser-Programm jetzt starten».
 
