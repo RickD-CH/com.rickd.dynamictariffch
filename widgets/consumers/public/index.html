@@ -177,11 +177,11 @@
         // Eigene Reihe, statt wie bei den übrigen Verbrauchern neben dem Namen: Automatik-Schalter und
         // Starten-Knopf brauchen hier Platz und sollen nicht mit dem (oft längeren) Status-Text um die Breite
         // konkurrieren.
-        // Automatik-Schalter oben rechts (wie bei Boiler und Warmwasser), «Starten» nur, wenn live gestartet werden kann
+        // Automatik-Schalter oben rechts (wie bei Boiler und Warmwasser), «Starten» darunter (im Testmodus grau und gesperrt)
         return '<div class="item citem"><div class="ctop"><span class="ic">' + icon(c.icon) + '</span>'
           + '<span class="name">' + esc(c.name) + testChip + '</span>' + auto + '</div>'
           + subHtml
-          + (c.live ? '<div class="cctrl">' + btn + '</div>' : '') + '</div>';
+          + '<div class="cctrl">' + btn + '</div></div>';
       }
       return '<div class="item"><span class="ic">' + icon(c.icon) + '</span>'
         + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>' + subHtml + '</span></div>';
