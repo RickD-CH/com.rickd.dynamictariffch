@@ -243,9 +243,9 @@ test('Widget «Verbraucher»: eingerichtete, aber ausgeschaltete Module erschein
 });
 
 test('Widget «Verbraucher»: Start-Knopf (canStart) nur bei eingeschaltetem, nicht pausiertem und gerade nicht laufendem Modul', () => {
-  const mk = (cfg, cur) => consumersWidget({
+  const mk = (cfg, cur, silent = false) => consumersWidget({
     shadow: {
-      deviceExists: true, silent: true, config: { consumers: [], dhw: { enabled: true, flowOn: { id: 'f' }, ...cfg } }, dhw: cur,
+      deviceExists: true, silent, config: { consumers: [], silent, dhw: { enabled: true, live: true, flowOn: { id: 'f' }, ...cfg } }, dhw: cur,
     },
     consumerCurrent: [],
     tz: TZ,
@@ -255,4 +255,6 @@ test('Widget «Verbraucher»: Start-Knopf (canStart) nur bei eingeschaltetem, ni
   assert.equal(mk({}, { on: false, paused: true }).canStart, false, 'pausiert');
   assert.equal(mk({}, null).canStart, false, 'noch kein Zustand');
   assert.equal(mk({ enabled: false }, null).canStart, false, 'ausgeschaltet');
+  assert.equal(mk({}, { on: false }, true).canStart, false, 'Testmodus (silent): kein Knopf');
+  assert.equal(mk({ live: false }, { on: false }).canStart, false, 'Modul nicht live: kein Knopf');
 });
