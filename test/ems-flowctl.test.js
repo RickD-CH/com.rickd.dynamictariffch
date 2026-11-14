@@ -691,3 +691,34 @@ test('Wallbox: Maximalstrom, Haltezeit und «Sofort laden beim Abstecken ausscha
   ui.input({ id: 'ems-share-lo' });
   assert.match(ui.ctx.document.getElementById('ems-share-live').innerHTML, /41\.0,/, 'Diagramm zeichnet die neue untere Grenze (30 %)');
 });
+
+test('Inputs: mehrere Lesungen desselben Geräts im selben Takt = eine einzige Abfrage (Zwischenspeicher), danach wieder frisch', async () => {
+  const { Inputs } = require('../lib/ems/Inputs'); // eslint-disable-line global-require
+  const inputs = new Inputs({}, () => {});
+  let calls = 0;
+  let value = 1;
+  inputs._api = async () => ({
+    devices: {
+      getDevice: async () => {
+        calls += 1;
+        return { available: true, capabilitiesObj: { a: { value }, b: { value: 'x' } } };
+      },
+    },
+  });
+  const realNow = Date.now;
+  let t = 1000000;
+  Date.now = () => t;
+  try {
+    const [a, b, c] = await Promise.all([inputs.readNumber('d', 'a'), inputs.readValue('d', 'b'), inputs.readNumber('d', 'a')]);
+    assert.deepEqual([a, b, c], [1, 'x', 1]);
+    assert.equal(calls, 1, 'drei Lesungen, eine Abfrage');
+    value = 2;
+    t += 1000;
+    assert.equal(await inputs.readNumber('d', 'a'), 1, 'innerhalb weniger Sekunden gilt die Abfrage');
+    t += 5000;
+    assert.equal(await inputs.readNumber('d', 'a'), 2, 'danach wieder frisch');
+    assert.equal(calls, 2);
+  } finally {
+    Date.now = realNow;
+  }
+});

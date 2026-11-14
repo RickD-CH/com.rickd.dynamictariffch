@@ -1118,3 +1118,17 @@ test('Runner: shareInfo für die Anzeige (Anteil jetzt, Batteriestand, wirksame 
   runner._computeShare(cfg, { batterySoc: null }, at(10));
   assert.equal(runner.shareInfo.pct, null, 'Batteriestand unbekannt');
 });
+
+test('Speichern nur bei Änderung: derselbe Zustand wird nicht jeden Takt erneut geschrieben (Flash schonen)', async () => {
+  const { runner } = makeRunner();
+  const writes = [];
+  runner.store = { get: () => null, set: (k) => writes.push(k) };
+  await runner.tickCharger(at(10));
+  await runner.tickCharger(at(10) + 30000);
+  await runner.tickCharger(at(10) + 60000);
+  const sg = writes.filter((k) => k === 'sgReadyState').length;
+  assert.ok(sg >= 1 && sg <= 2, `SG-Ready-Zustand höchstens bei Änderungen geschrieben, nicht dreimal (war ${sg}x)`);
+  const dhwBefore = writes.filter((k) => k === 'dhwState').length;
+  await runner.tickCharger(at(10) + 90000);
+  assert.equal(writes.filter((k) => k === 'dhwState').length, dhwBefore, 'unveränderter Zustand wird nicht erneut geschrieben');
+});
