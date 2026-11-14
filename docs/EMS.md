@@ -459,9 +459,16 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - Start (aus `off`): Trigger A = Solarleistung (oder Netzeinspeisung, `basis`) ≥ `minSolarW` und, falls Hausakku
   vorhanden, SoC ≥ `minSoc`, nur vor `windowTo`; Trigger B = aktueller Preis ≤ `maxPriceRp`, unabhängig von `windowTo`.
   Erst nach `startDelayMin` am Stück; springt der SoC frisch über die Schwelle bei schon reichender Leistung, sofort.
-- Danach `minRunMin` fest verriegelt; nur Zieltemperatur (`targetTemp`) oder Ferienmodus beenden sofort (aus jeder Phase).
+- Danach `minRunMin` fest verriegelt; nur Zieltemperatur (`targetTemp`) oder eine nicht freigegebene Betriebsart beenden sofort (aus jeder Phase).
   Nach der Mindestlaufzeit hält `boost` mit SoC-Hysterese; fehlen die Bedingungen `stopDelayMin`, zurück auf `off`,
   dann `cooldownMin` Abkühlpause. Eskalation zu `forced` und Rückfall nutzen `startDelayMin`/`stopDelayMin`.
 - Standard `live: false` und Silent-Modus hat Vorrang: ohne beides wird nur simuliert. Der bisherige Flow
   («WW Bereitung dynamisch») läuft parallel weiter, bis Richard ihn abschaltet. Der Zustand wird gespeichert
   (`sgReadyState`), damit Mindestlaufzeit/Abkühlpause einen App-Neustart überstehen.
+- **Betriebsart statt Ferienmodus:** `modeId`/`modeCapability`/`modeOkValue` - gesteuert wird nur, wenn die Betriebsart der
+  Wärmepumpe den freigegebenen Wert hat (z. B. «Automatik»); anderer oder nicht lesbarer Wert = nicht steuern. Ohne Gerät keine Prüfung.
+  Hintergrund: Stiebel-Eltron-ISG ignoriert SG-Ready-Befehle im Komfortbetrieb (nur Warmwasser-/Automatikbetrieb), siehe evcc-Doku.
+- **Ausgabe (`output`):** `relays` = zwei Relais (z. B. 2 Shellys an EIN1/EIN2: 0:0 beide aus, 0:1 Relais 1 an, 1:1 beide an) oder
+  `flows` = je Zustand ein Flow (`flowNormal`/`flowBoost`/`flowForced`, z. B. Modbus-Register der ISG schreiben). Nur beim Wechsel.
+  Der SG-Ready-Standard kennt vier Zustände (1:0 EVU-Sperre, 0:0 Normal, 0:1 Empfehlung, 1:1 Anlaufbefehl); die Sperre wird nicht genutzt.
+- Einstellungen mit kurzen Erklärtexten unter «Einrichten», direkt unter den Verbrauchern (vor dem Hausanschluss-Schutz).

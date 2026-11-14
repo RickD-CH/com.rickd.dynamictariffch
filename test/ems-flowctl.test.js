@@ -288,7 +288,9 @@ async function startUi(extra = {}) {
   };
   vm.createContext(ctx);
   vm.runInContext(emsJs, ctx);
-  const config = normalizeConfig({ enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [] });
+  const config = normalizeConfig({
+    enabled: true, devices: { meter: { id: 'em' } }, consumers: extra.consumers || [], sgready: extra.sgready,
+  });
   const flows = [{ id: 'f1', name: 'Sauna an', advanced: false }, { id: 'f2', name: 'Sauna aus', advanced: true }];
   const res = {
     'GET /ems/shadow': {
@@ -442,4 +444,31 @@ test('Anzeige: SG-Ready-Bereich ist da, standardmässig aus, und die Einstellung
   const sg = ui.ctx.window.EmsUi._collect().ems.sgready;
   assert.equal(sg.enabled, false);
   assert.equal(sg.minRunMin, 90);
+});
+
+test('Anzeige: SG-Ready - Erklärtexte, Betriebsart, Ausgabe über Relais oder Flows', async () => {
+  const relays = await startUi({
+    sgready: {
+      enabled: true, modeId: 'lamp', modeCapability: 'onoff', modeOkValue: 'Automatik',
+    },
+  });
+  relays.click({ 'data-ems-open': 'sg' });
+  const h1 = relays.setup();
+  assert.match(h1, /Boost beenden ab Warmwasser/);
+  assert.match(h1, /Der eigentliche Zielwert steht in der Wärmepumpe selbst/);
+  assert.match(h1, /Einschaltverzögerung/);
+  assert.match(h1, /Betriebsart der Wärmepumpe/);
+  assert.match(h1, /Relais Empfehlung/);
+  assert.doesNotMatch(h1, /Flow Normalbetrieb/);
+  const flows = await startUi({ sgready: { enabled: true, output: 'flows', flowBoost: { id: 'f1', name: 'Sauna an' } } });
+  flows.click({ 'data-ems-open': 'sg' });
+  const h2 = flows.setup();
+  assert.match(h2, /Flow Normalbetrieb \(0:0\)/);
+  assert.match(h2, /Flow Empfehlung \(0:1\)/);
+  assert.doesNotMatch(h2, /Relais Empfehlung/);
+  const sg = flows.ctx.window.EmsUi._collect().ems.sgready;
+  assert.equal(sg.output, 'flows');
+  assert.equal(sg.flowBoost.id, 'f1');
+  assert.equal(relays.ctx.window.EmsUi._collect().ems.sgready.modeOkValue, 'Automatik');
+  assert.ok(h1.indexOf('SG-Ready-Steuerung') > h1.indexOf('Verbraucher') && h1.indexOf('SG-Ready-Steuerung') < h1.indexOf('Hausanschluss-Schutz'), 'Boiler steht unter den Verbrauchern, vor dem Hausanschluss');
 });

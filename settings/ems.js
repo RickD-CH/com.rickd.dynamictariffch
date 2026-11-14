@@ -102,12 +102,26 @@
       fuseHold: 'Wartezeit vor dem Ausschalten (s)', fuseRestore: 'Freigabe nach (min unter der Grenze)', fuseShedTitle: 'BEI ÜBERLAST DER REIHE NACH AUSSCHALTEN', fuseShedNone: 'Keine Geräte gewählt.', fuseAdd: 'Hinzufügen', fuseAddPick: '- Gerät oder Flow wählen -',
       fuseHowTitle: 'Wie ausschalten?', fuseAutoLbl: 'Automatisch', fuseAutoOnoff: 'Automatisch erkannt: Ein/Aus-Capability.', fuseAutoThermostat: 'Automatisch erkannt: Thermostat-Modus auf «Aus».', fuseAutoNone: 'Keine passende Capability erkannt - bitte einen Flow wählen.', fuseAutoCharger: 'Automatisch: Ladevorgang wird gestoppt.',
       fuseUp: 'nach oben', fuseDel: 'Entfernen', fuseFlow: 'Flow', fuseLive: 'Schutz live (sonst nur simulieren)', fuseLiveHint: 'Live schaltet der Schutz die gewählten Geräte wirklich aus. Der Silent-Modus hat Vorrang. Vorher die entsprechenden Zweige in eigenen Flows ausschalten, damit nur ein System schaltet.',
-      sgTitle: 'BOILER / WÄRMEPUMPE (SG-READY)', sgRow: 'SG-Ready-Steuerung', sgOff: 'aus', sgOn: 'SG-Ready steuern', sgWhy: 'Schaltet die Einschaltempfehlung (0:1) der Wärmepumpe über ein Relais, wenn Sonne oder ein günstiger Preis das Warmwasser bezahlen. Normalbetrieb (0:0) ist der Ausgangszustand.',
-      sgBasis: 'Steuerungsbasis', sgBasisPv: 'Solarleistung (PV-Produktion)', sgBasisExport: 'Netzeinspeisung', sgMinSolar: 'Mindest-Solarleistung für Start (W)', sgMinSoc: 'Mindest-Hausakku für Start (%)', sgHyst: 'Akku-Hysterese beim Halten (%)',
-      sgTemp: 'Ziel-Warmwassertemperatur (°C)', sgTo: 'Späteste Startzeit (PV)', sgStartDelay: 'Einschaltverzögerung (Min.)', sgMinRun: 'Mindestlaufzeit (Min.)', sgStopDelay: 'Ausschaltverzögerung (Min.)', sgCooldown: 'Abkühlpause nach Ende (Min.)',
-      sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgHoliday: 'Ferienmodus der Wärmepumpe respektieren', sgForced: 'Zwangsladung (1:1, Heizstab) erlauben', sgForcedW: 'Schwelle Zwangsladung (W)',
-      sgSensor: 'Warmwasser-Temperatur (Gerät und Wert)', sgHolidayDev: 'Ferienmodus (Gerät und Wert, optional)', sgRecRelay: 'Relais Einschaltempfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgLive: 'SG-Ready live (sonst nur simulieren)',
-      sgLiveHint: 'Live schaltet die Steuerung die gewählten Relais wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)' },
+      sgTitle: 'BOILER / WÄRMEPUMPE (SG-READY)', sgRow: 'SG-Ready-Steuerung', sgOff: 'aus', sgOn: 'SG-Ready steuern', sgWhy: 'Schaltet die Einschaltempfehlung (0:1) der Wärmepumpe, wenn Sonne oder ein günstiger Preis das Warmwasser bezahlen. Normalbetrieb (0:0) ist der Ausgangszustand.',
+      sgBasis: 'Steuerungsbasis', sgBasisPv: 'Solarleistung (PV-Produktion)', sgBasisExport: 'Netzeinspeisung', sgBasisH: 'Solarleistung = was die PV produziert (sinnvoll mit Hausakku, der den Überschuss sonst schluckt). Netzeinspeisung = was ins Netz fliesst.',
+      sgMinSolar: 'Mindest-Solarleistung für Start (W)', sgMinSolarH: 'Ab dieser Leistung darf der Boost starten.',
+      sgMinSoc: 'Mindest-Hausakku für Start (%)', sgMinSocH: 'Der Hausakku muss mindestens so voll sein, bevor die Wärmepumpe den Strom bekommt. Ohne Akku egal.',
+      sgHyst: 'Akku-Toleranz beim Halten (%)', sgHystH: 'Nach der Mindestlaufzeit darf der Akku so viele Prozent unter die Startschwelle fallen, ohne dass der Boost endet (fängt kurze Wolken ab).',
+      sgTemp: 'Boost beenden ab Warmwasser (°C)', sgTempH: 'Erreicht das Warmwasser diese Temperatur, geht die Steuerung zurück auf Normalbetrieb. Der eigentliche Zielwert steht in der Wärmepumpe selbst (nicht lesbar).',
+      sgTo: 'Späteste Startzeit (Sonne)', sgToH: 'Nach dieser Uhrzeit startet kein neuer Boost mehr wegen Sonne. Der Preis-Auslöser gilt unabhängig davon.',
+      sgStartDelay: 'Einschaltverzögerung (Min.)', sgStartDelayH: 'So lange müssen die Startbedingungen am Stück erfüllt sein, bevor der Boost startet (verhindert Schalten bei kurzen Sonnenspitzen).',
+      sgMinRun: 'Mindestlaufzeit (Min.)', sgMinRunH: 'Einmal gestartet läuft der Boost mindestens so lange, auch bei Wolken. Nur Zieltemperatur oder Betriebsart beenden früher.',
+      sgStopDelay: 'Ausschaltverzögerung (Min.)', sgStopDelayH: 'Fallen die Bedingungen nach der Mindestlaufzeit weg, wird noch so lange gewartet, bevor zurück auf Normalbetrieb geschaltet wird.',
+      sgCooldown: 'Abkühlpause nach Ende (Min.)', sgCooldownH: 'Pause nach dem Ende eines Boosts, bevor ein neuer starten darf.',
+      sgUsePrice: 'Günstigen Strompreis als zweiten Auslöser nutzen', sgMaxPrice: 'Höchster Preis (Rp./kWh)', sgPriceH: 'Startet den Boost auch bei günstigem Preis, unabhängig von Sonne und Uhrzeit.',
+      sgForced: 'Zwangsladung (1:1) erlauben', sgForcedW: 'Schwelle Zwangsladung (W)', sgForcedH: 'Zustand 1:1, oft mit Heizstab und viel Strom. Nur aus dem Boost heraus und erst ab dieser Solarleistung. Standard aus.',
+      sgSensor: 'Warmwasser-Temperatur (Gerät und Wert)', sgSensorH: 'Messwert «WW IST» der Wärmepumpe, damit der Boost bei der Zieltemperatur endet.',
+      sgMode: 'Betriebsart der Wärmepumpe (Gerät und Wert, optional)', sgModeOk: 'Steuern nur bei diesem Wert (z. B. Automatik)', sgModeH: 'Die Steuerung greift nur ein, wenn die Betriebsart diesen Wert hat. Bei Ferien, Komfort oder Standby wird nicht gesteuert. Leer lassen = keine Prüfung.',
+      sgOutput: 'Wie werden die Zustände gesetzt?', sgOutRelays: 'Zwei Relais (z. B. 2 Shellys an den SG-Ready-Kontakten)', sgOutFlows: 'Flows (je Zustand ein Flow, z. B. Modbus)',
+      sgOutH: 'Relais: Normal = beide aus, Empfehlung (0:1) = Relais 1 an, Zwangsladung (1:1) = beide an. Flows: ein eigener Flow je Zustand, z. B. Modbus-Register schreiben.',
+      sgRecRelay: 'Relais Empfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgFlowNormal: 'Flow Normalbetrieb (0:0)', sgFlowBoost: 'Flow Empfehlung (0:1)', sgFlowForced: 'Flow Zwangsladung (1:1)',
+      sgLive: 'SG-Ready live (sonst nur simulieren)',
+      sgLiveHint: 'Live schaltet die Steuerung wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)' },
       fuseNoRestore: 'Ausgeschaltete Geräte schaltet die App nicht wieder ein. Die Wallbox darf nach der Freigabe wieder laden.', fuseNoPhases: 'Der Zähler liefert keine Phasenströme. Bitte Zähler und Werte prüfen.',
       fuseNow: 'Hausanschluss', fuseOf: 'von', fuseLoad: 'Belastung', fuseThrottled: 'Wallbox auf', fuseShedNow: 'aus:', fuseEvOver: 'Grenze überschritten', fuseEvShed: 'ausgeschaltet', fuseEvThrottle: 'Wallbox gedrosselt auf', fuseEvThrottleEnd: 'Wallbox nicht mehr gedrosselt', fuseEvRelease: 'freigegeben',
       srcGrid: 'Netzzähler', srcPv: 'Solar-Wechselrichter', srcHouse: 'Hausverbrauch', srcBat: 'Hausbatterie', srcPrice: 'Strompreis', srcFc: 'Solarprognose',
@@ -248,12 +262,26 @@
       fuseHold: 'Wait before switching off (s)', fuseRestore: 'Release after (min below the limit)', fuseShedTitle: 'ON OVERLOAD SWITCH OFF IN THIS ORDER', fuseShedNone: 'No devices selected.', fuseAdd: 'Add', fuseAddPick: '- pick a device or flow -',
       fuseHowTitle: 'How to switch off?', fuseAutoLbl: 'Automatic', fuseAutoOnoff: 'Automatically detected: on/off capability.', fuseAutoThermostat: 'Automatically detected: thermostat mode set to "off".', fuseAutoNone: 'No matching capability detected - please choose a flow.', fuseAutoCharger: 'Automatic: charging session is stopped.',
       fuseUp: 'up', fuseDel: 'Remove', fuseFlow: 'Flow', fuseLive: 'Protection live (otherwise simulate only)', fuseLiveHint: 'Live, the protection really switches the selected devices off. Silent mode takes precedence. Switch off the matching branches in your own flows first so that only one system switches.',
-      sgTitle: 'BOILER / HEAT PUMP (SG READY)', sgRow: 'SG Ready control', sgOff: 'off', sgOn: 'Control SG Ready', sgWhy: 'Switches the heat pump switch-on recommendation (0:1) via a relay when sun or a cheap price pays for the hot water. Normal operation (0:0) is the base state.',
-      sgBasis: 'Control basis', sgBasisPv: 'Solar power (PV production)', sgBasisExport: 'Grid feed-in', sgMinSolar: 'Minimum solar power to start (W)', sgMinSoc: 'Minimum house battery to start (%)', sgHyst: 'Battery hysteresis while holding (%)',
-      sgTemp: 'Target hot-water temperature (°C)', sgTo: 'Latest start time (PV)', sgStartDelay: 'Switch-on delay (min)', sgMinRun: 'Minimum run time (min)', sgStopDelay: 'Switch-off delay (min)', sgCooldown: 'Cool-down after end (min)',
-      sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgHoliday: 'Respect the heat pump holiday mode', sgForced: 'Allow forced charging (1:1, heating rod)', sgForcedW: 'Forced charging threshold (W)',
-      sgSensor: 'Hot-water temperature (device and value)', sgHolidayDev: 'Holiday mode (device and value, optional)', sgRecRelay: 'Relay switch-on recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgLive: 'SG Ready live (otherwise simulate only)',
-      sgLiveHint: 'Live, the control really switches the selected relays. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)' },
+      sgTitle: 'BOILER / HEAT PUMP (SG READY)', sgRow: 'SG Ready control', sgOff: 'off', sgOn: 'Control SG Ready', sgWhy: 'Switches the heat pump switch-on recommendation (0:1) when sun or a cheap price pays for the hot water. Normal operation (0:0) is the base state.',
+      sgBasis: 'Control basis', sgBasisPv: 'Solar power (PV production)', sgBasisExport: 'Grid feed-in', sgBasisH: 'Solar power = what the PV produces (useful with a house battery that would otherwise swallow the surplus). Grid feed-in = what flows into the grid.',
+      sgMinSolar: 'Minimum solar power to start (W)', sgMinSolarH: 'The boost may start from this power.',
+      sgMinSoc: 'Minimum house battery to start (%)', sgMinSocH: 'The house battery must be at least this full before the heat pump gets the power. Ignored without a battery.',
+      sgHyst: 'Battery tolerance while holding (%)', sgHystH: 'After the minimum run time the battery may drop this many percent below the start threshold without ending the boost (absorbs short clouds).',
+      sgTemp: 'End boost at hot water (°C)', sgTempH: 'When the hot water reaches this temperature, control returns to normal operation. The real target is set in the heat pump itself (not readable).',
+      sgTo: 'Latest start time (sun)', sgToH: 'After this time no new boost starts because of sun. The price trigger is independent of it.',
+      sgStartDelay: 'Switch-on delay (min)', sgStartDelayH: 'The start conditions must hold this long in a row before the boost starts (avoids switching on short sun peaks).',
+      sgMinRun: 'Minimum run time (min)', sgMinRunH: 'Once started, the boost runs at least this long, even with clouds. Only target temperature or operating mode end it earlier.',
+      sgStopDelay: 'Switch-off delay (min)', sgStopDelayH: 'If the conditions drop after the minimum run time, wait this long before returning to normal operation.',
+      sgCooldown: 'Cool-down after end (min)', sgCooldownH: 'Pause after a boost ends before a new one may start.',
+      sgUsePrice: 'Use a cheap electricity price as a second trigger', sgMaxPrice: 'Highest price (Rp./kWh)', sgPriceH: 'Also starts the boost at a cheap price, independent of sun and time of day.',
+      sgForced: 'Allow forced charging (1:1)', sgForcedW: 'Forced charging threshold (W)', sgForcedH: 'State 1:1, often with a heating rod and high consumption. Only from the boost and only from this solar power. Off by default.',
+      sgSensor: 'Hot-water temperature (device and value)', sgSensorH: 'The heat pump hot-water actual value, so the boost ends at the target temperature.',
+      sgMode: 'Heat pump operating mode (device and value, optional)', sgModeOk: 'Control only at this value (e.g. Automatic)', sgModeH: 'Control only acts when the operating mode has this value. Not in holiday, comfort or standby. Leave empty = no check.',
+      sgOutput: 'How are the states set?', sgOutRelays: 'Two relays (e.g. 2 Shellys on the SG Ready contacts)', sgOutFlows: 'Flows (one flow per state, e.g. Modbus)',
+      sgOutH: 'Relays: normal = both off, recommendation (0:1) = relay 1 on, forced (1:1) = both on. Flows: one flow per state, e.g. writing Modbus registers.',
+      sgRecRelay: 'Relay recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgFlowNormal: 'Flow normal operation (0:0)', sgFlowBoost: 'Flow recommendation (0:1)', sgFlowForced: 'Flow forced charging (1:1)',
+      sgLive: 'SG Ready live (otherwise simulate only)',
+      sgLiveHint: 'Live, the control really switches. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)' },
       fuseNoRestore: 'Devices that were switched off are not switched back on. The EV charger may charge again after the release.', fuseNoPhases: 'The meter does not deliver phase currents. Please check the meter and values.',
       fuseNow: 'House connection', fuseOf: 'of', fuseLoad: 'load', fuseThrottled: 'EV charger at', fuseShedNow: 'off:', fuseEvOver: 'limit exceeded', fuseEvShed: 'switched off', fuseEvThrottle: 'EV charger throttled to', fuseEvThrottleEnd: 'EV charger no longer throttled', fuseEvRelease: 'released',
       srcGrid: 'Grid meter', srcPv: 'Solar inverter', srcHouse: 'House consumption', srcBat: 'Home battery', srcPrice: 'Electricity price', srcFc: 'Solar forecast',
@@ -1030,23 +1058,37 @@
     return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + idBase + '-dev" data-ems-sgdev="1">' + deviceOptions(devId, hasCap(re), S.pick) + '</select></label>'
       + '<label class="ems-f ems-wide"><span>&nbsp;</span><select id="' + idBase + '-cap">' + capOptions(devId, re, cap) + '</select></label></div>';
   }
+  function sgHint(t) { return '<p class="ems-why">' + esc(t) + '</p>'; }
+  function sgFld(label, id, value, type, extra, hint) { return '<div class="ems-row">' + field(label, id, value, type, extra) + '</div>' + sgHint(hint); }
+  function sgFlowSel(label, id, cur) {
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(label) + '</span><select id="' + id + '">' + flowOptions(cur) + '</select></label></div>';
+  }
   function sgBody() {
     var g = sgCfg();
+    var flows = g.output === 'flows';
     var html = '<p class="ems-why">' + esc(S.sgWhy) + '</p><div class="ems-row">' + check(S.sgOn, 'ems-sg-on', g.enabled) + '</div>';
     if (!g.enabled) return html;
     return html
-      + '<div class="ems-row"><label class="ems-f"><span>' + esc(S.sgBasis) + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label>'
-      + field(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"') + field(S.sgMinSoc, 'ems-sg-minsoc', g.minSoc, 'number', ' step="1" min="0" max="100"') + field(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"') + '</div>'
-      + '<div class="ems-row">' + field(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"') + field(S.sgTo, 'ems-sg-to', g.windowTo, 'time') + '</div>'
-      + '<div class="ems-row">' + field(S.sgStartDelay, 'ems-sg-startdelay', g.startDelayMin, 'number', ' step="1" min="0"') + field(S.sgMinRun, 'ems-sg-minrun', g.minRunMin, 'number', ' step="5" min="0"')
-      + field(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"') + field(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"') + '</div>'
-      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + field(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"') + '</div>'
-      + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>'
-      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/)
-      + '<div class="ems-row">' + check(S.sgHoliday, 'ems-sg-holiday', g.respectHoliday) + '</div>'
-      + (g.respectHoliday ? sgDevPair(S.sgHolidayDev, 'ems-sg-hol', g.holidayId, g.holidayCapability, /./) : '')
-      + sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
-      + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : '')
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgBasis) + '</span><select id="ems-sg-basis"><option value="pv"' + (g.basis === 'export' ? '' : ' selected') + '>' + esc(S.sgBasisPv) + '</option><option value="export"' + (g.basis === 'export' ? ' selected' : '') + '>' + esc(S.sgBasisExport) + '</option></select></label></div>' + sgHint(S.sgBasisH)
+      + sgFld(S.sgMinSolar, 'ems-sg-minsolar', g.minSolarW, 'number', ' step="100" min="0"', S.sgMinSolarH)
+      + sgFld(S.sgMinSoc, 'ems-sg-minsoc', g.minSoc, 'number', ' step="1" min="0" max="100"', S.sgMinSocH)
+      + sgFld(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"', S.sgHystH)
+      + sgFld(S.sgTo, 'ems-sg-to', g.windowTo, 'time', '', S.sgToH)
+      + sgFld(S.sgStartDelay, 'ems-sg-startdelay', g.startDelayMin, 'number', ' step="1" min="0"', S.sgStartDelayH)
+      + sgFld(S.sgMinRun, 'ems-sg-minrun', g.minRunMin, 'number', ' step="5" min="0"', S.sgMinRunH)
+      + sgFld(S.sgStopDelay, 'ems-sg-stopdelay', g.stopDelayMin, 'number', ' step="1" min="0"', S.sgStopDelayH)
+      + sgFld(S.sgCooldown, 'ems-sg-cooldown', g.cooldownMin, 'number', ' step="5" min="0"', S.sgCooldownH)
+      + '<div class="ems-row">' + check(S.sgUsePrice, 'ems-sg-useprice', g.usePrice) + '</div>' + sgFld(S.sgMaxPrice, 'ems-sg-maxprice', g.maxPriceRp, 'number', ' step="0.5" min="0"', S.sgPriceH)
+      + sgDevPair(S.sgSensor, 'ems-sg-sensor', g.sensorId, g.tempCapability, /^measure_temperature/) + sgHint(S.sgSensorH)
+      + sgFld(S.sgTemp, 'ems-sg-temp', g.targetTemp, 'number', ' step="1" min="20" max="90"', S.sgTempH)
+      + sgDevPair(S.sgMode, 'ems-sg-mode', g.modeId, g.modeCapability, /./)
+      + (g.modeId ? '<div class="ems-row">' + field(S.sgModeOk, 'ems-sg-modeok', g.modeOkValue, 'text') + '</div>' : '') + sgHint(S.sgModeH)
+      + '<div class="ems-row">' + check(S.sgForced, 'ems-sg-forced', g.allowForced) + (g.allowForced ? field(S.sgForcedW, 'ems-sg-forcedw', g.forcedMinW, 'number', ' step="100" min="0"') : '') + '</div>' + sgHint(S.sgForcedH)
+      + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.sgOutput) + '</span><select id="ems-sg-output" data-ems-sgdev="1"><option value="relays"' + (flows ? '' : ' selected') + '>' + esc(S.sgOutRelays) + '</option><option value="flows"' + (flows ? ' selected' : '') + '>' + esc(S.sgOutFlows) + '</option></select></label></div>' + sgHint(S.sgOutH)
+      + (flows
+        ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
+        : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
+          + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : ''))
       + '<div class="ems-row">' + check(S.sgLive, 'ems-sg-live', g.live) + '</div><p class="ems-why ems-warn">' + esc(S.sgLiveHint) + '</p>';
   }
   function syncSg() {
@@ -1063,10 +1105,15 @@
     g.allowForced = chk('ems-sg-forced');
     if ($('ems-sg-forcedw')) g.forcedMinW = num('ems-sg-forcedw', g.forcedMinW);
     g.sensorId = val('ems-sg-sensor-dev', g.sensorId); g.tempCapability = val('ems-sg-sensor-cap', g.tempCapability);
-    g.respectHoliday = chk('ems-sg-holiday');
-    if ($('ems-sg-hol-dev')) { g.holidayId = val('ems-sg-hol-dev', g.holidayId); g.holidayCapability = val('ems-sg-hol-cap', g.holidayCapability); }
-    g.recommendRelay = { deviceId: val('ems-sg-rec-dev', g.recommendRelay.deviceId), capability: val('ems-sg-rec-cap', g.recommendRelay.capability) };
+    g.modeId = ($('ems-sg-mode-dev') || { value: g.modeId }).value || '';
+    if ($('ems-sg-mode-cap')) g.modeCapability = g.modeId ? val('ems-sg-mode-cap', g.modeCapability) : '';
+    if ($('ems-sg-modeok')) g.modeOkValue = String($('ems-sg-modeok').value || '');
+    g.output = val('ems-sg-output', g.output) === 'flows' ? 'flows' : 'relays';
+    if ($('ems-sg-rec-dev')) g.recommendRelay = { deviceId: val('ems-sg-rec-dev', g.recommendRelay.deviceId), capability: val('ems-sg-rec-cap', g.recommendRelay.capability) };
     if ($('ems-sg-frc-dev')) g.forceRelay = { deviceId: val('ems-sg-frc-dev', g.forceRelay.deviceId), capability: val('ems-sg-frc-cap', g.forceRelay.capability) };
+    if ($('ems-sg-fn')) g.flowNormal = pickFlow($('ems-sg-fn').value || '', g.flowNormal);
+    if ($('ems-sg-fb')) g.flowBoost = pickFlow($('ems-sg-fb').value || '', g.flowBoost);
+    if ($('ems-sg-ff')) g.flowForced = pickFlow($('ems-sg-ff').value || '', g.flowForced);
     g.live = chk('ems-sg-live');
   }
 
@@ -1132,8 +1179,8 @@
       + '<p class="lbl">' + esc(S.sources) + '</p><div class="ems-list">' + src + '</div>'
       + '<p class="lbl">' + esc(S.consumers) + '</p><div class="ems-list">' + rows
       + '<div class="ems-item ems-add" data-ems-add="1"><span class="ems-ic" style="background:var(--st-seg-bg);color:var(--st-text)">' + icon('plus', 17) + '</span><span class="ems-item-n">' + esc(S.addConsumer) + '</span></div></div>'
-      + '<p class="lbl">' + esc(S.fuseTitle) + '</p><div class="ems-list">' + listRow('fuse', 'bolt', '#c0392b', S.fuseRow, '', fuseSummary(), fuseBody()) + '</div>'
       + '<p class="lbl">' + esc(S.sgTitle) + '</p><div class="ems-list">' + listRow('sg', 'boiler', '#e67e22', S.sgRow, '', sgSummary(), sgBody()) + '</div>'
+      + '<p class="lbl">' + esc(S.fuseTitle) + '</p><div class="ems-list">' + listRow('fuse', 'bolt', '#c0392b', S.fuseRow, '', fuseSummary(), fuseBody()) + '</div>'
       + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
       + '<p><button class="ems-save" data-ems-save="1">' + esc(S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
   }
@@ -2449,7 +2496,7 @@
     }
     if (t.id === 'ems-bc-on') { sync(); renderSetup(); return; }
     if (t.id === 'ems-fuse-on' || g('data-ems-fusedev') !== null) { sync(); renderSetup(); return; }
-    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || t.id === 'ems-sg-holiday' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
+    if (t.id === 'ems-sg-on' || t.id === 'ems-sg-forced' || g('data-ems-sgdev') !== null) { sync(); renderSetup(); return; }
     var fuseShedKind = g('data-ems-fuseshedkind');
     if (fuseShedKind !== null) {
       sync();

@@ -23,7 +23,7 @@ function base(over) {
     hasBattery: false,
     priceNow: null,
     tempWW: null,
-    holiday: false,
+    modeBlocked: false,
     nowMs: at(12),
     tz: TZ,
     ...o,
@@ -63,34 +63,24 @@ test('Globale Abbruchbedingung: Zieltemperatur erreicht beendet sofort, auch mit
   assert.equal(x.st.cooldownUntil, x.nowMs + x.cfg.cooldownMin * MIN);
 });
 
-test('Globale Abbruchbedingung: Ferienmodus beendet sofort einen laufenden Betrieb und startet den Cooldown', () => {
+test('Globale Abbruchbedingung: Betriebsart nicht freigegeben beendet sofort einen laufenden Betrieb und startet den Cooldown', () => {
   const x = base({
     cfg: { minSolarW: 1500, startDelayMin: 0 }, pvW: 1600, nowMs: at(10),
   });
   assert.equal(decideSgReady(x).state, 'boost');
   x.nowMs += 5 * MIN;
-  x.holiday = true;
+  x.modeBlocked = true;
   const r = decideSgReady(x);
   assert.equal(r.state, 'off');
-  assert.match(r.reason, /Ferienmodus/);
+  assert.match(r.reason, /Betriebsart/);
   assert.ok(x.st.cooldownUntil);
 });
 
-test('Ferienmodus (im Voraus aktiv): verhindert einen Start erst gar nicht nur sofort, sondern dauerhaft', () => {
-  const x = base({ pvW: 2000, holiday: true });
+test('Betriebsart (im Voraus nicht freigegeben): verhindert den Start, solange sie nicht freigegeben ist', () => {
+  const x = base({ pvW: 2000, modeBlocked: true });
   const r1 = decideSgReady(x);
   assert.equal(r1.state, 'off');
-  assert.match(r1.reason, /Ferienmodus/);
-});
-
-test('Ferienmodus respektieren = aus: blockiert nicht mehr', () => {
-  const x = base({
-    cfg: { respectHoliday: false }, pvW: 2000, holiday: true, nowMs: at(10),
-  });
-  decideSgReady(x);
-  x.nowMs += x.cfg.startDelayMin * MIN;
-  const r = decideSgReady(x);
-  assert.equal(r.state, 'boost');
+  assert.match(r1.reason, /Betriebsart/);
 });
 
 test('Start (Trigger A, PV/Akku): erst nach startDelayMin am Stück, vor windowTo', () => {
@@ -393,4 +383,40 @@ test('Runner: ausgeschaltet oder Silent-Modus schaltet nichts (simuliert nur)', 
   const dry = makeRunner({ live: false });
   await dry.runner.tickCharger(at(10));
   assert.deepEqual(dry.calls, [['rel2', 'onoff', true, false]], 'nicht live: Befehl nur simuliert (live=false)');
+});
+
+test('Runner: Betriebsart - nur auf dem freigegebenen Wert wird gesteuert, sonst (auch unlesbar) nicht', async () => {
+  const ok = makeRunner({ modeId: 'wp', modeCapability: 'mode', modeOkValue: 'Automatik' });
+  ok.runner.inputs.readValue = async () => 'Automatik';
+  await ok.runner.tickCharger(at(10));
+  assert.equal(ok.runner.sgReadyCurrent.state, 'boost');
+  const other = makeRunner({ modeId: 'wp', modeCapability: 'mode', modeOkValue: 'Automatik' });
+  other.runner.inputs.readValue = async () => 'Komfort';
+  await other.runner.tickCharger(at(10));
+  assert.equal(other.runner.sgReadyCurrent.state, 'off');
+  assert.match(other.runner.sgReadyCurrent.reason, /Betriebsart/);
+  assert.equal(other.calls.length, 1, 'Relais wird beim ersten Lauf auf Normalbetrieb gesetzt (aus)');
+  assert.equal(other.calls[0][2], false);
+});
+
+test('Runner: Ausgabe über Flows - je Zustand ein Flow, nur beim Wechsel, ohne Flow passiert nichts', async () => {
+  const fired = [];
+  const flows = {
+    output: 'flows',
+    flowNormal: { id: 'fn', advanced: false, name: 'Normal' },
+    flowBoost: { id: 'fb', advanced: true, name: 'Empfehlung' },
+  };
+  const { runner, calls, tempRef } = makeRunner(flows);
+  runner.actuators.consumer = async (id, on, { live, flow }) => {
+    fired.push([flow.id, live]);
+    return { cmd: 'on', live };
+  };
+  await runner.tickCharger(at(10));
+  assert.deepEqual(fired, [['fb', true]], 'Start: Empfehlungs-Flow');
+  await runner.tickCharger(at(10) + 30000);
+  assert.equal(fired.length, 1, 'keine Wiederholung');
+  tempRef.v = 57;
+  await runner.tickCharger(at(10) + 60000);
+  assert.deepEqual(fired[1], ['fn', true], 'Zieltemperatur: Normalbetrieb-Flow');
+  assert.equal(calls.length, 0, 'im Flow-Modus werden keine Relais geschrieben');
 });
