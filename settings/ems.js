@@ -1091,8 +1091,8 @@
         + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="' + p + 'dev">' + deviceOptions(r.deviceId, hasCap(/^(evcharger_charging|target_power)/), S.pick) + '</select></label>'
         + field(S.name, p + 'name', r.name, 'text', ' style="max-width:115px"') + '</div>'
         + meterRow + lastTxt
-        + shareBox()
         + wbLinkBox(r, p)
+        + shareBox()
         + '<div class="ems-row">' + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
         + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label>';
     }

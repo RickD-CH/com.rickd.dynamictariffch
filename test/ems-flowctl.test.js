@@ -763,3 +763,12 @@ test('Kostenzähler ohne steuerbares Gerät (z. B. Wärmepumpe): die Symbol-Wahl
   again.click({ 'data-ems-open': 'row1' });
   assert.match(again.setup(), /ic-pick on" data-ems-icon="1:heatpump"/);
 });
+
+test('Wallbox-Zeile: «Anschluss der Wallbox» steht über dem «Hausbatterie-Schutz»', async () => {
+  const ui = await startUi({ charger: { id: 'lamp', enabled: true } });
+  ui.click({ 'data-ems-open': 'row0' });
+  const h = ui.setup();
+  const a = h.indexOf('Anschluss der Wallbox (wie sie angesprochen wird)');
+  const b = h.indexOf('Hausbatterie-Schutz: wie viel Solarstrom');
+  assert.ok(a > 0 && b > 0 && a < b, 'Anschluss zuerst, dann Hausbatterie-Schutz');
+});
