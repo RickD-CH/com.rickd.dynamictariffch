@@ -119,15 +119,26 @@ test('EMS-Daten löschen (Go-live): Vergleich, Franken-Auswertung, Protokoll und
   assert.deepEqual(new DecisionLedger(store, 'Europe/Zurich').summary().days, [], 'auch nach Neustart leer');
 });
 
-test('Echte Batterie leer: «Halten» zählt wie «Normal», das Modell kauft nicht teuer zu, wenn es noch Ladung hätte', () => {
+test('Echte Batterie leer: «Halten» zählt wie «Normal», es gibt nichts zu entladen', () => {
   const l = new DecisionLedger(mem(), 'Europe/Zurich');
-  const step = (m, socPct) => l.step({
-    nowMs: at(13, 8, m), mine: 'hold', other: 'normal', price: 43, houseW: 1000, pvW: 0, socPct, p: P,
+  const step = (m) => l.step({
+    nowMs: at(13, 8, m), mine: 'hold', other: 'normal', price: 43, houseW: 1000, pvW: 0, socPct: 10, p: P,
   });
-  step(0, 30); // Tagesstart: Modell bei 30 %
-  for (let m = 15; m <= 60; m += 15) step(m, 10); // echte Batterie an der Untergrenze
+  for (let m = 0; m <= 60; m += 15) step(m); // echte Batterie an der Untergrenze
   const t = l.summary().today;
   assert.equal(t.mine, t.other, 'gleiche Kosten, weil «Halten» bei leerer Batterie nichts ändert');
+});
+
+test('Das andere EMS steuert die echte Batterie: seine simulierte Batterie wird bei jedem Lauf auf den echten Ladestand gesetzt und driftet nicht', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 180; m += 15) { // Modell sagt «entladen», die echte Batterie bleibt aber bei 50 % (zum Beispiel wegen einer Leistungsgrenze)
+    l.step({
+      nowMs: at(13, 18, m), mine: 'hold', mineV: 'hold', other: 'normal', price: 30, houseW: 1000, gridW: 1000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  assert.equal(l.cur.other.e, 5, 'beim echten Stand, nicht über den Tag leergelaufen');
+  assert.ok(l.summary().cal.socErr < 4, 'die Abweichung ist nur der Fehler eines einzelnen Laufs');
+  assert.equal(l.summary().today.other, 0, 'ohne Drift keine Restladung, die zu bewerten wäre: die Batterie deckt das Haus in jedem Lauf');
 });
 
 test('Aufschlüsselung: Kosten je Situation (Entscheid ich | Entscheid anderes EMS | Preisstufe), geordnet nach dem Unterschied; ohne anderes EMS keine Zeile', () => {
