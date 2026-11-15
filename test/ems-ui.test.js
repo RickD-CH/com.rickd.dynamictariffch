@@ -482,3 +482,39 @@ test('Vergleich: «Wo der Unterschied entsteht» zeigt die Kosten je Situation (
   const none = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { ledger: { days: [], today: null, total: { days: 0 }, breakdown: [] } } }));
   assert.match(none.els.get('ems-cmp-data').innerHTML, /füllt sich ab jetzt viertelstündlich/);
 });
+
+test('Vergleich: eigenes Szenario (Tage vorne) und Eichung gegen den Zähler mit Abweichung in Prozent; ohne Messung ein Hinweis', async () => {
+  const ui = await start(scenario({
+    cfg: { ...fullCfg, compare: true },
+    shadow: {
+      overallAgreePct: 60,
+      days: [],
+      ledger: {
+        days: [{
+          day: '2026-11-16', mine: 3, other: 2, none: 6, hours: 24, v: { mine: 1.5, other: 2, none: 6, hours: 24 }, cal: {},
+        }],
+        today: {
+          day: '2026-11-17', mine: 1, other: 1, none: 2, hours: 5, v: { mine: 0.9, other: 1.1, none: 2, hours: 5 }, cal: {},
+        },
+        total: { days: 1, mine: 3, other: 2, none: 6 },
+        virt: {
+          windows: 2, hours: 29, mine: 2.4, other: 3.1, none: 8, closedDays: 1, wonDays: 1,
+        },
+        cal: {
+          windows: 2, hours: 29, realChf: 3.0, simChf: 3.15, realRawChf: 3.1, simRawChf: 3.2, realImpKwh: 20, simImpKwh: 21, realExpKwh: 8, simExpKwh: 8.5, socErr: 4.2,
+        },
+        breakdown: [],
+      },
+    },
+  }));
+  const html = ui.els.get('ems-cmp-data').innerHTML;
+  assert.match(html, /16\.11\. \(24 Std\.\)<\/td><td>1\.50<\/td><td>2\.00<\/td><td>6\.00<\/td><td class="ems-ok">-0\.50<\/td>/, 'Tageszeile des eigenen Szenarios');
+  assert.match(html, /Tage vorne: 1 von 1/);
+  assert.match(html, /Eichung: Modell gegen den Netzzähler/);
+  assert.match(html, /<td>Kosten CHF<\/td><td>3\.00<\/td><td>3\.15<\/td>/);
+  assert.match(html, /Abweichung der Kosten: <span class="ems-ok">\+5\.0 %<\/span>/);
+  assert.match(html, /Ladestand-Abweichung \(Mittel\): 4\.2 %/);
+  assert.match(html, /Bisherige Rechnung/);
+  const none = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { ledger: { days: [], today: null, total: { days: 0 }, breakdown: [] } } }));
+  assert.match(none.els.get('ems-cmp-data').innerHTML, /Noch keine Messung/);
+});

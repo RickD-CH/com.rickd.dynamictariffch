@@ -330,6 +330,14 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 - **Gleiche Entscheide mit Unterschied** zeigen, was frühere Entscheide später kosten (zum Beispiel eine schon leere Batterie). Nicht enthalten ist die am Tagesende zum Tagesdurchschnitt verrechnete Restladung.
 - Gesammelt **ab dem 15.11.2026**: frühere Tage haben nur Tagessummen, die einzelnen Entscheide wurden nicht gespeichert (keine Rückrechnung möglich). Die Aufschlüsselung wird je Tag gespeichert (höchstens 45 Tage) und mit «EMS-Protokolle und Auswertungen löschen» zurückgesetzt.
 
+### Franken-Auswertung: eigenes Szenario und Eichung (15.11.2026)
+
+Warum: Solange das andere EMS die echte Batterie steuert, sieht unser Planer deren Ladestand, die simulierte Batterie weicht aber davon ab (wir entladen, die echte hält). Unsere Entscheide waren so nicht konsistent zu dem Ladestand, den sie selbst erzeugt hätten, das andere EMS dagegen schon. Das benachteiligte uns im Vergleich. Und das Modell war nie gegen den echten Zähler geprüft.
+
+- **Eigenes Szenario** (`cur.v`, `virtualSoc()`): der Runner lässt `decideBattery` zusätzlich auf dem Ladestand der **virtuellen Batterie** laufen (eigener Planer-Zustand `prevV`, eigenes Ziel `targetVSoc`). Der Entscheid geht als `mineV` in `DecisionLedger.step`. Gesendet wird weiterhin nur der echte Entscheid `mine`. Die Zeitfenster-Rechnung (`cur.w`, `_windowResult`) bewertet beide Batterien und das Haus ohne Batterie über dasselbe Fenster: Tagesanfang, oder der erste Lauf mit dem Szenario. Die Restladung zählt zum Durchschnittspreis des Fensters. Die Hauptzeile der Vergleichsansicht ist jetzt dieses Szenario, mit «Tage vorne: x von y». Die bisherige Rechnung (Entscheide auf dem echten Ladestand) steht aufklappbar darunter. Die Aufschlüsselung nach Situation verwendet das Szenario, sobald es läuft (beim Start des Szenarios wird sie neu begonnen).
+- **Eichung** (`cur.cal`): Netzzähler (`gridW`: Bezug x Preis - Einspeisung x Einspeisepreis) gegen die simulierte Batterie des anderen EMS, in denselben Läufen, mit Bezug und Einspeisung in kWh und der mittleren Abweichung zwischen simuliertem und echtem Ladestand in Prozentpunkten. Die Kosten sind um den Unterschied der Restladung zum Durchschnittspreis bereinigt. Als Faustregel gilt das Modell bis etwa ±10 % Kostenabweichung als glaubwürdig (grün in der Ansicht). Das Haus misst auch Dinge, die das Modell nicht kennt (Wirkungsgrad, Wechselrichter-Grenzen), eine kleine Abweichung ist normal.
+- Beides wird je Tag gespeichert (`days[day].v`, `days[day].cal`); ältere Tage haben diese Felder nicht und zählen nicht mit.
+
 ## Notstrom-Reserve (13.11.2026)
 
 - **Zweck:** vor einem erwarteten Stromausfall sicherstellen, dass die Hausbatterie mindestens einen eingestellten

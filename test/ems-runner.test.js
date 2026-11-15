@@ -396,3 +396,19 @@ test('Runner: Akku-Verbraucher zeigt beim Laden «Sicherheits-Stopp um HH:MM» u
   await runner.tickCharger(at(14));
   assert.equal(runner.safetyStops.size, 0, 'nach der Freigabe wieder leer');
 });
+
+test('Franken-Auswertung im Runner: eigenes Szenario (virtuelle Batterie) und Eichung gegen den Zähler laufen mit, ohne die Steuerung zu ändern', async () => {
+  const { runner, calls } = setup({ cfg: { compare: true } });
+  runner.ledger.flush = () => {};
+  for (let k = 0; k < 6; k += 1) {
+    await runner.tickCharger(at(10, 1 + k * 4));
+    await runner.tick(at(10, 2 + k * 4));
+  }
+  const s = runner.ledger.summary();
+  assert.ok(s.today, 'der Tag läuft');
+  assert.ok(s.today.v && Number.isFinite(s.today.v.mine), 'eigenes Szenario gerechnet');
+  assert.ok(s.today.cal && s.today.cal.hours > 0, 'Eichung misst');
+  assert.equal(s.today.cal.realExpKwh > 0, true, 'der Zähler exportierte (gridW = -5000)');
+  assert.deepEqual(calls.consumer, [], 'die Auswertung schaltet nichts');
+  assert.ok(runner.prevV && runner.prevV.mode, 'der Planer des Szenarios hat einen eigenen Zustand');
+});

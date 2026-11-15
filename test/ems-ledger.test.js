@@ -192,3 +192,113 @@ test('Aufschlüsselung: nach dem Tagesabschluss bleibt sie erhalten (abgerundet 
   assert.equal(s.breakdown[0].hours, 4, 'beide Tage');
   assert.equal(s.days[0].cls, undefined, 'Tageszeilen ohne Aufschlüsselung (sie steht gesammelt in breakdown)');
 });
+
+test('Eigenes Szenario: die virtuelle Batterie läuft auf ihrem eigenen Ladestand, Kosten und Zeitfenster stimmen, ohne Szenario kein Eintrag', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  const feed = (day, mineV) => {
+    for (let m = 0; m <= 120; m += 15) {
+      l.step({
+        nowMs: at(day, 18, m), mine: 'hold', mineV: m < 60 ? 'hold' : mineV, other: 'hold', price: m < 60 ? 10 : 40, houseW: 1000, pvW: 0, socPct: 50, p: P,
+      });
+    }
+  };
+  feed(13, 'normal'); // wir entladen virtuell, das andere EMS hält: es kauft 2 kWh zu 40 Rp.
+  assert.ok(l.virtualSoc(at(13, 20, 30), 10, 50) < 50, 'der virtuelle Ladestand sinkt, der echte (50) bleibt');
+  assert.equal(l.virtualSoc(at(14, 8, 0), 10, 77), 77, 'am nächsten Tag (noch kein Eintrag) gilt der echte Ladestand');
+  const s = l.summary();
+  assert.ok(s.today.v.other > 0.5 && s.today.v.other < 0.7, 'das andere EMS kauft 1.75 kWh zu 10 bzw. 40 Rp. zu');
+  assert.ok(s.today.v.mine < s.today.v.other, 'unser Szenario ist günstiger: es entlädt in den teuren Viertelstunden, die Restladung zählt nur zum Durchschnittspreis');
+  feed(14, 'normal'); // schliesst den 13. ab
+  const s2 = l.summary();
+  assert.equal(s2.virt.windows, 2);
+  assert.equal(s2.virt.closedDays, 1);
+  assert.equal(s2.virt.wonDays, 1);
+  // ohne Szenario: kein v-Fenster
+  const l2 = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 60; m += 15) {
+    l2.step({
+      nowMs: at(13, 8, m), mine: 'normal', other: 'hold', price: 25, houseW: 1000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  assert.equal(l2.summary().today.v, null);
+  assert.equal(l2.summary().virt.windows, 0);
+});
+
+test('Eigenes Szenario beginnt mitten am Tag: das Fenster zählt für alle drei Kosten ab dann, die Aufschlüsselung gilt ab dann', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 60; m += 15) { // zuerst ohne Szenario
+    l.step({
+      nowMs: at(13, 8, m), mine: 'normal', other: 'hold', price: 25, houseW: 1000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  const fullOther = l.summary().today.other;
+  for (let m = 15; m <= 60; m += 15) {
+    l.step({
+      nowMs: at(13, 9, m), mine: 'normal', mineV: 'normal', other: 'hold', price: 25, houseW: 1000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  const s = l.summary();
+  assert.ok(s.today.v.other < s.today.other, 'das Fenster ist kürzer als der Tag');
+  assert.ok(s.today.v.other > 0 && fullOther > 0);
+  assert.equal(s.today.v.hours, 1, 'vier Läufe a 15 Minuten');
+  assert.equal(s.breakdown.length, 1, 'nur Läufe des Fensters');
+  assert.equal(s.breakdown[0].hours, 1);
+});
+
+test('Eichung: echte Netzkosten des Zählers gegen die simulierte Batterie des anderen EMS, mit Ladestand-Abweichung', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  // Haus 2 kW, kein Solar, echte Batterie hält (Netz 2 kW), echter Ladestand 50 %; das andere EMS hält -> Modell gleich wie echt
+  for (let m = 0; m <= 120; m += 15) {
+    l.step({
+      nowMs: at(13, 18, m), mine: 'hold', mineV: 'hold', other: 'hold', price: 30, houseW: 2000, pvW: 0, gridW: 2000, socPct: 50, p: P,
+    });
+  }
+  const c = l.summary().cal;
+  assert.equal(c.windows, 1);
+  assert.equal(c.hours, 2);
+  assert.equal(c.realImpKwh, 4);
+  assert.equal(c.simImpKwh, 4);
+  assert.equal(c.realChf, 1.2, '4 kWh x 30 Rp.');
+  assert.equal(c.simChf, 1.2);
+  assert.equal(c.socErr, 0, 'Modell und echte Batterie haben denselben Ladestand');
+  // echte Batterie entlädt (Netz 0), das Modell hält: Bezug weicht ab, der Ladestand auch
+  const l2 = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 120; m += 15) {
+    l2.step({
+      nowMs: at(13, 18, m), mine: 'hold', mineV: 'hold', other: 'hold', price: 30, houseW: 2000, pvW: 0, gridW: 0, socPct: 50, p: P,
+    });
+  }
+  const c2 = l2.summary().cal;
+  assert.equal(c2.realImpKwh, 0);
+  assert.equal(c2.simImpKwh, 4);
+  assert.ok(c2.simRawChf > c2.realRawChf);
+  // ohne Zählerwert keine Eichung
+  const l3 = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 60; m += 15) {
+    l3.step({
+      nowMs: at(13, 18, m), mine: 'hold', other: 'hold', price: 30, houseW: 2000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  assert.equal(l3.summary().cal.windows, 0);
+});
+
+test('Eigenes Szenario und Eichung überstehen Tagesabschluss und Neustart', () => {
+  const store = mem();
+  const l = new DecisionLedger(store, 'Europe/Zurich');
+  const feed = (day) => {
+    for (let m = 0; m <= 120; m += 15) {
+      l.step({
+        nowMs: at(day, 18, m), mine: 'hold', mineV: 'normal', other: 'hold', price: 30, houseW: 1000, pvW: 0, gridW: 1000, socPct: 50, p: P,
+      });
+    }
+  };
+  feed(13);
+  feed(14);
+  l.flush();
+  const s = new DecisionLedger(store, 'Europe/Zurich').summary();
+  assert.equal(s.days[0].day, '2026-11-13');
+  assert.ok(s.days[0].v && s.days[0].v.mine !== null);
+  assert.ok(s.days[0].cal && s.days[0].cal.hours === 2);
+  assert.equal(s.virt.closedDays, 1);
+  assert.equal(s.cal.windows, 2);
+});
