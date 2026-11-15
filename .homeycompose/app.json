@@ -190,6 +190,10 @@
       "method": "post",
       "path": "/ems/run"
     },
+    "postEmsResetLedger": {
+      "method": "post",
+      "path": "/ems/reset-ledger"
+    },
     "postEmsResetData": {
       "method": "post",
       "path": "/ems/reset-data"

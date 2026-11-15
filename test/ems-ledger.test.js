@@ -313,3 +313,28 @@ test('Eigenes Szenario und Eichung überstehen Tagesabschluss und Neustart', () 
   assert.equal(s.virt.closedDays, 1);
   assert.equal(s.cal.windows, 2);
 });
+
+test('Nur die Franken-Auswertung löschen: Vergleich, Plan-Verlauf und Ereignisse bleiben', () => {
+  const store = mem();
+  const { EmsController } = require('../lib/ems/EmsController');
+  const { ShadowLog } = require('../lib/ems/ShadowLog');
+  const ctrl = new EmsController({ homey: {}, log() {}, error() {} });
+  ctrl.shadowLog = new ShadowLog(store);
+  ctrl.shadowLog.record({
+    nowMs: at(13, 12), soc: 50, price: 30, mine: { mode: 'hold', reason: 'x' }, other: { mode: 'normal' },
+  });
+  const ledger = new DecisionLedger(store, 'Europe/Zurich');
+  for (let m = 0; m <= 30; m += 15) {
+    ledger.step({
+      nowMs: at(13, 12, m), mine: 'hold', mineV: 'hold', other: 'hold', price: 30, houseW: 800, gridW: 800, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  assert.ok(ledger.summary().today);
+  ctrl.runner = { ledger, consumerEvents: [{ ts: 1 }] };
+  assert.deepEqual(ctrl.resetLedger(), { ok: true });
+  assert.equal(ledger.summary().today, null);
+  assert.equal(ledger.summary().cal.windows, 0);
+  assert.deepEqual(ctrl.runner.consumerEvents, [{ ts: 1 }], 'Ereignisse bleiben');
+  assert.ok(ctrl.shadowLog.summary().days.length > 0, 'Vergleich der Entscheide bleibt');
+  assert.deepEqual(new DecisionLedger(store, 'Europe/Zurich').summary().days, [], 'auch nach Neustart leer');
+});
