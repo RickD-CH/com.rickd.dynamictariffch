@@ -65,10 +65,10 @@ test('makeRedactor: Namen, Token, Bearer, IDs, IP, E-Mail, lange Zahlen und Schl
     secrets: ['SuperGeheimesToken123', 'CH1000012345678'],
   });
   const t = redact('geschirrspüler startet über Wärmepumpe Keller; Token SuperGeheimesToken123, Punkt CH1000012345678, '
-    + 'Authorization: Bearer abcDEF.ghi, id 9df9c71b-e008-47a1-86ab-f8d2d8ed7ad2, Box 192.168.0.177, mail a.b@example.com, '
+    + 'Authorization: Bearer abcDEF.ghi, id 12345678-1234-4234-8234-123456789abc, Box 192.168.1.50, mail a.b@example.com, '
     + 'Nummer 1234567890123, Schlüssel QWERTZUIOPASDFGHJKLYXCVBNM12 und ab bleibt');
   assert.match(t, /Verbraucher 1 startet über Gerät 2/, 'ohne Rücksicht auf Gross-/Kleinschreibung');
-  for (const bad of ['SuperGeheimesToken123', 'CH1000012345678', 'abcDEF', '9df9c71b', '192.168.0.177', 'a.b@example.com', '1234567890123', 'QWERTZUIOPASDFGHJKLYXCVBNM12']) {
+  for (const bad of ['SuperGeheimesToken123', 'CH1000012345678', 'abcDEF', '12345678', '192.168.1.50', 'a.b@example.com', '1234567890123', 'QWERTZUIOPASDFGHJKLYXCVBNM12']) {
     assert.equal(t.includes(bad), false, `${bad} darf nicht im Text stehen`);
   }
   assert.match(t, /<geheim>/);

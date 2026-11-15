@@ -533,7 +533,18 @@ test('Fernbedienung und Tür: Gross-/Kleinschreibung des Gerätewerts spielt kei
   assert.equal(run('Enabled', 'Open').blocked, 'door');
 });
 
-test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis 12 h), ohne Angabe gilt die Standard-Wartezeit; Ausschalten räumt auf', async () => {
+/** Feste «jetzt»-Uhrzeit für Tests, die Date.now() des Runners (Einschaltzeit der Automatik) verwenden: nie von der echten Tageszeit abhängig. */
+async function withFixedNow(ms, fn) {
+  const real = Date.now;
+  Date.now = () => ms;
+  try {
+    return await fn();
+  } finally {
+    Date.now = real;
+  }
+}
+
+test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis 12 h), ohne Angabe gilt die Standard-Wartezeit; Ausschalten räumt auf', () => withFixedNow(at(19) + 5000, async () => {
   const { runner } = makeRunner({ armed: false, gridW: 0 });
   await runner.tickCharger(at(19));
   runner.setProgramArmed('gwa', true, 8);
@@ -541,7 +552,7 @@ test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis
   assert.equal(st.programArmed, true);
   assert.equal(st.armWaitH, 8);
   assert.ok(Number.isFinite(st.armedAt));
-  await runner.tickCharger(Date.now());
+  await runner.tickCharger(at(19) + 5000);
   const row = runner.consumerCurrent[0];
   assert.equal(row.armed, true);
   assert.equal(row.armWaitH, 8);
@@ -553,9 +564,9 @@ test('Runner: setProgramArmed merkt Einschaltzeit und gewählte Wartezeit (1 bis
   runner.setProgramArmed('gwa', false);
   assert.equal(st.programArmed, false);
   assert.equal(st.armedAt, null);
-});
+}));
 
-test('Runner: läuft die Automatik ohne Start ab, wird der Rückruf «Automatik abgelaufen» einmal aufgerufen und der Startversuch bleibt aus', async () => {
+test('Runner: läuft die Automatik ohne Start ab, wird der Rückruf «Automatik abgelaufen» einmal aufgerufen und der Startversuch bleibt aus', () => withFixedNow(at(19), async () => {
   const { runner, started } = makeRunner({ armed: false, gridW: 0, state: 'Running', stateIdleValue: 'Ready to Start' });
   const expired = [];
   runner.onProgramExpired = (e) => expired.push(e);
@@ -569,4 +580,4 @@ test('Runner: läuft die Automatik ohne Start ab, wird der Rückruf «Automatik 
   assert.equal(expired[0].name, 'Geschirrspüler');
   assert.match(expired[0].reason, /Automatik abgelaufen/);
   assert.equal(st.programArmed, false);
-});
+}));
