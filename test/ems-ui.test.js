@@ -453,3 +453,32 @@ test('Setup: Berechnung - Rechenintervall mit Auswirkung (Geräte, Abfragen pro 
   assert.equal(body.tickMinutes, 5);
   assert.ok(put && before >= 0);
 });
+
+test('Vergleich: «Wo der Unterschied entsteht» zeigt die Kosten je Situation (Entscheide, Preisstufe, Stunden, CHF, Unterschied) und ohne Daten einen Hinweis', async () => {
+  const withData = await start(scenario({
+    cfg: { ...fullCfg, compare: true },
+    shadow: {
+      overallAgreePct: 60,
+      days: [],
+      ledger: {
+        days: [],
+        today: null,
+        total: { days: 0, mine: 0, other: 0, none: 0 },
+        breakdown: [
+          {
+            mine: 'normal', other: 'normal', band: 'high', hours: 3.5, mineChf: 1.9, otherChf: 1.1, diffChf: 0.8, mineKwh: 5, otherKwh: 3,
+          },
+          {
+            mine: 'normal', other: 'hold', band: 'mid', hours: 6, mineChf: 0.4, otherChf: 1.5, diffChf: -1.1, mineKwh: 2, otherKwh: 7,
+          },
+        ],
+      },
+    },
+  }));
+  const html = withData.els.get('ems-cmp-data').innerHTML;
+  assert.match(html, /Wo der Unterschied entsteht/);
+  assert.match(html, /<td>entladen<\/td><td>halten<\/td><td>20 bis 30 Rp\.<\/td><td>6\.0<\/td><td>0\.40<\/td><td>1\.50<\/td><td class="ems-ok">-1\.10<\/td>/);
+  assert.match(html, /<td>entladen<\/td><td>entladen<\/td><td>ab 30 Rp\.<\/td><td>3\.5<\/td><td>1\.90<\/td><td>1\.10<\/td><td class="ems-bad">\+0\.80<\/td>/);
+  const none = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { ledger: { days: [], today: null, total: { days: 0 }, breakdown: [] } } }));
+  assert.match(none.els.get('ems-cmp-data').innerHTML, /füllt sich ab jetzt viertelstündlich/);
+});

@@ -129,3 +129,66 @@ test('Echte Batterie leer: «Halten» zählt wie «Normal», das Modell kauft ni
   const t = l.summary().today;
   assert.equal(t.mine, t.other, 'gleiche Kosten, weil «Halten» bei leerer Batterie nichts ändert');
 });
+
+test('Aufschlüsselung: Kosten je Situation (Entscheid ich | Entscheid anderes EMS | Preisstufe), geordnet nach dem Unterschied; ohne anderes EMS keine Zeile', () => {
+  const l = new DecisionLedger(mem(), 'Europe/Zurich');
+  const run = (day, h, mine, other, price) => {
+    for (let m = 0; m <= 120; m += 15) {
+      l.step({
+        nowMs: at(day, h, m), mine, other, price, houseW: 1000, pvW: 0, socPct: 50, p: P,
+      });
+    }
+  };
+  run(13, 8, 'normal', 'hold', 25); // mittlere Preise: wir entladen, das andere EMS hält
+  const b1 = l.summary().breakdown;
+  assert.equal(b1.length, 1);
+  assert.deepEqual([b1[0].mine, b1[0].other, b1[0].band], ['normal', 'hold', 'mid']);
+  assert.equal(b1[0].hours, 2);
+  assert.equal(b1[0].mineChf, 0, 'unsere Batterie deckt das Haus');
+  assert.equal(b1[0].otherChf, 0.5, 'das andere EMS kauft 2 kWh zu 25 Rp.');
+  assert.equal(b1[0].diffChf, -0.5, 'negativ = wir sind in dieser Situation günstiger');
+  assert.equal(b1[0].otherKwh, 2);
+  // später: beide entladen zu hohen Preisen (gleiche Entscheide), unsere Batterie wurde vorher aber schon geleert
+  const l2 = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 60; m += 15) {
+    l2.step({
+      nowMs: at(13, 18, m), mine: 'normal', other: 'hold', price: 20, houseW: 4000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  for (let m = 15; m <= 75; m += 15) {
+    l2.step({
+      nowMs: at(13, 19, m), mine: 'normal', other: 'normal', price: 40, houseW: 4000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  const b2 = l2.summary().breakdown.find((x) => x.band === 'high');
+  assert.deepEqual([b2.mine, b2.other], ['normal', 'normal']);
+  assert.ok(b2.diffChf > 0, 'gleiche Entscheide, aber unsere leere Batterie kauft zu 40 Rp. ein: die Folge des früheren Entscheids');
+  // ohne anderes EMS: nichts zu vergleichen
+  const l3 = new DecisionLedger(mem(), 'Europe/Zurich');
+  for (let m = 0; m <= 60; m += 15) {
+    l3.step({
+      nowMs: at(13, 8, m), mine: 'normal', other: null, price: 25, houseW: 1000, pvW: 0, socPct: 50, p: P,
+    });
+  }
+  assert.deepEqual(l3.summary().breakdown, []);
+});
+
+test('Aufschlüsselung: nach dem Tagesabschluss bleibt sie erhalten (abgerundet gespeichert), die Tageszeilen tragen sie nicht doppelt', () => {
+  const store = mem();
+  const l = new DecisionLedger(store, 'Europe/Zurich');
+  const feed = (day) => {
+    for (let m = 0; m <= 120; m += 15) {
+      l.step({
+        nowMs: at(day, 8, m), mine: 'normal', other: 'hold', price: 25, houseW: 1000, pvW: 0, socPct: 50, p: P,
+      });
+    }
+  };
+  feed(13);
+  feed(14); // neuer Tag: der 13. wird abgeschlossen
+  l.flush();
+  const re = new DecisionLedger(store, 'Europe/Zurich');
+  const s = re.summary();
+  assert.equal(s.breakdown.length, 1);
+  assert.equal(s.breakdown[0].hours, 4, 'beide Tage');
+  assert.equal(s.days[0].cls, undefined, 'Tageszeilen ohne Aufschlüsselung (sie steht gesammelt in breakdown)');
+});

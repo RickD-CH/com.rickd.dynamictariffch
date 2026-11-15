@@ -37,6 +37,6 @@ Die Preislogik soll schon im Dezember so laufen, als gäbe es den dynamischen Ta
 - Knopf «Ansicht ohne Energiemanagement testen» für Kunden ausblenden (nur Entwickler-Werkzeug).
 - Vergleichsansicht samt Code und die Berechtigung `homey:app:com.huawei.fusionsolar` entfernen (nach A9).
 - Store-Text und Doku final machen.
-- Übersetzungen Französisch und Italienisch ganz zum Schluss (neue Widget- und Einstellungstexte fehlen dort noch).
+- Übersetzungen Französisch und Italienisch ganz zum Schluss (neue Widget- und Einstellungstexte fehlen dort noch). **Die Vergleichsansicht wird nicht übersetzt** (sie wird vor der Veröffentlichung entfernt, Deutsch reicht).
 - Übrige Widgets (noch offen).
 - Versionsnummer bleibt unverändert, bis veröffentlicht wird.

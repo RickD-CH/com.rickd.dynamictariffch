@@ -323,6 +323,13 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
   Plan-Verlauf, z. B. beim Go-live. Gelernter Hausverbrauch, Einstellungen und Aufträge bleiben. Kostendaten werden
   separat gelöscht (Tage im Zeitraum, Verbraucher, alles).
 
+### Franken-Auswertung: Aufschlüsselung nach Situation (15.11.2026)
+
+- `DecisionLedger` bucht die Kosten jedes Laufs zusätzlich nach **Situation**: Entscheid dieses EMS | Entscheid des anderen EMS | Preisstufe (unter 20, 20 bis 30, ab 30 Rp.). `summary().breakdown` liefert je Situation Stunden, Kosten beider virtueller Batterien (CHF), Netzbezug (kWh) und den Unterschied, geordnet nach dem grössten Nachteil dieses EMS.
+- In der Vergleichsansicht unter «Kosten der Entscheide» als aufklappbare Tabelle «Wo der Unterschied entsteht». Positiver Unterschied = dieses EMS ist in der Situation teurer.
+- **Gleiche Entscheide mit Unterschied** zeigen, was frühere Entscheide später kosten (zum Beispiel eine schon leere Batterie). Nicht enthalten ist die am Tagesende zum Tagesdurchschnitt verrechnete Restladung.
+- Gesammelt **ab dem 15.11.2026**: frühere Tage haben nur Tagessummen, die einzelnen Entscheide wurden nicht gespeichert (keine Rückrechnung möglich). Die Aufschlüsselung wird je Tag gespeichert (höchstens 45 Tage) und mit «EMS-Protokolle und Auswertungen löschen» zurückgesetzt.
+
 ## Notstrom-Reserve (13.11.2026)
 
 - **Zweck:** vor einem erwarteten Stromausfall sicherstellen, dass die Hausbatterie mindestens einen eingestellten
