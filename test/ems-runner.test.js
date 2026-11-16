@@ -412,3 +412,14 @@ test('Franken-Auswertung im Runner: eigenes Szenario (virtuelle Batterie) und Ei
   assert.deepEqual(calls.consumer, [], 'die Auswertung schaltet nichts');
   assert.ok(runner.prevV && runner.prevV.mode, 'der Planer des Szenarios hat einen eigenen Zustand');
 });
+
+test('Franken-Auswertung im Runner: das andere EMS zählt mit dem, was die echte Batterie tut (nicht mit dem Plan-Entscheid)', async () => {
+  const { runner } = setup({ cfg: { compare: true }, inputs: { batteryW: 5100, pvW: 0, houseW: 800, gridW: 5900 } });
+  runner.ledger.flush = () => {};
+  const seen = [];
+  const orig = runner.ledger.step.bind(runner.ledger);
+  runner.ledger.step = (x) => { seen.push(x.other); orig(x); };
+  await runner.tickCharger(at(2, 1));
+  await runner.tick(at(2, 2));
+  assert.deepEqual(seen, ['charge'], 'Plan sagt «hold», die Batterie lädt mit 5 kW aus dem Netz');
+});

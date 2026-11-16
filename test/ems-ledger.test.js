@@ -338,3 +338,36 @@ test('Nur die Franken-Auswertung löschen: Vergleich, Plan-Verlauf und Ereigniss
   assert.ok(ctrl.shadowLog.summary().days.length > 0, 'Vergleich der Entscheide bleibt');
   assert.deepEqual(new DecisionLedger(store, 'Europe/Zurich').summary().days, [], 'auch nach Neustart leer');
 });
+
+test('Beobachteter Entscheid: die echte Batterie bestimmt, was das andere EMS «tut» (Netzladung, Entladen, Halten, Solarladen)', () => {
+  const o = (x) => DecisionLedger.observedMode({ socPct: 60, floorSoc: 10, ...x });
+  assert.equal(o({ batteryW: 5100, pvW: -5000, houseW: 800 }), 'charge', 'Nacht: lädt mit 5 kW aus dem Netz (der Wechselrichter meldet dabei negative PV)');
+  assert.equal(o({ batteryW: 1200, pvW: 3000, houseW: 1000 }), 'normal', 'lädt nur mit dem Solarüberschuss');
+  assert.equal(o({ batteryW: 4000, pvW: 3000, houseW: 1000 }), 'charge', 'lädt mehr, als der Überschuss hergibt');
+  assert.equal(o({ batteryW: -1400, pvW: 500, houseW: 2000 }), 'normal', 'entlädt');
+  assert.equal(o({ batteryW: 20, pvW: 0, houseW: 900 }), 'hold', 'steht, das Haus zieht Strom aus dem Netz');
+  assert.equal(o({ batteryW: 0, pvW: 2000, houseW: 900 }), 'normal', 'steht, weil die Sonne das Haus deckt');
+  assert.equal(o({ batteryW: 0, pvW: 0, houseW: 900, socPct: 10 }), 'normal', 'leer: Halten und Normal sind dasselbe');
+  assert.equal(o({ batteryW: null, pvW: 0, houseW: 900 }), null, 'ohne Messwert kein Entscheid');
+});
+
+test('Beobachteter Entscheid: die Nachtladung des anderen EMS wird in der Simulation bezahlt (Plan-Entscheid «halten» hätte sie verschwiegen)', () => {
+  const run = (otherMode) => {
+    const led = new DecisionLedger(mem(), 'Europe/Zurich');
+    led.flush = () => {};
+    const base = Date.parse('2026-11-16T01:00:00Z');
+    let soc = 40;
+    for (let k = 0; k < 12; k += 1) {
+      led.step({
+        nowMs: base + k * 300_000, mine: 'hold', other: otherMode, price: 12, feedIn: 6, houseW: 800, pvW: 0, socPct: soc, gridW: 5800,
+        p: { capacityKwh: 13.8, efficiency: 0.9, powerKw: 5, floorSoc: 10, targetSoc: 90 },
+      });
+      soc += 3; // die echte Batterie lädt
+    }
+    return led.summary().today;
+  };
+  const plan = run('hold');
+  const seen = run('charge');
+  assert.ok(seen.cal.simImpKwh > plan.cal.simImpKwh + 2, 'mit beobachtetem Laden stimmt der Netzbezug des Modells mit dem Zähler überein');
+  assert.ok(Math.abs(seen.cal.simImpKwh - seen.cal.realImpKwh) < Math.abs(plan.cal.simImpKwh - plan.cal.realImpKwh), 'die Eichung wird besser');
+});

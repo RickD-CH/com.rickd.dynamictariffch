@@ -518,3 +518,26 @@ test('Vergleich: eigenes Szenario (Tage vorne) und Eichung gegen den Zähler mit
   const none = await start(scenario({ cfg: { ...fullCfg, compare: true }, shadow: { ledger: { days: [], today: null, total: { days: 0 }, breakdown: [] } } }));
   assert.match(none.els.get('ems-cmp-data').innerHTML, /Noch keine Messung/);
 });
+
+test('Vergleich: Spalte «Anderes EMS (Zähler)» mit den echten Kosten und der Differenz dazu', async () => {
+  const ui = await start(scenario({
+    cfg: { ...fullCfg, compare: true },
+    shadow: {
+      ledger: {
+        days: [{
+          day: '2026-11-16', mine: 1, other: 1, none: 2, hours: 24, v: { mine: 1.5, other: 2, none: 6, hours: 24 }, cal: { realChf: 1.8 },
+        }],
+        total: { days: 1, mine: 1, other: 1, none: 2 },
+        virt: {
+          windows: 1, hours: 24, mine: 1.5, other: 2, none: 6, closedDays: 1, wonDays: 1,
+        },
+        cal: {
+          windows: 1, hours: 24, realChf: 1.8, simChf: 1.9, realImpKwh: 10, simImpKwh: 10, realExpKwh: 0, simExpKwh: 0, socErr: 1,
+        },
+      },
+    },
+  }));
+  const html = ui.els.get('ems-cmp-data').innerHTML;
+  assert.match(html, /Anderes EMS \(Zähler\)/);
+  assert.match(html, /16\.11\. \(24 Std\.\)<\/td><td>1\.50<\/td><td>2\.00<\/td><td>6\.00<\/td><td class="ems-ok">-0\.50<\/td><td>1\.80<\/td><td class="ems-ok">-0\.30<\/td>/);
+});
