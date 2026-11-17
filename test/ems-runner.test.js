@@ -442,3 +442,16 @@ test('Plan-Schnappschuss: Preise, PV und Last der nächsten 36 Stunden werden fe
   assert.equal(s.cfg.capacityKwh, 13.8);
   assert.equal(runner._load('ledgerPlans', []).length, 4, 'gespeichert (übersteht einen Neustart)');
 });
+
+test('Plan-Genauigkeit im Runner: jeder Lauf der Wallbox-Schleife füttert die Messung, ohne etwas zu schalten', async () => {
+  const { runner, calls } = setup({});
+  const seen = [];
+  const orig = runner.planAccuracy.record.bind(runner.planAccuracy);
+  runner.planAccuracy.record = (x) => { seen.push(x); orig(x); };
+  await runner.tickCharger(at(5, 3));
+  await runner.tickCharger(at(5, 8));
+  assert.equal(seen.length, 2);
+  assert.equal(seen[0].houseW, 1500, 'Hausverbrauch aus dem Messwert');
+  assert.equal(seen[0].loadProfile, runner.loadProfile);
+  assert.deepEqual(calls.consumer, [], 'die Messung schaltet nichts');
+});

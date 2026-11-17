@@ -541,3 +541,36 @@ test('Vergleich: Spalte «Anderes EMS (Zähler)» mit den echten Kosten und der 
   assert.match(html, /Anderes EMS \(Zähler\)/);
   assert.match(html, /16\.11\. \(24 Std\.\)<\/td><td>1\.50<\/td><td>2\.00<\/td><td>6\.00<\/td><td class="ems-ok">-0\.50<\/td><td>1\.80<\/td><td class="ems-ok">-0\.30<\/td>/);
 });
+
+test('Setup: Plan-Genauigkeit zeigt Fehler beider Methoden, die bessere und «noch n von m Tagen»', async () => {
+  const env = await start(scenario({
+    shadow: {
+      planAccuracy: {
+        needed: 5,
+        load: {
+          windows: [
+            {
+              key: 'm', from: 5, to: 10, days: 9, actualKwh: 4.2, mean: { errPct: 18.4, biasPct: 6 }, robust: { errPct: 9.1, biasPct: 1 }, better: 'robust',
+            },
+            {
+              key: 'd', from: 10, to: 17, days: 9, actualKwh: 5, mean: { errPct: 20, biasPct: 0 }, robust: { errPct: 19, biasPct: 0 }, better: null,
+            },
+            {
+              key: 'e', from: 17, to: 22, days: 2, actualKwh: 6, mean: null, robust: null, better: null,
+            },
+          ],
+        },
+        pv: {
+          days: 7, plain: { errPct: 35.2, biasPct: 20 }, nowcast: { errPct: 22.5, biasPct: 5 }, better: 'nowcast',
+        },
+      },
+    },
+  }));
+  click(env, 'ems-view-devices', { 'data-ems-open': 'src-fc' });
+  const html = setup(env);
+  assert.match(html, /Plan-Genauigkeit \(Lernbericht\)/);
+  assert.match(html, /Verbrauch Morgen 05-10<\/td><td>9<\/td><td>18\.4 %<\/td><td>9\.1 %<\/td><td class="ems-ok">robust<\/td>/);
+  assert.match(html, /Verbrauch Tag 10-17<\/td><td>9<\/td><td>20\.0 %<\/td><td>19\.0 %<\/td><td class="">gleich gut<\/td>/);
+  assert.match(html, /Verbrauch Abend 17-22<\/td><td>noch 2 von 5 Tagen<\/td><td>–<\/td><td>–<\/td><td class="">–<\/td>/);
+  assert.match(html, /Solar: Rest des Tages ab 10:30<\/td><td>7<\/td><td>35\.2 %<\/td><td>22\.5 %<\/td><td class="ems-ok">mit Morgen-Korrektur<\/td>/);
+});

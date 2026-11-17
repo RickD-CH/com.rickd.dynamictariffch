@@ -769,3 +769,13 @@ Die App führt eine Tagesbilanz (`lib/ems/PvAccuracy.js`, Speicher `pvAccuracy`,
 - **Empfehlung:** Median von (gemessen ÷ Prognose ohne Faktor) über die letzten 30 vollständigen Tage mit mindestens 2 kWh Prognose, erst ab 7 solchen Tagen, begrenzt auf 0.3 bis 2. Der Faktor der Prognose von damals wird herausgerechnet, die Empfehlung ist also immer ein absoluter Faktor.
 - **Einstellungen → Solarprognose:** Empfehlung mit Streuung (25-75 %-Bereich), Knopf «Übernehmen» und der Verlauf der letzten 14 Tage.
 - **«Korrekturfaktor automatisch»:** trägt die Empfehlung einmal pro Tag (und beim Einschalten) selbst als Faktor ein, wenn sie mindestens 0.03 abweicht. Das Feld zeigt dann den aktuellen Wert.
+
+## Plan-Genauigkeit (Lernbericht) (17.11.2026)
+
+Ziel: nur die Werte lernen, die einen Plan besser machen, und zuerst messen, welcher Eingang den Plan verschlechtert. `lib/ems/PlanAccuracy.js` misst und ändert nichts. Ansicht: Einstellungen, Datenquellen, Solarprognose, Karte «Plan-Genauigkeit (Lernbericht)». Die Daten kommen in der Shadow-Antwort als `planAccuracy`.
+
+- **Hausverbrauch** je Fenster (Morgen 05-10, Tag 10-17, Abend 17-22): In der ersten Stunde des Fensters wird festgehalten, was zwei Methoden bis zum Fensterende erwarten (`LoadProfile.kwAt` = Durchschnitt der letzten 7 Tage, wie ihn der Planer heute nutzt; `LoadProfile.kwAtRobust` = Median der gleichen Tagesart Werktag/Wochenende, wenn mindestens 3 solche Tage da sind, sonst alle Tage). Gemessen wird ab demselben Zeitpunkt. Ein Fenster mit mehr als 20 Minuten Messlücke zählt nicht.
+- **Solar:** Um 06:00 und um 10:30 wird die Rest-Prognose festgehalten. Das Verhältnis gemessen/prognostiziert von 06:00 bis 10:30 (auf 0.3 bis 2 begrenzt) wird auf den Rest des Tages angewendet («Nowcast»). Verglichen wird der Fehler der unveränderten Rest-Prognose mit dem Fehler der korrigierten. Es zählen nur Tage mit mindestens 0.5 kWh Prognose am Morgen und 1 kWh Rest.
+- **Fehlermass:** Summe der Abweichungen geteilt durch die Summe des Gemessenen (in %); Verzerrung = Summe (Prognose - gemessen) / Summe gemessen. Ein Urteil gibt es ab 5 Tagen, und eine Methode gilt erst als besser, wenn ihr Fehler um mindestens 10 % kleiner ist.
+- **LoadProfile:** speichert jetzt 14 statt 7 Tage (für den Vergleich Werktag/Wochenende). Der Durchschnitt `kwAt` und die Anzeige-Werte rechnen weiter nur über die letzten 7 Tage plus heute, das Verhalten des Planers ist unverändert. `kwAtRobust` wird nur mitgemessen, der Planer nutzt es nicht.
+- **Noch nicht gebaut:** Übernehmen der besseren Methode (Konfiguration, Umschalter im Planer), Wirkungsgrad und Leistung der Batterie einmalig messen. Erst entscheiden, wenn die Messung genug Tage hat.
