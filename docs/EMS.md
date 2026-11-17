@@ -772,7 +772,7 @@ Die App führt eine Tagesbilanz (`lib/ems/PvAccuracy.js`, Speicher `pvAccuracy`,
 
 ## Plan-Genauigkeit (Lernbericht) (17.11.2026)
 
-Ziel: nur die Werte lernen, die einen Plan besser machen, und zuerst messen, welcher Eingang den Plan verschlechtert. `lib/ems/PlanAccuracy.js` misst und ändert nichts. Ansicht: Einstellungen, Datenquellen, Solarprognose, Karte «Plan-Genauigkeit (Lernbericht)». Die Daten kommen in der Shadow-Antwort als `planAccuracy`.
+Ziel: nur die Werte lernen, die einen Plan besser machen, und zuerst messen, welcher Eingang den Plan verschlechtert. `lib/ems/PlanAccuracy.js` misst und ändert nichts. Ansicht: Einrichten, Energiemanagement, eigene Box «LERNBERICHT» mit der Zeile «Plan-Genauigkeit» (unter den Verbrauchern, vor der Berechnung; nur Anzeige, ohne Speichern-Knopf). Die Daten kommen in der Shadow-Antwort als `planAccuracy`.
 
 - **Hausverbrauch** je Fenster (Morgen 05-10, Tag 10-17, Abend 17-22): In der ersten Stunde des Fensters wird festgehalten, was zwei Methoden bis zum Fensterende erwarten (`LoadProfile.kwAt` = Durchschnitt der letzten 7 Tage, wie ihn der Planer heute nutzt; `LoadProfile.kwAtRobust` = Median der gleichen Tagesart Werktag/Wochenende, wenn mindestens 3 solche Tage da sind, sonst alle Tage). Gemessen wird ab demselben Zeitpunkt. Ein Fenster mit mehr als 20 Minuten Messlücke zählt nicht.
 - **Solar:** Um 06:00 und um 10:30 wird die Rest-Prognose festgehalten. Das Verhältnis gemessen/prognostiziert von 06:00 bis 10:30 (auf 0.3 bis 2 begrenzt) wird auf den Rest des Tages angewendet («Nowcast»). Verglichen wird der Fehler der unveränderten Rest-Prognose mit dem Fehler der korrigierten. Es zählen nur Tage mit mindestens 0.5 kWh Prognose am Morgen und 1 kWh Rest.

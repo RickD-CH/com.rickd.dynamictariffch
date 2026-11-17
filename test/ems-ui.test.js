@@ -542,7 +542,7 @@ test('Vergleich: Spalte «Anderes EMS (Zähler)» mit den echten Kosten und der 
   assert.match(html, /16\.11\. \(24 Std\.\)<\/td><td>1\.50<\/td><td>2\.00<\/td><td>6\.00<\/td><td class="ems-ok">-0\.50<\/td><td>1\.80<\/td><td class="ems-ok">-0\.30<\/td>/);
 });
 
-test('Setup: Plan-Genauigkeit zeigt Fehler beider Methoden, die bessere und «noch n von m Tagen»', async () => {
+test('Setup: Box «Lernbericht» zeigt Fehler beider Methoden, die bessere und «noch n von m Tagen»', async () => {
   const env = await start(scenario({
     shadow: {
       planAccuracy: {
@@ -566,9 +566,10 @@ test('Setup: Plan-Genauigkeit zeigt Fehler beider Methoden, die bessere und «no
       },
     },
   }));
-  click(env, 'ems-view-devices', { 'data-ems-open': 'src-fc' });
+  assert.match(setup(env), /LERNBERICHT.*Plan-Genauigkeit.*2 von 4 Prognosen lassen sich verbessern/s);
+  click(env, 'ems-view-devices', { 'data-ems-open': 'learn' });
   const html = setup(env);
-  assert.match(html, /Plan-Genauigkeit \(Lernbericht\)/);
+  assert.doesNotMatch(html, /Plan-Genauigkeit \(Lernbericht\)/, 'nicht mehr im Solar-Bereich');
   assert.match(html, /Verbrauch Morgen 05-10<\/td><td>9<\/td><td>18\.4 %<\/td><td>9\.1 %<\/td><td class="ems-ok">robust<\/td>/);
   assert.match(html, /Verbrauch Tag 10-17<\/td><td>9<\/td><td>20\.0 %<\/td><td>19\.0 %<\/td><td class="">gleich gut<\/td>/);
   assert.match(html, /Verbrauch Abend 17-22<\/td><td>noch 2 von 5 Tagen<\/td><td>–<\/td><td>–<\/td><td class="">–<\/td>/);
