@@ -423,3 +423,22 @@ test('Franken-Auswertung im Runner: das andere EMS zählt mit dem, was die echte
   await runner.tick(at(2, 2));
   assert.deepEqual(seen, ['charge'], 'Plan sagt «hold», die Batterie lädt mit 5 kW aus dem Netz');
 });
+
+test('Plan-Schnappschuss: Preise, PV und Last der nächsten 36 Stunden werden festgehalten und bleiben auf vier begrenzt', () => {
+  const { runner } = setup({ cfg: { compare: true } });
+  const slots = [];
+  for (let i = 0; i < 200; i += 1) slots.push({ start: at(0, 0) + i * 900000, end: at(0, 0) + (i + 1) * 900000, price: 20 + (i % 7) });
+  const dv = { mode: 'charge', reason: 'test', targetEff: 90, chargeSlots: [slots[3]], schedule: { chargeKwh: 5 } };
+  for (let k = 0; k < 6; k += 1) {
+    runner._snapPlan({
+      nowMs: at(0, 0) + k * 900000, soc: 50, dv, cfg: { capacityKwh: 13.8, targetSoc: 90, floorSoc: 10, chargePowerKw: 5, efficiency: 0.9 }, slots, price: 25, pvKwAt: () => 1.5, loadKwAt: null,
+    });
+  }
+  assert.equal(runner.planSnaps.length, 4, 'nur die letzten vier');
+  const s = runner.planSnaps[0];
+  assert.equal(s.rows.length, 144, '36 Stunden in Viertelstunden');
+  assert.deepEqual(s.rows[0].slice(2), [1.5, null], 'PV und (ungelernte) Last je Zeile');
+  assert.deepEqual(s.charge[0], [slots[3].start, slots[3].price]);
+  assert.equal(s.cfg.capacityKwh, 13.8);
+  assert.equal(runner._load('ledgerPlans', []).length, 4, 'gespeichert (übersteht einen Neustart)');
+});
