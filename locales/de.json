@@ -117,7 +117,13 @@
     "over": "Überlast",
     "throttled": "Wallbox auf {a} A gedrosselt",
     "shed": "Aus:",
-    "test": "Testmodus"
+    "test": "Testmodus",
+    "outlook": "Ausblick 24 h",
+    "outlookPeak": "Spitze {kw} kW ({pct} % der Grenze) um {time}",
+    "outlookHouse": "Haus",
+    "outlookOk": "ok",
+    "outlookTight": "knapp",
+    "outlookOver": "über der Grenze"
   },
   "consumersWidget": {
     "loading": "Lädt…",

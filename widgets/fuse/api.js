@@ -9,7 +9,9 @@ module.exports = {
     if (!ems || !ems.hasDevice()) return { ems: false };
     const { runner } = ems;
     const shadow = { deviceExists: true, config: ems.getConfig(), fuse: runner ? runner.fuseCurrent : null };
-    return fuseWidget({ shadow, peak: runner ? runner.fusePeak : null, tz: homey.clock.getTimezone() });
+    return fuseWidget({
+      shadow, peak: runner ? runner.fusePeak : null, tz: homey.clock.getTimezone(), outlook: ems.getOutlook(),
+    });
   },
 
 };

@@ -575,3 +575,31 @@ test('Setup: Box «Lernbericht» zeigt Fehler beider Methoden, die bessere und �
   assert.match(html, /Verbrauch Abend 17-22<\/td><td>noch 2 von 5 Tagen<\/td><td>–<\/td><td>–<\/td><td class="">–<\/td>/);
   assert.match(html, /Solar: Rest des Tages ab 10:30<\/td><td>7<\/td><td>35\.2 %<\/td><td>22\.5 %<\/td><td class="ems-ok">mit Morgen-Korrektur<\/td>/);
 });
+
+// ---------------------------------------------------------------- Ausblick Hausanschluss
+
+const outlookShadow = {
+  status: 'tight',
+  limitKw: 24.8,
+  peak: {
+    kw: 19.1, pct: 77, time: '23:15', baseKw: 1.1, pvKw: 0, parts: [{ key: 'battery', name: 'Batterie', kw: 5 }, { key: 'car', name: 'E-Auto', kw: 11 }, { key: 'job:gwa', name: 'GWA', kw: 2 }],
+  },
+  hours: [{ time: '21:00', kw: 1.1, pct: 4, parts: [] }, { time: '23:00', kw: 19.1, pct: 77, parts: ['Batterie', 'E-Auto', 'GWA'] }],
+};
+
+test('Setup: Ausblick im Hausanschluss zeigt Urteil, Spitze mit Beteiligten und die Zusammenfassung der Zeile', async () => {
+  const env = await start(scenario({ cfg: { fuse: { enabled: true } }, shadow: { outlook: outlookShadow } }));
+  assert.match(setup(env), /Grenze 36 A.*- knapp/, 'Zeile zeigt das Urteil');
+  click(env, 'ems-view-devices', { 'data-ems-open': 'fuse' });
+  const html = setup(env);
+  assert.match(html, /AUSBLICK 24 STUNDEN/);
+  assert.match(html, /knapp<\/b> - Spitze 19\.1 kW um 23:15: 77 % der Grenze \(24\.8 kW\)/);
+  assert.match(html, /Haus 1\.1 \+ Batterie 5\.0 \+ E-Auto 11\.0 \+ GWA 2\.0 kW/);
+  assert.match(html, /gleichmässig auf die drei Phasen/);
+});
+
+test('Setup: Ausblick ohne Verbrauchsprofil sagt, woran es fehlt', async () => {
+  const env = await start(scenario({ cfg: { fuse: { enabled: true } }, shadow: { outlook: null } }));
+  click(env, 'ems-view-devices', { 'data-ems-open': 'fuse' });
+  assert.match(setup(env), /Noch kein Verbrauchsprofil/);
+});

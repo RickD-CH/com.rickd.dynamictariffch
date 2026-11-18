@@ -117,7 +117,13 @@
     "over": "Overload",
     "throttled": "Wallbox limited to {a} A",
     "shed": "Off:",
-    "test": "Test mode"
+    "test": "Test mode",
+    "outlook": "Outlook 24 h",
+    "outlookPeak": "Peak {kw} kW ({pct} % of the limit) at {time}",
+    "outlookHouse": "House",
+    "outlookOk": "ok",
+    "outlookTight": "tight",
+    "outlookOver": "over the limit"
   },
   "consumersWidget": {
     "loading": "Loading…",

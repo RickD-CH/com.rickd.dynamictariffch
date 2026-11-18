@@ -131,6 +131,28 @@ test('Widget «Hausanschluss»: Schutz aus, noch keine Messung, Drosselung nur u
   assert.equal(full.capAmps, null);
 });
 
+test('Widget «Hausanschluss»: Ausblick mit Urteil, Spitze, Beteiligten und Stundenwerten; ohne Profil nichts', () => {
+  const { buildOutlook } = require('../lib/ems/planner/gridOutlook');
+  const night = (t) => t >= NOW + 2 * 3600000 && t < NOW + 3 * 3600000;
+  const o = buildOutlook({
+    nowMs: NOW,
+    limitA: 36,
+    baseKwAt: () => 1.1,
+    loads: [{ key: 'battery', name: 'Batterie', kwAt: (t) => (night(t) ? 5 : 0) }, { key: 'car', name: 'E-Auto', kwAt: (t) => (night(t) ? 11 : 0) }],
+  });
+  const d = fuseWidget({
+    shadow: { deviceExists: true, config: cfg, fuse: null }, tz: TZ, nowMs: NOW, outlook: o,
+  });
+  assert.equal(d.outlook.status, 'ok');
+  assert.equal(d.outlook.limitKw, 24.8);
+  assert.equal(d.outlook.peak.kw, 17.1);
+  assert.equal(d.outlook.peak.pct, 69);
+  assert.equal(d.outlook.peak.time, '23:15');
+  assert.deepEqual(d.outlook.peak.parts.map((p) => p.name), ['Batterie', 'E-Auto']);
+  assert.ok(d.outlook.hours.length >= 24 && d.outlook.hours.length <= 25);
+  assert.equal(fuseWidget({ shadow: { deviceExists: true, config: cfg, fuse: null }, tz: TZ, nowMs: NOW }).outlook, null);
+});
+
 test('Widgets: neutrale Namen, Texte in Deutsch und Englisch, jedes Widget hat Vorschaubilder', () => {
   const root = path.join(__dirname, '..');
   for (const w of fs.readdirSync(path.join(root, 'widgets'))) {

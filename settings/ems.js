@@ -95,6 +95,7 @@
       prioRow: 'Priorität (Reihenfolge bei Überschuss)', prioUp: 'nach oben', prioDown: 'nach unten', prioTag: 'Priorität {n}', prioWhy: 'Bei «Bei Überschuss»: Der Verbraucher weiter oben startet zuerst und geht zuletzt aus. Es startet immer nur einer pro Messung, damit der Überschuss nicht doppelt verplant wird. Die Reihenfolge wird mit «Speichern» übernommen.', suggestedTag: 'Vorschlag', suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
       tagRequired: 'Pflicht', tagRecommended: 'Empfohlen', tagOptional: 'Optional', tagAuto: 'Automatisch',
       notChosen: 'nicht gewählt', device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- keines -', pickFirst: '- zuerst Gerät wählen -',
+      fuseOutTitle: 'AUSBLICK 24 STUNDEN', fuseOutWhy: 'Erwarteter Netzbezug, wenn alles Geplante gleichzeitig läuft: gelernter Hausverbrauch plus Batterie-Fahrplan, E-Auto und geplante Aufträge, abzüglich Sonne. Verbraucher nach Überschuss laufen von der Sonne und sind nicht eingerechnet. Annahme: gleichmässig auf die drei Phasen verteilt; ein einphasiges Gerät auf der falschen Phase kann die Grenze früher erreichen.', fuseOutPeak: 'Spitze {kw} kW um {time}: {pct} % der Grenze ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'knapp', fuseOutOver: 'über der Grenze', fuseOutHouse: 'Haus', fuseOutNone: 'Noch kein Verbrauchsprofil: der Ausblick erscheint, sobald die App den Hausverbrauch gelernt hat.',
       fuseTitle: 'HAUSANSCHLUSS', fuseRow: 'Hausanschluss-Schutz', fuseOff: 'aus', fuseOn: 'Hausanschluss schützen',
       fuseWhy: 'Hält jede Phase unter der Grenze der Hausanschluss-Sicherung: zuerst wird die Wallbox gedrosselt, reicht das nicht, werden die Geräte unten der Reihe nach ausgeschaltet.',
       fuseAmps: 'Sicherung (A)', fuseReserve: 'Reserve (% der Sicherung)', fuseLimitLbl: 'Grenze', fusePerPhase: 'pro Phase', fuseMeter: 'Zähler mit Phasenströmen', fuseMeterGrid: 'wie Netzzähler', fusePhase: 'Phase',
@@ -306,6 +307,7 @@
       prioRow: 'Priority (order for surplus)', prioUp: 'up', prioDown: 'down', prioTag: 'Priority {n}', prioWhy: 'For "On surplus": the device higher up starts first and switches off last. Only one starts per measurement so the surplus is not planned twice. The order is applied with "Save".', suggestedTag: 'Suggested', suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
       tagRequired: 'Required', tagRecommended: 'Recommended', tagOptional: 'Optional', tagAuto: 'Automatic',
       notChosen: 'not chosen', device: 'Device', value: 'Value', pick: '- choose device -', none: '- none -', pickFirst: '- choose a device first -',
+      fuseOutTitle: 'OUTLOOK 24 HOURS', fuseOutWhy: 'Expected grid draw if everything planned runs at the same time: learned house consumption plus battery schedule, EV and planned jobs, minus solar. Consumers that follow the surplus run on the sun and are not included. Assumption: spread evenly over the three phases; a single-phase device on the wrong phase can reach the limit earlier.', fuseOutPeak: 'Peak {kw} kW at {time}: {pct} % of the limit ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'tight', fuseOutOver: 'over the limit', fuseOutHouse: 'House', fuseOutNone: 'No consumption profile yet: the outlook appears once the app has learned the house consumption.',
       fuseTitle: 'HOUSE CONNECTION', fuseRow: 'Main fuse protection', fuseOff: 'off', fuseOn: 'Protect the main fuse',
       fuseWhy: 'Keeps every phase below the limit of the main fuse: first the EV charger is throttled; if that is not enough, the devices below are switched off one after the other.',
       fuseAmps: 'Main fuse (A)', fuseReserve: 'Reserve (% of the fuse)', fuseLimitLbl: 'Limit', fusePerPhase: 'per phase', fuseMeter: 'Meter with phase currents', fuseMeterGrid: 'same as grid meter', fusePhase: 'Phase',
@@ -1298,7 +1300,28 @@
   function fuseSummary() {
     var f = fuseCfg();
     if (!f.enabled) return { text: S.fuseOff, cls: 'muted' };
-    return { text: S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A - ' + (f.shed.length ? f.shed.map(shedName).join(', ') : S.fuseShedNone), cls: 'ok' };
+    var ol = state.shadow && state.shadow.outlook;
+    var olTxt = ol ? ' - ' + (ol.status === 'over' ? S.fuseOutOver : (ol.status === 'tight' ? S.fuseOutTight : S.fuseOutOk)) : '';
+    return { text: S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A - ' + (f.shed.length ? f.shed.map(shedName).join(', ') : S.fuseShedNone) + olTxt, cls: ol && ol.status !== 'ok' ? 'warn' : 'ok' };
+  }
+  /** Ausblick Hausanschluss: Urteil, Spitze mit Beteiligten und Stundenbalken (aus dem Shadow-Zustand). */
+  function fuseOutlookHtml() {
+    var o = state.shadow && state.shadow.outlook;
+    if (!o) return '<p class="lbl">' + esc(S.fuseOutTitle) + '</p><p class="ems-why">' + esc(S.fuseOutNone) + '</p>';
+    var col = function (pct) { return pct >= 100 ? '#c0392b' : (pct >= 80 ? '#d98a1a' : '#2e9d5a'); };
+    var label = o.status === 'over' ? S.fuseOutOver : (o.status === 'tight' ? S.fuseOutTight : S.fuseOutOk);
+    var parts = [S.fuseOutHouse + ' ' + o.peak.baseKw.toFixed(1)].concat((o.peak.parts || []).map(function (p) { return p.name + ' ' + p.kw.toFixed(1); }));
+    var bars = (o.hours || []).map(function (h) {
+      return '<i title="' + esc(h.time + ': ' + h.kw.toFixed(1) + ' kW' + (h.parts.length ? ' (' + h.parts.join(', ') + ')' : '')) + '" style="flex:1 1 0;min-width:0;border-radius:1px;height:' + Math.max(2, Math.min(100, h.pct)).toFixed(0) + '%;background:' + col(h.pct) + '"></i>';
+    }).join('');
+    var first = (o.hours && o.hours[0] ? o.hours[0].time : '');
+    var last = (o.hours && o.hours.length ? o.hours[o.hours.length - 1].time : '');
+    return '<p class="lbl">' + esc(S.fuseOutTitle) + '</p>'
+      + '<p class="ems-why"><b style="color:' + (o.status === 'over' ? '#c0392b' : (o.status === 'tight' ? '#d98a1a' : '#2e9d5a')) + '">' + esc(label) + '</b> - ' + esc(S.fuseOutPeak.replace('{kw}', o.peak.kw.toFixed(1)).replace('{time}', o.peak.time).replace('{pct}', o.peak.pct).replace('{limit}', o.limitKw.toFixed(1))) + '</p>'
+      + '<p class="ems-why">' + esc(parts.join(' + ')) + ' kW</p>'
+      + '<div style="display:flex;align-items:flex-end;gap:1px;height:44px;margin:6px 0 2px">' + bars + '</div>'
+      + '<div style="display:flex;justify-content:space-between;font-size:11px;opacity:.7"><span>' + esc(first) + '</span><span>' + esc(last) + '</span></div>'
+      + '<p class="ems-why">' + esc(S.fuseOutWhy) + '</p>';
   }
   function fuseBody() {
     var f = fuseCfg();
@@ -1340,6 +1363,7 @@
         .map(function (x) { return '<option value="f:' + esc(x.id) + '">' + esc(S.fuseFlow + ': ' + x.name) + '</option>'; }).join('');
     var cur = state.shadow && state.shadow.fuse;
     return html
+      + fuseOutlookHtml()
       + '<div class="ems-row">' + field(S.fuseAmps, 'ems-fuse-amps', f.amps, 'number', ' step="1" min="6" max="250"') + field(S.fuseReserve, 'ems-fuse-pct', f.reservePct, 'number', ' step="1" min="50" max="100"') + '</div>'
       + '<p class="ems-why"><b>' + esc(S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A ' + S.fusePerPhase) + '</b></p>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.fuseMeter) + '</span><select id="ems-fuse-dev" data-ems-fusedev="1">' + deviceOptions(f.meterId, hasCap(/^measure_current/), S.fuseMeterGrid) + '</select></label></div>'

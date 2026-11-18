@@ -779,3 +779,23 @@ Ziel: nur die Werte lernen, die einen Plan besser machen, und zuerst messen, wel
 - **Fehlermass:** Summe der Abweichungen geteilt durch die Summe des Gemessenen (in %); Verzerrung = Summe (Prognose - gemessen) / Summe gemessen. Ein Urteil gibt es ab 5 Tagen, und eine Methode gilt erst als besser, wenn ihr Fehler um mindestens 10 % kleiner ist.
 - **LoadProfile:** speichert jetzt 14 statt 7 Tage (für den Vergleich Werktag/Wochenende). Der Durchschnitt `kwAt` und die Anzeige-Werte rechnen weiter nur über die letzten 7 Tage plus heute, das Verhalten des Planers ist unverändert. `kwAtRobust` wird nur mitgemessen, der Planer nutzt es nicht.
 - **Noch nicht gebaut:** Übernehmen der besseren Methode (Konfiguration, Umschalter im Planer), Wirkungsgrad und Leistung der Batterie einmalig messen. Erst entscheiden, wenn die Messung genug Tage hat.
+
+## Fahrplan: Netzladen nie über das Ziel (18.11.2026)
+
+Befund aus den Plan-Schnappschüssen der Nacht 17./18.11. (`ledgerPlans` im Shadow-Zustand, Fixture `test/fixtures/plan-snapshots-2026-11-18.json`):
+Die Ladung in den billigsten Viertelstunden (02:15 bis 04:45) füllte die Batterie über das Ziel. `planSchedule` hielt das für fehlende
+Energie und plante davor weitere, teurere Viertelstunden ein (bis 17.35 Rp.), der Plan wurde unmöglich (105 bis 142 % Ladestand) und das
+Streichen überflüssiger Ladung am Schluss blieb blockiert. Jetzt wird eine Viertelstunde, die über das Ziel füllen würde, nie gewählt.
+Nachgerechnet: statt 19.2 kWh zu 14.0 Rp. nun 11.3 kWh zu 13.0 Rp. in den billigsten Viertelstunden. Das Ladeziel liegt dadurch oft knapp
+unter dem eingestellten (z. B. 88 statt 90 %), weil nur so viel nachgeladen wird, wie die teure Zeit braucht.
+
+## Ausblick Hausanschluss (18.11.2026)
+
+`lib/ems/planner/gridOutlook.js` (rein) rechnet für die nächsten 24 Stunden den erwarteten Netzbezug je Viertelstunde:
+`max(0, gelernter Hausverbrauch + geplante Lasten - PV-Prognose)`. Geplant ist nur, was einen Plan hat: Batterie-Fahrplan dieses EMS,
+E-Auto (Ladeleistung der Wallbox) und Aufträge (Leistung des Verbrauchers, ohne Angabe 2 kW). Verbraucher nach Überschuss laufen von
+der Sonne und zählen nicht. Grenze = 3 Phasen x Grenzstrom x 230 V; ab 80 % «knapp», ab 100 % «über der Grenze».
+Annahme: gleichmässig auf die drei Phasen verteilt, ein einphasiges Gerät auf der falschen Phase kann die Grenze früher erreichen.
+Anzeige: Widget «Hausanschluss» (Urteil, Spitze mit Beteiligten, Stundenbalken) und Einrichten > EMS > Hausanschluss-Schutz.
+
+Offen (To-do): Programmstart nur bei genug freier Reserve auf jeder Phase; erst entscheiden, wenn die Messung zeigt, wie oft der Schutz eingriff.

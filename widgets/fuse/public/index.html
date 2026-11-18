@@ -43,6 +43,15 @@
     .chip.bad { background: var(--fw-bad); color: #fff; }
     .chip.test { background: var(--fw-test-bg); color: var(--fw-test); }
     .peak { margin-right: auto; }
+    .out { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--fw-chip); }
+    .out .oh { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fw-muted); }
+    .out .oh b { color: var(--fw-text); font-size: 11.5px; }
+    .chip.warn { background: var(--fw-warn); color: #fff; }
+    .chip.good { background: var(--fw-ok); color: #fff; }
+    .out .ot { margin-top: 3px; font-size: 11px; color: var(--fw-text); }
+    .out .op { margin-top: 1px; font-size: 10.5px; color: var(--fw-muted); }
+    .hrs { display: flex; align-items: flex-end; gap: 1px; height: 26px; margin-top: 6px; }
+    .hrs i { flex: 1 1 0; min-width: 0; border-radius: 1px; }
     .msg { text-align: center; color: var(--fw-muted); font-size: 12px; padding: 16px 6px; line-height: 1.4; }
     .msg.err { color: var(--fw-bad); }
   </style>
@@ -64,6 +73,20 @@
     function pctOf(a, limit) { return typeof a === 'number' && limit > 0 ? Math.min(100, Math.max(0, a / limit * 100)) : 0; }
     function fit() {
       try { if (HomeyRef) HomeyRef.setHeight(Math.min(300, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
+    }
+
+    function outColor(pct) { return pct >= 100 ? 'var(--fw-bad)' : (pct >= 80 ? 'var(--fw-warn)' : 'var(--fw-ok)'); }
+    function outlookHtml(Homey, o) {
+      var cls = o.status === 'over' ? 'bad' : (o.status === 'tight' ? 'warn' : 'good');
+      var label = Homey.__(o.status === 'over' ? 'fuseWidget.outlookOver' : (o.status === 'tight' ? 'fuseWidget.outlookTight' : 'fuseWidget.outlookOk'));
+      var parts = [Homey.__('fuseWidget.outlookHouse') + ' ' + f1(o.peak.baseKw)].concat((o.peak.parts || []).map(function (p) { return p.name + ' ' + f1(p.kw); }));
+      var bars = (o.hours || []).map(function (h) {
+        return '<i title="' + esc(h.time + ': ' + f1(h.kw) + ' kW') + '" style="height:' + Math.max(2, Math.min(100, h.pct)).toFixed(0) + '%;background:' + outColor(h.pct) + '"></i>';
+      }).join('');
+      return '<div class="out"><div class="oh"><b>' + esc(Homey.__('fuseWidget.outlook')) + '</b><span class="chip ' + cls + '">' + esc(label) + '</span></div>'
+        + '<div class="ot">' + esc(Homey.__('fuseWidget.outlookPeak').replace('{kw}', f1(o.peak.kw)).replace('{pct}', o.peak.pct).replace('{time}', o.peak.time)) + '</div>'
+        + '<div class="op">' + esc(parts.join(' + ')) + ' kW</div>'
+        + '<div class="hrs">' + bars + '</div></div>';
     }
 
     function render(Homey, d) {
@@ -96,6 +119,7 @@
       if (d.shed && d.shed.length) foot.push('<span class="chip bad">' + esc(Homey.__('fuseWidget.shed')) + ' ' + esc(d.shed.join(', ')) + '</span>');
       if (!d.live) foot.push('<span class="chip test">' + esc(Homey.__('fuseWidget.test')) + '</span>');
       if (foot.length) html += '<div class="foot">' + foot.join('') + '</div>';
+      if (d.outlook) html += outlookHtml(Homey, d.outlook);
       root.innerHTML = html;
       fit();
     }
