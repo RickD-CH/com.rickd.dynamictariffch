@@ -96,7 +96,7 @@
       prioRow: 'Priorität (Reihenfolge bei Überschuss)', prioUp: 'nach oben', prioDown: 'nach unten', prioTag: 'Priorität {n}', prioWhy: 'Bei «Bei Überschuss»: Der Verbraucher weiter oben startet zuerst und geht zuletzt aus. Es startet immer nur einer pro Messung, damit der Überschuss nicht doppelt verplant wird. Die Reihenfolge wird mit «Speichern» übernommen.', suggestedTag: 'Vorschlag', suggest: 'Automatisch vorschlagen', suggested: 'Vorschläge eingetragen:', nothingSuggested: 'Nichts Passendes gefunden',
       tagRequired: 'Pflicht', tagRecommended: 'Empfohlen', tagOptional: 'Optional', tagAuto: 'Automatisch',
       notChosen: 'nicht gewählt', device: 'Gerät', value: 'Wert', pick: '- Gerät wählen -', none: '- keines -', pickFirst: '- zuerst Gerät wählen -',
-      fuseOutTitle: 'AUSBLICK 24 STUNDEN', fuseOutWhy: 'Erwarteter Netzbezug, wenn alles Geplante gleichzeitig läuft: gelernter Hausverbrauch plus Batterie-Fahrplan, E-Auto und geplante Aufträge, abzüglich Sonne. Verbraucher nach Überschuss laufen von der Sonne und sind nicht eingerechnet. Annahme: gleichmässig auf die drei Phasen verteilt; ein einphasiges Gerät auf der falschen Phase kann die Grenze früher erreichen.', fuseOutPeak: 'Spitze {kw} kW um {time}: {pct} % der Grenze ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'knapp', fuseOutOver: 'über der Grenze', fuseOutHouse: 'Haus', fuseOutNone: 'Noch kein Verbrauchsprofil: der Ausblick erscheint, sobald die App den Hausverbrauch gelernt hat.',
+      fuseOutTitle: 'AUSBLICK 24 STUNDEN', fuseOutTabTitle: 'HAUSANSCHLUSS: AUSBLICK 24 STUNDEN', fuseOutWhy: 'Erwarteter Netzbezug, wenn alles Geplante gleichzeitig läuft: gelernter Hausverbrauch plus Batterie-Fahrplan, E-Auto und geplante Aufträge, abzüglich Sonne. Verbraucher nach Überschuss laufen von der Sonne und sind nicht eingerechnet. Annahme: gleichmässig auf die drei Phasen verteilt; ein einphasiges Gerät auf der falschen Phase kann die Grenze früher erreichen.', fuseOutPeak: 'Spitze {kw} kW um {time}: {pct} % der Grenze ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'knapp', fuseOutOver: 'über der Grenze', fuseOutHouse: 'Haus', fuseOutNone: 'Noch kein Verbrauchsprofil: der Ausblick erscheint, sobald die App den Hausverbrauch gelernt hat.',
       fuseTitle: 'HAUSANSCHLUSS', fuseRow: 'Hausanschluss-Schutz', fuseOff: 'aus', fuseOn: 'Hausanschluss schützen',
       fuseWhy: 'Hält jede Phase unter der Grenze der Hausanschluss-Sicherung: zuerst wird die Wallbox gedrosselt, reicht das nicht, werden die Geräte unten der Reihe nach ausgeschaltet.',
       fuseAmps: 'Sicherung (A)', fuseReserve: 'Reserve (% der Sicherung)', fuseLimitLbl: 'Grenze', fusePerPhase: 'pro Phase', fuseMeter: 'Zähler mit Phasenströmen', fuseMeterGrid: 'wie Netzzähler', fusePhase: 'Phase',
@@ -309,7 +309,7 @@
       prioRow: 'Priority (order for surplus)', prioUp: 'up', prioDown: 'down', prioTag: 'Priority {n}', prioWhy: 'For "On surplus": the device higher up starts first and switches off last. Only one starts per measurement so the surplus is not planned twice. The order is applied with "Save".', suggestedTag: 'Suggested', suggest: 'Suggest automatically', suggested: 'Suggestions filled in:', nothingSuggested: 'Nothing suitable found',
       tagRequired: 'Required', tagRecommended: 'Recommended', tagOptional: 'Optional', tagAuto: 'Automatic',
       notChosen: 'not chosen', device: 'Device', value: 'Value', pick: '- choose device -', none: '- none -', pickFirst: '- choose a device first -',
-      fuseOutTitle: 'OUTLOOK 24 HOURS', fuseOutWhy: 'Expected grid draw if everything planned runs at the same time: learned house consumption plus battery schedule, EV and planned jobs, minus solar. Consumers that follow the surplus run on the sun and are not included. Assumption: spread evenly over the three phases; a single-phase device on the wrong phase can reach the limit earlier.', fuseOutPeak: 'Peak {kw} kW at {time}: {pct} % of the limit ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'tight', fuseOutOver: 'over the limit', fuseOutHouse: 'House', fuseOutNone: 'No consumption profile yet: the outlook appears once the app has learned the house consumption.',
+      fuseOutTitle: 'OUTLOOK 24 HOURS', fuseOutTabTitle: 'HOUSE CONNECTION: OUTLOOK 24 HOURS', fuseOutWhy: 'Expected grid draw if everything planned runs at the same time: learned house consumption plus battery schedule, EV and planned jobs, minus solar. Consumers that follow the surplus run on the sun and are not included. Assumption: spread evenly over the three phases; a single-phase device on the wrong phase can reach the limit earlier.', fuseOutPeak: 'Peak {kw} kW at {time}: {pct} % of the limit ({limit} kW)', fuseOutOk: 'ok', fuseOutTight: 'tight', fuseOutOver: 'over the limit', fuseOutHouse: 'House', fuseOutNone: 'No consumption profile yet: the outlook appears once the app has learned the house consumption.',
       fuseTitle: 'HOUSE CONNECTION', fuseRow: 'Main fuse protection', fuseOff: 'off', fuseOn: 'Protect the main fuse',
       fuseWhy: 'Keeps every phase below the limit of the main fuse: first the EV charger is throttled; if that is not enough, the devices below are switched off one after the other.',
       fuseAmps: 'Main fuse (A)', fuseReserve: 'Reserve (% of the fuse)', fuseLimitLbl: 'Limit', fusePerPhase: 'per phase', fuseMeter: 'Meter with phase currents', fuseMeterGrid: 'same as grid meter', fusePhase: 'Phase',
@@ -1326,9 +1326,15 @@
     return { text: S.fuseLimitLbl + ' ' + fuseLimit(f) + ' A - ' + (f.shed.length ? f.shed.map(shedName).join(', ') : S.fuseShedNone) + olTxt, cls: ol && ol.status !== 'ok' ? 'warn' : 'ok' };
   }
   /** Ausblick Hausanschluss: Urteil, Spitze mit Beteiligten und Stundenbalken (aus dem Shadow-Zustand). */
-  function fuseOutlookHtml() {
+  function fuseOutlookHtml() { return '<p class="lbl">' + esc(S.fuseOutTitle) + '</p>' + fuseOutlookBodyHtml(); }
+  /** Gleiche Anzeige als Karte im Reiter «Ausblick», vor der Vorschau für Aufträge. */
+  function outlookCardHtml() {
+    if (!state.shadow || !state.shadow.deviceExists) return '';
+    return '<p class="lbl">' + esc(S.fuseOutTabTitle) + '</p><div class="card">' + fuseOutlookBodyHtml() + '</div>';
+  }
+  function fuseOutlookBodyHtml() {
     var o = state.shadow && state.shadow.outlook;
-    if (!o) return '<p class="lbl">' + esc(S.fuseOutTitle) + '</p><p class="ems-why">' + esc(S.fuseOutNone) + '</p>';
+    if (!o) return '<p class="ems-why">' + esc(S.fuseOutNone) + '</p>';
     var col = function (pct) { return pct >= 100 ? '#c0392b' : (pct >= 80 ? '#d98a1a' : '#2e9d5a'); };
     var label = o.status === 'over' ? S.fuseOutOver : (o.status === 'tight' ? S.fuseOutTight : S.fuseOutOk);
     var parts = [S.fuseOutHouse + ' ' + o.peak.baseKw.toFixed(1)].concat((o.peak.parts || []).map(function (p) { return p.name + ' ' + p.kw.toFixed(1); }));
@@ -1337,7 +1343,7 @@
     }).join('');
     var first = (o.hours && o.hours[0] ? o.hours[0].time : '');
     var last = (o.hours && o.hours.length ? o.hours[o.hours.length - 1].time : '');
-    return '<p class="lbl">' + esc(S.fuseOutTitle) + '</p>'
+    return ''
       + '<p class="ems-why"><b style="color:' + (o.status === 'over' ? '#c0392b' : (o.status === 'tight' ? '#d98a1a' : '#2e9d5a')) + '">' + esc(label) + '</b> - ' + esc(S.fuseOutPeak.replace('{kw}', o.peak.kw.toFixed(1)).replace('{time}', o.peak.time).replace('{pct}', o.peak.pct).replace('{limit}', o.limitKw.toFixed(1))) + '</p>'
       + '<p class="ems-why">' + esc(parts.join(' + ')) + ' kW</p>'
       + '<div style="display:flex;align-items:flex-end;gap:1px;height:44px;margin:6px 0 2px">' + bars + '</div>'
@@ -2564,14 +2570,15 @@
   function previewFormHtml() {
     var d = state.draft;
     var targets = draftTargets();
-    if (!targets.length) return '';
+    var ol = outlookCardHtml();
+    if (!targets.length) return ol;
     var cur = targets.filter(function (t) { return t.id === d.target; })[0] || targets[0];
     var isCharger = cur.kind === 'charger';
     var opts = targets.map(function (t) { return '<option value="' + esc(t.id) + '"' + (t.id === cur.id ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join('');
     var f = function (label, key, type, extra) {
       return '<label class="ems-f"><span>' + esc(label) + '</span><input type="' + type + '" data-ems-draft="' + key + '" value="' + esc(d[key]) + '"' + (extra || '') + '></label>';
     };
-    return jobsListHtml() + '<p class="lbl">' + esc(S.pvTitle) + '</p><div class="card" id="ems-preview-form"><p class="ems-why" style="margin-top:0">' + esc(S.pvIntro) + '</p>'
+    return jobsListHtml() + ol + '<p class="lbl">' + esc(S.pvTitle) + '</p><div class="card" id="ems-preview-form"><p class="ems-why" style="margin-top:0">' + esc(S.pvIntro) + '</p>'
       + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.pvDevice) + '</span><select data-ems-draft="target">' + opts + '</select></label></div>'
       + (isCharger && state.cfg.car && state.cfg.car.deviceId ? '<p class="ems-why" style="margin:0">' + esc(S.carNow) + ': ' + (carSocNow() === null ? '-' : Math.round(carSocNow()) + ' %') + '</p>' : '')
       + '<div class="ems-row">' + f(S.pvUntil, 'time', 'time') + (isCharger && state.cfg.car && state.cfg.car.deviceId ? f(S.pvTargetSoc, 'targetSoc', 'number', ' step="1" min="1" max="100"') : '') + f(isCharger ? S.pvKwh : S.pvHours, 'amount', 'number', ' step="' + (isCharger ? '1' : '0.25') + '" min="0"') + '</div>'

@@ -603,3 +603,25 @@ test('Setup: Ausblick ohne Verbrauchsprofil sagt, woran es fehlt', async () => {
   click(env, 'ems-view-devices', { 'data-ems-open': 'fuse' });
   assert.match(setup(env), /Noch kein Verbrauchsprofil/);
 });
+
+test('Ausblick-Reiter: Hausanschluss-Ausblick steht vor der Vorschau «Auftrag planen» (nach der Auftragsliste)', async () => {
+  const { buildPlan } = require('../lib/ems/PlanView');
+  const { startOfLocalDay } = require('../lib/time');
+  const NOW = Date.UTC(2026, 10, 18, 19, 0);
+  const d0 = startOfLocalDay(new Date(NOW), 'Europe/Zurich').getTime();
+  const priceSlots = [];
+  for (let i = 0; i < 96; i += 1) priceSlots.push({ start: d0 + i * 900000, end: d0 + (i + 1) * 900000, price: 20 + (i % 7) });
+  const plan = buildPlan({
+    nowMs: NOW, tz: 'Europe/Zurich', priceSlots, pvSlots: null, batteryPlan: null, reserveHours: 0, log: [], chargerEnabled: true, consumers: [{ id: 'dry', name: 'Entfeuchter' }], hasBattery: false, jobs: [],
+  });
+  const sc = scenario({ cfg: fullCfg, meters: fullMeters, shadow: { outlook: outlookShadow } });
+  sc['GET /ems/plan'] = { ...plan, active: true };
+  const env = await start(sc);
+  const html = env.els.get('ems-view-plan').innerHTML;
+  const iOut = html.indexOf('HAUSANSCHLUSS: AUSBLICK 24 STUNDEN');
+  const iPrev = html.indexOf('VORSCHAU: AUFTRAG PLANEN');
+  assert.ok(iOut > 0, 'Ausblick vorhanden');
+  assert.ok(iPrev > iOut, 'Vorschau kommt danach');
+  assert.ok(html.indexOf('ems-plan') < iOut, 'nach dem Plan');
+  assert.match(html.slice(iOut, iPrev), /knapp<\/b> - Spitze 19\.1 kW um 23:15/);
+});
