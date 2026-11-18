@@ -799,3 +799,18 @@ Annahme: gleichmässig auf die drei Phasen verteilt, ein einphasiges Gerät auf 
 Anzeige: Widget «Hausanschluss» (Urteil, Spitze mit Beteiligten, Stundenbalken) und Einrichten > EMS > Hausanschluss-Schutz.
 
 Offen (To-do): Programmstart nur bei genug freier Reserve auf jeder Phase; erst entscheiden, wenn die Messung zeigt, wie oft der Schutz eingriff.
+
+## Puffer der Batterie-Planung (18.11.2026)
+
+Der Fahrplan lädt nur so viel nach, wie die Prognose für die teure Zeit braucht. Damit ein höherer Verbrauch als gelernt nicht zu teurem
+Netzstrom führt, hält er zusätzlich einen Puffer in Reserve: für die Planung liegt die Untergrenze um den Puffer höher
+(`floorSoc + bufferPct`, nur in `decideBySchedule`; die echte Untergrenze der Batterie bleibt). Unterschätzt man den Verbrauch, kostet es
+etwa 30 bis 40 Rp./kWh, überschätzt man ihn, nur etwa 6 Rp./kWh (die Ladung wird am nächsten Tag genutzt).
+
+- **Automatik** (Standard, `battery.bufferMode: 'auto'`): aus der Plan-Genauigkeit. `PlanAccuracy.bufferEstimate`: in den Fenstern Morgen und Abend
+  das 75. Perzentil der Unterschätzung des Verbrauchs (gemessen minus prognostiziert, in kWh, nie negativ), das grössere der beiden, in %
+  der Kapazität aufgerundet, höchstens 15 %. Erst ab 5 Tagen Messung, vorher gilt `battery.bufferPct` (Standard 3 %).
+- **Fester Wert** (`bufferMode: 'fixed'`): `bufferPct` zwischen 0 und 15 %.
+- Anzeige: Einrichten > Hausbatterie > Fahrplan, «Puffer». Bei Automatik steht der aktuelle Wert in der Auswahl («Automatik (aktuell 4 %)») und
+  darunter, woraus er sich ergibt. Der Zustand kommt als `buffer` im Shadow-Zustand (`EmsRunner.bufferInfo`).
+- Gilt nur im Modus «automatisch (Fahrplan)». Der Puffer fängt nur zu hohen Verbrauch ab, nicht zu wenig Sonne.

@@ -127,3 +127,29 @@ test('Plan-Genauigkeit: übersteht einen Neustart (gespeichert) und kann gelösc
   again.reset();
   assert.equal(again.view(at(16, 8)).load.windows.find((w) => w.key === 'm').days, 0);
 });
+
+test('Puffer-Schätzung: 75. Perzentil der Unterschätzung des Verbrauchs (grösseres von Morgen/Abend), in % der Kapazität aufgerundet', () => {
+  const lp = profile({ '2026-11-10': () => 800 });
+  const pa = new PlanAccuracy(mem(), TZ);
+  // Prognose 800 W, gemessen an den Abenden 800 W + 0 / 200 / 400 / 600 / 800 W: Unterschätzung 0, 1, 2, 3, 4 kWh... je 5 h
+  const extra = { 11: 0, 12: 200, 13: 400, 14: 600, 15: 800, 16: 1000 };
+  for (const d of [11, 12, 13, 14, 15, 16]) playDay(pa, lp, d, { house: (h) => (h >= 17 && h < 22 ? 800 + extra[d] : 800) });
+  const e = pa.bufferEstimate(at(17, 8), 13.8);
+  assert.equal(e.basis, 'e');
+  assert.equal(e.days, 6);
+  assert.ok(e.kwh > 2.5 && e.kwh < 4.3, `75. Perzentil: 4. von 6 Tagen = ca. 3 kWh, war ${e.kwh}`);
+  assert.equal(e.pct, Math.min(15, Math.ceil((e.kwh / 13.8) * 100 - 1e-9)), "Standard-Obergrenze 15 %");
+  assert.equal(pa.bufferEstimate(at(17, 8), 40).pct, Math.ceil((e.kwh / 40) * 100 - 1e-9), "grosse Batterie: Prozent kleiner, nicht gedeckelt");
+  assert.equal(pa.bufferEstimate(at(17, 8), 13.8, 10).pct, 10, 'Obergrenze');
+  assert.equal(pa.bufferEstimate(at(17, 8), 0), null, 'ohne Kapazität nichts');
+});
+
+test('Puffer-Schätzung: zu wenig Tage = keine Schätzung; Überschätzung zählt als Puffer 0', () => {
+  const lp = profile({ '2026-11-10': () => 800 });
+  const few = new PlanAccuracy(mem(), TZ);
+  for (const d of [11, 12, 13]) playDay(few, lp, d);
+  assert.equal(few.bufferEstimate(at(17, 8), 13.8), null);
+  const low = new PlanAccuracy(mem(), TZ);
+  for (const d of [11, 12, 13, 14, 15, 16]) playDay(low, lp, d, { house: () => 300 }); // Haus braucht weniger als erwartet
+  assert.equal(low.bufferEstimate(at(17, 8), 13.8).pct, 0);
+});

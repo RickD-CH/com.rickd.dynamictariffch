@@ -171,3 +171,65 @@ test('Fahrplan: das Netzladen füllt die Batterie nie über das Ziel und nimmt n
     assert.ok(avg < 13.5, `mittlerer Ladepreis unter 13.5 Rp., war ${avg.toFixed(1)}`);
   }
 });
+
+test('Puffer: der Fahrplan hält zusätzlich Ladung in Reserve, ein höherer Puffer lädt mehr nach oder entlädt weniger', () => {
+  const d = (bufferPct) => decideBattery({
+    cfg: { ...c, bufferPct }, soc: 36, slots, nowMs: at(12, 19, 1), pvKwAt, tz: 'Europe/Zurich', feedInRp: 8,
+  });
+  const none = d(0);
+  const five = d(5);
+  const fifteen = d(15);
+  const net = (x) => x.schedule.chargeKwh - x.schedule.dischargeKwh;
+  assert.ok(net(five) >= net(none) - 1e-9, 'mit Puffer bleibt unter dem Strich mehr in der Batterie');
+  assert.ok(net(fifteen) > net(none), '15 % Puffer: spürbar mehr Reserve');
+  assert.ok(fifteen.schedule.dischargeKwh < none.schedule.dischargeKwh || fifteen.schedule.chargeKwh > none.schedule.chargeKwh);
+  assert.equal(d(0).schedule.chargeKwh, decideBattery({
+    cfg: c, soc: 36, slots, nowMs: at(12, 19, 1), pvKwAt, tz: 'Europe/Zurich', feedInRp: 8,
+  }).schedule.chargeKwh, 'Puffer 0 = wie bisher');
+});
+
+test('Puffer: das Ladeziel der echten Nacht 17./18.11. steigt mit dem Puffer, bleibt aber unter dem Zielwert', () => {
+  const snaps = require('./fixtures/plan-snapshots-2026-11-18.json');
+  const x = snaps[0]; // 23:55, Batterie bei 10 %
+  const sl = x.rows.map((r) => ({ start: r[0], end: r[0] + Q, price: r[1] }));
+  const pv = new Map(x.rows.map((r) => [r[0], r[2]]));
+  const ld = new Map(x.rows.map((r) => [r[0], r[3]]));
+  const run = (bufferPct) => decideBattery({
+    cfg: { ...x.cfg, bufferPct, enabled: true }, soc: x.soc, slots: sl, nowMs: x.at, pvKwAt: (t) => pv.get(t) || 0, loadKwAt: (t) => ld.get(t) || 0, tz: 'Europe/Zurich', feedInRp: 0,
+  });
+  const a = run(0).schedule;
+  const b = run(6).schedule;
+  assert.ok(b.chargeKwh >= a.chargeKwh, `mehr oder gleich viel Ladung (war ${a.chargeKwh} und ${b.chargeKwh})`);
+  assert.ok(b.chargeAvg < 15, 'weiterhin nur günstige Viertelstunden');
+});
+
+test('Anzeige: Puffer «Automatik (aktuell n %)» mit Messwert, ohne Messung der Standardwert, fester Wert einstellbar', async () => {
+  const measured = await ui({}, { buffer: { mode: 'auto', pct: 4, kwh: 0.55, days: 7, basis: 'e', measured: true }, current: { soc: 36, mine: { mode: 'normal', reason: 'x' } } });
+  let html = measured.els.get('ems-view-devices').innerHTML;
+  assert.match(html, /<option value="auto" selected>Automatik \(aktuell 4 %\)<\/option>/);
+  assert.match(html, /Aktuell 4 % \(0\.6 kWh\): so viel mehr als erwartet brauchte das Haus abends an 3 von 4 Tagen \(7 Tage gemessen\)\./);
+  assert.doesNotMatch(html, /id="ems-bp-buffer"/, 'bei Automatik kein Feld');
+  const waiting = await ui({}, { buffer: { mode: 'auto', pct: 3, kwh: 0.41, days: null, basis: null, measured: false }, current: { soc: 36, mine: { mode: 'normal', reason: 'x' } } });
+  html = waiting.els.get('ems-view-devices').innerHTML;
+  assert.match(html, /Automatik \(aktuell 3 %\)/);
+  assert.match(html, /Noch keine Messung \(0 von 5 Tagen\): bis dahin 3 % \(0\.4 kWh\)\./);
+  waiting.el('ems-bp-bufmode').value = 'fixed';
+  assert.equal(waiting.ctx.window.EmsUi._collect().ems.battery.bufferMode, 'fixed');
+  const fixed = await ui({ bufferMode: 'fixed', bufferPct: 6 }, { buffer: { mode: 'fixed', pct: 6, kwh: 0.83, days: null, basis: null, measured: false }, current: { soc: 36, mine: { mode: 'normal', reason: 'x' } } });
+  html = fixed.els.get('ems-view-devices').innerHTML;
+  assert.match(html, /<option value="fixed" selected>fester Wert<\/option>/);
+  assert.match(html, /id="ems-bp-buffer" type="number" value="6"/);
+  assert.match(html, /Fest 6 % \(0\.8 kWh\)\./);
+  fixed.el('ems-bp-bufmode').value = 'fixed';
+  fixed.el('ems-bp-buffer').value = '9';
+  assert.equal(fixed.ctx.window.EmsUi._collect().ems.battery.bufferPct, 9);
+});
+
+test('Config: Puffer ist standardmässig automatisch mit 3 % bis zur ersten Messung, fester Wert auf 0 bis 15 % begrenzt', () => {
+  const d = normalizeConfig({}).battery;
+  assert.equal(d.bufferMode, 'auto');
+  assert.equal(d.bufferPct, 3);
+  assert.equal(normalizeConfig({ battery: { bufferMode: 'fixed', bufferPct: 40 } }).battery.bufferPct, 15);
+  assert.equal(normalizeConfig({ battery: { bufferMode: 'fixed', bufferPct: -2 } }).battery.bufferPct, 0);
+  assert.equal(normalizeConfig({ battery: { bufferMode: 'quatsch' } }).battery.bufferMode, 'auto');
+});

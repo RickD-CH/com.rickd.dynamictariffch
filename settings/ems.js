@@ -45,6 +45,7 @@
       ldMine: 'Dieses EMS', ldOther: 'Anderes EMS', ldOtherMeter: 'Anderes EMS (Zähler)', ldNone: 'Ohne Batterie', ldDiff: 'Differenz', ldToday: 'heute bisher', ldTotal: 'Summe', ldNone2: 'Noch keine Daten, die Auswertung startet mit dem nächsten Batterie-Lauf.',
       bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
+      bufLabel: 'Puffer', bufAuto: 'Automatik', bufAutoNow: 'Automatik (aktuell {pct} %)', bufFixed: 'fester Wert (%)', bufFixedNow: 'fester Wert', bufHint: 'Der Fahrplan hält so viel Ladung zusätzlich in Reserve, falls das Haus mehr braucht als erwartet. Mehr Puffer = sicherer, aber etwas mehr Netzladen.', bufInfoAuto: 'Aktuell {pct} % ({kwh} kWh): so viel mehr als erwartet brauchte das Haus {where} an 3 von 4 Tagen ({days} Tage gemessen).', bufInfoWait: 'Noch keine Messung ({days} von {needed} Tagen): bis dahin {pct} % ({kwh} kWh).', bufInfoFixed: 'Fest {pct} % ({kwh} kWh).', bufEvening: 'abends', bufMorning: 'morgens',
       bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadSchedule: 'Hausverbrauch', bpDay1: '1 Tag', bpDays: '{n} Tage', bpEvening: 'abends {kw} kW', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
       backupTitle: 'Notstrom-Reserve', backupSoc: 'Reserve (%)',
       backupHint: 'Hält mindestens diesen Ladestand, lädt dafür notfalls aus dem Netz nach - egal zu welchem Preis. Ein- oder ausschalten über den Schalter bei «Heute» oder per Flow, nie automatisch.',
@@ -257,6 +258,7 @@
       ldMine: 'This EMS', ldOther: 'Other EMS', ldOtherMeter: 'Other EMS (meter)', ldNone: 'Without battery', ldDiff: 'Difference', ldToday: 'today so far', ldTotal: 'Total', ldNone2: 'No data yet, the evaluation starts with the next battery run.',
       bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
+      bufLabel: 'Buffer', bufAuto: 'Automatic', bufAutoNow: 'Automatic (now {pct} %)', bufFixed: 'fixed value (%)', bufFixedNow: 'fixed value', bufHint: 'The schedule keeps this much charge in reserve in case the house uses more than expected. More buffer = safer, but slightly more grid charging.', bufInfoAuto: 'Now {pct} % ({kwh} kWh): this much more than expected is what the house used {where} on 3 out of 4 days ({days} days measured).', bufInfoWait: 'No measurement yet ({days} of {needed} days): until then {pct} % ({kwh} kWh).', bufInfoFixed: 'Fixed {pct} % ({kwh} kWh).', bufEvening: 'in the evening', bufMorning: 'in the morning',
       bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadSchedule: 'House consumption', bpDay1: '1 day', bpDays: '{n} days', bpEvening: 'evening {kw} kW', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
       backupTitle: 'Backup reserve', backupSoc: 'Reserve (%)',
       backupHint: 'Keeps at least this charge level, charging from the grid if needed - regardless of price. Turn on or off with the switch under "Today" or with a Flow, never automatically.',
@@ -712,6 +714,24 @@
   }
 
   /** Batterie-Planer: wie die Batterie über den Tag eingesetzt wird (gilt für Plan, Simulation und Steuerung). */
+  /** Puffer der Planung: Automatik (zeigt den aktuellen Wert) oder fester Wert. Messwert aus dem Shadow-Zustand (`buffer`). */
+  function bufferHtml(b) {
+    var buf = state.shadow && state.shadow.buffer;
+    var auto = b.bufferMode !== 'fixed';
+    var fixedPct = b.bufferPct !== undefined ? b.bufferPct : 3;
+    var capKwh = buf && buf.pct > 0 ? buf.kwh / buf.pct * 100 : (b.capacityKwh || 0);
+    var kwhOf = function (pct) { return (pct / 100 * capKwh).toFixed(1); };
+    var shownPct = auto && buf && buf.mode === 'auto' ? buf.pct : fixedPct;
+    var info;
+    if (!auto) info = fill(S.bufInfoFixed, { pct: fixedPct, kwh: kwhOf(fixedPct) });
+    else if (buf && buf.mode === 'auto' && buf.measured) info = fill(S.bufInfoAuto, { pct: buf.pct, kwh: buf.kwh.toFixed(1), where: buf.basis === 'm' ? S.bufMorning : S.bufEvening, days: buf.days });
+    else info = fill(S.bufInfoWait, { pct: fixedPct, kwh: kwhOf(fixedPct), days: 0, needed: 5 });
+    return '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.bufLabel) + '</span><select id="ems-bp-bufmode" data-ems-bpbufmode="1">'
+      + '<option value="auto"' + (auto ? ' selected' : '') + '>' + esc(fill(S.bufAutoNow, { pct: shownPct })) + '</option>'
+      + '<option value="fixed"' + (auto ? '' : ' selected') + '>' + esc(S.bufFixedNow) + '</option></select></label>'
+      + (auto ? '' : field(S.bufFixed, 'ems-bp-buffer', fixedPct, 'number', ' step="1" min="0" max="15"')) + '</div>'
+      + '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(info) + '</b></p><p class="ems-why">' + esc(S.bufHint) + '</p>';
+  }
   function batteryPlanHtml() {
     var b = state.cfg.battery;
     var fixedMode = b.reserveMode === 'fixed';
@@ -738,6 +758,7 @@
           + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
           + (info ? '<p class="ems-why">' + esc(info) + '</p>' : '')
           + (fixedMode ? '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>' : '')
+          + (fixedMode ? '' : bufferHtml(b))
           + (preview ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(preview) + '</b></p>' : '');
       }()) + '</div>' + backupReserveHtml(b);
   }
@@ -2787,6 +2808,8 @@
         if ($('ems-bp-loadmode')) bb.bridgeLoadMode = String($('ems-bp-loadmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
         if (bb.bridgeLoadMode === 'fixed' && $('ems-bp-load')) bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
         bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
+        if ($('ems-bp-bufmode')) bb.bufferMode = String($('ems-bp-bufmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
+        if (bb.bufferMode === 'fixed' && $('ems-bp-buffer')) bb.bufferPct = num('ems-bp-buffer', bb.bufferPct);
         if ($('ems-bp-backupsoc')) bb.backupReserve = Object.assign({ active: false, soc: 50 }, bb.backupReserve, { soc: num('ems-bp-backupsoc', (bb.backupReserve || {}).soc) });
       }
       if (s.key === 'bat' && state.open['src-bat'] && $('ems-bc-on')) {
@@ -2887,7 +2910,7 @@
     var ems = {
       devices: { meter: c.devices.meter, house: c.devices.house, inverter: c.devices.inverter, compareEms: c.devices.compareEms },
       battery: {
-        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', reserveMode: c.battery.reserveMode === 'fixed' ? 'fixed' : 'auto', floorSoc: c.battery.floorSoc,
+        deviceId: c.battery.deviceId, socCapability: c.battery.socCapability, targetSoc: c.battery.targetSoc, reserveHours: c.battery.reserveHours, solarLimitKwh: c.battery.solarLimitKwh, chargePowerKw: c.battery.chargePowerKw, bridge: c.battery.bridge !== false, bridgeLoadKw: c.battery.bridgeLoadKw, bridgeLoadMode: c.battery.bridgeLoadMode || 'auto', reserveMode: c.battery.reserveMode === 'fixed' ? 'fixed' : 'auto', floorSoc: c.battery.floorSoc, bufferMode: c.battery.bufferMode === 'fixed' ? 'fixed' : 'auto', bufferPct: c.battery.bufferPct !== undefined ? c.battery.bufferPct : 3,
         backupReserve: { soc: c.battery.backupReserve ? c.battery.backupReserve.soc : 50 }, // active geht nur über «Heute» oder einen Flow, nie über diesen Speichern-Knopf
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), preset: (c.battery.control && c.battery.control.preset) || '', normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10, custom: c.battery.control && c.battery.control.custom ? c.battery.control.custom : undefined },
       },
@@ -3293,7 +3316,7 @@
       return;
     }
     if (t.id && /accuEnable$/.test(t.id)) { sync(); renderSetup(); return; }
-    if (g('data-ems-bploadmode') !== null || g('data-ems-bpmode') !== null) { sync(); renderSetup(); return; }
+    if (g('data-ems-bploadmode') !== null || g('data-ems-bpmode') !== null || g('data-ems-bpbufmode') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-bcpreset') !== null) { sync(); state.cfg.battery.control.preset = t.value; renderSetup(); return; }
     if (g('data-ems-bccard') !== null) { sync(); renderSetup(); return; }
     if (g('data-ems-compare') !== null) {
