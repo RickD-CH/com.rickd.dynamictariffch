@@ -148,3 +148,26 @@ test('Vergleich: Kosten der Entscheide je Tag in CHF, Differenz grün wenn diese
   assert.match(cmp, /<td>12\.11\.<\/td><td>1\.20<\/td><td>1\.35<\/td>/);
   assert.match(cmp, /Summe \(1\)/);
 });
+
+// Befund 17./18.11.2026: Die Ladung in den billigsten Viertelstunden (02:15 bis 04:45) überfüllte die Batterie, der Planer
+// hielt das für fehlende Energie und plante davor weitere, teurere Viertelstunden (bis 17.35 Rp.). Echte Schnappschüsse.
+test('Fahrplan: das Netzladen füllt die Batterie nie über das Ziel und nimmt nur die billigsten Viertelstunden (echte Nacht 17./18.11.)', () => {
+  const snaps = require('./fixtures/plan-snapshots-2026-11-18.json');
+  assert.equal(snaps.length, 4);
+  for (const x of snaps) {
+    const sl = x.rows.map((r) => ({ start: r[0], end: r[0] + Q, price: r[1] }));
+    const pv = new Map(x.rows.map((r) => [r[0], r[2]]));
+    const ld = new Map(x.rows.map((r) => [r[0], r[3]]));
+    const r = planSchedule({
+      slots: sl, nowMs: x.at, soc: x.soc, c: x.cfg, pvKwAt: (t) => pv.get(t) || 0, loadKwAt: (t) => ld.get(t) || 0, feedInRp: 0,
+    });
+    const peak = Math.max(...r.energy) / r.cap * 100;
+    assert.ok(peak <= x.cfg.targetSoc + 0.5, `Ladestand ${peak.toFixed(0)} % über dem Ziel (Schnappschuss ${new Date(x.at).toISOString()})`);
+    const kwh = r.charge.reduce((u, v) => u + v, 0);
+    const dear = r.charge.reduce((u, v, i) => u + (r.slots[i].price >= 14.2 ? v : 0), 0);
+    const avg = r.charge.reduce((u, v, i) => u + v * r.slots[i].price, 0) / kwh;
+    assert.ok(kwh > 0);
+    assert.ok(dear / kwh < 0.1, `höchstens 10 % der Ladung in teureren Viertelstunden, waren ${((dear / kwh) * 100).toFixed(0)} %`);
+    assert.ok(avg < 13.5, `mittlerer Ladepreis unter 13.5 Rp., war ${avg.toFixed(1)}`);
+  }
+});

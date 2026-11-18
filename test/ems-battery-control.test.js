@@ -132,7 +132,8 @@ test('Runner: live (Silent aus, Batterie live) sendet die Karten an das Batterie
   await runner.tick(at(3));
   assert.deepEqual(sent, [], 'erster Lauf beobachtet');
   await runner.tick(at(3, 5));
-  assert.deepEqual(sent, [['homey:device:bat:luna2000_start_force_charge', { power: 5000, target_soc: 90 }]]);
+  // Ziel 88 statt 90 %: der Fahrplan lädt nur so viel nach, wie die teure Zeit braucht
+  assert.deepEqual(sent, [['homey:device:bat:luna2000_start_force_charge', { power: 5000, target_soc: 88 }]]);
   assert.equal(runner.batteryEvents[0].live, true);
 });
 

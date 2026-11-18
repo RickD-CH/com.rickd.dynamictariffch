@@ -92,7 +92,8 @@ test('Runner: live mit eigener Zuordnung sendet die gewählten Karten an das Bat
   runner.chargerCurrent = { chargerPowerW: 0 };
   await runner.tick(at(3));
   await runner.tick(at(3, 5));
-  assert.deepEqual(sent, [['homey:device:bat:grid_charge', { watts: 5000, soc: 90 }]]);
+  // Ziel 88 statt 90 %: der Fahrplan lädt nur so viel nach, wie die teure Zeit braucht (vorher überfüllt, siehe ems-battery-schedule)
+  assert.deepEqual(sent, [['homey:device:bat:grid_charge', { watts: 5000, soc: 88 }]]);
 });
 
 // ---------------------------------------------------------------- Oberfläche
