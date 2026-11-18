@@ -626,3 +626,16 @@ test('Ausblick-Reiter: Hausanschluss-Ausblick steht vor der Vorschau «Auftrag p
 test('Ausblick-Reiter: ohne Verbrauchsprofil sagt die Karte, woran es fehlt', async () => {
   assert.match(await planTab(null), /HAUSANSCHLUSS: AUSBLICK 24 STUNDEN[\s\S]*Noch kein Verbrauchsprofil/);
 });
+
+test('Ausblick-Reiter: die Uhrzeit-Leiste steht oben und unten am Plan (kein Scrollen bis zu den Zeiten)', async () => {
+  const html = await planTab(outlookShadow);
+  const first = html.indexOf('class="pl-w"');
+  const axes = [...html.slice(first).matchAll(/<div class="pl-axis( pl-axis-top)?">/g)];
+  assert.equal(axes.length, 2, 'zwei Leisten im Plan');
+  assert.equal(axes[0][1], ' pl-axis-top', 'die erste steht oben');
+  assert.ok(html.indexOf('pl-axis-top', first) < html.indexOf('class="pl-lbl"', first), 'oben vor den Grafiken');
+  assert.equal(axes[1][1], undefined, 'die zweite unten');
+  const labels = (i) => [...html.slice(axes[i].index).match(/<div class="pl-axis[^>]*>([\s\S]*?)<\/div>/)[1].matchAll(/<span[^>]*>(\d{1,2})</g)].map((m) => m[1]);
+  assert.deepEqual(labels(0), labels(1), 'gleiche Zeiten');
+  assert.ok(labels(0).length >= 4);
+});

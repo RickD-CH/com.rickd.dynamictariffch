@@ -1875,7 +1875,7 @@
       + '.ems-t{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}.ems-t td,.ems-t th{padding:3px 6px;border-bottom:1px solid var(--st-border);vertical-align:top;text-align:left}'
       + '.pl-w{position:relative}.pl-lbl{font-size:11px;color:var(--st-muted);margin:8px 0 2px}.pl-svg{display:block;width:100%}'
       + '.pl-now{position:absolute;top:0;bottom:16px;width:2px;margin-left:-1px;background:var(--st-text);opacity:.5;pointer-events:none;z-index:1}'
-      + '.pl-axis{position:relative;height:14px;margin-top:2px;font-size:10px;color:var(--st-muted)}.pl-axis span{position:absolute;transform:translateX(-50%)}'
+      + '.pl-w .pl-axis-top{margin:0 0 2px}.pl-axis{position:relative;height:14px;margin-top:2px;font-size:10px;color:var(--st-muted)}.pl-axis span{position:absolute;transform:translateX(-50%)}'
       + '.pl-c{fill:var(--st-cheap)}.pl-n{fill:var(--st-normal)}.pl-e{fill:var(--st-expensive)}.pl-past{opacity:.45}'
       + '.pl-blk{fill:var(--st-accent);opacity:.2}.pl-pv{fill:var(--st-muted);opacity:.45}.pl-trk{fill:var(--st-seg-bg)}'
       + '.pl-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:0}.pl-dot.pl-c{background:var(--st-cheap)}.pl-dot.pl-n{background:var(--st-normal)}.pl-dot.pl-e{background:var(--st-expensive)}'
@@ -2448,7 +2448,8 @@
     if (!hasPrices) {
       body = '<p class="sub">' + esc(S.planNoPrices) + '</p>';
     } else {
-      body += '<div class="pl-w">' + nowLine;
+      var axisHtml = function (cls) { return '<div class="pl-axis' + cls + '">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>'; };
+      body += '<div class="pl-w">' + nowLine + axisHtml(' pl-axis-top');
       var shared = typeof window !== 'undefined' && window.DtcChart && typeof window.DtcChart.html === 'function';
       if (shared) {
         // Gleiche Grafik wie unter «Heute» (Farbverlauf, höchster/tiefster Wert), ohne Referenzpreis und ohne eigene Zeitleiste
@@ -2473,7 +2474,7 @@
         var batNote = row.kind === 'battery' && day.key === 'today' ? (state.cfg.battery.reserveMode === 'fixed' ? bridgeText(false) : scheduleText()) : '';
         if (batNote) body += '<p class="ems-why" style="margin:4px 0 0">' + esc(batNote) + '</p>';
       });
-      body += '<div class="pl-axis">' + day.ticks.map(function (t) { return '<span style="left:' + (t.i / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
+      body += axisHtml('');
       body += '</div>';
     }
     var cards = '';
