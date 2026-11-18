@@ -796,7 +796,7 @@ unter dem eingestellten (z. B. 88 statt 90 %), weil nur so viel nachgeladen wird
 E-Auto (Ladeleistung der Wallbox) und Aufträge (Leistung des Verbrauchers, ohne Angabe 2 kW). Verbraucher nach Überschuss laufen von
 der Sonne und zählen nicht. Grenze = 3 Phasen x Grenzstrom x 230 V; ab 80 % «knapp», ab 100 % «über der Grenze».
 Annahme: gleichmässig auf die drei Phasen verteilt, ein einphasiges Gerät auf der falschen Phase kann die Grenze früher erreichen.
-Anzeige: Widget «Hausanschluss» (Urteil, Spitze mit Beteiligten, Stundenbalken) und Einrichten > EMS > Hausanschluss-Schutz.
+Anzeige: Widget «Hausanschluss» (Urteil, Spitze mit Beteiligten, Stundenbalken) und Reiter «Ausblick» (Karte vor der Auftrags-Vorschau); unter Einrichten > EMS > Hausanschluss-Schutz steht nur das Urteil in der Zeile.
 
 Offen (To-do): Programmstart nur bei genug freier Reserve auf jeder Phase; erst entscheiden, wenn die Messung zeigt, wie oft der Schutz eingriff.
 

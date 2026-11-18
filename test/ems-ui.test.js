@@ -587,24 +587,14 @@ const outlookShadow = {
   hours: [{ time: '21:00', kw: 1.1, pct: 4, parts: [] }, { time: '23:00', kw: 19.1, pct: 77, parts: ['Batterie', 'E-Auto', 'GWA'] }],
 };
 
-test('Setup: Ausblick im Hausanschluss zeigt Urteil, Spitze mit Beteiligten und die Zusammenfassung der Zeile', async () => {
+test('Setup: Hausanschluss-Zeile zeigt das Urteil des Ausblicks, der Ausblick selbst steht im Reiter «Ausblick»', async () => {
   const env = await start(scenario({ cfg: { fuse: { enabled: true } }, shadow: { outlook: outlookShadow } }));
   assert.match(setup(env), /Grenze 36 A.*- knapp/, 'Zeile zeigt das Urteil');
   click(env, 'ems-view-devices', { 'data-ems-open': 'fuse' });
-  const html = setup(env);
-  assert.match(html, /AUSBLICK 24 STUNDEN/);
-  assert.match(html, /knapp<\/b> - Spitze 19\.1 kW um 23:15: 77 % der Grenze \(24\.8 kW\)/);
-  assert.match(html, /Haus 1\.1 \+ Batterie 5\.0 \+ E-Auto 11\.0 \+ GWA 2\.0 kW/);
-  assert.match(html, /gleichmässig auf die drei Phasen/);
+  assert.doesNotMatch(setup(env), /AUSBLICK 24 STUNDEN|Spitze 19\.1 kW/, 'kein zweiter Ausblick unter Einrichten');
 });
 
-test('Setup: Ausblick ohne Verbrauchsprofil sagt, woran es fehlt', async () => {
-  const env = await start(scenario({ cfg: { fuse: { enabled: true } }, shadow: { outlook: null } }));
-  click(env, 'ems-view-devices', { 'data-ems-open': 'fuse' });
-  assert.match(setup(env), /Noch kein Verbrauchsprofil/);
-});
-
-test('Ausblick-Reiter: Hausanschluss-Ausblick steht vor der Vorschau «Auftrag planen» (nach der Auftragsliste)', async () => {
+async function planTab(outlook) {
   const { buildPlan } = require('../lib/ems/PlanView');
   const { startOfLocalDay } = require('../lib/time');
   const NOW = Date.UTC(2026, 10, 18, 19, 0);
@@ -614,14 +604,25 @@ test('Ausblick-Reiter: Hausanschluss-Ausblick steht vor der Vorschau «Auftrag p
   const plan = buildPlan({
     nowMs: NOW, tz: 'Europe/Zurich', priceSlots, pvSlots: null, batteryPlan: null, reserveHours: 0, log: [], chargerEnabled: true, consumers: [{ id: 'dry', name: 'Entfeuchter' }], hasBattery: false, jobs: [],
   });
-  const sc = scenario({ cfg: fullCfg, meters: fullMeters, shadow: { outlook: outlookShadow } });
+  const sc = scenario({ cfg: fullCfg, meters: fullMeters, shadow: { outlook } });
   sc['GET /ems/plan'] = { ...plan, active: true };
   const env = await start(sc);
-  const html = env.els.get('ems-view-plan').innerHTML;
+  return env.els.get('ems-view-plan').innerHTML;
+}
+
+test('Ausblick-Reiter: Hausanschluss-Ausblick steht vor der Vorschau «Auftrag planen», mit Spitze, Beteiligten und Annahme', async () => {
+  const html = await planTab(outlookShadow);
   const iOut = html.indexOf('HAUSANSCHLUSS: AUSBLICK 24 STUNDEN');
   const iPrev = html.indexOf('VORSCHAU: AUFTRAG PLANEN');
   assert.ok(iOut > 0, 'Ausblick vorhanden');
   assert.ok(iPrev > iOut, 'Vorschau kommt danach');
   assert.ok(html.indexOf('ems-plan') < iOut, 'nach dem Plan');
-  assert.match(html.slice(iOut, iPrev), /knapp<\/b> - Spitze 19\.1 kW um 23:15/);
+  const part = html.slice(iOut, iPrev);
+  assert.match(part, /knapp<\/b> - Spitze 19\.1 kW um 23:15: 77 % der Grenze \(24\.8 kW\)/);
+  assert.match(part, /Haus 1\.1 \+ Batterie 5\.0 \+ E-Auto 11\.0 \+ GWA 2\.0 kW/);
+  assert.match(part, /gleichmässig auf die drei Phasen/);
+});
+
+test('Ausblick-Reiter: ohne Verbrauchsprofil sagt die Karte, woran es fehlt', async () => {
+  assert.match(await planTab(null), /HAUSANSCHLUSS: AUSBLICK 24 STUNDEN[\s\S]*Noch kein Verbrauchsprofil/);
 });
