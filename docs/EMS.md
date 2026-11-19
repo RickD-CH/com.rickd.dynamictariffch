@@ -786,8 +786,12 @@ Befund aus den Plan-Schnappschüssen der Nacht 17./18.11. (`ledgerPlans` im Shad
 Die Ladung in den billigsten Viertelstunden (02:15 bis 04:45) füllte die Batterie über das Ziel. `planSchedule` hielt das für fehlende
 Energie und plante davor weitere, teurere Viertelstunden ein (bis 17.35 Rp.), der Plan wurde unmöglich (105 bis 142 % Ladestand) und das
 Streichen überflüssiger Ladung am Schluss blieb blockiert. Jetzt wird eine Viertelstunde, die über das Ziel füllen würde, nie gewählt.
-Nachgerechnet: statt 19.2 kWh zu 14.0 Rp. nun 11.3 kWh zu 13.0 Rp. in den billigsten Viertelstunden. Das Ladeziel liegt dadurch oft knapp
-unter dem eingestellten (z. B. 88 statt 90 %), weil nur so viel nachgeladen wird, wie die teure Zeit braucht.
+Nachgerechnet, mit der Batterie als Grenze (sie nimmt höchstens bis zum Ziel auf, der alte Plan sah 19.2 kWh vor, was gar nicht hineinpasst):
+Plan von 23:55 bei 10 %: alt 11.6 kWh zu Ø 14.8 Rp. (1.72 CHF, 23:45 bis 03:15), neu 11.3 kWh zu Ø 13.0 Rp. (1.47 CHF, 02:30 bis 04:30), also
+etwa 0.25 CHF weniger in dieser Nacht (bei den späteren Plänen derselben Nacht 0.07 bis 0.16 CHF). Gleich viel Energie, aber später und billiger,
+weil der alte Plan die Batterie zuerst in den teuren Viertelstunden füllte. Zufallsprobe (400 Szenarien, Ausführung mit Batterie-Grenze): neu in 180
+besser, in 5 schlechter, sonst gleich; im Mittel 0.42 CHF je 36-Stunden-Plan (Szenarien mit grosser Preisspanne, nicht mit dem Alltag gleichzusetzen).
+Das Ladeziel liegt dadurch oft knapp unter dem eingestellten (z. B. 88 statt 90 %), weil nur so viel nachgeladen wird, wie die teure Zeit braucht.
 
 ## Ausblick Hausanschluss (18.11.2026)
 
