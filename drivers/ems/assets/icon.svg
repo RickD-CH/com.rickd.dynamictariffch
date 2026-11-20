@@ -1,15 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Energiemanagement: Haus isometrisch mit Solarpanel, Tür, Fenster und Blitz am Giebel (aus 3D-Modell projiziert) -->
-  <path d="M14.74 67.74 L55.04 91 L55.04 63.09 L14.74 39.82Z" stroke-width="2.6"/>
-  <path d="M85.26 73.55 L55.04 91 L55.04 63.09 L70.15 32.26 L85.26 45.64Z" stroke-width="2.6"/>
-  <path d="M14.74 39.82 L55.04 63.09 L70.15 32.26 L29.85 9Z" stroke-width="2.6"/>
-  <path d="M20.79 71.23 L20.79 54.94 L28.85 59.6 L28.85 75.88" stroke-width="2"/>
-  <path d="M35.9 70.65 L48.99 78.21 L48.99 67.74 L35.9 60.18Z" stroke-width="2"/>
-  <path d="M42.45 74.43 L42.45 63.96" stroke-width="1.4"/>
-  <path d="M35.9 65.41 L48.99 72.97" stroke-width="1.4"/>
-  <path d="M22.2 37.8 L52.42 55.25 L62.69 34.29 L32.47 16.84Z" stroke-width="2"/>
-  <path d="M32.27 43.61 L42.55 22.66" stroke-width="1.4"/>
-  <path d="M42.34 49.43 L52.62 28.47" stroke-width="1.4"/>
-  <path d="M27.34 27.32 L57.55 44.77" stroke-width="1.4"/>
-  <path d="M70.87 53.71 L64.34 67.53 L69.42 64.6 L68.7 71.72 L75.95 57.48 L70.87 60.41Z" stroke-width="1.8" fill="currentColor"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Energiemanagement: Haus isometrisch mit Solarpanel, Tür, Fenster und Blitz (aus 3D-Modell projiziert).
+       Gefüllte Flächen mit Aussparungen statt Linien, damit das Icon beim Einfärben (hell/dunkel) lesbar bleibt. -->
+  <path fill="#000" fill-rule="evenodd" d="M15.38 67.3 L53.66 89.4 L53.66 64.27 L15.38 42.17Z M84.62 73.26 L56.66 89.4 L56.66 63.75 L71.12 34.26 L84.62 46.21Z M15.85 38.98 L54.52 61.3 L68.67 32.43 L30 10.1Z M20.08 68.17 L20.08 53.87 L28.33 58.64 L28.33 72.94Z M35.04 72.04 L41.33 75.68 L41.33 70.2 L35.04 66.56Z M35.04 64.42 L41.33 68.05 L41.33 62.57 L35.04 58.94Z M43.19 76.75 L49.48 80.38 L49.48 74.9 L43.19 71.27Z M43.19 69.12 L49.48 72.76 L49.48 67.28 L43.19 63.64Z M22.14 36.24 L31.22 41.48 L35.44 32.88 L26.36 27.63Z M27.52 25.27 L36.6 30.51 L40.82 21.9 L31.74 16.66Z M33.08 42.55 L42.16 47.8 L46.38 39.19 L37.3 33.95Z M38.46 31.58 L47.54 36.82 L51.75 28.22 L42.67 22.98Z M44.02 48.87 L53.1 54.11 L57.31 45.51 L48.23 40.26Z M49.39 37.9 L58.47 43.14 L62.69 34.53 L53.61 29.29Z M71.38 53.8 L64.69 67.96 L69.89 64.95 L69.15 72.25 L76.58 57.66 L71.38 60.66Z"/>
 </svg>
