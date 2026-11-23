@@ -64,11 +64,19 @@ homey app install
 - **Timer** nur über `this.homey.setTimeout` / `clearTimeout`, damit sie beim Entladen aufgeräumt
   werden. Viertelstunden-Tick jeweils neu auf die nächste Grenze planen (kein `setInterval`).
 - **Keine Laufzeit-Abhängigkeiten** (Node ≥ 18 hat `fetch` global). Dev-Dependencies sind ok.
+  Einzige Ausnahme: `homey-api`, nur für das EMS-Modul (`lib/ems/`, Messwerte lesen und Geräte schalten).
 - **Token ist geheim:** Settings-Typ `password`, nie loggen (höchstens die letzten 4 Zeichen).
 - Preise von der API sind **CHF/kWh exkl. MWST**. Die Anzeige in Rp./kWh ist Schweizer Standard.
 - Die Testumgebung liefert **konstante** Preise. Logik deshalb mit `synthetic-aew-day.json` testen.
 - Neue Logik → Tests in `test/` ergänzen. `npm test` muss grün bleiben.
 - Commits klein halten, Nachrichten auf Englisch.
+
+## EMS-Modul (ab 0.3.0, unveröffentlicht)
+
+Energiemanagement für Wallbox und einzelne Verbraucher in `lib/ems/`, siehe `docs/EMS.md`.
+Standardmässig **aus** und im **Trockenlauf**; Geräte schaltet nur `lib/ems/Actuators.js`. **Apps dürfen keine Aktionskarten fremder Geräte ausführen und keine Flows starten** (403 «Missing Scopes»): Batterie, Wallbox und Flow-Verbraucher laufen über den Auslöser `ems_command` (Befehle, siehe `docs/EMS.md`), nur Capabilities werden direkt geschrieben. Befehle gehen nur raus, wenn
+`charger.live` bzw. `consumer.live` gesetzt ist. Entscheidungslogik in `lib/ems/planner/*` bleibt rein
+(keine Homey-Aufrufe, keine festen Geräte-IDs). Tests: `test/ems-*.test.js`.
 
 ## Entscheidungen
 
@@ -76,13 +84,3 @@ homey app install
   eine doppelte Flow-Karte ("Knopf drücken"). Es bleibt nur die eigene Aktion `refresh`
   ("Preise jetzt neu laden"). Die App-Einstellungen laden fehlende Preise beim Öffnen selbst nach
   (`device.ensureFresh()`, höchstens alle 5 Minuten).
-
-## Referenzen
-
-- [EWHGOF/SwisspowerDynPreis](https://github.com/EWHGOF/SwisspowerDynPreis): Home-Assistant-Integration
-  für dieselbe Swisspower-API. Gut zum Abgleich von Ideen (Sensoren, günstigste Zeitfenster).
-- [gruijter/com.gruijter.powerhour](https://github.com/gruijter/com.gruijter.powerhour): Homey-App
-  „Power by the Hour“ mit 15-Minuten-Preisen, gutes Vorbild für Flow-Karten rund um Preise. Hat eine
-  API für andere Apps (`README.dap-api.md`), kann aber keine fremden Preise übernehmen.
-- Die App-ID `com.rickd.dynamictariffch` ist bewusst generisch gewählt. Später können weitere
-  Schweizer Schnittstellen (EKZ, CKW, Groupe E) als eigene Driver dazukommen.

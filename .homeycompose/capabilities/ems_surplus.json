@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Solar surplus",
+    "de": "Solar-Überschuss",
+    "fr": "Surplus solaire",
+    "it": "Surplus solare"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/ems_surplus.svg"
+}

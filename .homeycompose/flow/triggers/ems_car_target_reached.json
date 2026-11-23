@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "The EV reached its target",
+    "de": "Das E-Auto hat sein Ziel erreicht"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "soc",
+      "type": "number",
+      "title": {
+        "en": "Charge level (%)",
+        "de": "Ladestand (%)"
+      },
+      "example": 80
+    },
+    {
+      "name": "target",
+      "type": "number",
+      "title": {
+        "en": "Target (%)",
+        "de": "Ziel (%)"
+      },
+      "example": 80
+    }
+  ]
+}

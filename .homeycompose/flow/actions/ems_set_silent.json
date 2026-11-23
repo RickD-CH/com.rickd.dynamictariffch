@@ -1,0 +1,41 @@
+{
+  "title": {
+    "en": "Set silent mode",
+    "de": "Silent-Modus setzen"
+  },
+  "titleFormatted": {
+    "en": "Set silent mode [[mode]]",
+    "de": "Silent-Modus [[mode]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "title": {
+        "en": "Mode",
+        "de": "Modus"
+      },
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "on (simulate only)",
+            "de": "ein (nur simulieren)"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "off (switch for real)",
+            "de": "aus (wirklich schalten)"
+          }
+        }
+      ]
+    }
+  ]
+}

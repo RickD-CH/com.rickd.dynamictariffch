@@ -1,0 +1,78 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "EMS mode",
+    "de": "EMS-Modus",
+    "fr": "Mode EMS",
+    "it": "Modalità EMS"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    {
+      "id": "disabled",
+      "title": {
+        "en": "Off",
+        "de": "Aus",
+        "fr": "Arrêté",
+        "it": "Spento"
+      }
+    },
+    {
+      "id": "idle",
+      "title": {
+        "en": "Idle",
+        "de": "Bereit",
+        "fr": "En attente",
+        "it": "In attesa"
+      }
+    },
+    {
+      "id": "holding",
+      "title": {
+        "en": "Waiting for surplus",
+        "de": "Wartet auf Überschuss",
+        "fr": "Attend un surplus",
+        "it": "In attesa di surplus"
+      }
+    },
+    {
+      "id": "solar_ev",
+      "title": {
+        "en": "Charging from solar",
+        "de": "Lädt mit Solarstrom",
+        "fr": "Charge solaire",
+        "it": "Ricarica solare"
+      }
+    },
+    {
+      "id": "instant_ev",
+      "title": {
+        "en": "Charging at full power",
+        "de": "Lädt mit voller Leistung",
+        "fr": "Charge à pleine puissance",
+        "it": "Ricarica a piena potenza"
+      }
+    },
+    {
+      "id": "battery_priority",
+      "title": {
+        "en": "Battery first",
+        "de": "Batterie hat Vorrang",
+        "fr": "Batterie prioritaire",
+        "it": "Batteria prioritaria"
+      }
+    },
+    {
+      "id": "error",
+      "title": {
+        "en": "Error",
+        "de": "Fehler",
+        "fr": "Erreur",
+        "it": "Errore"
+      }
+    }
+  ],
+  "icon": "/assets/capabilities/ems_mode.svg"
+}

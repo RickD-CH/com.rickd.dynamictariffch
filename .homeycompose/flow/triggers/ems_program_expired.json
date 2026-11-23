@@ -1,0 +1,37 @@
+{
+  "title": {
+    "en": "The automatic of a program device has expired",
+    "de": "Die Automatik eines Programm-Geräts ist abgelaufen"
+  },
+  "hint": {
+    "en": "Fires when the wait (plus 1 hour) is over and the device did not start, for example because it never reported ready. The automatic is then off.",
+    "de": "Wird ausgelöst, wenn die Wartezeit (plus 1 Stunde) vorbei ist und das Gerät nicht gestartet ist, zum Beispiel weil es nie «bereit» gemeldet hat. Die Automatik ist danach aus."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    }
+  ],
+  "tokens": [
+    {
+      "name": "name",
+      "type": "string",
+      "title": {
+        "en": "Device",
+        "de": "Gerät"
+      },
+      "example": "Geschirrspüler"
+    },
+    {
+      "name": "reason",
+      "type": "string",
+      "title": {
+        "en": "Reason",
+        "de": "Grund"
+      },
+      "example": "Automatik abgelaufen: die Wartezeit ist vorbei, es wurde nicht gestartet"
+    }
+  ]
+}

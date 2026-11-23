@@ -1,0 +1,41 @@
+{
+  "title": {
+    "en": "SG Ready / hot-water program !{{is|isn't}} paused",
+    "de": "SG-Ready / Warmwasser-Programm !{{ist|ist nicht}} pausiert"
+  },
+  "titleFormatted": {
+    "en": "[[module]] !{{is|isn't}} paused",
+    "de": "[[module]] !{{ist|ist nicht}} pausiert"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "module",
+      "title": {
+        "en": "Module",
+        "de": "Modul"
+      },
+      "values": [
+        {
+          "id": "sgready",
+          "title": {
+            "en": "SG Ready (heat up)",
+            "de": "SG-Ready (Aufheizen)"
+          }
+        },
+        {
+          "id": "dhw",
+          "title": {
+            "en": "Hot-water program",
+            "de": "Warmwasser-Programm"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": {
+    "en": "House connection",
+    "de": "Hausanschluss",
+    "fr": "Raccordement",
+    "it": "Allacciamento"
+  },
+  "height": 170,
+  "api": {
+    "getFuse": {
+      "method": "GET",
+      "path": "/fuse"
+    }
+  }
+}

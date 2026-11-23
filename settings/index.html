@@ -6,7 +6,9 @@
   <title id="doc-title">Dynamischer Stromtarif CH</title>
   <style>
     :root {
-      color-scheme: light dark;
+      /* Immer eindeutig light ODER dark, nie beides zusammen - eine Homey-WebView kann sonst die
+         Eingabefelder (Box und Textfarbe) inkonsistent einfärben. Siehe com.rickd.devicewatchdog. */
+      color-scheme: light;
       --st-text: #1a1a1a;
       --st-muted: #767676;
       --st-border: #e0e0e0;
@@ -17,9 +19,23 @@
       --st-normal: #767676;
       --st-expensive: #d32f2f;
       --st-accent: #0277bd;
+      --st-seg-bg: #f1f3f5;
+      --st-seg-text: #555555;
+      --st-seg-active-bg: #ffffff;
+      --st-seg-active-text: #111827;
+      --st-seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      --st-switch-off: #c7c7cc;
+      --st-switch-on: #34a853;
+      --st-lv-cheap-bg: #dcfce7;
+      --st-lv-cheap-fg: #15803d;
+      --st-lv-normal-bg: #e0f2fe;
+      --st-lv-normal-fg: #0369a1;
+      --st-lv-exp-bg: #fee2e2;
+      --st-lv-exp-fg: #b91c1c;
     }
     @media (prefers-color-scheme: dark) {
       :root {
+        color-scheme: dark;
         --st-text: #f2f2f2;
         --st-muted: #a0a0a0;
         --st-border: #3a3a3c;
@@ -30,9 +46,23 @@
         --st-normal: #a0a0a0;
         --st-expensive: #ef5350;
         --st-accent: #4fc3f7;
+        --st-seg-bg: #2a2a2c;
+        --st-seg-text: #a8a8ad;
+        --st-seg-active-bg: #3d3d40;
+        --st-seg-active-text: #f2f2f2;
+        --st-seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        --st-switch-off: #5a5a5e;
+        --st-switch-on: #3ec063;
+        --st-lv-cheap-bg: #14532d;
+        --st-lv-cheap-fg: #86efac;
+        --st-lv-normal-bg: #0c4a6e;
+        --st-lv-normal-fg: #7dd3fc;
+        --st-lv-exp-bg: #7f1d1d;
+        --st-lv-exp-fg: #fca5a5;
       }
     }
     .homey-dark-mode {
+      color-scheme: dark;
       --st-text: #f2f2f2;
       --st-muted: #a0a0a0;
       --st-border: #3a3a3c;
@@ -43,6 +73,19 @@
       --st-normal: #a0a0a0;
       --st-expensive: #ef5350;
       --st-accent: #4fc3f7;
+      --st-seg-bg: #2a2a2c;
+      --st-seg-text: #a8a8ad;
+      --st-seg-active-bg: #3d3d40;
+      --st-seg-active-text: #f2f2f2;
+      --st-seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      --st-switch-off: #5a5a5e;
+      --st-switch-on: #3ec063;
+      --st-lv-cheap-bg: #14532d;
+      --st-lv-cheap-fg: #86efac;
+      --st-lv-normal-bg: #0c4a6e;
+      --st-lv-normal-fg: #7dd3fc;
+      --st-lv-exp-bg: #7f1d1d;
+      --st-lv-exp-fg: #fca5a5;
     }
     [data-theme="light"] {
       color-scheme: light;
@@ -56,6 +99,19 @@
       --st-normal: #767676;
       --st-expensive: #d32f2f;
       --st-accent: #0277bd;
+      --st-seg-bg: #f1f3f5;
+      --st-seg-text: #555555;
+      --st-seg-active-bg: #ffffff;
+      --st-seg-active-text: #111827;
+      --st-seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      --st-switch-off: #c7c7cc;
+      --st-switch-on: #34a853;
+      --st-lv-cheap-bg: #dcfce7;
+      --st-lv-cheap-fg: #15803d;
+      --st-lv-normal-bg: #e0f2fe;
+      --st-lv-normal-fg: #0369a1;
+      --st-lv-exp-bg: #fee2e2;
+      --st-lv-exp-fg: #b91c1c;
     }
     [data-theme="dark"] {
       color-scheme: dark;
@@ -69,6 +125,19 @@
       --st-normal: #a0a0a0;
       --st-expensive: #ef5350;
       --st-accent: #4fc3f7;
+      --st-seg-bg: #2a2a2c;
+      --st-seg-text: #a8a8ad;
+      --st-seg-active-bg: #3d3d40;
+      --st-seg-active-text: #f2f2f2;
+      --st-seg-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      --st-switch-off: #5a5a5e;
+      --st-switch-on: #3ec063;
+      --st-lv-cheap-bg: #14532d;
+      --st-lv-cheap-fg: #86efac;
+      --st-lv-normal-bg: #0c4a6e;
+      --st-lv-normal-fg: #7dd3fc;
+      --st-lv-exp-bg: #7f1d1d;
+      --st-lv-exp-fg: #fca5a5;
     }
     * { box-sizing: border-box; }
     html, body { height: auto; min-height: 100%; margin: 0; }
@@ -81,12 +150,66 @@
     p { line-height: 1.5; }
     .sub { color: var(--st-muted); margin: 0 0 20px; }
     #p-sub { margin-top: 0; }
-    .tabs { display: flex; gap: 2px; overflow-x: auto; margin: 0 0 16px; border-bottom: 1px solid var(--st-border); }
-    .tab {
-      flex: 0 0 auto; background: transparent; border: 0; border-bottom: 2px solid transparent;
-      color: var(--st-muted); font-size: 14px; font-weight: 600; padding: 8px 12px; cursor: pointer; white-space: nowrap;
+    /* Navigation: Segmented Control, kein Scrollbalken, vier gleich breite Reiter */
+    .tabs {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin: 0 0 16px; padding: 4px;
+      background: var(--st-seg-bg); border-radius: 8px; overflow: hidden; scrollbar-width: none;
     }
-    .tab.active { color: var(--st-accent); border-bottom-color: var(--st-accent); }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      background: transparent; border: 0; border-radius: 6px; color: var(--st-seg-text);
+      font-size: 12.5px; font-weight: 500; padding: 7px 4px; cursor: pointer; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; font-family: inherit;
+    }
+    .tab.active { background: var(--st-seg-active-bg); color: var(--st-seg-active-text); font-weight: 600; box-shadow: var(--st-seg-shadow); }
+    /* Aktive Lasche deutlich (Homey überschreibt Knopf-Stile sonst) */
+    .tab.active, .subtab.active { background: var(--st-bg) !important; color: var(--st-accent) !important; font-weight: 600 !important; box-shadow: 0 1px 3px rgba(0,0,0,.18) !important; outline: 1.5px solid var(--st-accent) !important; outline-offset: -1.5px; }
+    /* Zweiter, kleinerer Umschalter innerhalb eines Reiters */
+    .subtabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; margin: 0 0 12px; padding: 3px; background: var(--st-seg-bg); border-radius: 8px; max-width: 320px; }
+    .subtab { background: transparent; border: 0; border-radius: 6px; color: var(--st-seg-text); font-size: 12px; font-weight: 500; padding: 5px 6px; cursor: pointer; font-family: inherit; }
+    .subtabs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: none; }
+    .subtabs.four { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: none; }
+    .subtab.active { background: var(--st-seg-active-bg); color: var(--st-seg-active-text); font-weight: 600; box-shadow: var(--st-seg-shadow); }
+    /* Schalter statt Häkchen: <span class="swt"><input class="sw" type="checkbox"><i></i></span>. Das Eingabefeld
+       liegt unsichtbar darüber (bleibt klickbar und per Tastatur bedienbar), gezeichnet wird der Schieber im <i>. */
+    .swt { position: relative; display: inline-block; flex: 0 0 auto; width: 46px; height: 26px; margin: 0 8px 0 0; vertical-align: middle; }
+    .swt input, .swt input[type="checkbox"] { position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; min-width: 0 !important; max-width: none !important; margin: 0 !important; padding: 0 !important; opacity: 0 !important; -webkit-appearance: none; appearance: none; cursor: pointer; z-index: 2; }
+    .swt i { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 13px; background: var(--st-switch-off); transition: background-color .15s; pointer-events: none; }
+    .swt i::before { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .15s; }
+    .swt input:checked + i { background: var(--st-switch-on); }
+    .swt input:checked + i::before { transform: translateX(20px); }
+    .swt input:focus-visible + i { outline: 2px solid var(--st-accent); outline-offset: 2px; }
+    .bk-check input[type="checkbox"] { accent-color: var(--st-switch-on); }
+    /* Manche Homey-WebViews malen Text/Zahl/Zeit-Felder mit dem nativen Eingabefeld statt mit unserer Farbe
+       (im Dunkelmodus dann schwarzer Text auf dunklem Grund). appearance:none lässt uns die Farbe selbst setzen. */
+    input[type="text"], input[type="number"], input[type="time"] { -webkit-appearance: none; appearance: none; }
+    /* Gefundene, echte Ursache (per DevTools bestätigt, nicht mehr geraten): Homeys eigenes _base.css setzt für
+       input[type=text|password|email] eine eigene Farbe (schwarz) und Schriftgrösse (16px, die übliche
+       Browser-Konvention gegen Auto-Zoom auf dem Handy). Das betrifft nur Text-Felder, nicht Zahl/Zeit/Auswahl -
+       genau das Muster, das wir gesehen haben. Nur !important gewinnt dagegen. */
+    input[type="text"], input[type="number"], input[type="time"], input[type="date"], select, textarea {
+      color: var(--st-text) !important;
+      background-color: var(--st-bg);
+      font-size: 13px !important;
+    }
+    /* Chrome erzwingt bei einem automatisch ausgefüllten Feld eine eigene Textfarbe (meist schwarz) und einen
+       hellen Hintergrund, die normale CSS-Regeln nicht übersteuern - nur mit !important geht das. Das war die
+       eigentliche Ursache beim Namensfeld: Chrome kennt dafür einen gespeicherten Wert (z. B. den eigenen Namen). */
+    input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+      -webkit-text-fill-color: var(--st-text) !important;
+      -webkit-box-shadow: 0 0 0 1000px var(--st-bg) inset !important;
+      box-shadow: 0 0 0 1000px var(--st-bg) inset !important;
+      caret-color: var(--st-text) !important;
+      transition: background-color 600000s ease-in-out 0s;
+    }
+    /* Statusmarke: grüner Kreis mit Haken = erledigt, grauer Ring = offen */
+    .st-check, .st-open { display: inline-block; flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; margin-right: 8px; vertical-align: -3px; text-align: center; font-size: 12px; line-height: 18px; }
+    .st-check { background: var(--st-switch-on); color: #fff; font-weight: 700; }
+    .setup-card.ok { background: var(--st-lv-cheap-bg); color: var(--st-lv-cheap-fg); }
+    .setup-card.ok h2 { color: var(--st-lv-cheap-fg); }
+    .st-open { border: 1.5px solid var(--st-muted); line-height: 15px; }
+    summary h2 { display: inline; }
+    .help-sec .card { border: 0; padding: 0; background: transparent; margin-bottom: 14px; }
     .panel { display: none; }
     .panel.active { display: block; }
     .card {
@@ -96,25 +219,27 @@
     ul { margin: 8px 0; padding-left: 20px; }
     li { margin-bottom: 4px; line-height: 1.4; }
     ol { margin: 8px 0; padding-left: 22px; }
-    .recommend { display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 6px 16px; margin-top: 8px; }
-    .recommend dt { font-weight: 600; }
-    .recommend dd { margin: 0; color: var(--st-muted); }
     .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    #live-card h2 { margin-bottom: 14px; }
+    #live-card .price { line-height: 1.1; }
     .price { font-size: 30px; font-weight: 700; }
     .unit { font-size: 13px; color: var(--st-muted); margin-left: 4px; }
     .level {
       font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
       background: var(--st-chip-bg);
     }
+    .level.lv-cheap { background: var(--st-lv-cheap-bg); color: var(--st-lv-cheap-fg); }
+    .level.lv-normal { background: var(--st-lv-normal-bg); color: var(--st-lv-normal-fg); }
+    .level.lv-expensive { background: var(--st-lv-exp-bg); color: var(--st-lv-exp-fg); }
     .stats { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .chip {
       flex: 1; min-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 2px;
       padding: 8px 4px; border-radius: 8px; background: var(--st-chip-bg);
     }
     .chip .num { font-size: 15px; font-weight: 700; }
-    .chip .lbl { font-size: 10px; color: var(--st-muted); text-align: center; }
+    .chip .lbl { font-size: 10px; color: var(--st-muted); text-align: center; margin: 0 !important; letter-spacing: normal !important; line-height: 1.3; }
     .chart {
-      position: relative; display: flex; align-items: flex-end; height: 90px; gap: 1px; margin-top: 16px;
+      position: relative; display: flex; align-items: flex-end; height: 90px; gap: 0; margin-top: 16px;
       background: var(--st-chip-bg); border-radius: 8px; padding: 6px;
     }
     .chart .refline { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; }
@@ -149,7 +274,7 @@
     .kwhlabel { font-size: 10px; color: var(--st-muted); margin-top: 8px; padding: 0 6px; }
     .swb { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--st-accent); margin-right: 5px; vertical-align: -1px; }
     .chart.tall { height: 130px; }
-    .kover { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); display: flex; align-items: flex-end; gap: 1px; pointer-events: none; }
+    .kover { position: absolute; left: 6px; top: 6px; width: calc(100% - 12px); height: calc(100% - 12px); display: flex; align-items: flex-end; gap: 0; pointer-events: none; }
     .kover .kbar { opacity: .7; box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
     .kover .kbar.daybreak { margin-left: 3px; }
     .chart .kmax { position: absolute; right: 8px; top: 6px; font-size: 10px; color: var(--st-accent); background: var(--st-chip-bg); padding: 0 3px; border-radius: 3px; opacity: .88; font-weight: 600; }
@@ -179,7 +304,7 @@
       body { padding: 12px 12px 24px; }
       .card { padding: 12px 12px; }
       .svgchart svg { height: 130px; }
-      .tab { font-size: 13px; padding: 8px 7px; }
+      .tab { font-size: 12px; padding: 7px 2px; }
       .stats .chip { min-width: 0; flex: 1 1 calc(25% - 8px); }
     }
     .good { color: var(--st-cheap); font-weight: 600; }
@@ -202,7 +327,7 @@
     .status td:last-child { text-align: left; }
     .subhead { font-weight: 600; margin: 16px 0 4px; }
     .viewsw { display: flex; gap: 6px; margin: 4px 0 12px; }
-    .pt-tabs .btn.active, .viewsw .btn.active { background: var(--st-accent); border-color: var(--st-accent); color: #fff; }
+    .pt-tabs .btn.active, .viewsw .btn.active { background: var(--st-bg) !important; border-color: var(--st-accent) !important; color: var(--st-accent) !important; font-weight: 600 !important; box-shadow: 0 1px 3px rgba(0,0,0,.18) !important; outline: 1.5px solid var(--st-accent) !important; outline-offset: -1.5px; }
     .svgchart { position: relative; margin-top: 8px; }
     .svgchart svg { width: 100%; height: 170px; display: block; background: var(--st-chip-bg); border-radius: 8px; }
     .ylabels { position: absolute; left: 8px; top: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--st-muted); pointer-events: none; }
@@ -253,13 +378,11 @@
   </style>
 </head>
 <body>
-  <p class="sub" id="p-sub"></p>
-
   <nav class="tabs">
     <button class="tab active" data-tab="overview" id="t-overview"></button>
+    <button class="tab" data-tab="ems" id="t-ems">Ausblick</button>
     <button class="tab" data-tab="costs" id="t-costs"></button>
     <button class="tab" data-tab="settings" id="t-settings"></button>
-    <button class="tab" data-tab="help" id="t-help"></button>
   </nav>
 
 <div class="panel active" id="panel-overview">
@@ -269,9 +392,21 @@
       <div id="live-root"><div class="no-device" id="initial-loading"></div></div>
     </div>
 
+    <div class="card" id="today-card" hidden>
+      <h2 id="h2-today"></h2>
+      <div id="today-root"></div>
+    </div>
+
+    <div id="ems-view-main"></div>
+
     <details class="card sec" id="status-card">
       <summary><h2 id="h2-status"></h2><div class="st-line"><span class="st-dot" id="status-dot"></span><span id="status-summary"></span></div></summary>
       <div id="status-body"></div>
+    </details>
+
+    <details class="card sec" id="diag-card">
+      <summary><h2 id="h2-diag">Diagnose</h2></summary>
+      <div id="diag-root"></div>
     </details>
   </div>
 
@@ -296,195 +431,215 @@
   </div>
 
   <div class="panel" id="panel-settings">
-    <details class="card sec" open>
-      <summary><h2 id="h2-setup"></h2></summary>
-      <p class="sub" id="p-setup-intro" style="margin-bottom:8px"></p>
-      <ol class="checklist" id="ol-setup"></ol>
-    </details>
+    <div class="subtabs three" id="setup-sub"><button class="subtab" data-setup-sub="general" id="setup-sub-general">Allgemein</button><button class="subtab active" data-setup-sub="price" id="setup-sub-price">Preis-App</button><button class="subtab" data-setup-sub="ems" id="setup-sub-ems">EMS</button></div>
 
-    <details class="card sec">
-      <summary><h2 id="h2-general"></h2></summary>
-      <div class="form">
-        <label for="vat-input" id="l-vat"></label><input type="number" id="vat-input" min="0" max="100" step="0.1" />
-      </div>
-      <details style="margin-top:12px;">
-        <summary id="sum-feedin"></summary>
-        <div class="form" style="margin-top:10px;">
-          <label for="feedin-mode" id="l-feedin-mode"></label>
-          <select id="feedin-mode"><option value="reference"></option><option value="api"></option></select>
-        </div>
-        <p class="legend" id="p-feedin-hint"></p>
+    <div id="setup-view-price">
+      <p class="sub" id="p-sub"></p>
+      <details class="card sec setup-card" id="setup-card" open>
+        <summary><h2 id="h2-setup"></h2></summary>
+        <p class="sub" id="p-setup-intro" style="margin-bottom:8px"></p>
+        <ol class="checklist" id="ol-setup"></ol>
       </details>
-      <p class="legend" id="p-vat-hint"></p>
-      <div class="row">
-        <button class="btn primary" id="btn-vat-save"></button>
-        <span class="ok" id="vat-saved" hidden></span>
-        <span class="err" id="vat-error" hidden></span>
-      </div>
-    </details>
 
-    <details class="card sec">
-      <summary><h2 id="h2-monitor"></h2></summary>
-      <p class="legend" id="p-monitor-hint"></p>
-      <div class="form" style="margin-top:12px;">
-        <label for="monitor-hours" id="l-monitor-hours"></label>
-        <input type="number" id="monitor-hours" min="0" max="48" step="0.25" />
-      </div>
-      <p class="legend" id="p-monitor-list"></p>
-      <div id="monitor-list"></div>
-      <p class="legend" id="p-monitor-timeline"></p>
-      <label class="bk-check"><input type="checkbox" id="monitor-notify" /> <span id="l-monitor-notify"></span></label>
-      <div class="row">
-        <button class="btn primary" id="btn-monitor-save"></button>
-        <span class="ok" id="monitor-saved" hidden></span>
-        <span class="err" id="monitor-error" hidden></span>
-      </div>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-flowtest"></h2></summary>
-      <p class="legend" id="p-flowtest-hint"></p>
-      <div class="btn-stack"><button class="btn" id="btn-test-digest"></button><button class="btn" id="btn-test-reports"></button></div>
-      <p class="ok" id="flowtest-msg" hidden></p>
-      <p class="err" id="flowtest-err" hidden></p>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-hourly"></h2></summary>
-      <p class="legend" id="p-hourly-hint"></p>
-      <div class="form" style="margin-top:12px;">
-        <label for="hourly-unit" id="l-hourly-unit"></label>
-        <select id="hourly-unit"><option value="rp"></option><option value="chf"></option></select>
-        <label for="hourly-vat" id="l-hourly-vat"></label>
-        <select id="hourly-vat"><option value="incl"></option><option value="excl"></option></select>
-        <label for="hourly-decimals" id="l-hourly-decimals"></label>
-        <input type="number" id="hourly-decimals" min="0" max="6" step="1" />
-      </div>
-      <p class="legend" id="p-hourly-example"></p>
-      <div class="row">
-        <button class="btn primary" id="btn-hourly-save"></button>
-        <span class="ok" id="hourly-saved" hidden></span>
-        <span class="err" id="hourly-error" hidden></span>
-      </div>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-appearance"></h2></summary>
-      <div class="viewsw" id="theme-sw"></div>
-      <p class="legend" id="p-theme-hint"></p>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-ref"></h2></summary>
-      <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
-      <div id="ref-periods"></div>
-      <div class="row">
-        <button class="btn" id="btn-ref-add"></button>
-        <button class="btn primary" id="btn-ref-save"></button>
-        <span class="ok" id="ref-saved" hidden></span>
-        <span class="err" id="ref-error" hidden></span>
-      </div>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-battery"></h2></summary>
-      <p class="legend" id="p-battery-hint"></p>
-      <div class="form" style="margin-top:12px;">
-        <label for="bat-cap" id="l-bat-cap"></label><input type="number" id="bat-cap" min="1" step="0.1" />
-        <label for="bat-pow" id="l-bat-pow"></label><input type="number" id="bat-pow" min="0.5" step="0.1" />
-        <label for="bat-eff" id="l-bat-eff"></label><input type="number" id="bat-eff" min="50" max="100" step="1" />
-        <label for="bat-min" id="l-bat-min"></label><input type="number" id="bat-min" min="0" max="50" step="1" />
-        <label for="bat-max" id="l-bat-max"></label><input type="number" id="bat-max" min="50" max="100" step="1" />
-      </div>
-      <div class="row">
-        <button class="btn primary" id="btn-bat-save"></button>
-        <span class="ok" id="bat-saved" hidden></span>
-        <span class="err" id="bat-error" hidden></span>
-      </div>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-meters"></h2></summary>
-      <p class="sub" id="p-meters-intro" style="margin-bottom:8px"></p>
-      <ol id="ol-meters"></ol>
-      <p class="sub" id="p-meters-note"></p>
-      <div class="subhead" id="h3-reports"></div>
-      <div class="scroll"><table class="status"><tbody id="tb-reports"></tbody></table></div>
-    </details>
-
-    <details class="card sec">
-      <summary><h2 id="h2-manage"></h2></summary>
-      <p class="sub" id="p-manage-hint" style="margin-bottom:12px"></p>
-
-      <div class="manage-row">
-        <div class="form" style="grid-template-columns: 1fr 1fr;">
-          <label for="del-from" id="l-del-from"></label><input type="date" id="del-from" />
-          <label for="del-to" id="l-del-to"></label><input type="date" id="del-to" />
+      <details class="card sec">
+        <summary><h2 id="h2-general"></h2></summary>
+        <div class="form">
+          <label for="vat-input" id="l-vat"></label><input type="number" id="vat-input" min="0" max="100" step="0.1" />
         </div>
-        <button class="btn danger" id="btn-del-days"></button>
-      </div>
-
-      <div class="manage-row">
-        <select id="del-consumer"></select>
-        <button class="btn danger" id="btn-del-consumer"></button>
-      </div>
-
-      <div class="manage-row">
-        <span class="legend" id="p-baseline-hint"></span>
-        <button class="btn" id="btn-baselines"></button>
-      </div>
-
-      <div class="manage-row">
-        <span class="legend" id="p-reset-hint"></span>
-        <button class="btn danger" id="btn-reset"></button>
-      </div>
-      <div class="manage-row" style="display:block">
-        <h3 id="h3-backup" style="font-size:14px;margin:0 0 6px"></h3>
-        <p class="legend" id="p-backup-status" style="margin-top:0"></p>
-        <p class="legend" id="p-backup-hint"></p>
-        <div class="viewsw"><button class="btn small" id="btn-backup-save"></button><button class="btn small" id="btn-backup-export"></button></div>
-        <div id="backup-export-box" hidden>
-          <p class="legend" id="p-export-hint"></p>
-          <textarea id="backup-export-text" readonly rows="4" class="bk-text"></textarea>
-          <button class="btn small" id="btn-backup-copy"></button>
+        <details style="margin-top:12px;">
+          <summary id="sum-feedin"></summary>
+          <div class="form" style="margin-top:10px;">
+            <label for="feedin-mode" id="l-feedin-mode"></label>
+            <select id="feedin-mode"><option value="reference"></option><option value="api"></option></select>
+          </div>
+          <p class="legend" id="p-feedin-hint"></p>
+        </details>
+        <p class="legend" id="p-vat-hint"></p>
+        <div class="row">
+          <button class="btn primary" id="btn-vat-save"></button>
+          <span class="ok" id="vat-saved" hidden></span>
+          <span class="err" id="vat-error" hidden></span>
         </div>
-      </div>
-      <div class="manage-row" style="display:block">
-        <label for="backup-import-text" id="l-backup-import" style="display:block;margin-bottom:6px"></label>
-        <textarea id="backup-import-text" rows="3" class="bk-text"></textarea>
-        <div class="viewsw" style="margin-top:8px"><button class="btn small" id="btn-backup-check"></button></div>
-        <p class="legend" id="p-backup-check" hidden></p>
-        <div id="backup-preview" hidden></div>
-        <div id="backup-restore-row" hidden>
-          <label class="bk-check"><input type="checkbox" id="backup-with-settings" checked /> <span id="l-backup-settings"></span></label>
-          <div class="viewsw"><button class="btn" id="btn-backup-merge"></button><button class="btn danger" id="btn-backup-replace"></button></div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-ref"></h2></summary>
+        <p class="sub" id="p-ref-hint" style="margin-bottom:14px"></p>
+        <div id="ref-periods"></div>
+        <div class="row">
+          <button class="btn" id="btn-ref-add"></button>
+          <button class="btn primary" id="btn-ref-save"></button>
+          <span class="ok" id="ref-saved" hidden></span>
+          <span class="err" id="ref-error" hidden></span>
         </div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-meters"></h2></summary>
+        <div id="meters-auto"></div>
+        <details class="ems-adv" style="margin:10px 0"><summary id="sum-meters-flow" style="cursor:pointer;font-size:13px"></summary>
+        <p class="sub" id="p-meters-intro" style="margin-bottom:8px"></p>
+        <ol id="ol-meters"></ol>
+        <p class="sub" id="p-meters-note"></p>
+        </details>
+        <div class="subhead" id="h3-reports"></div>
+        <div class="scroll"><table class="status"><tbody id="tb-reports"></tbody></table></div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-hourly"></h2></summary>
+        <p class="legend" id="p-hourly-hint"></p>
+        <div class="form" style="margin-top:12px;">
+          <label for="hourly-unit" id="l-hourly-unit"></label>
+          <select id="hourly-unit"><option value="rp"></option><option value="chf"></option></select>
+          <label for="hourly-vat" id="l-hourly-vat"></label>
+          <select id="hourly-vat"><option value="incl"></option><option value="excl"></option></select>
+          <label for="hourly-decimals" id="l-hourly-decimals"></label>
+          <input type="number" id="hourly-decimals" min="0" max="6" step="1" />
+        </div>
+        <p class="legend" id="p-hourly-example"></p>
+        <div class="row">
+          <button class="btn primary" id="btn-hourly-save"></button>
+          <span class="ok" id="hourly-saved" hidden></span>
+          <span class="err" id="hourly-error" hidden></span>
+        </div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-battery"></h2></summary>
+        <p class="legend" id="p-battery-hint"></p>
+        <div class="form" style="margin-top:12px;">
+          <label for="bat-cap" id="l-bat-cap"></label><input type="number" id="bat-cap" min="1" step="0.1" />
+          <label for="bat-pow" id="l-bat-pow"></label><input type="number" id="bat-pow" min="0.5" step="0.1" />
+          <label for="bat-eff" id="l-bat-eff"></label><input type="number" id="bat-eff" min="50" max="100" step="1" />
+          <label for="bat-min" id="l-bat-min"></label><input type="number" id="bat-min" min="0" max="50" step="1" />
+          <label for="bat-max" id="l-bat-max"></label><input type="number" id="bat-max" min="50" max="100" step="1" />
+        </div>
+        <div class="row">
+          <button class="btn primary" id="btn-bat-save"></button>
+          <span class="ok" id="bat-saved" hidden></span>
+          <span class="err" id="bat-error" hidden></span>
+        </div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-monitor"></h2></summary>
+        <p class="legend" id="p-monitor-hint"></p>
+        <div class="form" style="margin-top:12px;">
+          <label for="monitor-hours" id="l-monitor-hours"></label>
+          <input type="number" id="monitor-hours" min="0" max="48" step="0.25" />
+        </div>
+        <p class="legend" id="p-monitor-list"></p>
+        <div id="monitor-list"></div>
+        <p class="legend" id="p-monitor-timeline"></p>
+        <label class="bk-check"><input type="checkbox" id="monitor-notify" /> <span id="l-monitor-notify"></span></label>
+        <div class="row">
+          <button class="btn primary" id="btn-monitor-save"></button>
+          <span class="ok" id="monitor-saved" hidden></span>
+          <span class="err" id="monitor-error" hidden></span>
+        </div>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-flowtest"></h2></summary>
+        <p class="legend" id="p-flowtest-hint"></p>
+        <div class="btn-stack"><button class="btn" id="btn-test-digest"></button><button class="btn" id="btn-test-reports"></button></div>
+        <p class="ok" id="flowtest-msg" hidden></p>
+        <p class="err" id="flowtest-err" hidden></p>
+      </details>
+
+    </div>
+
+    <div id="setup-view-ems" hidden>
+      <p class="sub" id="p-setup-ems"></p>
+      <div id="ems-devices-sec">
+        <h2 id="h2-emsdev" hidden></h2>
+        <div id="ems-view-devices"></div>
       </div>
-      <p class="ok" id="manage-msg" hidden></p>
-      <p class="err" id="manage-err" hidden></p>
-    </details>
+
+    </div>
+
+    <div id="setup-view-general" hidden>
+      <details class="card sec">
+        <summary><h2 id="h2-appearance"></h2></summary>
+        <div class="viewsw" id="theme-sw"></div>
+        <p class="legend" id="p-theme-hint"></p>
+      </details>
+
+      <details class="card sec">
+        <summary><h2 id="h2-manage"></h2></summary>
+        <p class="sub" id="p-manage-hint" style="margin-bottom:12px"></p>
+
+        <div class="manage-row">
+          <div class="form" style="grid-template-columns: 1fr 1fr;">
+            <label for="del-from" id="l-del-from"></label><input type="date" id="del-from" />
+            <label for="del-to" id="l-del-to"></label><input type="date" id="del-to" />
+          </div>
+          <button class="btn danger" id="btn-del-days"></button>
+        </div>
+
+        <div class="manage-row">
+          <select id="del-consumer"></select>
+          <button class="btn danger" id="btn-del-consumer"></button>
+        </div>
+
+        <div class="manage-row">
+          <span class="legend" id="p-baseline-hint"></span>
+          <button class="btn" id="btn-baselines"></button>
+        </div>
+
+        <div class="manage-row">
+          <span class="legend" id="p-reset-hint"></span>
+          <button class="btn danger" id="btn-reset"></button>
+        </div>
+        <div class="manage-row">
+          <span class="legend" id="p-emsreset-hint"></span>
+          <button class="btn danger" id="btn-emsreset"></button>
+        </div>
+        <div class="manage-row" style="display:block">
+          <h3 id="h3-backup" style="font-size:14px;margin:0 0 6px"></h3>
+          <p class="legend" id="p-backup-status" style="margin-top:0"></p>
+          <p class="legend" id="p-backup-hint"></p>
+          <div class="viewsw"><button class="btn small" id="btn-backup-save"></button><button class="btn small" id="btn-backup-export"></button></div>
+          <div id="backup-export-box" hidden>
+            <p class="legend" id="p-export-hint"></p>
+            <textarea id="backup-export-text" readonly rows="4" class="bk-text"></textarea>
+            <button class="btn small" id="btn-backup-copy"></button>
+          </div>
+        </div>
+        <div class="manage-row" style="display:block">
+          <label for="backup-import-text" id="l-backup-import" style="display:block;margin-bottom:6px"></label>
+          <textarea id="backup-import-text" rows="3" class="bk-text"></textarea>
+          <div class="viewsw" style="margin-top:8px"><button class="btn small" id="btn-backup-check"></button></div>
+          <p class="legend" id="p-backup-check" hidden></p>
+          <div id="backup-preview" hidden></div>
+          <div id="backup-restore-row" hidden>
+            <label class="bk-check"><input type="checkbox" id="backup-with-settings" checked /> <span id="l-backup-settings"></span></label>
+            <div class="viewsw"><button class="btn" id="btn-backup-merge"></button><button class="btn danger" id="btn-backup-replace"></button></div>
+          </div>
+        </div>
+        <p class="ok" id="manage-msg" hidden></p>
+        <p class="err" id="manage-err" hidden></p>
+      </details>
+
+      <details class="card sec help-sec">
+        <summary><h2 id="h2-helpsec"></h2></summary>
+        <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
+        <button class="btn" id="btn-forum"></button>
+      </details>
+
+    </div>
   </div>
 
-  <div class="panel" id="panel-help">
-    <div class="card">
-      <h2 id="h2-forum"></h2>
-      <p class="sub" id="hint-forum" style="margin-bottom:12px"></p>
-      <button class="btn" id="btn-forum"></button>
-    </div>
-
-    <div class="card">
-      <h2 id="h2-recommend"></h2>
-      <p class="sub" id="p-recommend-sub" style="margin-bottom:0"></p>
-      <dl class="recommend" id="dl-recommend"></dl>
-    </div>
-
-    <div class="card">
-      <h2 id="h2-features"></h2>
-      <ul id="ul-features"></ul>
-    </div>
+  <div class="panel" id="panel-ems">
+    <div id="ems-view-plan"></div>
   </div>
 
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <script type="text/javascript" src="ems.js"></script>
+  <script type="text/javascript" src="meters.js"></script>
+  <script type="text/javascript" src="diag.js"></script>
+  <script type="text/javascript" src="setupnav.js"></script>
   <script type="text/javascript">
     var LANG = (function () {
       var m = /[?&]lang=(de|fr|it|en)/.exec(location.search);
@@ -498,18 +653,7 @@
       agoBefore: true,
       title: 'Dynamischer Stromtarif CH',
       sub: '15-Minuten-Preise für Schweizer Netzbetreiber mit der Innostrom-Plattform (Swisspower)',
-      tabs: { overview: 'Übersicht', costs: 'Kosten', settings: 'Einstellungen', help: 'Hilfe' },
-      featuresHeading: 'Was die App kann',
-      features: [
-        'Pairing über Messpunktnummer + API-Token — Test/Produktiv-Umgebung wird automatisch erkannt',
-        'Automatischer Abruf: heute + morgen beim Start, täglich um 16:05 für morgen, mit Backoff bei Fehlern',
-        '12 Capabilities (plus 8 wählbare: Kostenwerte, Einspeisepreis und Batterie-Analyse): aktueller/Energie-/Netz-/nächster Preis, Tiefst/Höchst/Ø heute, Rang, Preisniveau, "keine Preise für morgen"-Alarm, "Zählermeldungen fehlen"-Alarm, letzte Aktualisierung',
-        '26 Flow-Karten: Preisänderung, Preisschwellen, Preise-für-morgen-verfügbar, Tageszusammenfassung, Zählermeldungen bleiben aus/kommen wieder, günstigste/teuerste Viertelstunden, Preisniveau-Bedingung, günstigster Block (festes Tagesfenster, ab jetzt bis Uhrzeit, innerhalb der nächsten Stunden), Stundenpreise heute/morgen als JSON (z. B. für EMS-Apps), manuelles Neuladen und Zählerstände melden für die Kostenauswertung',
-        'Zwei Dashboard-Widgets: Preiskurve für heute und morgen (mit Referenzlinie) und Kosten/Ersparnis gegenüber deinem Standardtarif',
-        'Kostenvergleich: Bezug, Einspeisung und Batterie zum dynamischen Preis, verglichen mit einem konfigurierbaren Referenztarif (Registerkarte «Kosten»)',
-      ],
-      recommendHeading: 'Empfohlene Einstellungen',
-      recommendSub: 'MWST und Referenztarif hier in der App, alles andere pro Gerät unter dessen Zahnrad-Symbol.',
+      tabs: { overview: 'Heute', costs: 'Kosten', settings: 'Einrichten', help: 'Hilfe &amp; Forum' },
       generalHeading: 'Allgemein',
       feedInSummary: 'Erweitert: Einspeisung im dynamischen Tarif',
       feedInLabel: 'Einspeisung bewerten',
@@ -519,13 +663,6 @@
       vatLabel: 'MWST (%)',
       vatHint: 'Wird auf die API-Preise (exkl. MWST) aufgeschlagen und gilt für alle Anzeigen, Flow-Karten und die Kostenauswertung. 0 = Preise exkl. MWST.',
       vatInvalid: 'Ungültiger Wert (0 bis 100).',
-      recommend: [
-        { dt: 'Preis für Flows', dd: '<code>integrated</code> (Gesamtpreis) — das ist der Wert, der für Entscheidungen zählt, nicht nur Energie oder nur Netz' },
-        { dt: 'MWST', dd: '<code>8.1%</code> — aktueller Schweizer Satz, anpassen falls er sich ändert' },
-        { dt: 'Einheitstarif (Fallback)', dd: '<code>0</code> (deaktiviert), bis dein Einheitstarif bekannt ist. Er gilt als Ersatzpreis, wenn für einen Tag keine Preise vorliegen' },
-        { dt: 'Preisniveau-Schwellen', dd: 'Standard (75/90/110/125%) — sinnvoll kalibrieren erst mit echten, schwankenden Preisdaten möglich' },
-        { dt: 'Referenztarif', dd: 'Dein heutiger Standardtarif in Rp./kWh inkl. MWST (Tab «Einstellungen», Abschnitt «Referenztarif»)' },
-      ],
       liveHeading: 'Aktuelle Werte',
       loading: 'Lädt…',
       loadFailed: 'Werte konnten nicht geladen werden.',
@@ -552,13 +689,14 @@
       batHint: 'Nutzbare Kapazität, maximale Leistung (gilt für Laden und Entladen gleichermassen, in kW am Netzanschluss) und Wirkungsgrad hin und zurück deiner Batterie sowie der Ladebereich (Standard 5 bis 90 %), in dem ein Ladeplan die Batterie bewegen darf. Sie bestimmen, was ein optimaler Ladeplan im Kosten-Tab bringen würde.',
       shadowHeading: 'Batterie-Potenzial (Schattenrechnung)',
       shadowIntro: 'Es wird nichts gesteuert. Für jeden vollen Tag wird nachgerechnet, was ein optimaler Ladeplan gebracht hätte. Grundlage sind deine gemeldeten Zähler und die Preise. Alle Beträge sind die Netto-Stromkosten des Tages in CHF, kleiner ist besser.',
-      shadowCols: { day: 'Tag', actual: 'Real', pv: 'Nur PV', grid: 'Mit Netz', val: 'Wert Netzl.', eff: 'Effizienz' },
+      shadowCols: { day: 'Tag', actual: 'Real', plan: 'Fahrplan', pv: 'Nur PV', grid: 'Mit Netz', val: 'Wert Netzl.', eff: 'Effizienz' },
+      shadowPlanEff: 'Fahrplan erreicht:', shadowPlanNote: 'Fahrplan = was der Fahrplan des Energiemanagements gekostet hätte (Modell, simuliert mit Hausverbrauch, Solarstrom und Preisen im Moment des Entscheids). Er rechnet mit Momentanwerten, die anderen Spalten mit den Zählerständen: Unterschiede von wenigen Rappen pro Tag sind Rauschen.',
       shadowEff: 'Effizienz gesamt:', shadowEffNote: 'Effizienz = Anteil des bestmöglichen Batterie-Nutzens (Ohne Batterie minus Mit Netz), den dein realer Tag erreicht hat, 0 bis 100 %. Tage mit weniger als CHF 0.10 Potenzial zählen nicht. Ein Tag kann den Plan schlagen, weil die Rechnung nur eine Schätzung ist.',
       shadowNote: 'Real = tatsächliche Kosten zu dynamischen Preisen. Nur PV = optimaler Plan, der nur PV-Überschuss lädt. Mit Netz = optimaler Plan mit Laden aus dem Netz. Wert Netzl. = Nur PV minus Mit Netz, also was das Laden zu günstigen Zeiten zusätzlich wert gewesen wäre. Die Batterie speist in der Rechnung nie ins Netz ein. Schätzung: Die Zähler ändern sich grob, die Aufteilung auf Viertelstunden ist ungenau.',
       shadowNone: 'Noch kein voller Tag ausgewertet. Der erste erscheint nach Mitternacht.',
       shadowSum: 'Summe', shadowUnused: 'Ungenutztes Potenzial (Real minus Mit Netz):', shadowValue: 'Wert der Netzladung:',
       batCap: 'Batterie nutzbar (kWh)', batPow: 'Max. Lade- und Entladeleistung (kW)', batEff: 'Wirkungsgrad hin und zurück (%)', batMin: 'Minimaler Ladestand (%)', batMax: 'Maximaler Ladestand (%)',
-      hourlyHeading: 'Stundenpreise für ein EMS', hourlyHint: 'Format der JSON-Liste in den Karten «Stundenpreise heute/morgen abrufen». So reichst du sie direkt an ein Energiemanagementsystem weiter, ohne sie in einem HomeyScript umzurechnen. Gilt nur für diese beiden Karten.', hourlyUnit: 'Einheit', hourlyUnitRp: 'Rp./kWh', hourlyUnitChf: 'CHF/kWh', hourlyVat: 'MWST', hourlyVatIncl: 'inkl. MWST', hourlyVatExcl: 'exkl. MWST', hourlyDecimals: 'Nachkommastellen (leer = automatisch)', hourlyExample: 'Beispiel', hourlyInvalid: 'Nachkommastellen: ganze Zahl von 0 bis 6.',
+      hourlyHeading: 'Stundenpreise für ein externes EMS', hourlyHint: 'Format der JSON-Liste in den Karten «Stundenpreise heute/morgen abrufen». So reichst du sie direkt an ein Energiemanagementsystem weiter, ohne sie in einem HomeyScript umzurechnen. Gilt nur für diese beiden Karten. Die App hat auch eine eigene EMS-Funktion (Reiter «EMS»), dafür brauchst du das nicht.', hourlyUnit: 'Einheit', hourlyUnitRp: 'Rp./kWh', hourlyUnitChf: 'CHF/kWh', hourlyVat: 'MWST', hourlyVatIncl: 'inkl. MWST', hourlyVatExcl: 'exkl. MWST', hourlyDecimals: 'Nachkommastellen (leer = automatisch)', hourlyExample: 'Beispiel', hourlyInvalid: 'Nachkommastellen: ganze Zahl von 0 bis 6.',
       appearanceHeading: 'Darstellung', themeAuto: 'Automatisch', themeLight: 'Hell', themeDark: 'Dunkel',
       themeHint: 'Automatisch übernimmt die Einstellung deines Geräts bzw. der Homey-App. Gilt nur für diese Einstellungsseite, die Widgets folgen immer Homey.',
       viewToday: 'Heute', viewYesterday: 'Gestern', view30: '30 Tage', dayPrev: 'Vorheriger Tag', dayNext: 'Nächster Tag', view30Need: '30 Tage: ab 7 Tagen mit Daten (aktuell ', view30Days: ')',
@@ -594,17 +732,18 @@
       setupIntro: 'So kommen Kosten und Ersparnis in das Widget und in den Tab «Kosten»:',
       setupSteps: [
         { t: 'Referenztarif eintragen', d: 'Im Abschnitt «Referenztarif» weiter unten: dein bisheriger Preis für Bezug (Rp./kWh inkl. MWST) und die Einspeisevergütung, direkt oder mit dem Rechner aus den Zeilen deiner Rechnung. Speichern nicht vergessen.' },
-        { t: 'Zählerstände per Flow melden', d: 'Einen Flow anlegen: Wenn «Zeit: alle 15 Minuten», dann die Karten dieser App «Netzbezug-Zählerstand melden», «Einspeisung-Zählerstand melden» und optional für die Batterie «…Ladung…» und «…Entladung…». Als Wert ziehst du den kumulierten kWh-Zähler deines Geräts als Token in das Feld (Details unten).' },
+        { t: 'Zähler wählen', d: 'Im Abschnitt «Zählerstände» weiter unten: für Netzbezug, Einspeisung und optional Batterie das Gerät und den kumulierten kWh-Wert aus der Liste wählen. Die App liest die Werte alle 15 Minuten selbst. Alternativ kannst du sie per Flow melden.' },
         { t: 'Kurz warten', d: 'Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Zähler mit grober Auflösung (z. B. Wechselrichter) ändern sich nur alle paar Minuten, dann dauert es entsprechend länger.' },
       ],
-      metersHeading: 'Zählerstände melden (Flows)',
-      metersIntro: 'Die App liest keine anderen Geräte selbst. Dafür baust du pro Zähler einen Flow:',
+      metersHeading: 'Zählerstände',
+      metersFlowSummary: 'Alternativ: Werte per Flow melden',
+      metersIntro: 'Oben wählst du die Zähler, die App liest sie selbst. Alternativ, oder wenn ein Zähler nicht in der Liste ist, meldest du die Werte per Flow:',
       metersSteps: [
         'Neuer Flow, Trigger «Zeit: Alle 15 Minuten» (oder «Zählerstand hat sich geändert» deines Zählers)',
         'Aktion: «Netzbezug-Zählerstand melden» (Gerät: dein Innostrom-Gerät)',
         'Im Feld «Zählerstand» auf das Token-Symbol tippen, dein Zähler-Gerät wählen und den kumulierten Wert in kWh nehmen, der immer weiter hochzählt (nicht die Leistung in W und nicht «heute»)',
         'Dasselbe als weitere Aktionen im selben Flow: «Einspeisung-Zählerstand melden» sowie optional «Batterie-Ladung…» und «Batterie-Entladung…»',
-        { text: 'Beispiel Huawei EMMA:', bullets: ['Bezug: meter_power des Energiezählers', 'Einspeisung: meter_power.exported des Energiezählers', 'Batterie: meter_power.charged und meter_power.discharged der LUNA2000'] },
+        { text: 'Beispiel Energiezähler mit Batterie:', bullets: ['Bezug: meter_power des Energiezählers', 'Einspeisung: meter_power.exported des Energiezählers', 'Batterie: meter_power.charged und meter_power.discharged der Batterie'] },
         'Optional «Verbraucher-Zählerstand melden» für E-Auto oder Wärmepumpe (Name + kWh-Zähler): zeigt, zu welchem Preis sie liefen',
       ],
       metersNote: 'Mindestens stündlich melden. Die erste Meldung setzt nur die Basis, ab der zweiten werden kWh bewertet. Bei längerer Pause wird der Zuwachs der letzten Stunde zugerechnet.',
@@ -641,6 +780,8 @@
       baselineHint: 'Zählerbasis zurücksetzen, zum Beispiel nach einem Zählerwechsel. Gesammelte Daten bleiben, die nächste Meldung setzt nur die Basis.',
       baselineButton: 'Zählerbasis zurücksetzen',
       resetHint: 'Löscht alle gesammelten Kostendaten, Verbraucher und Zählerbasiswerte.',
+      emsResetHint: 'Energiemanagement: löscht Vergleich, Kosten der Entscheide, Protokoll und Plan-Verlauf, zum Beispiel beim Wechsel vom Test in den echten Betrieb. Der gelernte Hausverbrauch, die Einstellungen und Aufträge bleiben.',
+      emsResetButton: 'EMS-Protokolle und Auswertungen löschen',
       resetButton: 'Alle Kostendaten löschen', confirm: 'Wirklich? Nochmals klicken', manageDone: 'Erledigt', manageDays: 'Gelöschte Tage:',
       invalidTime: 'Ungültige Uhrzeit (Format HH:MM).',
     };
@@ -648,18 +789,7 @@
     var T_EN = {
       title: 'Swiss Dynamic Electricity Tariff',
       sub: '15-minute prices for Swiss grid operators using the Innostrom platform (Swisspower)',
-      tabs: { overview: 'Overview', costs: 'Costs', settings: 'Settings', help: 'Help' },
-      featuresHeading: 'What this app does',
-      features: [
-        'Pairing via metering point number + API token — the test/production environment is detected automatically',
-        'Automatic fetching: today + tomorrow on startup, daily at 16:05 for tomorrow, with backoff on errors',
-        '12 capabilities (plus 8 optional: cost values, feed-in price and battery analysis): current/energy/grid/next price, today\'s low/high/average, rank, price level, "no prices for tomorrow" alarm, "meter readings missing" alarm, last update',
-        '26 Flow cards: price change, price thresholds, prices-for-tomorrow-available, day summarised, meter readings stopped/are back, cheapest/most expensive quarter-hours, price level condition, cheapest block (fixed daily window, from now until a time, within the next hours), hourly prices for today/tomorrow as JSON (e.g. for EMS apps), manual refresh and meter-reading cards for the cost analysis',
-        'Two dashboard widgets: price curve for today and tomorrow (with reference line) and costs/savings compared to your standard tariff',
-        'Cost comparison: import, export and battery at the dynamic price, compared with a configurable reference tariff ("Costs" tab)',
-      ],
-      recommendHeading: 'Recommended settings',
-      recommendSub: 'VAT and reference tariff here in the app, everything else per device under its gear icon.',
+      tabs: { overview: 'Today', costs: 'Costs', settings: 'Set up', help: 'Help &amp; forum' },
       generalHeading: 'General',
       feedInSummary: 'Advanced: feed-in in the dynamic tariff',
       feedInLabel: 'Value feed-in',
@@ -669,13 +799,6 @@
       vatLabel: 'VAT (%)',
       vatHint: 'Added on top of the API prices (excl. VAT) and applies to all displays, Flow cards and the cost analysis. 0 = prices excl. VAT.',
       vatInvalid: 'Invalid value (0 to 100).',
-      recommend: [
-        { dt: 'Price for Flows', dd: '<code>integrated</code> (total price) — this is the value that matters for decisions, not just energy or just grid' },
-        { dt: 'VAT', dd: '<code>8.1%</code> — current Swiss rate, adjust if it changes' },
-        { dt: 'Flat-rate fallback', dd: '<code>0</code> (disabled), until your flat tariff is known. It serves as the substitute price when a day has no prices' },
-        { dt: 'Price level thresholds', dd: 'Defaults (75/90/110/125%) — sensible calibration is only possible once real, fluctuating price data is available' },
-        { dt: 'Reference tariff', dd: 'Your current standard tariff in Rp./kWh incl. VAT ("Settings" tab, "Reference tariff" section)' },
-      ],
       liveHeading: 'Current values',
       loading: 'Loading…',
       loadFailed: 'Could not load values.',
@@ -702,13 +825,14 @@
       batHint: 'Usable capacity, maximum power (the same for charging and discharging, in kW on the AC side) and round-trip efficiency of your battery, plus the charge range (default 5 to 90 %) a charging plan may use. They determine what an optimal charging plan would bring in the Costs tab.',
       shadowHeading: 'Battery potential (shadow calculation)',
       shadowIntro: 'Nothing is controlled. For every full day this recomputes what an optimal charging plan would have brought, based on your reported meters and the prices. All amounts are the net electricity costs of the day in CHF, lower is better.',
-      shadowCols: { day: 'Day', actual: 'Actual', pv: 'PV only', grid: 'With grid', val: 'Grid value', eff: 'Efficiency' },
+      shadowCols: { day: 'Day', actual: 'Actual', plan: 'Schedule', pv: 'PV only', grid: 'With grid', val: 'Grid value', eff: 'Efficiency' },
+      shadowPlanEff: 'Schedule reaches:', shadowPlanNote: 'Schedule = what the energy management schedule would have cost (model, simulated with house consumption, solar power and prices at decision time). It uses instantaneous values, the other columns use the meter readings: differences of a few Rappen per day are noise.',
       shadowEff: 'Overall efficiency:', shadowEffNote: 'Efficiency = share of the best possible battery benefit (No battery minus With grid) that your real day achieved, 0 to 100 %. Days with less than CHF 0.10 potential do not count. A day can beat the plan because the calculation is only an estimate.',
       shadowNote: 'Actual = real costs at dynamic prices. PV only = optimal plan that charges from PV surplus only. With grid = optimal plan that may also charge from the grid. Grid value = PV only minus With grid, i.e. what charging at cheap times would additionally have been worth. In the calculation the battery never exports to the grid. An estimate: the meters change coarsely, so the split into quarter-hours is imprecise.',
       shadowNone: 'No full day analysed yet. The first one appears after midnight.',
       shadowSum: 'Total', shadowUnused: 'Unused potential (Actual minus With grid):', shadowValue: 'Value of grid charging:',
       batCap: 'Usable battery (kWh)', batPow: 'Max. charge and discharge power (kW)', batEff: 'Round-trip efficiency (%)', batMin: 'Minimum charge level (%)', batMax: 'Maximum charge level (%)',
-      hourlyHeading: 'Hourly prices for an EMS', hourlyHint: 'Format of the JSON list in the cards "Get today\'s / tomorrow\'s hourly prices". Hand it straight to an energy management system without converting it in a HomeyScript. Applies to these two cards only.', hourlyUnit: 'Unit', hourlyUnitRp: 'Rp./kWh', hourlyUnitChf: 'CHF/kWh', hourlyVat: 'VAT', hourlyVatIncl: 'incl. VAT', hourlyVatExcl: 'excl. VAT', hourlyDecimals: 'Decimals (empty = automatic)', hourlyExample: 'Example', hourlyInvalid: 'Decimals: whole number from 0 to 6.',
+      hourlyHeading: 'Hourly prices for an external EMS', hourlyHint: 'Format of the JSON list in the cards "Get today\'s / tomorrow\'s hourly prices". Hand it straight to an energy management system without converting it in a HomeyScript. Applies to these two cards only.', hourlyUnit: 'Unit', hourlyUnitRp: 'Rp./kWh', hourlyUnitChf: 'CHF/kWh', hourlyVat: 'VAT', hourlyVatIncl: 'incl. VAT', hourlyVatExcl: 'excl. VAT', hourlyDecimals: 'Decimals (empty = automatic)', hourlyExample: 'Example', hourlyInvalid: 'Decimals: whole number from 0 to 6. The app also has its own EMS function ("EMS" tab), so you do not need this for it.',
       appearanceHeading: 'Appearance', themeAuto: 'Automatic', themeLight: 'Light', themeDark: 'Dark',
       themeHint: 'Automatic follows your device or the Homey app. Applies to this settings page only; widgets always follow Homey.',
       viewToday: 'Today', viewYesterday: 'Yesterday', view30: '30 days', dayPrev: 'Previous day', dayNext: 'Next day', view30Need: '30 days: needs 7 days with data (now ', view30Days: ')',
@@ -744,17 +868,18 @@
       setupIntro: 'This is how costs and savings get into the widget and the "Costs" tab:',
       setupSteps: [
         { t: 'Enter your reference tariff', d: 'In the "Reference tariff" section below: your previous import price (Rp./kWh incl. VAT) and feed-in price, entered directly or with the calculator from the lines of your bill. Don\'t forget to save.' },
-        { t: 'Report meter readings from a Flow', d: 'Create a Flow: When "Time: every 15 minutes", then this app\'s cards "Report grid import counter", "Report grid export counter" and optionally "…battery charge…" and "…discharge…". As the value, drag your device\'s cumulative kWh counter into the field as a token (details below).' },
+        { t: 'Choose your meters', d: 'In the "Meter readings" section below: pick the device and the cumulative kWh value for grid import, grid export and optionally the battery. The app reads the values itself every 15 minutes. Alternatively you can report them with a Flow.' },
         { t: 'Wait a little', d: 'The first report only sets the baseline; from the second one kWh are priced. Counters with coarse resolution (e.g. inverters) only change every few minutes, so it takes correspondingly longer.' },
       ],
-      metersHeading: 'Reporting meter readings (Flows)',
-      metersIntro: 'The app does not read other devices itself. Build one Flow per meter:',
+      metersHeading: 'Meter readings',
+      metersFlowSummary: 'Alternative: report values with a Flow',
+      metersIntro: 'Choose your meters above and the app reads them itself. Alternatively, or if a meter is not in the list, report the values with a Flow:',
       metersSteps: [
         'New Flow, trigger "Time: Every 15 minutes" (or your meter\'s "reading has changed")',
         'Action: "Report grid import counter" (device: your Innostrom device)',
         'In the "Counter" field tap the token icon, pick your meter device and take the cumulative value in kWh that keeps counting up (not the power in W and not "today")',
         'Add the same as further actions in that Flow: "Report grid export counter" and optionally "Battery charge…" and "Battery discharge…"',
-        { text: 'Example Huawei EMMA:', bullets: ['Import: meter_power of the energy meter', 'Export: meter_power.exported of the energy meter', 'Battery: meter_power.charged and meter_power.discharged of the LUNA2000'] },
+        { text: 'Example energy meter with battery:', bullets: ['Import: meter_power of the energy meter', 'Export: meter_power.exported of the energy meter', 'Battery: meter_power.charged and meter_power.discharged of the battery'] },
         'Optionally "Report consumer counter" for an EV or heat pump (name + kWh counter): shows the price they ran at',
       ],
       metersNote: 'Report at least hourly. The first report only sets the baseline; from the second one kWh are priced. After a long pause the increase is attributed to the last hour.',
@@ -791,12 +916,14 @@
       baselineHint: 'Reset the meter baselines, for example after replacing a meter. Collected data stays, the next report only sets the baseline.',
       baselineButton: 'Reset meter baselines',
       resetHint: 'Deletes all collected cost data, consumers and meter baselines.',
+      emsResetHint: 'Energy management: deletes comparison, cost of the decisions, log and plan history, e.g. when switching from test to real operation. The learned house consumption, settings and jobs are kept.',
+      emsResetButton: 'Delete EMS logs and evaluations',
       resetButton: 'Delete all cost data', confirm: 'Really? Click again', manageDone: 'Done', manageDays: 'Deleted days:',
       invalidTime: 'Invalid time (format HH:MM).',
     };
 
-    var T_FR = {"title":"Tarif électrique dynamique CH","sub":"Prix par quart d'heure pour les gestionnaires de réseau suisses utilisant la plateforme Innostrom (Swisspower)","tabs":{"overview":"Aperçu","costs":"Coûts","settings":"Réglages","help":"Aide"},"featuresHeading":"Ce que fait cette app","features":["Couplage via le numéro du point de mesure + jeton API — l'environnement de test ou de production est détecté automatiquement","Récupération automatique : aujourd'hui + demain au démarrage, chaque jour à 16 h 05 pour demain, avec temporisation en cas d'erreur","12 capabilities (plus 8 facultatives : valeurs de coût, prix de reprise et analyse de la batterie) : prix actuel/énergie/réseau/suivant, minimum/maximum/moyenne du jour, rang, niveau de prix, alarme « pas de prix pour demain », alarme « relevés de compteurs manquants », dernière mise à jour","26 cartes Flow : changement de prix, seuils de prix, prix de demain disponibles, journée évaluée, relevés de compteurs manquants/de retour, quarts d'heure les moins/plus chers, condition de niveau de prix, bloc le moins cher (fenêtre journalière fixe, à partir de maintenant jusqu'à une heure, dans les prochaines heures), prix horaires d'aujourd'hui/demain en JSON (p. ex. pour des apps EMS), rechargement manuel et cartes de relevés de compteurs pour l'analyse des coûts","Deux widgets de tableau de bord : courbe des prix d'aujourd'hui et de demain (avec ligne de référence) et coûts/économies par rapport à votre tarif standard","Comparaison des coûts : soutirage, injection et batterie au prix dynamique, comparés à un tarif de référence configurable (onglet « Coûts »)"],"recommendHeading":"Réglages recommandés","recommendSub":"TVA et tarif de référence ici dans l'app, tout le reste par appareil sous son icône d'engrenage.","generalHeading":"Général","feedInSummary":"Avancé : injection dans le tarif dynamique","feedInLabel":"Valoriser l'injection","feedInRef":"comme le tarif de référence (prudent)","feedInApi":"prix de l'API (feed_in)","feedInHint":"Les tarifs dynamiques sont en général décrits pour la consommation uniquement. Si et comment l'injection est rémunérée dynamiquement dépend de votre gestionnaire de réseau. Par défaut : l'injection est valorisée comme le tarif de référence et ne modifie pas la comparaison. « API » utilise le prix feed_in fourni par l'API et ne s'applique qu'aux données collectées ensuite.","vatLabel":"TVA (%)","vatHint":"Ajoutée aux prix de l'API (hors TVA) et valable pour tous les affichages, cartes Flow et l'analyse des coûts. 0 = prix hors TVA.","vatInvalid":"Valeur invalide (0 à 100).","recommend":[{"dt":"Prix pour les Flows","dd":"<code>integrated</code> (prix total) — c'est la valeur qui compte pour les décisions, pas seulement l'énergie ou seulement le réseau"},{"dt":"TVA","dd":"<code>8.1%</code> — taux suisse actuel, à adapter s'il change"},{"dt":"Prix de remplacement","dd":"<code>0</code> (désactivé), jusqu'à ce que votre tarif forfaitaire soit connu. Il sert de prix de remplacement lorsqu'un jour n'a pas de prix"},{"dt":"Seuils du niveau de prix","dd":"Valeurs par défaut (75/90/110/125 %) — un calibrage judicieux n'est possible qu'avec des données de prix réelles et fluctuantes"},{"dt":"Tarif de référence","dd":"Votre tarif standard actuel en Rp./kWh TVA comprise (onglet « Réglages », section « Tarif de référence »)"}],"liveHeading":"Valeurs actuelles","loading":"Chargement…","loadFailed":"Impossible de charger les valeurs.","noDevice":"Aucun appareil couplé pour l'instant.","noTomorrow":"Pas de prix pour demain","lastUpdate":"Mis à jour :","forumTitle":"Des questions ou des problèmes ?","forumHint":"Les réponses aux questions fréquentes, le guide des réglages et le contact direct avec le développeur se trouvent dans le fil du forum de la communauté.","forumButton":"Aller au fil du forum","chips":{"energy":"Énergie","grid":"Réseau","next":"Suivant","rank":"Rang aujourd'hui","min":"Le plus bas","avg":"Moy. aujourd'hui","max":"Le plus élevé"},"levels":{"very_cheap":"Très bon marché","cheap":"Bon marché","normal":"Normal","expensive":"Cher","very_expensive":"Très cher"},"costsHeading":"Coûts et économies","periods":{"today":"Aujourd'hui","week":"7 jours","month":"Mois","total":"Total"},"cols":{"period":"Période","import":"Soutirage kWh","export":"Injection kWh","dyn":"Net dynamique","ref":"Net référence","diff":"Différence"},"colsShort":{"period":"Période","import":"Soutir.","export":"Inject.","dyn":"Dyn.","ref":"Réf.","diff":"Diff."},"tableNote":"Soutirage et injection en kWh, coûts nets en CHF. Dyn. = tarif dynamique, Réf. = tarif de référence, Diff. = économisé (vert) ou plus cher (rouge).","saved":"économisé","pricier":"plus cher","batteryBenefit":"Bénéfice de la batterie grâce au tarif (estimation : charge depuis le réseau au prix d'achat, charge PV au prix de reprise manqué, décharge au prix d'achat évité ; déjà compris dans les chiffres ci-dessus)","unpriced":"Les kWh sans prix (données manquantes) ne sont pas inclus dans les coûts :","avgPrices":"Prix d'achat moyen dynamique / référence (Rp./kWh) :","dailyHeading":"30 derniers jours","chartHeading":"Prix (barres), référence (pointillés) et soutirage (bleu)","batHeading":"Batterie (pour le calcul fantôme)","batHint":"Capacité utilisable, puissance maximale (identique en charge et en décharge, en kW côté courant alternatif) et rendement aller-retour de votre batterie, ainsi que la plage de charge (par défaut 5 à 90 %) qu'un plan de charge peut utiliser. Ils déterminent ce qu'un plan de charge optimal rapporterait dans l'onglet Coûts.","shadowHeading":"Potentiel de la batterie (calcul fantôme)","shadowIntro":"Rien n'est piloté. Pour chaque journée complète, on recalcule ce qu'un plan de charge optimal aurait rapporté, d'après vos compteurs transmis et les prix. Tous les montants sont les coûts nets d'électricité du jour en CHF, plus petit = mieux.","shadowCols":{"day":"Jour","actual":"Réel","pv":"PV seul","grid":"Avec réseau","val":"Val. charge rés.","eff":"Efficacité"},"shadowEff":"Efficacité globale :","shadowEffNote":"Efficacité = part du meilleur bénéfice possible de la batterie (Sans batterie moins Avec réseau) que votre journée réelle a atteinte, de 0 à 100 %. Les jours avec moins de CHF 0.10 de potentiel ne comptent pas. Un jour peut battre le plan, car le calcul n'est qu'une estimation.","shadowNote":"Réel = coûts réels aux prix dynamiques. PV seul = plan optimal qui ne charge qu'avec le surplus PV. Avec réseau = plan optimal pouvant aussi charger depuis le réseau. Val. charge rés. = PV seul moins Avec réseau, c'est-à-dire ce que la charge aux heures creuses aurait rapporté en plus. Dans le calcul, la batterie n'injecte jamais dans le réseau. Une estimation : les compteurs changent par paliers, la répartition en quarts d'heure est donc imprécise.","shadowNone":"Aucune journée complète analysée pour l'instant. La première apparaît après minuit.","shadowSum":"Somme","shadowUnused":"Potentiel inutilisé (Réel moins Avec réseau) :","shadowValue":"Valeur de la charge depuis le réseau :","batCap":"Batterie utilisable (kWh)","batPow":"Puissance max. de charge et de décharge (kW)","batEff":"Rendement aller-retour (%)","batMin":"Niveau de charge minimal (%)","batMax":"Niveau de charge maximal (%)","hourlyHeading":"Prix horaires pour un EMS","hourlyHint":"Format de la liste JSON des cartes « Récupérer les prix horaires d'aujourd'hui / de demain ». Transmettez-la directement à un système de gestion de l'énergie sans la convertir dans un HomeyScript. Ne s'applique qu'à ces deux cartes.","hourlyUnit":"Unité","hourlyUnitRp":"Rp./kWh","hourlyUnitChf":"CHF/kWh","hourlyVat":"TVA","hourlyVatIncl":"TVA comprise","hourlyVatExcl":"hors TVA","hourlyDecimals":"Décimales (vide = automatique)","hourlyExample":"Exemple","hourlyInvalid":"Décimales : nombre entier de 0 à 6.","appearanceHeading":"Apparence","themeAuto":"Automatique","themeLight":"Clair","themeDark":"Sombre","themeHint":"Automatique suit votre appareil ou l'app Homey. Ne s'applique qu'à cette page de réglages ; les widgets suivent toujours Homey.","viewToday":"Aujourd'hui","viewYesterday":"Hier","view30":"30 jours","dayPrev":"Jour précédent","dayNext":"Jour suivant","view30Need":"30 jours : nécessite 7 jours de données (actuellement ","view30Days":")","dayToday":"Aujourd'hui","dayTomorrow":"Demain","refShort":"Réf.","viewChart":"Courbe","viewTable":"Tableau","ptCheapTag":"bon marché","ptPeakTag":"pointe","ptCheapLine":"Bloc de 2 h le moins cher","ptFromNowLine":"Bloc de 2 h le moins cher à partir de maintenant","ptPeakLine":"Bloc de 2 h le plus cher","ptPending":"Les prix de demain ne sont pas encore publiés.","ptHint":"Touchez une heure pour voir les quarts d'heure. Bord vert/rouge = bloc de 2 h bon marché/de pointe. Prix en Rp./kWh.","ptTap":"Touchez une heure pour voir les quarts d'heure","kwhLabel":"Soutirage par quart d'heure","cumHeading":"Coûts cumulés (nets)","cumDyn":"Tarif dynamique","cumRef":"Tarif de référence","cumDiff":"Différence","cumNote":"Net = soutirage moins injection, cumulé sur la journée. L'écart entre les lignes est l'économie.","savingsHeading":"Économies par jour (CHF)","savingsCumHeading":"Économies cumulées (CHF)","noDayData":"Il n'y a pas encore de prix ni de valeurs de compteurs pour ce jour.","noData":"Aucun relevé de compteur transmis pour l'instant. Configurez les Flows sous « Réglages » → « Transmission des relevés de compteurs ».","noRefNote":"Sans prix de référence, seuls les coûts dynamiques sont affichés.","costsFootnote":"Estimation sans les taxes de base — la facture de votre gestionnaire de réseau fait foi. Net = coûts de soutirage moins recettes d'injection.","refHeading":"Tarif de référence","refHint":"Votre tarif standard pour la comparaison en Rp./kWh TVA comprise. Saisissez le prix directement ou laissez la calculatrice le déterminer à partir des lignes de votre facture. Chaque période s'applique à partir de sa date jusqu'à la suivante ; si votre tarif change, ajoutez simplement une période. Les jours passés sont comparés au prix qui était alors valable.","refLabels":{"from":"Valable dès (vide = depuis le début)","price":"Prix d'achat (Rp./kWh TVA comprise)","feedIn":"Prix de reprise (Rp./kWh)","ntSummary":"Tarif bas (facultatif)","fixedDiff":"Coûts fixes supplémentaires du tarif dynamique (CHF/mois)","ntPrice":"Tarif bas (Rp./kWh)","ntFrom":"Tarif bas dès (HH:MM)","ntTo":"Tarif bas jusqu'à (HH:MM)","ntWeekend":"Tarif bas tout le week-end"},"fixedDiffHint":"Facultatif : taxe de base, taxe de comptage, etc. du tarif dynamique moins celles de votre tarif de référence. Positif = le dynamique est plus cher, négatif = moins cher. Déduit des économies par jour civil ; 0 si les deux sont égaux.","negativePrice":"Négatif","consumersHeading":"Consommateurs (mois)","consCols":{"name":"Consommateur","kwh":"kWh","avg":"Moy. Rp.","day":"Moy. jour","adv":"Avantage","ref":"Réf. CHF"},"consNote":"Moy. Rp. = prix moyen auquel le consommateur a fonctionné ; Moy. jour = moyenne du jour. Avantage = moy. jour moins moy. Rp. (positif = a fonctionné à des heures moins chères). Réf. CHF = économie par rapport au tarif de référence. Valorisé au prix du réseau de chaque quart d'heure, la part PV n'est pas déduite.","fixedNote":"Compris dans la différence : différence de coûts fixes (CHF) :","negImpNote":"Soutirage à un prix négatif (crédit), kWh :","negExpNote":"Injection à un prix négatif (coût), kWh :","refAdd":"Ajouter une période","refRemove":"Supprimer la période","refNone":"Pas encore de tarif de référence. Commencez par « Ajouter une période ».","calc":"Calculatrice","calcName":"Nom","calcValue":"CHF/kWh","calcAddLine":"Ajouter une ligne","calcExcl":"Les montants sont hors TVA (la TVA est ajoutée)","calcExclExport":"Aucune TVA n'est appliquée à l'injection.","calcSum":"Résultat","calcApply":"Appliquer","calcNamePh":"p. ex. utilisation du réseau","save":"Enregistrer","savedMsg":"Enregistré","saveFailed":"Échec de l'enregistrement : ","setupHeading":"Configuration en 3 étapes","setupDone":"✓ Configuration terminée","setupIntro":"Voici comment les coûts et les économies arrivent dans le widget et l'onglet « Coûts » :","setupSteps":[{"t":"Saisissez votre tarif de référence","d":"Dans la section « Tarif de référence » ci-dessous : votre ancien prix d'achat (Rp./kWh TVA comprise) et prix de reprise, saisis directement ou avec la calculatrice à partir des lignes de votre facture. N'oubliez pas d'enregistrer."},{"t":"Transmettez des relevés de compteurs depuis un Flow","d":"Créez un Flow : Quand « Heure : toutes les 15 minutes », alors les cartes de cette app « Transmettre le relevé de soutirage », « Transmettre le relevé d'injection » et facultativement « …charge de la batterie… » et « …décharge… ». Comme valeur, glissez dans le champ le compteur cumulé en kWh de votre appareil sous forme de jeton (détails ci-dessous)."},{"t":"Patientez un peu","d":"Le premier relevé ne fixe que la base ; dès le deuxième, les kWh sont valorisés. Les compteurs à faible résolution (p. ex. onduleurs) ne changent que toutes les quelques minutes, ce qui prend d'autant plus de temps."}],"metersHeading":"Transmission des relevés de compteurs (Flows)","metersIntro":"L'app ne lit pas elle-même les autres appareils. Créez un Flow par compteur :","metersSteps":["Nouveau Flow, déclencheur « Heure : toutes les 15 minutes » (ou « le relevé a changé » de votre compteur)","Action : « Transmettre le relevé de soutirage » (appareil : votre appareil Innostrom)","Dans le champ « Relevé », touchez l'icône de jeton, choisissez votre compteur et prenez la valeur cumulée en kWh qui ne cesse d'augmenter (pas la puissance en W ni « aujourd'hui »)","Ajoutez la même chose comme actions supplémentaires dans ce Flow : « Transmettre le relevé d'injection » et facultativement « Charge de la batterie… » et « Décharge de la batterie… »",{"text":"Exemple Huawei EMMA :","bullets":["Soutirage : meter_power du compteur d'énergie","Injection : meter_power.exported du compteur d'énergie","Batterie : meter_power.charged et meter_power.discharged du LUNA2000"]},"Facultativement « Transmettre le relevé d'un consommateur » pour une voiture électrique ou une pompe à chaleur (nom + compteur kWh) : affiche le prix auquel ils ont fonctionné"],"metersNote":"Transmettez au moins toutes les heures. Le premier relevé ne fixe que la base ; dès le deuxième, les kWh sont valorisés. Après une longue pause, l'augmentation est attribuée à la dernière heure.","reportsHeading":"Derniers relevés de vos compteurs","reports":{"import":"Soutirage","export":"Injection","battery_charge":"Charge de la batterie","battery_discharge":"Décharge de la batterie"},"never":"jamais transmis","ago":"il y a","min":"min","hours":"h","days":"jours","agoBefore":true,"statusHeading":"Statut","stOk":"Tout est en ordre","stPrices":"Prix","stConn":"Connexion","stReports":"Relevés de compteurs","stDevice":"Appareil","stLastOk":"Dernière récupération","stNext":"Prochaine récupération","stData":"Données","stToday":"aujourd'hui","stTomorrow":"demain","stAgo":"il y a","stToWord":"à","stTodayWord":"aujourd'hui","stTomorrowWord":"demain","stEnv":"Environnement","stEnvProd":"Production","stEnvTest":"Test (prix constants)","stPriceField":"Type de prix","stLastError":"Dernière erreur","stFailures":"Tentatives échouées d'affilée","stIssue_auth":"Identifiants refusés (vérifier le jeton ou le numéro du point de mesure)","stIssue_no_current_price":"Pas de prix pour l'instant","stIssue_fetch_failing":"La récupération échoue de façon répétée","stIssue_stale":"Les prix datent de plus de 26 heures","stIssue_no_tomorrow":"Les prix de demain manquent encore","stNoReports":"Aucun relevé de compteur pour l'instant. Ils sont facultatifs et ne servent qu'à la comparaison des coûts.","stMonitorOff":"Surveillance désactivée","stMonitorOn":"Alerte après","stHours":"h","stKind_import":"Soutirage","stKind_export":"Injection","stKind_battery_charge":"Charge de la batterie","stKind_battery_discharge":"Décharge de la batterie","stReportsLate":"Les relevés de compteurs n'arrivent plus","stNever":"jamais","stMetering":"Point de mesure","stVersion":"Version de l'app","stBackup":"Dernière sauvegarde","flowtestHeading":"Tester les Flows","flowtestHint":"Déclenche immédiatement un déclencheur pour que vous puissiez créer et vérifier vos Flows. Tous les Flows qui utilisent ce déclencheur s'exécutent réellement.","flowtestDigest":"Déclencher « journée évaluée » (pour hier)","flowtestReports":"Déclencher « relevés de compteurs n'arrivent plus » (valeurs d'exemple)","flowtestFired":"Déclenché","flowtestNoData":"Il n'y a pas de données pour hier, rien n'a été déclenché.","monitorTimeline":"Timeline","monitorWhich":"Quels compteurs surveiller ?","monitorNeverReported":"jamais transmis","monitorConsumersNote":"Consommateurs (désactivés par défaut)","monitorHeading":"Surveillance","monitorHint":"Avertit lorsque les relevés que vous transmettez depuis un Flow n'arrivent plus. Seul ce qui a été transmis au moins une fois est surveillé ; personne qui ne transmet pas de compteurs ne reçoit donc d'avertissement. En cas d'alerte, la capability « Relevés de compteurs manquants » s'active et, si vous le souhaitez, un message est envoyé dans la timeline (une fois par incident). 0 = désactivé.","monitorHours":"Alerter après (heures)","monitorNotify":"Message dans la timeline (une fois par incident)","monitorInvalid":"Veuillez saisir un nombre de 0 à 48.","backupHeading":"Sauvegarde","backupNone":"Pas encore de sauvegarde. Elle est créée automatiquement dès qu'il y a des données de coûts.","backupLast":"Dernière sauvegarde automatique","backupDaysWord":"jours","backupConsumersWord":"consommateurs","backupHint":"L'app sauvegarde chaque nuit à 03 h 30 et lors de la suppression de l'appareil. La sauvegarde est conservée dans les réglages de l'app et survit au nouveau couplage de l'appareil.","backupSaveBtn":"Sauvegarder maintenant","backupExportBtn":"Exporter en texte","backupCopy":"Copier","backupCopied":"Copié","backupExportHint":"Sauvegarde sous forme de texte, à conserver ou à utiliser sur une autre Homey. Elle ne contient jamais le jeton.","backupImportLabel":"Coller le texte de sauvegarde","backupCheck":"Vérifier","backupInvalid":"Ce n'est pas une sauvegarde valide.","backupWithSettings":"Inclure les réglages (tarif de référence, TVA, batterie)","backupMerge":"Fusionner","backupReplace":"Remplacer","backupFoundHeading":"Sauvegarde trouvée","backupFoundText":"Il existe une sauvegarde pour cet appareil, mais les données de coûts sont vides.","backupRestore":"Restaurer","previewDay":"Jour","previewImport":"Soutirage kWh","previewNet":"Net CHF","previewMore":"jours plus anciens non affichés","previewTotal":"Total","previewCompareMerge":"La fusion ajoute :","previewCompareReplace":"Le remplacement supprime","previewDaysOnlyOnDevice":"jours qui n'existent que sur cet appareil","previewNewDays":"nouveaux jours","previewSharedDays":"déjà présents","previewBattery":"Charge / décharge de la batterie kWh","backupRestored":"Restauré","backupSaved":"Sauvegardé","backupCheckOk":"Sauvegarde valide","backupFrom":"du","backupPeriod":"Période","manageHeading":"Gérer les données","manageHint":"Pour faire le ménage, par exemple après des données de test. Chaque suppression demande un deuxième clic. Les données de prix et le tarif de référence sont toujours conservés.","delFrom":"Du (vide = depuis le début)","delTo":"Jusqu'au (vide = jusqu'à aujourd'hui)","delDays":"Supprimer les jours de la période","delConsumer":"Supprimer le consommateur","delConsumerNone":"Aucun consommateur","baselineHint":"Réinitialiser les bases des compteurs, par exemple après un remplacement de compteur. Les données collectées restent, le prochain relevé ne fixe que la base.","baselineButton":"Réinitialiser les bases des compteurs","resetHint":"Supprime toutes les données de coûts collectées, les consommateurs et les bases des compteurs.","resetButton":"Supprimer toutes les données de coûts","confirm":"Vraiment ? Cliquez encore","manageDone":"Terminé","manageDays":"Jours supprimés :","invalidTime":"Heure invalide (format HH:MM)."};
-    var T_IT = {"title":"Tariffa elettrica dinamica CH","sub":"Prezzi al quarto d'ora per i gestori di rete svizzeri che usano la piattaforma Innostrom (Swisspower)","tabs":{"overview":"Panoramica","costs":"Costi","settings":"Impostazioni","help":"Aiuto"},"featuresHeading":"Cosa fa questa app","features":["Associazione tramite numero del punto di misura + token API — l'ambiente di test o di produzione viene riconosciuto automaticamente","Recupero automatico: oggi + domani all'avvio, ogni giorno alle 16:05 per domani, con attesa progressiva in caso di errore","12 capability (più 8 facoltative: valori di costo, prezzo di immissione e analisi della batteria): prezzo attuale/energia/rete/successivo, minimo/massimo/media di oggi, posizione, livello di prezzo, allarme «nessun prezzo per domani», allarme «letture dei contatori mancanti», ultimo aggiornamento","26 carte Flow: variazione di prezzo, soglie di prezzo, prezzi di domani disponibili, giornata valutata, letture dei contatori mancanti/di nuovo presenti, quarti d'ora più/meno convenienti, condizione del livello di prezzo, blocco più conveniente (finestra giornaliera fissa, da adesso fino a un'ora, nelle prossime ore), prezzi orari di oggi/domani come JSON (ad es. per app EMS), ricarica manuale e carte di lettura dei contatori per l'analisi dei costi","Due widget per la dashboard: curva dei prezzi di oggi e domani (con linea di riferimento) e costi/risparmi rispetto alla tua tariffa standard","Confronto dei costi: prelievo, immissione e batteria al prezzo dinamico, confrontati con una tariffa di riferimento configurabile (scheda «Costi»)"],"recommendHeading":"Impostazioni consigliate","recommendSub":"IVA e tariffa di riferimento qui nell'app, tutto il resto per dispositivo sotto la sua icona a ingranaggio.","generalHeading":"Generale","feedInSummary":"Avanzate: immissione nella tariffa dinamica","feedInLabel":"Valorizza l'immissione","feedInRef":"come la tariffa di riferimento (prudente)","feedInApi":"prezzo dall'API (feed_in)","feedInHint":"Le tariffe dinamiche sono di solito descritte solo per il consumo. Se e come l'immissione venga remunerata in modo dinamico dipende dal tuo gestore di rete. Predefinito: l'immissione è valorizzata come la tariffa di riferimento e non modifica il confronto. «API» usa il prezzo feed_in fornito dall'API e vale solo per i dati raccolti in seguito.","vatLabel":"IVA (%)","vatHint":"Aggiunta ai prezzi dell'API (IVA esclusa) e valida per tutte le visualizzazioni, le carte Flow e l'analisi dei costi. 0 = prezzi IVA esclusa.","vatInvalid":"Valore non valido (da 0 a 100).","recommend":[{"dt":"Prezzo per i Flow","dd":"<code>integrated</code> (prezzo totale) — è il valore che conta per le decisioni, non solo l'energia o solo la rete"},{"dt":"IVA","dd":"<code>8.1%</code> — aliquota svizzera attuale, da adeguare se cambia"},{"dt":"Prezzo sostitutivo","dd":"<code>0</code> (disattivato), finché la tua tariffa forfettaria non è nota. Serve come prezzo sostitutivo quando un giorno non ha prezzi"},{"dt":"Soglie del livello di prezzo","dd":"Valori predefiniti (75/90/110/125 %) — una taratura sensata è possibile solo con dati di prezzo reali e variabili"},{"dt":"Tariffa di riferimento","dd":"La tua tariffa standard attuale in Rp./kWh IVA inclusa (scheda «Impostazioni», sezione «Tariffa di riferimento»)"}],"liveHeading":"Valori attuali","loading":"Caricamento…","loadFailed":"Impossibile caricare i valori.","noDevice":"Nessun dispositivo ancora associato.","noTomorrow":"Nessun prezzo per domani","lastUpdate":"Aggiornato:","forumTitle":"Domande o problemi?","forumHint":"Le risposte alle domande frequenti, la guida alle impostazioni e il contatto diretto con lo sviluppatore si trovano nel thread del forum della community.","forumButton":"Vai al thread del forum","chips":{"energy":"Energia","grid":"Rete","next":"Successivo","rank":"Posizione oggi","min":"Più basso","avg":"Media oggi","max":"Più alto"},"levels":{"very_cheap":"Molto conveniente","cheap":"Conveniente","normal":"Normale","expensive":"Caro","very_expensive":"Molto caro"},"costsHeading":"Costi e risparmi","periods":{"today":"Oggi","week":"7 giorni","month":"Mese","total":"Totale"},"cols":{"period":"Periodo","import":"Prelievo kWh","export":"Immissione kWh","dyn":"Netto dinamico","ref":"Netto riferimento","diff":"Differenza"},"colsShort":{"period":"Periodo","import":"Prelievo","export":"Immiss.","dyn":"Din.","ref":"Rif.","diff":"Diff."},"tableNote":"Prelievo e immissione in kWh, costi netti in CHF. Din. = tariffa dinamica, Rif. = tariffa di riferimento, Diff. = risparmiato (verde) o più caro (rosso).","saved":"risparmiato","pricier":"più caro","batteryBenefit":"Beneficio della batteria grazie alla tariffa (stima: carica dalla rete al prezzo di prelievo, carica FV al prezzo di immissione mancato, scarica al prezzo di prelievo evitato; già incluso nelle cifre qui sopra)","unpriced":"I kWh senza prezzo (dati mancanti) non sono inclusi nei costi:","avgPrices":"Prezzo medio di prelievo dinamico / riferimento (Rp./kWh):","dailyHeading":"Ultimi 30 giorni","chartHeading":"Prezzo (barre), riferimento (tratteggiato) e prelievo (blu)","batHeading":"Batteria (per il calcolo ombra)","batHint":"Capacità utilizzabile, potenza massima (uguale in carica e scarica, in kW lato corrente alternata) ed efficienza di andata e ritorno della tua batteria, più l'intervallo di carica (predefinito dal 5 al 90 %) che un piano di carica può usare. Determinano cosa porterebbe un piano di carica ottimale nella scheda Costi.","shadowHeading":"Potenziale della batteria (calcolo ombra)","shadowIntro":"Non viene controllato nulla. Per ogni giornata intera si ricalcola cosa avrebbe reso un piano di carica ottimale, sulla base dei tuoi contatori comunicati e dei prezzi. Tutti gli importi sono i costi netti dell'elettricità del giorno in CHF, più basso è meglio.","shadowCols":{"day":"Giorno","actual":"Reale","pv":"Solo FV","grid":"Con rete","val":"Valore carica rete","eff":"Efficienza"},"shadowEff":"Efficienza complessiva:","shadowEffNote":"Efficienza = quota del miglior beneficio possibile della batteria (Senza batteria meno Con rete) raggiunta dalla tua giornata reale, da 0 a 100 %. I giorni con meno di CHF 0.10 di potenziale non contano. Un giorno può battere il piano, perché il calcolo è solo una stima.","shadowNote":"Reale = costi effettivi ai prezzi dinamici. Solo FV = piano ottimale che carica solo con il surplus fotovoltaico. Con rete = piano ottimale che può caricare anche dalla rete. Valore carica rete = Solo FV meno Con rete, cioè quanto avrebbe reso in più la carica nelle ore convenienti. Nel calcolo la batteria non immette mai in rete. Una stima: i contatori cambiano a scatti, quindi la suddivisione in quarti d'ora è imprecisa.","shadowNone":"Nessuna giornata intera analizzata finora. La prima compare dopo mezzanotte.","shadowSum":"Somma","shadowUnused":"Potenziale inutilizzato (Reale meno Con rete):","shadowValue":"Valore della carica dalla rete:","batCap":"Batteria utilizzabile (kWh)","batPow":"Potenza max. di carica e scarica (kW)","batEff":"Efficienza di andata e ritorno (%)","batMin":"Livello di carica minimo (%)","batMax":"Livello di carica massimo (%)","hourlyHeading":"Prezzi orari per un EMS","hourlyHint":"Formato dell'elenco JSON nelle carte «Recupera i prezzi orari di oggi / domani». Passalo direttamente a un sistema di gestione dell'energia senza convertirlo in un HomeyScript. Vale solo per queste due carte.","hourlyUnit":"Unità","hourlyUnitRp":"Rp./kWh","hourlyUnitChf":"CHF/kWh","hourlyVat":"IVA","hourlyVatIncl":"IVA inclusa","hourlyVatExcl":"IVA esclusa","hourlyDecimals":"Decimali (vuoto = automatico)","hourlyExample":"Esempio","hourlyInvalid":"Decimali: numero intero da 0 a 6.","appearanceHeading":"Aspetto","themeAuto":"Automatico","themeLight":"Chiaro","themeDark":"Scuro","themeHint":"Automatico segue il tuo dispositivo o l'app Homey. Vale solo per questa pagina delle impostazioni; i widget seguono sempre Homey.","viewToday":"Oggi","viewYesterday":"Ieri","view30":"30 giorni","dayPrev":"Giorno precedente","dayNext":"Giorno successivo","view30Need":"30 giorni: servono 7 giorni di dati (attualmente ","view30Days":")","dayToday":"Oggi","dayTomorrow":"Domani","refShort":"Rif.","viewChart":"Curva","viewTable":"Tabella","ptCheapTag":"conveniente","ptPeakTag":"punta","ptCheapLine":"Blocco di 2 h più conveniente","ptFromNowLine":"Blocco di 2 h più conveniente da adesso","ptPeakLine":"Blocco di 2 h più caro","ptPending":"I prezzi di domani non sono ancora pubblicati.","ptHint":"Tocca un'ora per vedere i quarti d'ora. Bordo verde/rosso = blocco di 2 h conveniente/di punta. Prezzi in Rp./kWh.","ptTap":"Tocca un'ora per vedere i quarti d'ora","kwhLabel":"Prelievo per quarto d'ora","cumHeading":"Costi cumulati (netti)","cumDyn":"Tariffa dinamica","cumRef":"Tariffa di riferimento","cumDiff":"Differenza","cumNote":"Netto = prelievo meno immissione, sommato sull'arco della giornata. La distanza tra le linee è il risparmio.","savingsHeading":"Risparmi per giorno (CHF)","savingsCumHeading":"Risparmi cumulati (CHF)","noDayData":"Per questo giorno non ci sono ancora prezzi né valori dei contatori.","noData":"Nessuna lettura dei contatori comunicata finora. Configura i Flow in «Impostazioni» → «Comunicazione delle letture dei contatori».","noRefNote":"Senza prezzo di riferimento vengono mostrati solo i costi dinamici.","costsFootnote":"Stima senza tasse di base — fa fede la fattura del tuo gestore di rete. Netto = costi di prelievo meno ricavi di immissione.","refHeading":"Tariffa di riferimento","refHint":"La tua tariffa standard per il confronto in Rp./kWh IVA inclusa. Inserisci il prezzo direttamente o lascia che la calcolatrice lo ricavi dalle righe della tua fattura. Ogni periodo vale dalla sua data fino al successivo, quindi se la tariffa cambia aggiungi semplicemente un periodo. I giorni passati vengono confrontati con il prezzo valido allora.","refLabels":{"from":"Valida dal (vuoto = dall'inizio)","price":"Prezzo di prelievo (Rp./kWh IVA inclusa)","feedIn":"Prezzo di immissione (Rp./kWh)","ntSummary":"Tariffa ridotta (facoltativa)","fixedDiff":"Costi fissi aggiuntivi della tariffa dinamica (CHF/mese)","ntPrice":"Tariffa ridotta (Rp./kWh)","ntFrom":"Tariffa ridotta dalle (HH:MM)","ntTo":"Tariffa ridotta fino alle (HH:MM)","ntWeekend":"Tariffa ridotta per tutto il fine settimana"},"fixedDiffHint":"Facoltativo: tassa di base, tassa di misura ecc. della tariffa dinamica meno quelle della tua tariffa di riferimento. Positivo = la dinamica è più cara, negativo = più economica. Detratto dai risparmi per giorno di calendario; 0 se i due sono uguali.","negativePrice":"Negativo","consumersHeading":"Consumatori (mese)","consCols":{"name":"Consumatore","kwh":"kWh","avg":"Media Rp.","day":"Media giorno","adv":"Vantaggio","ref":"Rif. CHF"},"consNote":"Media Rp. = prezzo medio a cui ha funzionato il consumatore; Media giorno = media della giornata. Vantaggio = media giorno meno media Rp. (positivo = ha funzionato in orari più convenienti). Rif. CHF = risparmio rispetto alla tariffa di riferimento. Valorizzato al prezzo di rete di ogni quarto d'ora, la quota FV non viene sottratta.","fixedNote":"Incluso nella differenza: differenza dei costi fissi (CHF):","negImpNote":"Prelievo a prezzo negativo (accredito), kWh:","negExpNote":"Immissione a prezzo negativo (costo), kWh:","refAdd":"Aggiungi periodo","refRemove":"Rimuovi periodo","refNone":"Ancora nessuna tariffa di riferimento. Inizia con «Aggiungi periodo».","calc":"Calcolatrice","calcName":"Nome","calcValue":"CHF/kWh","calcAddLine":"Aggiungi riga","calcExcl":"Gli importi sono IVA esclusa (l'IVA viene aggiunta)","calcExclExport":"All'immissione non si applica l'IVA.","calcSum":"Risultato","calcApply":"Applica","calcNamePh":"ad es. utilizzo della rete","save":"Salva","savedMsg":"Salvato","saveFailed":"Salvataggio non riuscito: ","setupHeading":"Configurazione in 3 passi","setupDone":"✓ Configurazione completata","setupIntro":"Ecco come costi e risparmi arrivano nel widget e nella scheda «Costi»:","setupSteps":[{"t":"Inserisci la tua tariffa di riferimento","d":"Nella sezione «Tariffa di riferimento» qui sotto: il tuo precedente prezzo di prelievo (Rp./kWh IVA inclusa) e prezzo di immissione, inseriti direttamente o con la calcolatrice dalle righe della fattura. Non dimenticare di salvare."},{"t":"Comunica le letture dei contatori da un Flow","d":"Crea un Flow: Quando «Ora: ogni 15 minuti», allora le carte di questa app «Comunica la lettura del prelievo», «Comunica la lettura dell'immissione» e facoltativamente «…carica della batteria…» e «…scarica…». Come valore, trascina nel campo il contatore cumulato in kWh del tuo dispositivo come token (dettagli qui sotto)."},{"t":"Attendi un po'","d":"La prima lettura imposta solo la base; dalla seconda i kWh vengono valorizzati. I contatori a bassa risoluzione (ad es. inverter) cambiano solo ogni pochi minuti, quindi ci vuole di conseguenza più tempo."}],"metersHeading":"Comunicazione delle letture dei contatori (Flow)","metersIntro":"L'app non legge da sola gli altri dispositivi. Crea un Flow per ogni contatore:","metersSteps":["Nuovo Flow, trigger «Ora: ogni 15 minuti» (oppure «la lettura è cambiata» del tuo contatore)","Azione: «Comunica la lettura del prelievo» (dispositivo: il tuo dispositivo Innostrom)","Nel campo «Lettura» tocca l'icona del token, scegli il tuo contatore e prendi il valore cumulato in kWh che continua a crescere (non la potenza in W e non «oggi»)","Aggiungi lo stesso come ulteriori azioni in quel Flow: «Comunica la lettura dell'immissione» e facoltativamente «Carica della batteria…» e «Scarica della batteria…»",{"text":"Esempio Huawei EMMA:","bullets":["Prelievo: meter_power del contatore di energia","Immissione: meter_power.exported del contatore di energia","Batteria: meter_power.charged e meter_power.discharged del LUNA2000"]},"Facoltativamente «Comunica la lettura di un consumatore» per un'auto elettrica o una pompa di calore (nome + contatore kWh): mostra il prezzo a cui hanno funzionato"],"metersNote":"Comunica almeno ogni ora. La prima lettura imposta solo la base; dalla seconda i kWh vengono valorizzati. Dopo una lunga pausa l'aumento viene attribuito all'ultima ora.","reportsHeading":"Ultime letture dei tuoi contatori","reports":{"import":"Prelievo","export":"Immissione","battery_charge":"Carica della batteria","battery_discharge":"Scarica della batteria"},"never":"mai comunicato","ago":"","min":"min fa","hours":"h fa","days":"giorni fa","agoBefore":false,"statusHeading":"Stato","stOk":"Tutto in ordine","stPrices":"Prezzi","stConn":"Connessione","stReports":"Letture dei contatori","stDevice":"Dispositivo","stLastOk":"Ultimo recupero","stNext":"Prossimo recupero","stData":"Dati","stToday":"oggi","stTomorrow":"domani","stAgo":"fa","stToWord":"alle","stTodayWord":"oggi","stTomorrowWord":"domani","stEnv":"Ambiente","stEnvProd":"Produzione","stEnvTest":"Test (prezzi costanti)","stPriceField":"Tipo di prezzo","stLastError":"Ultimo errore","stFailures":"Tentativi falliti consecutivi","stIssue_auth":"Credenziali rifiutate (controlla il token o il numero del punto di misura)","stIssue_no_current_price":"Nessun prezzo per adesso","stIssue_fetch_failing":"Il recupero continua a fallire","stIssue_stale":"I prezzi sono più vecchi di 26 ore","stIssue_no_tomorrow":"I prezzi di domani mancano ancora","stNoReports":"Ancora nessuna lettura dei contatori. Sono facoltative e servono solo per il confronto dei costi.","stMonitorOff":"Monitoraggio disattivato","stMonitorOn":"Avviso dopo","stHours":"h","stKind_import":"Prelievo","stKind_export":"Immissione","stKind_battery_charge":"Carica della batteria","stKind_battery_discharge":"Scarica della batteria","stReportsLate":"Le letture dei contatori non arrivano più","stNever":"mai","stMetering":"Punto di misura","stVersion":"Versione dell'app","stBackup":"Ultimo backup","flowtestHeading":"Testa i Flow","flowtestHint":"Attiva subito un trigger così puoi creare e verificare i tuoi Flow. Tutti i Flow che usano questo trigger vengono davvero eseguiti.","flowtestDigest":"Attiva «giornata valutata» (per ieri)","flowtestReports":"Attiva «le letture dei contatori non arrivano più» (valori di esempio)","flowtestFired":"Attivato","flowtestNoData":"Per ieri non ci sono dati, non è stato attivato nulla.","monitorTimeline":"Timeline","monitorWhich":"Quali contatori monitorare?","monitorNeverReported":"mai comunicato","monitorConsumersNote":"Consumatori (disattivati per impostazione predefinita)","monitorHeading":"Monitoraggio","monitorHint":"Avvisa quando le letture che comunichi da un Flow non arrivano più. Viene monitorato solo ciò che è stato comunicato almeno una volta, quindi chi non comunica contatori non riceve mai un avviso. In caso di avviso si attiva la capability «Letture dei contatori mancanti» e, se vuoi, viene inviato un messaggio nella timeline (una volta per incidente). 0 = disattivato.","monitorHours":"Avvisa dopo (ore)","monitorNotify":"Messaggio nella timeline (una volta per incidente)","monitorInvalid":"Inserisci un numero da 0 a 48.","backupHeading":"Backup","backupNone":"Ancora nessun backup. Viene creato automaticamente non appena ci sono dati sui costi.","backupLast":"Ultimo backup automatico","backupDaysWord":"giorni","backupConsumersWord":"consumatori","backupHint":"L'app esegue il backup ogni notte alle 03:30 e quando il dispositivo viene rimosso. Il backup è conservato nelle impostazioni dell'app e sopravvive a una nuova associazione del dispositivo.","backupSaveBtn":"Esegui backup ora","backupExportBtn":"Esporta come testo","backupCopy":"Copia","backupCopied":"Copiato","backupExportHint":"Backup come testo, da conservare o da usare su un'altra Homey. Non contiene mai il token.","backupImportLabel":"Incolla il testo del backup","backupCheck":"Verifica","backupInvalid":"Questo non è un backup valido.","backupWithSettings":"Includi le impostazioni (tariffa di riferimento, IVA, batteria)","backupMerge":"Unisci","backupReplace":"Sostituisci","backupFoundHeading":"Backup trovato","backupFoundText":"Esiste un backup per questo dispositivo, ma i dati sui costi sono vuoti.","backupRestore":"Ripristina","previewDay":"Giorno","previewImport":"Prelievo kWh","previewNet":"Netto CHF","previewMore":"giorni meno recenti non mostrati","previewTotal":"Totale","previewCompareMerge":"L'unione aggiunge:","previewCompareReplace":"La sostituzione rimuove","previewDaysOnlyOnDevice":"giorni che esistono solo su questo dispositivo","previewNewDays":"nuovi giorni","previewSharedDays":"già presenti","previewBattery":"Carica / scarica della batteria kWh","backupRestored":"Ripristinato","backupSaved":"Backup eseguito","backupCheckOk":"Backup valido","backupFrom":"del","backupPeriod":"Periodo","manageHeading":"Gestisci i dati","manageHint":"Per fare pulizia, ad esempio dopo dati di test. Ogni eliminazione richiede un secondo clic. I dati sui prezzi e la tariffa di riferimento vengono sempre conservati.","delFrom":"Dal (vuoto = dall'inizio)","delTo":"Fino al (vuoto = fino a oggi)","delDays":"Elimina i giorni nell'intervallo","delConsumer":"Elimina consumatore","delConsumerNone":"Nessun consumatore","baselineHint":"Reimposta le basi dei contatori, ad esempio dopo la sostituzione di un contatore. I dati raccolti restano, la prossima lettura imposta solo la base.","baselineButton":"Reimposta le basi dei contatori","resetHint":"Elimina tutti i dati sui costi raccolti, i consumatori e le basi dei contatori.","resetButton":"Elimina tutti i dati sui costi","confirm":"Davvero? Clicca ancora","manageDone":"Fatto","manageDays":"Giorni eliminati:","invalidTime":"Ora non valida (formato HH:MM)."};
+    var T_FR = {"title":"Tarif électrique dynamique CH","sub":"Prix par quart d'heure pour les gestionnaires de réseau suisses utilisant la plateforme Innostrom (Swisspower)","tabs":{"overview":"Aujourd'hui","costs":"Coûts","settings":"Setup","help":"Aide &amp; forum"},"generalHeading":"Général","feedInSummary":"Avancé : injection dans le tarif dynamique","feedInLabel":"Valoriser l'injection","feedInRef":"comme le tarif de référence (prudent)","feedInApi":"prix de l'API (feed_in)","feedInHint":"Les tarifs dynamiques sont en général décrits pour la consommation uniquement. Si et comment l'injection est rémunérée dynamiquement dépend de votre gestionnaire de réseau. Par défaut : l'injection est valorisée comme le tarif de référence et ne modifie pas la comparaison. « API » utilise le prix feed_in fourni par l'API et ne s'applique qu'aux données collectées ensuite.","vatLabel":"TVA (%)","vatHint":"Ajoutée aux prix de l'API (hors TVA) et valable pour tous les affichages, cartes Flow et l'analyse des coûts. 0 = prix hors TVA.","vatInvalid":"Valeur invalide (0 à 100).","liveHeading":"Valeurs actuelles","loading":"Chargement…","loadFailed":"Impossible de charger les valeurs.","noDevice":"Aucun appareil couplé pour l'instant.","noTomorrow":"Pas de prix pour demain","lastUpdate":"Mis à jour :","forumTitle":"Des questions ou des problèmes ?","forumHint":"Les réponses aux questions fréquentes, le guide des réglages et le contact direct avec le développeur se trouvent dans le fil du forum de la communauté.","forumButton":"Aller au fil du forum","chips":{"energy":"Énergie","grid":"Réseau","next":"Suivant","rank":"Rang aujourd'hui","min":"Le plus bas","avg":"Moy. aujourd'hui","max":"Le plus élevé"},"levels":{"very_cheap":"Très bon marché","cheap":"Bon marché","normal":"Normal","expensive":"Cher","very_expensive":"Très cher"},"costsHeading":"Coûts et économies","periods":{"today":"Aujourd'hui","week":"7 jours","month":"Mois","total":"Total"},"cols":{"period":"Période","import":"Soutirage kWh","export":"Injection kWh","dyn":"Net dynamique","ref":"Net référence","diff":"Différence"},"colsShort":{"period":"Période","import":"Soutir.","export":"Inject.","dyn":"Dyn.","ref":"Réf.","diff":"Diff."},"tableNote":"Soutirage et injection en kWh, coûts nets en CHF. Dyn. = tarif dynamique, Réf. = tarif de référence, Diff. = économisé (vert) ou plus cher (rouge).","saved":"économisé","pricier":"plus cher","batteryBenefit":"Bénéfice de la batterie grâce au tarif (estimation : charge depuis le réseau au prix d'achat, charge PV au prix de reprise manqué, décharge au prix d'achat évité ; déjà compris dans les chiffres ci-dessus)","unpriced":"Les kWh sans prix (données manquantes) ne sont pas inclus dans les coûts :","avgPrices":"Prix d'achat moyen dynamique / référence (Rp./kWh) :","dailyHeading":"30 derniers jours","chartHeading":"Prix (barres), référence (pointillés) et soutirage (bleu)","batHeading":"Batterie (pour le calcul fantôme)","batHint":"Capacité utilisable, puissance maximale (identique en charge et en décharge, en kW côté courant alternatif) et rendement aller-retour de votre batterie, ainsi que la plage de charge (par défaut 5 à 90 %) qu'un plan de charge peut utiliser. Ils déterminent ce qu'un plan de charge optimal rapporterait dans l'onglet Coûts.","shadowHeading":"Potentiel de la batterie (calcul fantôme)","shadowIntro":"Rien n'est piloté. Pour chaque journée complète, on recalcule ce qu'un plan de charge optimal aurait rapporté, d'après vos compteurs transmis et les prix. Tous les montants sont les coûts nets d'électricité du jour en CHF, plus petit = mieux.","shadowCols":{"day":"Jour","actual":"Réel","pv":"PV seul","grid":"Avec réseau","val":"Val. charge rés.","eff":"Efficacité"},"shadowEff":"Efficacité globale :","shadowEffNote":"Efficacité = part du meilleur bénéfice possible de la batterie (Sans batterie moins Avec réseau) que votre journée réelle a atteinte, de 0 à 100 %. Les jours avec moins de CHF 0.10 de potentiel ne comptent pas. Un jour peut battre le plan, car le calcul n'est qu'une estimation.","shadowNote":"Réel = coûts réels aux prix dynamiques. PV seul = plan optimal qui ne charge qu'avec le surplus PV. Avec réseau = plan optimal pouvant aussi charger depuis le réseau. Val. charge rés. = PV seul moins Avec réseau, c'est-à-dire ce que la charge aux heures creuses aurait rapporté en plus. Dans le calcul, la batterie n'injecte jamais dans le réseau. Une estimation : les compteurs changent par paliers, la répartition en quarts d'heure est donc imprécise.","shadowNone":"Aucune journée complète analysée pour l'instant. La première apparaît après minuit.","shadowSum":"Somme","shadowUnused":"Potentiel inutilisé (Réel moins Avec réseau) :","shadowValue":"Valeur de la charge depuis le réseau :","batCap":"Batterie utilisable (kWh)","batPow":"Puissance max. de charge et de décharge (kW)","batEff":"Rendement aller-retour (%)","batMin":"Niveau de charge minimal (%)","batMax":"Niveau de charge maximal (%)","hourlyHeading":"Prix horaires pour un EMS externe","hourlyHint":"Format de la liste JSON des cartes « Récupérer les prix horaires d'aujourd'hui / de demain ». Transmettez-la directement à un système de gestion de l'énergie sans la convertir dans un HomeyScript. Ne s'applique qu'à ces deux cartes. L'app dispose aussi de sa propre fonction EMS (onglet « EMS »), vous n'en avez pas besoin pour celle-ci.","hourlyUnit":"Unité","hourlyUnitRp":"Rp./kWh","hourlyUnitChf":"CHF/kWh","hourlyVat":"TVA","hourlyVatIncl":"TVA comprise","hourlyVatExcl":"hors TVA","hourlyDecimals":"Décimales (vide = automatique)","hourlyExample":"Exemple","hourlyInvalid":"Décimales : nombre entier de 0 à 6.","appearanceHeading":"Apparence","themeAuto":"Automatique","themeLight":"Clair","themeDark":"Sombre","themeHint":"Automatique suit votre appareil ou l'app Homey. Ne s'applique qu'à cette page de réglages ; les widgets suivent toujours Homey.","viewToday":"Aujourd'hui","viewYesterday":"Hier","view30":"30 jours","dayPrev":"Jour précédent","dayNext":"Jour suivant","view30Need":"30 jours : nécessite 7 jours de données (actuellement ","view30Days":")","dayToday":"Aujourd'hui","dayTomorrow":"Demain","refShort":"Réf.","viewChart":"Courbe","viewTable":"Tableau","ptCheapTag":"bon marché","ptPeakTag":"pointe","ptCheapLine":"Bloc de 2 h le moins cher","ptFromNowLine":"Bloc de 2 h le moins cher à partir de maintenant","ptPeakLine":"Bloc de 2 h le plus cher","ptPending":"Les prix de demain ne sont pas encore publiés.","ptHint":"Touchez une heure pour voir les quarts d'heure. Bord vert/rouge = bloc de 2 h bon marché/de pointe. Prix en Rp./kWh.","ptTap":"Touchez une heure pour voir les quarts d'heure","kwhLabel":"Soutirage par quart d'heure","cumHeading":"Coûts cumulés (nets)","cumDyn":"Tarif dynamique","cumRef":"Tarif de référence","cumDiff":"Différence","cumNote":"Net = soutirage moins injection, cumulé sur la journée. L'écart entre les lignes est l'économie.","savingsHeading":"Économies par jour (CHF)","savingsCumHeading":"Économies cumulées (CHF)","noDayData":"Il n'y a pas encore de prix ni de valeurs de compteurs pour ce jour.","noData":"Aucun relevé de compteur transmis pour l'instant. Configurez les Flows sous « Réglages » → « Transmission des relevés de compteurs ».","noRefNote":"Sans prix de référence, seuls les coûts dynamiques sont affichés.","costsFootnote":"Estimation sans les taxes de base — la facture de votre gestionnaire de réseau fait foi. Net = coûts de soutirage moins recettes d'injection.","refHeading":"Tarif de référence","refHint":"Votre tarif standard pour la comparaison en Rp./kWh TVA comprise. Saisissez le prix directement ou laissez la calculatrice le déterminer à partir des lignes de votre facture. Chaque période s'applique à partir de sa date jusqu'à la suivante ; si votre tarif change, ajoutez simplement une période. Les jours passés sont comparés au prix qui était alors valable.","refLabels":{"from":"Valable dès (vide = depuis le début)","price":"Prix d'achat (Rp./kWh TVA comprise)","feedIn":"Prix de reprise (Rp./kWh)","ntSummary":"Tarif bas (facultatif)","fixedDiff":"Coûts fixes supplémentaires du tarif dynamique (CHF/mois)","ntPrice":"Tarif bas (Rp./kWh)","ntFrom":"Tarif bas dès (HH:MM)","ntTo":"Tarif bas jusqu'à (HH:MM)","ntWeekend":"Tarif bas tout le week-end"},"fixedDiffHint":"Facultatif : taxe de base, taxe de comptage, etc. du tarif dynamique moins celles de votre tarif de référence. Positif = le dynamique est plus cher, négatif = moins cher. Déduit des économies par jour civil ; 0 si les deux sont égaux.","negativePrice":"Négatif","consumersHeading":"Consommateurs (mois)","consCols":{"name":"Consommateur","kwh":"kWh","avg":"Moy. Rp.","day":"Moy. jour","adv":"Avantage","ref":"Réf. CHF"},"consNote":"Moy. Rp. = prix moyen auquel le consommateur a fonctionné ; Moy. jour = moyenne du jour. Avantage = moy. jour moins moy. Rp. (positif = a fonctionné à des heures moins chères). Réf. CHF = économie par rapport au tarif de référence. Valorisé au prix du réseau de chaque quart d'heure, la part PV n'est pas déduite.","fixedNote":"Compris dans la différence : différence de coûts fixes (CHF) :","negImpNote":"Soutirage à un prix négatif (crédit), kWh :","negExpNote":"Injection à un prix négatif (coût), kWh :","refAdd":"Ajouter une période","refRemove":"Supprimer la période","refNone":"Pas encore de tarif de référence. Commencez par « Ajouter une période ».","calc":"Calculatrice","calcName":"Nom","calcValue":"CHF/kWh","calcAddLine":"Ajouter une ligne","calcExcl":"Les montants sont hors TVA (la TVA est ajoutée)","calcExclExport":"Aucune TVA n'est appliquée à l'injection.","calcSum":"Résultat","calcApply":"Appliquer","calcNamePh":"p. ex. utilisation du réseau","save":"Enregistrer","savedMsg":"Enregistré","saveFailed":"Échec de l'enregistrement : ","setupHeading":"Configuration en 3 étapes","setupDone":"✓ Configuration terminée","setupIntro":"Voici comment les coûts et les économies arrivent dans le widget et l'onglet « Coûts » :","setupSteps":[{"t":"Saisissez votre tarif de référence","d":"Dans la section « Tarif de référence » ci-dessous : votre ancien prix d'achat (Rp./kWh TVA comprise) et prix de reprise, saisis directement ou avec la calculatrice à partir des lignes de votre facture. N'oubliez pas d'enregistrer."},{"t":"Choisissez vos compteurs","d":"Dans la section « Relevés de compteurs » plus bas : choisissez l'appareil et la valeur cumulée en kWh pour le soutirage, l'injection et éventuellement la batterie. L'app lit les valeurs elle-même toutes les 15 minutes. Vous pouvez aussi les transmettre depuis un Flow."},{"t":"Patientez un peu","d":"Le premier relevé ne fixe que la base ; dès le deuxième, les kWh sont valorisés. Les compteurs à faible résolution (p. ex. onduleurs) ne changent que toutes les quelques minutes, ce qui prend d'autant plus de temps."}],"metersHeading":"Relevés de compteurs","metersIntro":"Choisissez vos compteurs ci-dessus, l'app les lit elle-même. Sinon, ou si un compteur n'est pas dans la liste, transmettez les valeurs depuis un Flow :","metersSteps":["Nouveau Flow, déclencheur « Heure : toutes les 15 minutes » (ou « le relevé a changé » de votre compteur)","Action : « Transmettre le relevé de soutirage » (appareil : votre appareil Innostrom)","Dans le champ « Relevé », touchez l'icône de jeton, choisissez votre compteur et prenez la valeur cumulée en kWh qui ne cesse d'augmenter (pas la puissance en W ni « aujourd'hui »)","Ajoutez la même chose comme actions supplémentaires dans ce Flow : « Transmettre le relevé d'injection » et facultativement « Charge de la batterie… » et « Décharge de la batterie… »",{"text":"Exemple compteur d'énergie avec batterie :","bullets":["Soutirage : meter_power du compteur d'énergie","Injection : meter_power.exported du compteur d'énergie","Batterie : meter_power.charged et meter_power.discharged de la batterie"]},"Facultativement « Transmettre le relevé d'un consommateur » pour une voiture électrique ou une pompe à chaleur (nom + compteur kWh) : affiche le prix auquel ils ont fonctionné"],"metersNote":"Transmettez au moins toutes les heures. Le premier relevé ne fixe que la base ; dès le deuxième, les kWh sont valorisés. Après une longue pause, l'augmentation est attribuée à la dernière heure.","reportsHeading":"Derniers relevés de vos compteurs","reports":{"import":"Soutirage","export":"Injection","battery_charge":"Charge de la batterie","battery_discharge":"Décharge de la batterie"},"never":"jamais transmis","ago":"il y a","min":"min","hours":"h","days":"jours","agoBefore":true,"statusHeading":"Statut","stOk":"Tout est en ordre","stPrices":"Prix","stConn":"Connexion","stReports":"Relevés de compteurs","stDevice":"Appareil","stLastOk":"Dernière récupération","stNext":"Prochaine récupération","stData":"Données","stToday":"aujourd'hui","stTomorrow":"demain","stAgo":"il y a","stToWord":"à","stTodayWord":"aujourd'hui","stTomorrowWord":"demain","stEnv":"Environnement","stEnvProd":"Production","stEnvTest":"Test (prix constants)","stPriceField":"Type de prix","stLastError":"Dernière erreur","stFailures":"Tentatives échouées d'affilée","stIssue_auth":"Identifiants refusés (vérifier le jeton ou le numéro du point de mesure)","stIssue_no_current_price":"Pas de prix pour l'instant","stIssue_fetch_failing":"La récupération échoue de façon répétée","stIssue_stale":"Les prix datent de plus de 26 heures","stIssue_no_tomorrow":"Les prix de demain manquent encore","stNoReports":"Aucun relevé de compteur pour l'instant. Ils sont facultatifs et ne servent qu'à la comparaison des coûts.","stMonitorOff":"Surveillance désactivée","stMonitorOn":"Alerte après","stHours":"h","stKind_import":"Soutirage","stKind_export":"Injection","stKind_battery_charge":"Charge de la batterie","stKind_battery_discharge":"Décharge de la batterie","stReportsLate":"Les relevés de compteurs n'arrivent plus","stNever":"jamais","stMetering":"Point de mesure","stVersion":"Version de l'app","stBackup":"Dernière sauvegarde","flowtestHeading":"Tester les Flows","flowtestHint":"Déclenche immédiatement un déclencheur pour que vous puissiez créer et vérifier vos Flows. Tous les Flows qui utilisent ce déclencheur s'exécutent réellement.","flowtestDigest":"Déclencher « journée évaluée » (pour hier)","flowtestReports":"Déclencher « relevés de compteurs n'arrivent plus » (valeurs d'exemple)","flowtestFired":"Déclenché","flowtestNoData":"Il n'y a pas de données pour hier, rien n'a été déclenché.","monitorTimeline":"Timeline","monitorWhich":"Quels compteurs surveiller ?","monitorNeverReported":"jamais transmis","monitorConsumersNote":"Consommateurs (désactivés par défaut)","monitorHeading":"Surveillance","monitorHint":"Avertit lorsque les relevés que vous transmettez depuis un Flow n'arrivent plus. Seul ce qui a été transmis au moins une fois est surveillé ; personne qui ne transmet pas de compteurs ne reçoit donc d'avertissement. En cas d'alerte, la capability « Relevés de compteurs manquants » s'active et, si vous le souhaitez, un message est envoyé dans la timeline (une fois par incident). 0 = désactivé.","monitorHours":"Alerter après (heures)","monitorNotify":"Message dans la timeline (une fois par incident)","monitorInvalid":"Veuillez saisir un nombre de 0 à 48.","backupHeading":"Sauvegarde","backupNone":"Pas encore de sauvegarde. Elle est créée automatiquement dès qu'il y a des données de coûts.","backupLast":"Dernière sauvegarde automatique","backupDaysWord":"jours","backupConsumersWord":"consommateurs","backupHint":"L'app sauvegarde chaque nuit à 03 h 30 et lors de la suppression de l'appareil. La sauvegarde est conservée dans les réglages de l'app et survit au nouveau couplage de l'appareil.","backupSaveBtn":"Sauvegarder maintenant","backupExportBtn":"Exporter en texte","backupCopy":"Copier","backupCopied":"Copié","backupExportHint":"Sauvegarde sous forme de texte, à conserver ou à utiliser sur une autre Homey. Elle ne contient jamais le jeton.","backupImportLabel":"Coller le texte de sauvegarde","backupCheck":"Vérifier","backupInvalid":"Ce n'est pas une sauvegarde valide.","backupWithSettings":"Inclure les réglages (tarif de référence, TVA, batterie)","backupMerge":"Fusionner","backupReplace":"Remplacer","backupFoundHeading":"Sauvegarde trouvée","backupFoundText":"Il existe une sauvegarde pour cet appareil, mais les données de coûts sont vides.","backupRestore":"Restaurer","previewDay":"Jour","previewImport":"Soutirage kWh","previewNet":"Net CHF","previewMore":"jours plus anciens non affichés","previewTotal":"Total","previewCompareMerge":"La fusion ajoute :","previewCompareReplace":"Le remplacement supprime","previewDaysOnlyOnDevice":"jours qui n'existent que sur cet appareil","previewNewDays":"nouveaux jours","previewSharedDays":"déjà présents","previewBattery":"Charge / décharge de la batterie kWh","backupRestored":"Restauré","backupSaved":"Sauvegardé","backupCheckOk":"Sauvegarde valide","backupFrom":"du","backupPeriod":"Période","manageHeading":"Gérer les données","manageHint":"Pour faire le ménage, par exemple après des données de test. Chaque suppression demande un deuxième clic. Les données de prix et le tarif de référence sont toujours conservés.","delFrom":"Du (vide = depuis le début)","delTo":"Jusqu'au (vide = jusqu'à aujourd'hui)","delDays":"Supprimer les jours de la période","delConsumer":"Supprimer le consommateur","delConsumerNone":"Aucun consommateur","baselineHint":"Réinitialiser les bases des compteurs, par exemple après un remplacement de compteur. Les données collectées restent, le prochain relevé ne fixe que la base.","baselineButton":"Réinitialiser les bases des compteurs","resetHint":"Supprime toutes les données de coûts collectées, les consommateurs et les bases des compteurs.","resetButton":"Supprimer toutes les données de coûts","confirm":"Vraiment ? Cliquez encore","manageDone":"Terminé","manageDays":"Jours supprimés :","invalidTime":"Heure invalide (format HH:MM)."};
+    var T_IT = {"title":"Tariffa elettrica dinamica CH","sub":"Prezzi al quarto d'ora per i gestori di rete svizzeri che usano la piattaforma Innostrom (Swisspower)","tabs":{"overview":"Oggi","costs":"Costi","settings":"Setup","help":"Aiuto &amp; forum"},"generalHeading":"Generale","feedInSummary":"Avanzate: immissione nella tariffa dinamica","feedInLabel":"Valorizza l'immissione","feedInRef":"come la tariffa di riferimento (prudente)","feedInApi":"prezzo dall'API (feed_in)","feedInHint":"Le tariffe dinamiche sono di solito descritte solo per il consumo. Se e come l'immissione venga remunerata in modo dinamico dipende dal tuo gestore di rete. Predefinito: l'immissione è valorizzata come la tariffa di riferimento e non modifica il confronto. «API» usa il prezzo feed_in fornito dall'API e vale solo per i dati raccolti in seguito.","vatLabel":"IVA (%)","vatHint":"Aggiunta ai prezzi dell'API (IVA esclusa) e valida per tutte le visualizzazioni, le carte Flow e l'analisi dei costi. 0 = prezzi IVA esclusa.","vatInvalid":"Valore non valido (da 0 a 100).","liveHeading":"Valori attuali","loading":"Caricamento…","loadFailed":"Impossibile caricare i valori.","noDevice":"Nessun dispositivo ancora associato.","noTomorrow":"Nessun prezzo per domani","lastUpdate":"Aggiornato:","forumTitle":"Domande o problemi?","forumHint":"Le risposte alle domande frequenti, la guida alle impostazioni e il contatto diretto con lo sviluppatore si trovano nel thread del forum della community.","forumButton":"Vai al thread del forum","chips":{"energy":"Energia","grid":"Rete","next":"Successivo","rank":"Posizione oggi","min":"Più basso","avg":"Media oggi","max":"Più alto"},"levels":{"very_cheap":"Molto conveniente","cheap":"Conveniente","normal":"Normale","expensive":"Caro","very_expensive":"Molto caro"},"costsHeading":"Costi e risparmi","periods":{"today":"Oggi","week":"7 giorni","month":"Mese","total":"Totale"},"cols":{"period":"Periodo","import":"Prelievo kWh","export":"Immissione kWh","dyn":"Netto dinamico","ref":"Netto riferimento","diff":"Differenza"},"colsShort":{"period":"Periodo","import":"Prelievo","export":"Immiss.","dyn":"Din.","ref":"Rif.","diff":"Diff."},"tableNote":"Prelievo e immissione in kWh, costi netti in CHF. Din. = tariffa dinamica, Rif. = tariffa di riferimento, Diff. = risparmiato (verde) o più caro (rosso).","saved":"risparmiato","pricier":"più caro","batteryBenefit":"Beneficio della batteria grazie alla tariffa (stima: carica dalla rete al prezzo di prelievo, carica FV al prezzo di immissione mancato, scarica al prezzo di prelievo evitato; già incluso nelle cifre qui sopra)","unpriced":"I kWh senza prezzo (dati mancanti) non sono inclusi nei costi:","avgPrices":"Prezzo medio di prelievo dinamico / riferimento (Rp./kWh):","dailyHeading":"Ultimi 30 giorni","chartHeading":"Prezzo (barre), riferimento (tratteggiato) e prelievo (blu)","batHeading":"Batteria (per il calcolo ombra)","batHint":"Capacità utilizzabile, potenza massima (uguale in carica e scarica, in kW lato corrente alternata) ed efficienza di andata e ritorno della tua batteria, più l'intervallo di carica (predefinito dal 5 al 90 %) che un piano di carica può usare. Determinano cosa porterebbe un piano di carica ottimale nella scheda Costi.","shadowHeading":"Potenziale della batteria (calcolo ombra)","shadowIntro":"Non viene controllato nulla. Per ogni giornata intera si ricalcola cosa avrebbe reso un piano di carica ottimale, sulla base dei tuoi contatori comunicati e dei prezzi. Tutti gli importi sono i costi netti dell'elettricità del giorno in CHF, più basso è meglio.","shadowCols":{"day":"Giorno","actual":"Reale","pv":"Solo FV","grid":"Con rete","val":"Valore carica rete","eff":"Efficienza"},"shadowEff":"Efficienza complessiva:","shadowEffNote":"Efficienza = quota del miglior beneficio possibile della batteria (Senza batteria meno Con rete) raggiunta dalla tua giornata reale, da 0 a 100 %. I giorni con meno di CHF 0.10 di potenziale non contano. Un giorno può battere il piano, perché il calcolo è solo una stima.","shadowNote":"Reale = costi effettivi ai prezzi dinamici. Solo FV = piano ottimale che carica solo con il surplus fotovoltaico. Con rete = piano ottimale che può caricare anche dalla rete. Valore carica rete = Solo FV meno Con rete, cioè quanto avrebbe reso in più la carica nelle ore convenienti. Nel calcolo la batteria non immette mai in rete. Una stima: i contatori cambiano a scatti, quindi la suddivisione in quarti d'ora è imprecisa.","shadowNone":"Nessuna giornata intera analizzata finora. La prima compare dopo mezzanotte.","shadowSum":"Somma","shadowUnused":"Potenziale inutilizzato (Reale meno Con rete):","shadowValue":"Valore della carica dalla rete:","batCap":"Batteria utilizzabile (kWh)","batPow":"Potenza max. di carica e scarica (kW)","batEff":"Efficienza di andata e ritorno (%)","batMin":"Livello di carica minimo (%)","batMax":"Livello di carica massimo (%)","hourlyHeading":"Prezzi orari per un EMS esterno","hourlyHint":"Formato dell'elenco JSON nelle carte «Recupera i prezzi orari di oggi / domani». Passalo direttamente a un sistema di gestione dell'energia senza convertirlo in un HomeyScript. Vale solo per queste due carte. L'app ha anche una propria funzione EMS (scheda «EMS»), per quella non serve.","hourlyUnit":"Unità","hourlyUnitRp":"Rp./kWh","hourlyUnitChf":"CHF/kWh","hourlyVat":"IVA","hourlyVatIncl":"IVA inclusa","hourlyVatExcl":"IVA esclusa","hourlyDecimals":"Decimali (vuoto = automatico)","hourlyExample":"Esempio","hourlyInvalid":"Decimali: numero intero da 0 a 6.","appearanceHeading":"Aspetto","themeAuto":"Automatico","themeLight":"Chiaro","themeDark":"Scuro","themeHint":"Automatico segue il tuo dispositivo o l'app Homey. Vale solo per questa pagina delle impostazioni; i widget seguono sempre Homey.","viewToday":"Oggi","viewYesterday":"Ieri","view30":"30 giorni","dayPrev":"Giorno precedente","dayNext":"Giorno successivo","view30Need":"30 giorni: servono 7 giorni di dati (attualmente ","view30Days":")","dayToday":"Oggi","dayTomorrow":"Domani","refShort":"Rif.","viewChart":"Curva","viewTable":"Tabella","ptCheapTag":"conveniente","ptPeakTag":"punta","ptCheapLine":"Blocco di 2 h più conveniente","ptFromNowLine":"Blocco di 2 h più conveniente da adesso","ptPeakLine":"Blocco di 2 h più caro","ptPending":"I prezzi di domani non sono ancora pubblicati.","ptHint":"Tocca un'ora per vedere i quarti d'ora. Bordo verde/rosso = blocco di 2 h conveniente/di punta. Prezzi in Rp./kWh.","ptTap":"Tocca un'ora per vedere i quarti d'ora","kwhLabel":"Prelievo per quarto d'ora","cumHeading":"Costi cumulati (netti)","cumDyn":"Tariffa dinamica","cumRef":"Tariffa di riferimento","cumDiff":"Differenza","cumNote":"Netto = prelievo meno immissione, sommato sull'arco della giornata. La distanza tra le linee è il risparmio.","savingsHeading":"Risparmi per giorno (CHF)","savingsCumHeading":"Risparmi cumulati (CHF)","noDayData":"Per questo giorno non ci sono ancora prezzi né valori dei contatori.","noData":"Nessuna lettura dei contatori comunicata finora. Configura i Flow in «Impostazioni» → «Comunicazione delle letture dei contatori».","noRefNote":"Senza prezzo di riferimento vengono mostrati solo i costi dinamici.","costsFootnote":"Stima senza tasse di base — fa fede la fattura del tuo gestore di rete. Netto = costi di prelievo meno ricavi di immissione.","refHeading":"Tariffa di riferimento","refHint":"La tua tariffa standard per il confronto in Rp./kWh IVA inclusa. Inserisci il prezzo direttamente o lascia che la calcolatrice lo ricavi dalle righe della tua fattura. Ogni periodo vale dalla sua data fino al successivo, quindi se la tariffa cambia aggiungi semplicemente un periodo. I giorni passati vengono confrontati con il prezzo valido allora.","refLabels":{"from":"Valida dal (vuoto = dall'inizio)","price":"Prezzo di prelievo (Rp./kWh IVA inclusa)","feedIn":"Prezzo di immissione (Rp./kWh)","ntSummary":"Tariffa ridotta (facoltativa)","fixedDiff":"Costi fissi aggiuntivi della tariffa dinamica (CHF/mese)","ntPrice":"Tariffa ridotta (Rp./kWh)","ntFrom":"Tariffa ridotta dalle (HH:MM)","ntTo":"Tariffa ridotta fino alle (HH:MM)","ntWeekend":"Tariffa ridotta per tutto il fine settimana"},"fixedDiffHint":"Facoltativo: tassa di base, tassa di misura ecc. della tariffa dinamica meno quelle della tua tariffa di riferimento. Positivo = la dinamica è più cara, negativo = più economica. Detratto dai risparmi per giorno di calendario; 0 se i due sono uguali.","negativePrice":"Negativo","consumersHeading":"Consumatori (mese)","consCols":{"name":"Consumatore","kwh":"kWh","avg":"Media Rp.","day":"Media giorno","adv":"Vantaggio","ref":"Rif. CHF"},"consNote":"Media Rp. = prezzo medio a cui ha funzionato il consumatore; Media giorno = media della giornata. Vantaggio = media giorno meno media Rp. (positivo = ha funzionato in orari più convenienti). Rif. CHF = risparmio rispetto alla tariffa di riferimento. Valorizzato al prezzo di rete di ogni quarto d'ora, la quota FV non viene sottratta.","fixedNote":"Incluso nella differenza: differenza dei costi fissi (CHF):","negImpNote":"Prelievo a prezzo negativo (accredito), kWh:","negExpNote":"Immissione a prezzo negativo (costo), kWh:","refAdd":"Aggiungi periodo","refRemove":"Rimuovi periodo","refNone":"Ancora nessuna tariffa di riferimento. Inizia con «Aggiungi periodo».","calc":"Calcolatrice","calcName":"Nome","calcValue":"CHF/kWh","calcAddLine":"Aggiungi riga","calcExcl":"Gli importi sono IVA esclusa (l'IVA viene aggiunta)","calcExclExport":"All'immissione non si applica l'IVA.","calcSum":"Risultato","calcApply":"Applica","calcNamePh":"ad es. utilizzo della rete","save":"Salva","savedMsg":"Salvato","saveFailed":"Salvataggio non riuscito: ","setupHeading":"Configurazione in 3 passi","setupDone":"✓ Configurazione completata","setupIntro":"Ecco come costi e risparmi arrivano nel widget e nella scheda «Costi»:","setupSteps":[{"t":"Inserisci la tua tariffa di riferimento","d":"Nella sezione «Tariffa di riferimento» qui sotto: il tuo precedente prezzo di prelievo (Rp./kWh IVA inclusa) e prezzo di immissione, inseriti direttamente o con la calcolatrice dalle righe della fattura. Non dimenticare di salvare."},{"t":"Scegli i tuoi contatori","d":"Nella sezione «Letture dei contatori» qui sotto: scegli il dispositivo e il valore cumulativo in kWh per prelievo, immissione ed eventualmente batteria. L'app legge i valori da sola ogni 15 minuti. In alternativa puoi comunicarli da un Flow."},{"t":"Attendi un po'","d":"La prima lettura imposta solo la base; dalla seconda i kWh vengono valorizzati. I contatori a bassa risoluzione (ad es. inverter) cambiano solo ogni pochi minuti, quindi ci vuole di conseguenza più tempo."}],"metersHeading":"Letture dei contatori","metersIntro":"Scegli i tuoi contatori qui sopra e l'app li legge da sola. In alternativa, o se un contatore non è nell'elenco, comunica i valori da un Flow:","metersSteps":["Nuovo Flow, trigger «Ora: ogni 15 minuti» (oppure «la lettura è cambiata» del tuo contatore)","Azione: «Comunica la lettura del prelievo» (dispositivo: il tuo dispositivo Innostrom)","Nel campo «Lettura» tocca l'icona del token, scegli il tuo contatore e prendi il valore cumulato in kWh che continua a crescere (non la potenza in W e non «oggi»)","Aggiungi lo stesso come ulteriori azioni in quel Flow: «Comunica la lettura dell'immissione» e facoltativamente «Carica della batteria…» e «Scarica della batteria…»",{"text":"Esempio contatore di energia con batteria:","bullets":["Prelievo: meter_power del contatore di energia","Immissione: meter_power.exported del contatore di energia","Batteria: meter_power.charged e meter_power.discharged della batteria"]},"Facoltativamente «Comunica la lettura di un consumatore» per un'auto elettrica o una pompa di calore (nome + contatore kWh): mostra il prezzo a cui hanno funzionato"],"metersNote":"Comunica almeno ogni ora. La prima lettura imposta solo la base; dalla seconda i kWh vengono valorizzati. Dopo una lunga pausa l'aumento viene attribuito all'ultima ora.","reportsHeading":"Ultime letture dei tuoi contatori","reports":{"import":"Prelievo","export":"Immissione","battery_charge":"Carica della batteria","battery_discharge":"Scarica della batteria"},"never":"mai comunicato","ago":"","min":"min fa","hours":"h fa","days":"giorni fa","agoBefore":false,"statusHeading":"Stato","stOk":"Tutto in ordine","stPrices":"Prezzi","stConn":"Connessione","stReports":"Letture dei contatori","stDevice":"Dispositivo","stLastOk":"Ultimo recupero","stNext":"Prossimo recupero","stData":"Dati","stToday":"oggi","stTomorrow":"domani","stAgo":"fa","stToWord":"alle","stTodayWord":"oggi","stTomorrowWord":"domani","stEnv":"Ambiente","stEnvProd":"Produzione","stEnvTest":"Test (prezzi costanti)","stPriceField":"Tipo di prezzo","stLastError":"Ultimo errore","stFailures":"Tentativi falliti consecutivi","stIssue_auth":"Credenziali rifiutate (controlla il token o il numero del punto di misura)","stIssue_no_current_price":"Nessun prezzo per adesso","stIssue_fetch_failing":"Il recupero continua a fallire","stIssue_stale":"I prezzi sono più vecchi di 26 ore","stIssue_no_tomorrow":"I prezzi di domani mancano ancora","stNoReports":"Ancora nessuna lettura dei contatori. Sono facoltative e servono solo per il confronto dei costi.","stMonitorOff":"Monitoraggio disattivato","stMonitorOn":"Avviso dopo","stHours":"h","stKind_import":"Prelievo","stKind_export":"Immissione","stKind_battery_charge":"Carica della batteria","stKind_battery_discharge":"Scarica della batteria","stReportsLate":"Le letture dei contatori non arrivano più","stNever":"mai","stMetering":"Punto di misura","stVersion":"Versione dell'app","stBackup":"Ultimo backup","flowtestHeading":"Testa i Flow","flowtestHint":"Attiva subito un trigger così puoi creare e verificare i tuoi Flow. Tutti i Flow che usano questo trigger vengono davvero eseguiti.","flowtestDigest":"Attiva «giornata valutata» (per ieri)","flowtestReports":"Attiva «le letture dei contatori non arrivano più» (valori di esempio)","flowtestFired":"Attivato","flowtestNoData":"Per ieri non ci sono dati, non è stato attivato nulla.","monitorTimeline":"Timeline","monitorWhich":"Quali contatori monitorare?","monitorNeverReported":"mai comunicato","monitorConsumersNote":"Consumatori (disattivati per impostazione predefinita)","monitorHeading":"Monitoraggio","monitorHint":"Avvisa quando le letture che comunichi da un Flow non arrivano più. Viene monitorato solo ciò che è stato comunicato almeno una volta, quindi chi non comunica contatori non riceve mai un avviso. In caso di avviso si attiva la capability «Letture dei contatori mancanti» e, se vuoi, viene inviato un messaggio nella timeline (una volta per incidente). 0 = disattivato.","monitorHours":"Avvisa dopo (ore)","monitorNotify":"Messaggio nella timeline (una volta per incidente)","monitorInvalid":"Inserisci un numero da 0 a 48.","backupHeading":"Backup","backupNone":"Ancora nessun backup. Viene creato automaticamente non appena ci sono dati sui costi.","backupLast":"Ultimo backup automatico","backupDaysWord":"giorni","backupConsumersWord":"consumatori","backupHint":"L'app esegue il backup ogni notte alle 03:30 e quando il dispositivo viene rimosso. Il backup è conservato nelle impostazioni dell'app e sopravvive a una nuova associazione del dispositivo.","backupSaveBtn":"Esegui backup ora","backupExportBtn":"Esporta come testo","backupCopy":"Copia","backupCopied":"Copiato","backupExportHint":"Backup come testo, da conservare o da usare su un'altra Homey. Non contiene mai il token.","backupImportLabel":"Incolla il testo del backup","backupCheck":"Verifica","backupInvalid":"Questo non è un backup valido.","backupWithSettings":"Includi le impostazioni (tariffa di riferimento, IVA, batteria)","backupMerge":"Unisci","backupReplace":"Sostituisci","backupFoundHeading":"Backup trovato","backupFoundText":"Esiste un backup per questo dispositivo, ma i dati sui costi sono vuoti.","backupRestore":"Ripristina","previewDay":"Giorno","previewImport":"Prelievo kWh","previewNet":"Netto CHF","previewMore":"giorni meno recenti non mostrati","previewTotal":"Totale","previewCompareMerge":"L'unione aggiunge:","previewCompareReplace":"La sostituzione rimuove","previewDaysOnlyOnDevice":"giorni che esistono solo su questo dispositivo","previewNewDays":"nuovi giorni","previewSharedDays":"già presenti","previewBattery":"Carica / scarica della batteria kWh","backupRestored":"Ripristinato","backupSaved":"Backup eseguito","backupCheckOk":"Backup valido","backupFrom":"del","backupPeriod":"Periodo","manageHeading":"Gestisci i dati","manageHint":"Per fare pulizia, ad esempio dopo dati di test. Ogni eliminazione richiede un secondo clic. I dati sui prezzi e la tariffa di riferimento vengono sempre conservati.","delFrom":"Dal (vuoto = dall'inizio)","delTo":"Fino al (vuoto = fino a oggi)","delDays":"Elimina i giorni nell'intervallo","delConsumer":"Elimina consumatore","delConsumerNone":"Nessun consumatore","baselineHint":"Reimposta le basi dei contatori, ad esempio dopo la sostituzione di un contatore. I dati raccolti restano, la prossima lettura imposta solo la base.","baselineButton":"Reimposta le basi dei contatori","resetHint":"Elimina tutti i dati sui costi raccolti, i consumatori e le basi dei contatori.","resetButton":"Elimina tutti i dati sui costi","confirm":"Davvero? Clicca ancora","manageDone":"Fatto","manageDays":"Giorni eliminati:","invalidTime":"Ora non valida (formato HH:MM)."};
     var T = { de: T_DE, fr: T_FR, it: T_IT }[LANG] || T_EN;
 
     var LEVEL_CLASS = {
@@ -833,14 +960,8 @@
       document.documentElement.lang = LANG;
       $('doc-title').textContent = T.title;
       $('p-sub').textContent = T.sub;
-      ['overview', 'costs', 'settings', 'help'].forEach(function (k) { $('t-' + k).textContent = T.tabs[k]; });
-      $('h2-features').textContent = T.featuresHeading;
-      $('ul-features').innerHTML = T.features.map(function (f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('');
-      $('h2-recommend').textContent = T.recommendHeading;
-      $('p-recommend-sub').textContent = T.recommendSub;
-      $('dl-recommend').innerHTML = T.recommend.map(function (r) {
-        return '<dt>' + escapeHtml(r.dt) + '</dt><dd>' + r.dd + '</dd>';
-      }).join('');
+      ['overview', 'costs', 'settings'].forEach(function (k) { $('t-' + k).textContent = T.tabs[k]; });
+      $('h2-helpsec').innerHTML = T.tabs.help;
       $('h2-general').textContent = T.generalHeading;
       $('h2-appearance').textContent = T.appearanceHeading;
       $('h2-hourly').textContent = T.hourlyHeading;
@@ -883,10 +1004,12 @@
       $('btn-ref-add').textContent = T.refAdd;
       $('btn-ref-save').textContent = T.save;
       $('h2-setup').textContent = T.setupHeading;
-      $('p-setup-intro').textContent = T.setupIntro;
+      $('p-setup-intro').textContent = (LANG === 'de'
+        ? 'Freiwillig: die Preise und alle Preis-Karten funktionieren ohne diese Schritte. '
+        : (LANG === 'en' ? 'Optional: prices and all price cards work without these steps. ' : '')) + T.setupIntro;
       $('h2-meters').textContent = T.metersHeading;
       $('h3-reports').textContent = T.reportsHeading;
-      $('p-meters-intro').textContent = T.metersIntro;
+      $('p-meters-intro').textContent = T.metersIntro; if ($('sum-meters-flow')) $('sum-meters-flow').textContent = T.metersFlowSummary || 'Flow';
       $('ol-meters').innerHTML = T.metersSteps.map(function (st) {
         if (typeof st === 'string') return '<li>' + escapeHtml(st) + '</li>';
         return '<li>' + escapeHtml(st.text) + '<ul>' + st.bullets.map(function (b) { return '<li>' + escapeHtml(b) + '</li>'; }).join('') + '</ul></li>';
@@ -927,7 +1050,7 @@
       $('btn-baselines').textContent = T.baselineButton;
       $('p-reset-hint').textContent = T.resetHint;
       $('btn-reset').textContent = T.resetButton;
-      $('h2-forum').textContent = T.forumTitle;
+      if ($('btn-emsreset')) { $('btn-emsreset').textContent = T.emsResetButton || 'Reset EMS data'; $('p-emsreset-hint').textContent = T.emsResetHint || ''; }
       $('hint-forum').textContent = T.forumHint;
       $('btn-forum').textContent = T.forumButton;
     }
@@ -1012,6 +1135,9 @@
         '<div class="chart-labels">' + labelSpans + '</div>';
     }
 
+    // Dieselbe Preisgrafik auch im Ausblick (settings/ems.js)
+    window.DtcChart = { html: chartHtml };
+
     // ----- overview: chart or table -----
     var liveView = 'chart';
     var tableDay = 'today';
@@ -1090,7 +1216,7 @@
           '<div>' +
             '<span class="price">' + fmt(data.total) + '</span><span class="unit">Rp./kWh — ' + escapeHtml(data.name) + '</span>' +
           '</div>' +
-          '<span class="level" style="color: var(--st-' + levelClass + ')">' + escapeHtml(levelLabel) + '</span>' +
+          '<span class="level lv-' + levelClass + '">' + escapeHtml(levelLabel) + '</span>' +
         '</div>' +
         '<div class="stats">' +
           '<div class="chip"><div class="num">' + fmt(data.energy) + '</div><div class="lbl">' + escapeHtml(T.chips.energy) + '</div></div>' +
@@ -1156,17 +1282,26 @@
       $('p-hourly-example').textContent = T.hourlyExample + ': [' + vals.join(', ') + ', …]';
     }
     var themeMode = 'auto';
+    // 'auto' wird sofort in ein eindeutiges data-theme aufgelöst (nie entfernt) - Chromes eigenes "Force Dark" für
+    // Webseiten verlässt sich beim Erkennen "kennt diese Seite Dunkelmodus selbst?" nicht zuverlässig auf die
+    // @media(prefers-color-scheme)-Regel allein und malt sonst einzelne Felder (v. a. Eingabefelder) falsch ein.
+    // Gleiches Muster wie in com.rickd.devicewatchdog.
+    var prefersDarkMedia = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
     function applyTheme(mode) {
       themeMode = mode === 'light' || mode === 'dark' ? mode : 'auto';
+      var resolved = themeMode === 'auto' ? ((prefersDarkMedia && prefersDarkMedia.matches) ? 'dark' : 'light') : themeMode;
       [document.documentElement, document.body].forEach(function (el) {
-        if (themeMode === 'auto') el.removeAttribute('data-theme'); else el.setAttribute('data-theme', themeMode);
+        el.setAttribute('data-theme', resolved);
       });
       var sw = document.getElementById('theme-sw');
       if (!sw) return;
       sw.innerHTML = [['auto', T.themeAuto], ['light', T.themeLight], ['dark', T.themeDark]].map(function (b) {
         return '<button class="btn small' + (themeMode === b[0] ? ' active' : '') + '" data-theme-mode="' + b[0] + '">' + escapeHtml(b[1]) + '</button>';
       }).join('');
+    }
+    if (prefersDarkMedia && prefersDarkMedia.addEventListener) {
+      prefersDarkMedia.addEventListener('change', function () { if (themeMode === 'auto') applyTheme('auto'); });
     }
     var lastCost = null;
 
@@ -1334,21 +1469,55 @@
       var days = data.days || [];
       if (!days.length) { root.innerHTML = '<p class="legend">' + escapeHtml(T.shadowNone) + '</p>'; return; }
       var C = T.shadowCols;
+      // Spalte «Fahrplan» nur mit Energiemanagement (sobald es mindestens einen Tag gibt)
+      var hasPlan = !!(data.total && data.total.planDays);
       var row = function (label, d) {
-        return '<tr><td>' + escapeHtml(label) + '</td><td>' + chf(d.actual) + '</td><td>' + chf(d.pvOnly) + '</td><td>' + chf(d.withGrid) + '</td><td class="' + (d.gridChargeValue > 0.5 ? 'good' : '') + '">' + chf(d.gridChargeValue) + '</td><td>' + (typeof d.efficiency === 'number' ? d.efficiency + ' %' : '–') + '</td></tr>';
+        var plan = hasPlan ? '<td>' + (typeof d.plan === 'number' ? chf(d.plan) + (typeof d.planEfficiency === 'number' ? ' <span class="legend" style="font-size:10px">' + d.planEfficiency + '%</span>' : '') : '–') + '</td>' : '';
+        return '<tr><td>' + escapeHtml(label) + '</td><td>' + chf(d.actual) + '</td>' + plan + '<td>' + chf(d.pvOnly) + '</td><td>' + chf(d.withGrid) + '</td><td class="' + (d.gridChargeValue > 0.5 ? 'good' : '') + '">' + chf(d.gridChargeValue) + '</td><td>' + (typeof d.efficiency === 'number' ? d.efficiency + ' %' : '–') + '</td></tr>';
       };
       var body = days.slice().reverse().map(function (d) { return row(d.key.slice(8) + '.' + d.key.slice(5, 7) + '.', d); }).join('');
       var t = data.total;
-      root.innerHTML = '<div class="scroll"><table><thead><tr><th>' + C.day + '</th><th>' + C.actual + '</th><th>' + C.pv + '</th><th>' + C.grid + '</th><th>' + C.val + '</th><th>' + C.eff + '</th></tr></thead><tbody>' +
+      root.innerHTML = '<div class="scroll"><table><thead><tr><th>' + C.day + '</th><th>' + C.actual + '</th>' + (hasPlan ? '<th>' + C.plan + '</th>' : '') + '<th>' + C.pv + '</th><th>' + C.grid + '</th><th>' + C.val + '</th><th>' + C.eff + '</th></tr></thead><tbody>' +
         row(T.shadowSum, t) + body + '</tbody></table></div>' +
         '<p class="legend">' + escapeHtml(T.shadowUnused) + ' <b>CHF ' + chf(t.unused) + '</b> &nbsp; ' + escapeHtml(T.shadowValue) + ' <b>CHF ' + chf(t.gridChargeValue) + '</b></p>' +
-        '<p class="legend">' + escapeHtml(T.shadowEff) + ' <b>' + (typeof t.efficiency === 'number' ? t.efficiency + ' %' : '–') + '</b></p>' +
+        '<p class="legend">' + escapeHtml(T.shadowEff) + ' <b>' + (typeof t.efficiency === 'number' ? t.efficiency + ' %' : '–') + '</b>' + (hasPlan ? ' &nbsp; ' + escapeHtml(T.shadowPlanEff) + ' <b>' + (typeof t.planEfficiency === 'number' ? t.planEfficiency + ' %' : '–') + '</b>' : '') + '</p>' +
         '<p class="legend">' + escapeHtml(T.shadowEffNote) + '</p>' +
-        '<p class="legend">' + escapeHtml(T.shadowNote) + '</p>';
+        '<p class="legend">' + escapeHtml(T.shadowNote) + '</p>' + (hasPlan ? '<p class="legend">' + escapeHtml(T.shadowPlanNote) + '</p>' : '');
+    }
+
+    var NEWSTR = {
+      de: { today: 'Heute in Zahlen', ist: 'Ist (dynamischer Tarif)', soll: 'Soll (Referenztarif)', saved: 'Ersparnis', imp: 'Bezug', exp: 'Einspeisung', noRef: 'Trage unter «Einrichten → Preis-App» deinen Referenztarif ein, dann siehst du hier Soll und Ersparnis.', noData: 'Noch keine Zählerstände von heute.', net: 'Netto in CHF' },
+      en: { today: 'Today in numbers', ist: 'Actual (dynamic tariff)', soll: 'Target (reference tariff)', saved: 'Savings', imp: 'Import', exp: 'Export', noRef: 'Enter your reference tariff under "Set up → Price app" to see target and savings here.', noData: 'No meter readings for today yet.', net: 'Net in CHF' },
+    };
+    var N = NEWSTR[LANG] || NEWSTR.en;
+
+    function renderToday(data) {
+      var card = $('today-card');
+      if (!card) return;
+      if (!data || !data.paired || !data.today) { card.hidden = true; return; }
+      var s = data.today;
+      var cfg = !!s.configured;
+      var hasData = (s.importKwh || 0) > 0 || (s.exportKwh || 0) > 0;
+      // Wer nur Preise bezieht (kein Referenztarif, nie ein Zählerstand), sieht diese Karte nicht.
+      var tot = data.total || {};
+      var usesCosts = cfg || hasData || (tot.importKwh || 0) > 0 || (tot.exportKwh || 0) > 0;
+      if (!usesCosts) { card.hidden = true; return; }
+      card.hidden = false;
+      $('h2-today').textContent = N.today;
+      var sav = typeof s.savings === 'number' ? s.savings : null;
+      var cls = sav === null || Math.abs(sav) < 0.5 ? '' : (sav > 0 ? 'good' : 'bad');
+      $('today-root').innerHTML = hasData
+        ? '<div class="stats">'
+          + '<div class="chip"><div class="num">CHF ' + chf(s.netCostDyn) + '</div><div class="lbl">' + escapeHtml(N.ist) + '</div></div>'
+          + '<div class="chip"><div class="num">' + (cfg ? 'CHF ' + chf(s.netCostRef) : '–') + '</div><div class="lbl">' + escapeHtml(N.soll) + '</div></div>'
+          + '<div class="chip"><div class="num ' + cls + '">' + (cfg ? 'CHF ' + chf(s.savings, true) : '–') + '</div><div class="lbl">' + escapeHtml(N.saved) + '</div></div>'
+          + '</div><p class="legend">' + escapeHtml(N.imp) + ' ' + kwhText(s.importKwh || 0) + ' kWh - ' + escapeHtml(N.exp) + ' ' + kwhText(s.exportKwh || 0) + ' kWh - ' + escapeHtml(N.net) + (cfg ? '' : '. ' + escapeHtml(N.noRef)) + '</p>'
+        : '<p class="sub">' + escapeHtml(N.noData) + '</p>';
     }
 
     function renderCost(data) {
       lastCost = data;
+      renderToday(data);
       var root = $('cost-root');
       if (!data.paired) {
         root.innerHTML = '<div class="no-device">' + escapeHtml(T.noDevice) + '</div>';
@@ -1501,7 +1670,9 @@
       var dataDone = Boolean(data.total && (data.total.importKwh > 0 || data.total.exportKwh > 0));
       var done = [refDone, reportedAny, dataDone];
       var allDone = done.every(Boolean);
-      $('h2-setup').textContent = allDone ? T.setupDone : T.setupHeading;
+      // Die Kostenauswertung ist freiwillig: grün, wenn eingerichtet, sonst neutral (keine Warnfarbe für reine Preis-Nutzer).
+      $('setup-card').className = 'card sec setup-card' + (allDone ? ' ok' : '');
+      $('h2-setup').innerHTML = allDone ? '<span class="st-check">✓</span>' + escapeHtml(T.setupDone.replace(/^✓\s*/, '')) : escapeHtml(T.setupHeading);
       if (allDone && !setupAutoClosed) {
         setupAutoClosed = true;
         $('h2-setup').parentNode.parentNode.open = false;
@@ -1568,6 +1739,10 @@
       }
 
       apiFn = apiCall;
+      if (window.EmsUi) window.EmsUi.init(apiCall, LANG);
+      if (window.MetersUi) window.MetersUi.init(apiCall, LANG);
+      if (window.DiagUi) window.DiagUi.init(apiCall, LANG);
+      if (window.SetupNav) window.SetupNav.init(LANG);
 
       // Appearance is stored in the app settings so it survives reopening and follows the user.
       Homey.get('ui_theme', function (err, value) { if (!err) applyTheme(value); });
@@ -2031,6 +2206,9 @@
       });
       armed('btn-reset', function () { return T.resetButton; }, function () {
         return apiCall('POST', '/cost/reset');
+      });
+      armed('btn-emsreset', function () { return T.emsResetButton || 'Reset EMS data'; }, function () {
+        return apiCall('POST', '/ems/reset-data');
       });
 
       // Homey.ready() is called only after the first load settles (success or failure).

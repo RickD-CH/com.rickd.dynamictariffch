@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "A consumer !{{is|isn't}} running",
+    "de": "Ein Verbraucher !{{läuft|läuft nicht}}"
+  },
+  "titleFormatted": {
+    "en": "[[consumer]] !{{is|isn't}} running",
+    "de": "[[consumer]] !{{läuft|läuft nicht}}"
+  },
+  "hint": {
+    "en": "Running means switched on by the energy management (for program devices: within the usual program duration after the start).",
+    "de": "Läuft heisst: vom Energiemanagement eingeschaltet (bei Programm-Geräten: innerhalb der üblichen Programmdauer nach dem Start)."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "autocomplete",
+      "name": "consumer",
+      "title": {
+        "en": "Consumer",
+        "de": "Verbraucher"
+      },
+      "placeholder": {
+        "en": "Choose a device",
+        "de": "Gerät wählen"
+      }
+    }
+  ]
+}

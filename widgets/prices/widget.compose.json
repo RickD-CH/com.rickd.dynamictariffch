@@ -1,9 +1,9 @@
 {
   "name": {
-    "en": "Innostrom price list",
-    "de": "Innostrom-Preisliste",
-    "fr": "Liste de prix Innostrom",
-    "it": "Listino prezzi Innostrom"
+    "en": "Price list",
+    "de": "Preisliste",
+    "fr": "Liste des prix",
+    "it": "Listino prezzi"
   },
   "height": 400,
   "api": {

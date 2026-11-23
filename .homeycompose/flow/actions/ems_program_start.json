@@ -1,0 +1,33 @@
+{
+  "title": {
+    "en": "Start a program device now",
+    "de": "Programm-Gerät jetzt starten"
+  },
+  "titleFormatted": {
+    "en": "Start [[consumer]] now",
+    "de": "[[consumer]] jetzt starten"
+  },
+  "hint": {
+    "en": "Starts the chosen program device (dishwasher, washing machine, dryer) right now, regardless of surplus and price. It still checks remote control, door and status of the device. Only works for devices set up as \"Start a program\".",
+    "de": "Startet das gewählte Programm-Gerät (Geschirrspüler, Waschmaschine, Tumbler) sofort, unabhängig von Überschuss und Preis. Fernbedienung, Tür und Status des Geräts werden weiterhin geprüft. Nur für Geräte, die als «Programm starten» eingerichtet sind."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "autocomplete",
+      "name": "consumer",
+      "title": {
+        "en": "Program device",
+        "de": "Programm-Gerät"
+      },
+      "placeholder": {
+        "en": "Choose a device",
+        "de": "Gerät wählen"
+      }
+    }
+  ]
+}

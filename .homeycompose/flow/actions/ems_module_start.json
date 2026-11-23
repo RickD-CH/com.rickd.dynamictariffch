@@ -1,0 +1,45 @@
+{
+  "title": {
+    "en": "Start SG Ready / hot-water program now",
+    "de": "SG-Ready oder Warmwasser-Programm jetzt starten"
+  },
+  "titleFormatted": {
+    "en": "Start [[module]] now",
+    "de": "[[module]] jetzt starten"
+  },
+  "hint": {
+    "en": "Starts the chosen module right now, without waiting for sun or price. SG Ready heats until the target temperature or the maximum run time (180 min if none is set); the hot-water program ends at the target temperature or the maximum run time. Does not start while the heat pump is already preparing hot water (if a status field is set), when the module is off or paused.",
+    "de": "Startet das gewählte Modul sofort, ohne auf Sonne oder Preis zu warten. SG-Ready heizt bis zur Zieltemperatur oder zur Höchstdauer (180 Min., falls keine eingestellt ist); das Warmwasser-Programm endet bei der Zieltemperatur oder der Höchstdauer. Startet nicht, solange die Wärmepumpe schon selbst Warmwasser bereitet (wenn ein Statusfeld eingetragen ist), und nicht bei ausgeschaltetem oder pausiertem Modul."
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "module",
+      "title": {
+        "en": "Module",
+        "de": "Modul"
+      },
+      "values": [
+        {
+          "id": "sgready",
+          "title": {
+            "en": "SG Ready (heat up)",
+            "de": "SG-Ready (Aufheizen)"
+          }
+        },
+        {
+          "id": "dhw",
+          "title": {
+            "en": "Hot-water program",
+            "de": "Warmwasser-Programm"
+          }
+        }
+      ]
+    }
+  ]
+}

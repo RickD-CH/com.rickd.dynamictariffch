@@ -1,0 +1,20 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Backup reserve",
+    "de": "Notstrom-Reserve",
+    "fr": "Réserve de secours",
+    "it": "Riserva di emergenza"
+  },
+  "desc": {
+    "en": "Keeps at least the configured battery level, charging from the grid if needed regardless of price. Turn on before an expected outage, off again afterwards.",
+    "de": "Hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Vor einem erwarteten Ausfall einschalten, danach wieder aus.",
+    "fr": "Maintient au moins le niveau de batterie configuré, en rechargeant depuis le réseau si nécessaire, quel que soit le prix. À activer avant une coupure attendue, puis à désactiver.",
+    "it": "Mantiene almeno il livello di carica impostato, ricaricando dalla rete se necessario indipendentemente dal prezzo. Attivare prima di un'interruzione prevista, poi disattivare."
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "uiQuickAction": false,
+  "icon": "/assets/capabilities/ems_backup_reserve.svg"
+}

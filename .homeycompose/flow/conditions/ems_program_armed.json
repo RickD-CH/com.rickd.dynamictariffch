@@ -1,0 +1,29 @@
+{
+  "title": {
+    "en": "The automatic of a program device !{{is|isn't}} on",
+    "de": "Die Automatik eines Programm-Geräts !{{ist|ist nicht}} ein"
+  },
+  "titleFormatted": {
+    "en": "The automatic of [[consumer]] !{{is|isn't}} on",
+    "de": "Die Automatik von [[consumer]] !{{ist|ist nicht}} ein"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "autocomplete",
+      "name": "consumer",
+      "title": {
+        "en": "Program device",
+        "de": "Programm-Gerät"
+      },
+      "placeholder": {
+        "en": "Choose a device",
+        "de": "Gerät wählen"
+      }
+    }
+  ]
+}

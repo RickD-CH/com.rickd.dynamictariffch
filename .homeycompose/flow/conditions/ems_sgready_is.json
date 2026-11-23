@@ -1,0 +1,48 @@
+{
+  "title": {
+    "en": "SG Ready state !{{is|isn't}}...",
+    "de": "SG-Ready-Zustand !{{ist|ist nicht}}..."
+  },
+  "titleFormatted": {
+    "en": "SG Ready state !{{is|isn't}} [[state]]",
+    "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=ems"
+    },
+    {
+      "type": "dropdown",
+      "name": "state",
+      "title": {
+        "en": "State",
+        "de": "Zustand"
+      },
+      "values": [
+        {
+          "id": "normal",
+          "label": {
+            "en": "Normal operation (0:0)",
+            "de": "Normalbetrieb (0:0)"
+          }
+        },
+        {
+          "id": "boost",
+          "label": {
+            "en": "Recommendation (0:1)",
+            "de": "Empfehlung (0:1)"
+          }
+        },
+        {
+          "id": "forced",
+          "label": {
+            "en": "Forced charging (1:1)",
+            "de": "Zwangsladung (1:1)"
+          }
+        }
+      ]
+    }
+  ]
+}

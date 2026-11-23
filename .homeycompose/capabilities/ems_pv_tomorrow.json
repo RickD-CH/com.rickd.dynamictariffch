@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Solar forecast tomorrow",
+    "de": "Solarprognose morgen",
+    "fr": "Prévision solaire demain",
+    "it": "Previsione solare domani"
+  },
+  "units": "kWh",
+  "decimals": 1,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "icon": "/assets/capabilities/ems_forecast.svg"
+}

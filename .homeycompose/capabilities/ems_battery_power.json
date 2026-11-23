@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Battery power",
+    "de": "Batterieleistung",
+    "fr": "Puissance batterie",
+    "it": "Potenza batteria"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/ems_battery.svg"
+}

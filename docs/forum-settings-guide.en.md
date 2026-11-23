@@ -72,11 +72,13 @@ VAT (default 8.1 %, added to the API prices, which are excluding VAT) is set onc
 
 Add them from the Homey dashboard editor.
 
-- **Innostrom price:** current price, level, next price, rank, low/average/high, the cheapest 2-hour block and today's and tomorrow's curve with the reference line. The **Grid import** button overlays the kWh you bought from the grid.
-- **Innostrom price list:** 24 hours as a grid with day tabs, cheapest and most expensive block, tap an hour for its quarter-hours.
-- **Innostrom costs:** accumulated cost with the dynamic tariff against the reference tariff.
+- **Electricity price:** current price, level, next price, rank, low/average/high, the cheapest 2-hour block and today's and tomorrow's curve with the reference line. The **Grid import** button overlays the kWh you bought from the grid.
+- **Price list:** 24 hours as a grid with day tabs, cheapest and most expensive block, tap an hour for its quarter-hours.
+- **Electricity costs:** accumulated cost with the dynamic tariff against the reference tariff.
+- **Energy plan** (needs the energy management device): the next 24 hours of prices with the solar forecast, the planned battery mode (charge, hold, normal) and the car charging windows. Tap a bar for that quarter-hour. Shows "Test mode" while the energy management only simulates.
+- **House connection** (needs main fuse protection): the highest phase against the limit, total kW, L1 to L3 with bars, today's peak, and whether the wallbox is limited or a device was switched off.
 
-[SCREENSHOT: the three widgets on a dashboard]
+[SCREENSHOT: the widgets on a dashboard]
 
 ## 6. Cost comparison: how the numbers get in
 
@@ -107,7 +109,7 @@ The trigger card gives you the average price and the end time as tokens.
 **Feed an energy management app with hourly prices**
 - *When* "Tomorrow's prices are available"
 - *Then* "Get tomorrow's hourly prices" and hand the token to your EMS card. The token is a JSON array of 24 values, index 0 = 00:00-01:00. By default the values are Rp./kWh incl. VAT, for example `[19.8,18.2,17.5,...]`.
-- The format of the list is set in the app settings (section "Hourly prices for an EMS"): Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals. If your EMS expects CHF/kWh (like the Huawei FusionSolar EMS), choose CHF/kWh there and the list comes out as `[0.198,0.182,0.175,...]`, so you do not need a HomeyScript to divide by 100.
+- The format of the list is set in the app settings (section "Hourly prices for an EMS"): Rp./kWh or CHF/kWh, with or without VAT, and the number of decimals. If your EMS expects CHF/kWh, choose CHF/kWh there and the list comes out as `[0.198,0.182,0.175,...]`, so you do not need a HomeyScript to divide by 100.
 - On the spring-forward day the 02:00 hour does not exist, so this card fails that day instead of returning an incomplete array.
 
 **A message with yesterday's numbers**

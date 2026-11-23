@@ -20,7 +20,7 @@ const {
 const BACKOFF_MINUTES = [1, 2, 5, 10, 15];
 // Stop escalating after this many consecutive failures and wait for the next regularly
 // scheduled attempt instead - a permanently broken API must not turn into an unbounded
-// 15-minutely request stream. Matches EWHGOF/SwisspowerDynPreis's BACKOFF_MAX_TRIES.
+// 15-minutely request stream.
 const BACKOFF_MAX_TRIES = 6;
 // If tomorrow's prices still aren't complete, keep polling every 15 min until this local
 // cut-off, then give up for the day (alarm_no_tomorrow / fallback price takes over).
@@ -29,8 +29,7 @@ const DAILY_FETCH_TIME = { hour: 16, minute: 5 };
 const NO_TOMORROW_ALARM_TIME = { hour: 18, minute: 30 };
 // A day counts as "published" once this share of it has prices, not only at exactly
 // 100%: a supplier that permanently drops a single slot must not be hunted forever and
-// must not raise a false alarm_no_tomorrow. Same idea and value as
-// EWHGOF/SwisspowerDynPreis's TOMORROW_COVERAGE_RATIO.
+// must not raise a false alarm_no_tomorrow.
 const TOMORROW_COVERAGE_RATIO = 0.95;
 
 function formatHHMM(date, tz) {
@@ -71,6 +70,7 @@ class InnostromDevice extends Homey.Device {
     this._costTimer = null;
     this._backupTimer = null;
     this._restoring = false;
+    this._reportSeen = this.getStoreValue('reportSeen') || {}; // { [Zähler]: { flow: ms, auto: ms } }
     this._status = this.getStoreValue('status') || {};
 
     this._onAppSetting = (key) => {
@@ -821,9 +821,8 @@ class InnostromDevice extends Homey.Device {
   // 24 hourly values (index 0 = 00:00-01:00 local ... 23 = 23:00-24:00), averaged from
   // our 15-min slots, in the unit / VAT mode / precision chosen in the app settings (default:
   // Rp./kWh incl. VAT like measure_price_total). For feeding
-  // third-party EMS apps (e.g. FusionSolar's ems_set_price_forecast) that expect one
-  // value per hour rather than per quarter-hour - JSON-encoded since Homey Flow tokens
-  // have no array type, matching how Power by the Hour's own "Prices" token works.
+  // other apps that expect one value per hour rather than per quarter-hour -
+  // JSON-encoded since Homey Flow tokens have no array type.
   _hourlyPricesArray(day) {
     const dayStart = startOfLocalDay(day, this.tz);
     const dayEnd = addLocalDays(dayStart, 1, this.tz);
@@ -881,17 +880,29 @@ class InnostromDevice extends Homey.Device {
     return ref && ref.price > 0 ? ref.feedIn : 0;
   }
 
-  actionReportCounter(kind, kwh) {
+  /** Merkt sich, über welchen Weg ein Zähler zuletzt gemeldet wurde: 'flow' (Flow-Karte) oder 'auto' (Auswahl in den Einstellungen). */
+  _noteReport(key, via) {
+    const e = this._reportSeen[key] || (this._reportSeen[key] = {});
+    e[via === 'auto' ? 'auto' : 'flow'] = Date.now();
+  }
+
+  getReportSeen() {
+    return JSON.parse(JSON.stringify(this._reportSeen));
+  }
+
+  actionReportCounter(kind, kwh, via = 'flow') {
     const result = this.costTracker.report(kind, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
     if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
+    this._noteReport(kind, via);
     this._markCostDirty();
     return true;
   }
 
-  actionReportConsumer(name, kwh) {
+  actionReportConsumer(name, kwh, via = 'flow') {
     const result = this.costTracker.reportConsumer(name, kwh, new Date(), (s) => this._costPricesAt(s), this._refPeriods());
     if (result.status === 'invalid') throw new Error(this.homey.__('device.errorInvalidCounter'));
     if (result.status === 'limit') throw new Error(this.homey.__('device.errorConsumerLimit'));
+    this._noteReport(`consumer:${name}`, via);
     this._markCostDirty();
     return true;
   }
@@ -911,6 +922,7 @@ class InnostromDevice extends Homey.Device {
       this._costTimer = null;
     }
     await this.setStoreValue('cost', this.costTracker.toJSON());
+    await this.setStoreValue('reportSeen', this._reportSeen);
   }
 
   /** Selective clean-up from the settings page. */
@@ -975,7 +987,7 @@ class InnostromDevice extends Homey.Device {
     };
   }
 
-  /** Battery parameters for the shadow analysis (app settings, with defaults for a LUNA2000-class battery). */
+  /** Battery parameters for the shadow analysis (app settings, with defaults for a typical home battery). */
   _batteryParams() {
     const p = this.homey.settings.get('battery_params') || {};
     const num = (v, d) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : d);
@@ -1053,7 +1065,7 @@ class InnostromDevice extends Homey.Device {
 
   _settingsSnapshot() {
     const out = {};
-    for (const k of ['ref_periods', 'vat_percent', 'battery_params', 'feed_in_mode', 'hourly_output']) {
+    for (const k of ['ref_periods', 'vat_percent', 'battery_params', 'feed_in_mode', 'hourly_output', 'ems.config', 'meters.config']) {
       const v = this.homey.settings.get(k);
       if (v !== null && v !== undefined) out[k] = v;
     }

@@ -1,11 +1,15 @@
 'use strict';
 
 const { sanitizeRefPeriods } = require('./lib/CostTracker');
+const { addPlan } = require('./lib/ShadowPlan');
 const { normalizeHourlyOutput, parseHourlyOutput } = require('./lib/HourlyOutput');
 const { normalizeHours, GRID_KINDS } = require('./lib/StatusRules');
+const { diagLog, makeRedactor, buildReport } = require('./lib/Diagnostics');
 
 /** All four grid kinds as booleans (missing = on). */
 const monitorKinds = (v) => Object.fromEntries(GRID_KINDS.map((k) => [k, !(v && typeof v === 'object' && v[k] === false)]));
+
+const pick = (o, path) => path.split('.').reduce((x, k) => (x && typeof x === 'object' ? x[k] : undefined), o);
 
 // Shows the first paired innostrom device - same simplification as the widget's api.js.
 function firstDevice(homey) {
@@ -14,6 +18,156 @@ function firstDevice(homey) {
 }
 
 module.exports = {
+
+  // --- Zählerstände automatisch lesen ---
+  async getMeters({ homey }) {
+    return homey.app.meters.getStatus();
+  },
+
+  async putMeters({ homey, body }) {
+    homey.app.meters.putConfig(body);
+    return homey.app.meters.getStatus();
+  },
+
+  async postMetersRun({ homey }) {
+    await homey.app.meters.readOnce();
+    return homey.app.meters.getStatus();
+  },
+
+  async getMetersDevices({ homey }) {
+    return { devices: await homey.app.meters.listDevices() };
+  },
+
+  // --- Diagnose zum Kopieren (anonymisiert, wird nicht automatisch gesendet) ---
+  async getDiagnostics({ homey }) {
+    const names = [];
+    const add = (name, label) => { if (typeof name === 'string' && name.trim()) names.push({ name, label }); };
+    let config = {};
+    try { config = homey.app.ems.getConfig() || {}; } catch (err) { config = {}; }
+    (config.consumers || []).forEach((c, i) => {
+      add(c.name, `Verbraucher ${i + 1}`);
+      add(c.flowOn && c.flowOn.name, `Flow v${i + 1}a`);
+      add(c.flowOff && c.flowOff.name, `Flow v${i + 1}b`);
+    });
+    const flowNames = [pick(config, 'dhw.flowOn'), pick(config, 'dhw.flowOff'), pick(config, 'dhw.delay.flowDelay'),
+      pick(config, 'sgready.flowBoost'), pick(config, 'sgready.flowNormal'), pick(config, 'sgready.flowForced')]
+      .map((f) => f && f.name).filter(Boolean);
+    flowNames.forEach((n, i) => add(n, `Flow ${i + 1}`));
+    try {
+      const devs = await homey.app.ems.listDevices();
+      devs.forEach((d, i) => add(d.name, `Gerät ${i + 1}`));
+    } catch (err) { /* ohne Geräteliste: nur die übrigen Namen */ }
+    const secrets = [];
+    const priceDevices = [];
+    try {
+      for (const d of homey.drivers.getDriver('innostrom').getDevices()) {
+        const settings = d.getSettings() || {};
+        if (settings.token) secrets.push(String(settings.token), String(settings.token).slice(-4));
+        const code = d.getData() && d.getData().id;
+        if (code) secrets.push(String(code));
+        add(d.getName(), 'Preis-Gerät');
+        priceDevices.push({ settings });
+      }
+    } catch (err) { /* ohne Preis-Gerät */ }
+    // Die letzten vier Zeichen allein sind zu kurz zum Ersetzen und kein Geheimnis; nur das ganze Token wird ersetzt
+    const redact = makeRedactor({ names, secrets: secrets.filter((s) => s.length > 4) });
+    const text = buildReport({
+      info: {
+        appVersion: homey.manifest && homey.manifest.version,
+        homeyVersion: homey.version,
+        platform: homey.platform,
+        language: homey.i18n && homey.i18n.getLanguage ? homey.i18n.getLanguage() : null,
+        tz: homey.clock && homey.clock.getTimezone ? homey.clock.getTimezone() : 'Europe/Zurich',
+        now: Date.now(),
+      },
+      config,
+      priceDevices,
+      logs: diagLog.recent(120),
+      redact,
+    });
+    return { text, lines: text.split('\n').length };
+  },
+
+  // --- EMS (Energiemanagement) ---
+  async getEmsShadow({ homey }) {
+    return homey.app.ems.getShadow();
+  },
+
+  async getEmsPlan({ homey }) {
+    return homey.app.ems.getPlan();
+  },
+
+  async getEmsJobs({ homey }) {
+    return homey.app.ems.listJobs();
+  },
+
+  async postEmsJob({ homey, body }) {
+    return homey.app.ems.saveJob(body);
+  },
+
+  async deleteEmsJob({ homey, params }) {
+    return homey.app.ems.deleteJob(params && params.id);
+  },
+
+  async postEmsPlanPreview({ homey, body }) {
+    return homey.app.ems.previewPlan(body);
+  },
+
+  async postEmsCommandTest({ homey, body }) {
+    return homey.app.ems.testCommand(body && body.id);
+  },
+
+  async postEmsResetLedger({ homey }) {
+    return homey.app.ems.resetLedger();
+  },
+
+  async postEmsResetData({ homey }) {
+    return homey.app.ems.resetData();
+  },
+
+  async postEmsRun({ homey }) {
+    await homey.app.ems.runNow();
+    return homey.app.ems.getShadow();
+  },
+
+  async getEmsConfig({ homey }) {
+    return homey.app.ems.getConfig();
+  },
+
+  async putEmsConfig({ homey, body }) {
+    return homey.app.ems.putConfig(body);
+  },
+
+  async putEmsToggle({ homey, body }) {
+    return homey.app.ems.setLive(body && body.target, body && body.live === true);
+  },
+
+  async getEmsDevices({ homey }) {
+    return { devices: await homey.app.ems.listDevices() };
+  },
+
+  async getEmsFlows({ homey }) {
+    return { flows: await homey.app.ems.listFlows() };
+  },
+
+  async getEmsCommandFlows({ homey }) {
+    return homey.app.ems.commandFlowStatus();
+  },
+
+  async getEmsConsumers({ homey }) {
+    const r = homey.app.ems.runner;
+    return {
+      current: r ? r.consumerCurrent : [], events: r ? r.consumerEvents.slice(-60).reverse() : [], batteryEvents: r && r.batteryEvents ? r.batteryEvents.slice(-50).reverse() : [], fuseEvents: r && r.fuseEvents ? r.fuseEvents.slice(-50).reverse() : [],
+    };
+  },
+
+  async putEmsPvHistory({ homey, body }) {
+    return homey.app.ems.importPvHistory(body && body.days);
+  },
+
+  async getEmsDeviceCards({ homey, query }) {
+    return homey.app.ems.deviceCards(query && query.id);
+  },
 
   async getCost({ homey }) {
     const device = firstDevice(homey);
@@ -87,7 +241,10 @@ module.exports = {
   async getShadow({ homey }) {
     const device = firstDevice(homey);
     if (!device) return { paired: false };
-    return { paired: true, ...device.getShadow() };
+    // Mit Energiemanagement: Spalte «Fahrplan (Modell)» aus der Franken-Auswertung
+    const { ems } = homey.app;
+    const ledger = ems && ems.runner && ems.runner.ledger ? ems.runner.ledger.days : null;
+    return { paired: true, ...addPlan(device.getShadow(), ems && ems.hasDevice && ems.hasDevice() ? ledger : null) };
   },
 
   async putCostConfig({ homey, body }) {

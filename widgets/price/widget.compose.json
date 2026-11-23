@@ -1,9 +1,9 @@
 {
   "name": {
-    "en": "Innostrom price",
-    "de": "Innostrom-Preis",
-    "fr": "Prix Innostrom",
-    "it": "Prezzo Innostrom"
+    "en": "Electricity price",
+    "de": "Strompreis",
+    "fr": "Prix de l'électricité",
+    "it": "Prezzo elettricità"
   },
   "height": 210,
   "api": {

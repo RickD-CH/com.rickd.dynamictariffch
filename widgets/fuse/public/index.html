@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --fw-text: #1a1a1a; --fw-muted: #767676; --fw-bg: #ffffff; --fw-chip: #f2f2f2; --fw-ok: #2e9d5a;
+      --fw-warn: #d98a1a; --fw-bad: #c0392b; --fw-test-bg: #fff4e0; --fw-test: #9a5b00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fw-text: #f2f2f2; --fw-muted: #a0a0a0; --fw-bg: #1e1e20; --fw-chip: #2f2f32; --fw-ok: #4cc27a;
+        --fw-warn: #f0a040; --fw-bad: #ef5350; --fw-test-bg: #3a2c12; --fw-test: #ffc46b;
+      }
+    }
+    .homey-dark-mode {
+      --fw-text: #f2f2f2; --fw-muted: #a0a0a0; --fw-bg: #1e1e20; --fw-chip: #2f2f32; --fw-ok: #4cc27a;
+      --fw-warn: #f0a040; --fw-bad: #ef5350; --fw-test-bg: #3a2c12; --fw-test: #ffc46b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px; color: var(--fw-text); background: var(--fw-bg); padding: 10px 12px;
+    }
+    .top { display: flex; align-items: baseline; gap: 6px; }
+    .big { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .of { color: var(--fw-muted); font-size: 12px; }
+    .kw { margin-left: auto; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .main { height: 6px; border-radius: 3px; background: var(--fw-chip); margin-top: 6px; overflow: hidden; }
+    .main i, .bar i { display: block; height: 100%; border-radius: 3px; }
+    .phs { display: flex; gap: 12px; margin-top: 10px; }
+    .ph { flex: 1 1 0; min-width: 0; }
+    .ph .h { display: flex; gap: 4px; align-items: baseline; white-space: nowrap; }
+    .ph .l { color: var(--fw-muted); font-size: 11px; }
+    .ph .a { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .bar { height: 4px; border-radius: 2px; background: var(--fw-chip); margin-top: 3px; overflow: hidden; }
+    .ph .k { color: var(--fw-muted); font-size: 10.5px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .foot { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 11px; color: var(--fw-muted); }
+    .chip { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--fw-chip); color: var(--fw-text); }
+    .chip.bad { background: var(--fw-bad); color: #fff; }
+    .chip.test { background: var(--fw-test-bg); color: var(--fw-test); }
+    .peak { margin-right: auto; }
+    .out { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--fw-chip); }
+    .out .oh { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fw-muted); }
+    .out .oh b { color: var(--fw-text); font-size: 11.5px; }
+    .chip.warn { background: var(--fw-warn); color: #fff; }
+    .chip.good { background: var(--fw-ok); color: #fff; }
+    .out .ot { margin-top: 3px; font-size: 11px; color: var(--fw-text); }
+    .out .op { margin-top: 1px; font-size: 10.5px; color: var(--fw-muted); }
+    .hrs { display: flex; align-items: flex-end; gap: 1px; height: 26px; margin-top: 6px; }
+    .hrs i { flex: 1 1 0; min-width: 0; border-radius: 1px; }
+    .msg { text-align: center; color: var(--fw-muted); font-size: 12px; padding: 16px 6px; line-height: 1.4; }
+    .msg.err { color: var(--fw-bad); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var lastJson = null;
+    var HomeyRef = null;
+
+    function esc(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function f1(v) { return typeof v === 'number' ? v.toFixed(1) : '–'; }
+    function colorOf(pct) { return pct >= 90 ? 'var(--fw-bad)' : (pct >= 70 ? 'var(--fw-warn)' : 'var(--fw-ok)'); }
+    function pctOf(a, limit) { return typeof a === 'number' && limit > 0 ? Math.min(100, Math.max(0, a / limit * 100)) : 0; }
+    function fit() {
+      try { if (HomeyRef) HomeyRef.setHeight(Math.min(300, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
+    }
+
+    function outColor(pct) { return pct >= 100 ? 'var(--fw-bad)' : (pct >= 80 ? 'var(--fw-warn)' : 'var(--fw-ok)'); }
+    function outlookHtml(Homey, o) {
+      var cls = o.status === 'over' ? 'bad' : (o.status === 'tight' ? 'warn' : 'good');
+      var label = Homey.__(o.status === 'over' ? 'fuseWidget.outlookOver' : (o.status === 'tight' ? 'fuseWidget.outlookTight' : 'fuseWidget.outlookOk'));
+      var parts = [Homey.__('fuseWidget.outlookHouse') + ' ' + f1(o.peak.baseKw)].concat((o.peak.parts || []).map(function (p) { return p.name + ' ' + f1(p.kw); }));
+      var bars = (o.hours || []).map(function (h) {
+        return '<i title="' + esc(h.time + ': ' + f1(h.kw) + ' kW') + '" style="height:' + Math.max(2, Math.min(100, h.pct)).toFixed(0) + '%;background:' + outColor(h.pct) + '"></i>';
+      }).join('');
+      return '<div class="out"><div class="oh"><b>' + esc(Homey.__('fuseWidget.outlook')) + '</b><span class="chip ' + cls + '">' + esc(label) + '</span></div>'
+        + '<div class="ot">' + esc(Homey.__('fuseWidget.outlookPeak').replace('{kw}', f1(o.peak.kw)).replace('{pct}', o.peak.pct).replace('{time}', o.peak.time)) + '</div>'
+        + '<div class="op">' + esc(parts.join(' + ')) + ' kW</div>'
+        + '<div class="hrs">' + bars + '</div></div>';
+    }
+
+    function render(Homey, d) {
+      var root = document.getElementById('root');
+      if (!d.ems) { root.innerHTML = '<div class="msg">' + esc(Homey.__('fuseWidget.noEms')) + '</div>'; return fit(); }
+      if (!d.enabled) { root.innerHTML = '<div class="msg">' + esc(Homey.__('fuseWidget.off')) + '</div>'; return fit(); }
+      if (d.maxA === null) {
+        root.innerHTML = '<div class="msg">' + esc(Homey.__(d.error === 'wait' ? 'fuseWidget.wait' : 'fuseWidget.noPhases')) + '</div>';
+        return fit();
+      }
+      var pct = pctOf(d.maxA, d.limitA);
+      var html = '<div class="top"><span class="big">' + f1(d.maxA) + ' A</span><span class="of">' + esc(Homey.__('fuseWidget.of')) + ' ' + esc(d.limitA) + ' A</span>'
+        + (d.totalKw !== null ? '<span class="kw">' + f1(d.totalKw) + ' kW</span>' : '') + '</div>'
+        + '<div class="main"><i style="width:' + pct.toFixed(0) + '%;background:' + colorOf(pct) + '"></i></div>';
+      if (d.phases && d.phases.length) {
+        html += '<div class="phs">' + d.phases.map(function (p, k) {
+          var pp = p ? pctOf(p.a, d.limitA) : 0;
+          return '<div class="ph"><div class="h"><span class="l">L' + (k + 1) + '</span><span class="a">' + (p ? f1(p.a) + ' A' : '–') + '</span></div>'
+            + '<div class="bar"><i style="width:' + pp.toFixed(0) + '%;background:' + colorOf(pp) + '"></i></div>'
+            + '<div class="k">' + (p ? f1(p.kw) + ' kW' : '') + '</div></div>';
+        }).join('') + '</div>';
+      }
+      var foot = [];
+      if (d.peak) {
+        foot.push('<span class="peak">' + esc(Homey.__('fuseWidget.peak').replace('{a}', f1(d.peak.a)).replace('{time}', d.peak.time))
+          + (d.peak.phase ? ' (L' + d.peak.phase + ')' : '') + '</span>');
+      }
+      if (d.over) foot.push('<span class="chip bad">' + esc(Homey.__('fuseWidget.over')) + '</span>');
+      if (d.capAmps !== null) foot.push('<span class="chip">' + esc(Homey.__('fuseWidget.throttled').replace('{a}', d.capAmps)) + '</span>');
+      if (d.shed && d.shed.length) foot.push('<span class="chip bad">' + esc(Homey.__('fuseWidget.shed')) + ' ' + esc(d.shed.join(', ')) + '</span>');
+      if (!d.live) foot.push('<span class="chip test">' + esc(Homey.__('fuseWidget.test')) + '</span>');
+      if (foot.length) html += '<div class="foot">' + foot.join('') + '</div>';
+      if (d.outlook) html += outlookHtml(Homey, d.outlook);
+      root.innerHTML = html;
+      fit();
+    }
+
+    function load(Homey) {
+      return Homey.api('GET', '/fuse')
+        .then(function (d) {
+          var json = JSON.stringify(d);
+          if (json === lastJson) return;
+          lastJson = json;
+          render(Homey, d);
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastJson = null;
+          document.getElementById('root').innerHTML = '<div class="msg err">' + esc(Homey.__('fuseWidget.loadFailed')) + '</div>';
+          fit();
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      HomeyRef = Homey;
+      try {
+        document.getElementById('root').innerHTML = '<div class="msg">' + esc(Homey.__('fuseWidget.loading')) + '</div>';
+        Homey.ready({ height: 170 });
+        load(Homey);
+        // Der Schutz rechnet alle 15 bis 30 s (bei Überlast alle 5 s), öfter fragen bringt nichts
+        setInterval(function () { load(Homey); }, 10000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="msg err">Widget error: ' + esc(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 170 }); } catch (e2) { /* nichts mehr zu tun */ }
+      }
+    }
+  </script>
+</body>
+</html>

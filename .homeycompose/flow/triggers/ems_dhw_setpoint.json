@@ -1,0 +1,39 @@
+{
+  "title": {
+    "en": "The hot-water setpoint should be set",
+    "de": "Der Warmwasser-Soll soll gesetzt werden"
+  },
+  "hint": {
+    "en": "Fires when the app wants a new DHW setpoint for the heat pump (program on, delay, back to normal). One flow with this trigger writes the value to the heat pump, whatever the brand. Only live (not in test mode).",
+    "de": "Wird ausgelöst, wenn die App einen neuen Warmwasser-Soll für die Wärmepumpe will (Programm ein, Verzögerung, zurück auf Normal). Ein einziger Flow mit diesem Auslöser schreibt den Wert an die Wärmepumpe, egal welche Marke. Nur live (nicht im Testmodus)."
+  },
+  "tokens": [
+    {
+      "name": "setpoint",
+      "type": "number",
+      "title": {
+        "en": "Setpoint (°C)",
+        "de": "Soll (°C)"
+      },
+      "example": 48
+    },
+    {
+      "name": "tenths",
+      "type": "number",
+      "title": {
+        "en": "Setpoint in tenths of a degree (e.g. 480)",
+        "de": "Soll in Zehntelgrad (z. B. 480)"
+      },
+      "example": 480
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "title": {
+        "en": "Kind (program, delay, normal)",
+        "de": "Art (program, delay, normal)"
+      },
+      "example": "program"
+    }
+  ]
+}

@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const zlib = require('node:zlib');
 
-const { CostTracker } = require('../lib/CostTracker');
+const { CostTracker, MAX_CONSUMERS } = require('../lib/CostTracker');
 const {
   pack, unpack, summarize, mergeCost, withoutBaselines, BackupError,
 } = require('../lib/CostBackup');
@@ -89,7 +89,7 @@ test('Prototype-Schlüssel und zu viele Verbraucher werden abgelehnt', () => {
   assert.throws(() => unpack(enc(p1)), BackupError);
   const p2 = JSON.parse(JSON.stringify(ok));
   p2.cost.consumers = {};
-  for (let i = 0; i < 7; i += 1) p2.cost.consumers[`V${i}`] = { counter: {}, days: {} };
+  for (let i = 0; i < MAX_CONSUMERS + 1; i += 1) p2.cost.consumers[`V${i}`] = { counter: {}, days: {} };
   assert.throws(() => unpack(enc(p2)), BackupError);
 });
 
@@ -171,4 +171,22 @@ test('Vorschau: neueste Tage zuerst, Summen und Verbrauchertotale', () => {
   assert.ok(Math.abs(sum - s.preview.total.importKwh) < 1e-9);
   assert.equal(s.preview.consumerTotals[0].name, 'Wärmepumpe');
   assert.ok(s.preview.consumerTotals[0].kwh > 0);
+});
+
+test('Sicherung enthält EMS- und Zähler-Konfiguration; nach dem Wiederherstellen ist der Silent-Modus an', () => {
+  const { normalizeConfig } = require('../lib/ems/Config');
+  const t = new (require('../lib/CostTracker').CostTracker)({ tz: 'Europe/Zurich' });
+  const ems = normalizeConfig({ enabled: true, silent: false, charger: { id: 'wb', live: true }, consumers: [{ id: 'dry', name: 'Entfeuchter', live: true }] });
+  const text = pack({ cost: t.toJSON(), settings: { 'ems.config': ems, 'meters.config': { enabled: true, intervalMin: 30, sources: { import: { deviceId: 'em', capability: 'meter_power' } }, consumers: [] } }, now: 1000 });
+  const s = unpack(text).settings;
+  assert.equal(s['ems.config'].enabled, true);
+  assert.equal(s['ems.config'].charger.id, 'wb');
+  assert.equal(s['ems.config'].consumers[0].name, 'Entfeuchter');
+  assert.equal(s['ems.config'].silent, true, 'Silent erzwungen');
+  assert.equal(s['meters.config'].intervalMin, 30);
+  assert.equal(s['meters.config'].sources.import.deviceId, 'em');
+  // ungültige Werte werden bereinigt, nicht übernommen
+  const bad = unpack(pack({ cost: t.toJSON(), settings: { 'ems.config': 'kaputt', 'meters.config': { intervalMin: 999 } }, now: 1000 })).settings;
+  assert.equal(bad['ems.config'], undefined);
+  assert.equal(bad['meters.config'].intervalMin, 15);
 });

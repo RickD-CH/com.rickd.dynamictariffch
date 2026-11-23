@@ -1,0 +1,13 @@
+{
+  "type": "string",
+  "title": {
+    "en": "EMS details",
+    "de": "EMS-Details",
+    "fr": "Détails EMS",
+    "it": "Dettagli EMS"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/capabilities/ems_status.svg"
+}

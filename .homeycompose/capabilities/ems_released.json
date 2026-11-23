@@ -1,0 +1,16 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Released surplus",
+    "de": "Freigegebener Überschuss",
+    "fr": "Surplus libéré",
+    "it": "Surplus rilasciato"
+  },
+  "units": "W",
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "icon": "/assets/capabilities/ems_released.svg"
+}

@@ -1,0 +1,93 @@
+{
+  "title": {
+    "en": "The energy management gives a command",
+    "de": "Das Energiemanagement gibt einen Befehl"
+  },
+  "titleFormatted": {
+    "en": "The energy management gives the command [[command]]",
+    "de": "Das Energiemanagement gibt den Befehl [[command]]"
+  },
+  "hint": {
+    "en": "Fires when the app wants a device to do something: charge or hold the home battery, start or stop the EV charger, switch a consumer, set SG Ready. Add a flow with this trigger and put the action card of YOUR device after it (any brand). The values (power, target charge level ...) are available as tags. Only live (not in test mode).",
+    "de": "Wird ausgelöst, wenn die App von einem Gerät etwas will: die Hausbatterie laden oder halten, die Wallbox starten oder stoppen, einen Verbraucher schalten, SG-Ready setzen. Lege einen Flow mit diesem Auslöser an und setze die Aktionskarte DEINES Geräts dahinter (egal welche Marke). Die Werte (Leistung, Ziel-Ladestand ...) stehen als Tags zur Verfügung. Nur live (nicht im Testmodus)."
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "command",
+      "title": {
+        "en": "Command",
+        "de": "Befehl"
+      },
+      "placeholder": {
+        "en": "Choose a command",
+        "de": "Befehl wählen"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "id",
+      "type": "string",
+      "title": {
+        "en": "Command (ID)",
+        "de": "Befehl (ID)"
+      },
+      "example": "battery.charge"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "title": {
+        "en": "Command (text)",
+        "de": "Befehl (Text)"
+      },
+      "example": "Batterie: aus dem Netz laden"
+    },
+    {
+      "name": "power",
+      "type": "number",
+      "title": {
+        "en": "Power (W)",
+        "de": "Leistung (W)"
+      },
+      "example": 5000
+    },
+    {
+      "name": "target_soc",
+      "type": "number",
+      "title": {
+        "en": "Target charge level (%)",
+        "de": "Ziel-Ladestand (%)"
+      },
+      "example": 90
+    },
+    {
+      "name": "discharge",
+      "type": "number",
+      "title": {
+        "en": "Maximum discharge power (W)",
+        "de": "Maximale Entladeleistung (W)"
+      },
+      "example": 7000
+    },
+    {
+      "name": "amps",
+      "type": "number",
+      "title": {
+        "en": "Current per phase (A)",
+        "de": "Strom pro Phase (A)"
+      },
+      "example": 16
+    },
+    {
+      "name": "phases",
+      "type": "number",
+      "title": {
+        "en": "Number of phases",
+        "de": "Anzahl Phasen"
+      },
+      "example": 3
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --pw-text: #1a1a1a; --pw-muted: #767676; --pw-border: #e0e0e0; --pw-bg: #ffffff; --pw-chip: #f2f2f2;
+      --pw-accent: #0277bd; --pw-pv: #e08a1e; --pw-charge: #3b9d4a; --pw-hold: #d98a1a; --pw-normal: #9aa0a6;
+      --pw-car: #5b52c8; --pw-test-bg: #fff4e0; --pw-test: #9a5b00;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --pw-text: #f2f2f2; --pw-muted: #a0a0a0; --pw-border: #3a3a3a; --pw-bg: #1e1e20; --pw-chip: #2a2a2a;
+        --pw-accent: #4fc3f7; --pw-pv: #f0a040; --pw-charge: #5cb85c; --pw-hold: #f0a040; --pw-normal: #8d8d8d;
+        --pw-car: #9a93e8; --pw-test-bg: #3a2c12; --pw-test: #ffc46b;
+      }
+    }
+    .homey-dark-mode {
+      --pw-text: #f2f2f2; --pw-muted: #a0a0a0; --pw-border: #3a3a3a; --pw-bg: #1e1e20; --pw-chip: #2a2a2a;
+      --pw-accent: #4fc3f7; --pw-pv: #f0a040; --pw-charge: #5cb85c; --pw-hold: #f0a040; --pw-normal: #8d8d8d;
+      --pw-car: #9a93e8; --pw-test-bg: #3a2c12; --pw-test: #ffc46b;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px; color: var(--pw-text); background: var(--pw-bg); padding: 10px 12px;
+    }
+    .top { display: flex; align-items: baseline; gap: 8px; }
+    .now-p { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .now-u { color: var(--pw-muted); font-size: 11px; }
+    .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--pw-test-bg); color: var(--pw-test); white-space: nowrap; }
+    .badge.off { background: var(--pw-chip); color: var(--pw-muted); }
+    .line { display: flex; align-items: center; gap: 6px; margin-top: 5px; min-width: 0; }
+    .dot { width: 9px; height: 9px; border-radius: 3px; flex: 0 0 auto; background: var(--pw-normal); }
+    .line b { font-weight: 600; white-space: nowrap; }
+    .line .r { color: var(--pw-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .chart { position: relative; margin-top: 3px; height: 70px; display: flex; align-items: flex-end; gap: 1px; cursor: pointer; }
+    .bar { flex: 1 1 0; min-width: 0; border-radius: 1px 1px 0 0; }
+    .bar.sel { outline: 2px solid var(--pw-accent); outline-offset: 0; }
+    .bar.now { outline: 2px solid var(--pw-text); outline-offset: 0; }
+    .mid { position: absolute; top: 0; bottom: -40px; width: 0; border-left: 1px dashed var(--pw-muted); opacity: .6; pointer-events: none; }
+    .mid span { position: absolute; top: -1px; left: 3px; font-size: 9.5px; color: var(--pw-muted); white-space: nowrap; }
+    .scale { position: absolute; left: 0; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-between; font-size: 9.5px; color: var(--pw-muted); pointer-events: none; }
+    .scale span { background: var(--pw-bg); padding: 0 2px; border-radius: 3px; opacity: .9; }
+    .pv { position: relative; height: 62px; margin-top: 12px; }
+    .pv svg { position: absolute; left: 0; right: 0; bottom: 0; top: 14px; width: 100%; height: calc(100% - 14px); }
+    .pv .lbl { position: absolute; left: 0; top: 0; font-size: 9.5px; color: var(--pw-muted); background: var(--pw-bg); padding: 0 2px; border-radius: 3px; opacity: .9; }
+    .band { display: flex; gap: 1px; height: 7px; margin-top: 3px; }
+    .band i { flex: 1 1 0; min-width: 0; display: block; border-radius: 1px; }
+    .blbl { font-size: 9.5px; color: var(--pw-muted); margin-top: 5px; letter-spacing: .02em; }
+    .ticks { position: relative; height: 12px; margin-top: 2px; font-size: 9.5px; color: var(--pw-muted); }
+    .ticks span { position: absolute; transform: translateX(-50%); }
+    .detail { margin-top: 6px; font-size: 11px; color: var(--pw-muted); min-height: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail b { color: var(--pw-text); }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; font-size: 10px; color: var(--pw-muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 4px; }
+    .legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+    .msg { text-align: center; color: var(--pw-muted); font-size: 12px; padding: 18px 6px; }
+    .msg.err { color: #d32f2f; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/javascript">
+    var lastJson = null;
+    var data = null;
+    var sel = null;
+    var COLS = { charge: 'var(--pw-charge)', hold: 'var(--pw-hold)', normal: 'var(--pw-normal)' };
+
+    function esc(str) {
+      return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function f1(v) { return typeof v === 'number' ? v.toFixed(1) : '–'; }
+    function priceColor(ratio) {
+      var r = ratio < 0 ? 0 : (ratio > 1 ? 1 : ratio);
+      var a = [46, 125, 50]; var b = [211, 47, 47];
+      return 'rgb(' + a.map(function (c, i) { return Math.round(c + (b[i] - c) * r); }).join(',') + ')';
+    }
+    function modeName(Homey, m) { return m ? Homey.__('planWidget.mode.' + m) : '–'; }
+
+    function detailHtml(Homey, d, i) {
+      var s = d.slots[i];
+      if (!s) return esc(Homey.__('planWidget.tapHint'));
+      var parts = ['<b>' + esc(s.time) + '</b>' + (s.tomorrow ? ' ' + esc(Homey.__('planWidget.tomorrow')) : ''), '<b>' + f1(s.price) + '</b> Rp.'];
+      if (d.hasBattery && s.bat) parts.push(esc(Homey.__('planWidget.battery')) + ' ' + esc(modeName(Homey, s.bat)));
+      if (d.hasCharger && s.car) parts.push(esc(Homey.__('planWidget.carCharges')));
+      if (typeof s.pvKw === 'number') parts.push('PV ' + f1(s.pvKw) + ' kW');
+      return parts.join(' · ');
+    }
+
+    function render(Homey) {
+      var root = document.getElementById('root');
+      var d = data;
+      if (!d.ems) {
+        root.innerHTML = '<div class="msg">' + esc(Homey.__('planWidget.noEms')) + '</div>';
+        return fit();
+      }
+      if (!d.slots.length) {
+        root.innerHTML = '<div class="msg">' + esc(Homey.__('planWidget.noPrices')) + '</div>';
+        return fit();
+      }
+      var n = d.slots.length;
+      var span = d.max - d.min;
+      var badge = !d.enabled ? '<span class="badge off">' + esc(Homey.__('planWidget.off')) + '</span>'
+        : (d.silent ? '<span class="badge">' + esc(Homey.__('planWidget.test')) + '</span>' : '');
+      var html = '<div class="top"><span class="now-p">' + f1(d.price) + '</span><span class="now-u">Rp./kWh ' + esc(Homey.__('planWidget.now')) + '</span>' + badge + '</div>';
+
+      if (d.battery) {
+        html += '<div class="line"><span class="dot" style="background:' + (COLS[d.battery.mode] || COLS.normal) + '"></span><b>'
+          + esc(Homey.__('planWidget.battery')) + (d.battery.soc !== null ? ' ' + d.battery.soc + ' %' : '') + ' · ' + esc(modeName(Homey, d.battery.mode))
+          + '</b><span class="r">' + esc(d.battery.reason) + '</span></div>';
+      }
+      if (d.charger) {
+        var w = d.charger.window;
+        var txt = w ? (w.now ? Homey.__('planWidget.carNow').replace('{to}', w.to) : Homey.__('planWidget.carPlanned').replace('{from}', w.from).replace('{to}', w.to))
+          : Homey.__('planWidget.carNone');
+        var unplugged = d.charger.connected === false;
+        // nicht angesteckt: der Plan ist nur eine Vorschau, es wird nichts geladen
+        if (unplugged) txt = Homey.__('planWidget.carUnplugged') + (w ? ' · ' + Homey.__('planWidget.carPlanNote') + ' ' + w.from + '–' + w.to : '');
+        html += '<div class="line"><span class="dot" style="background:var(--pw-car)' + (unplugged ? ';opacity:.4' : '') + '"></span><b>' + esc(Homey.__('planWidget.charger')) + '</b><span class="r">' + esc(txt) + '</span></div>';
+      }
+
+      var bars = d.slots.map(function (s, i) {
+        var has = typeof s.price === 'number';
+        var ratio = has && span > 0 ? (s.price - d.min) / span : 0.5;
+        var h = has ? Math.max(5, Math.round(15 + ratio * 85)) : 4;
+        return '<div class="bar' + (i === sel ? ' sel' : '') + (i === d.nowIdx ? ' now' : '') + '" data-i="' + i + '" style="height:' + h + '%;background:' + (has ? priceColor(ratio) : 'var(--pw-border)') + '"></div>';
+      }).join('');
+      var midIdx = -1;
+      d.slots.forEach(function (s, i) { if (midIdx < 0 && s.tomorrow) midIdx = i; });
+      var mid = midIdx > 0 ? '<div class="mid" style="left:' + (midIdx / n * 100).toFixed(2) + '%"><span>' + esc(Homey.__('planWidget.tomorrow')) + '</span></div>' : '';
+      html += '<div class="blbl" style="margin-top:8px">' + esc(Homey.__('planWidget.priceTitle')) + '</div><div class="chart" id="chart">' + bars + mid + '<div class="scale"><span>' + f1(d.max) + '</span><span>' + f1(d.min) + '</span></div></div>';
+
+      if (d.pvMaxKw) {
+        var pts = ['0,100'];
+        d.slots.forEach(function (s, i) {
+          var v = typeof s.pvKw === 'number' ? s.pvKw : 0;
+          pts.push((i + 0.5) + ',' + (100 - Math.round(v / d.pvMaxKw * 92)));
+        });
+        pts.push(n + ',100');
+        html += '<div class="pv"><svg viewBox="0 0 ' + n + ' 100" preserveAspectRatio="none"><polygon points="' + pts.join(' ') + '" fill="var(--pw-pv)" fill-opacity=".28" stroke="var(--pw-pv)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>'
+          + '<span class="lbl">' + esc(Homey.__('planWidget.pvTitle')) + ' · max ' + f1(d.pvMaxKw) + ' kW · ' + f1(d.pvKwh) + ' kWh</span></div>';
+      }
+      if (d.hasBattery) {
+        html += '<div class="blbl">' + esc(Homey.__('planWidget.battery')) + '</div><div class="band">' + d.slots.map(function (s) { return '<i style="background:' + (s.bat ? COLS[s.bat] || COLS.normal : 'transparent') + '"></i>'; }).join('') + '</div>';
+      }
+      if (d.hasCharger) {
+        html += '<div class="blbl">' + esc(Homey.__('planWidget.charger')) + (d.charger && d.charger.connected === false ? ' (' + esc(Homey.__('planWidget.carUnplugged')) + ')' : '') + '</div><div class="band"' + (d.charger && d.charger.connected === false ? ' style="opacity:.4"' : '') + '>' + d.slots.map(function (s) { return '<i style="background:' + (s.car ? 'var(--pw-car)' : 'var(--pw-chip)') + '"></i>'; }).join('') + '</div>';
+      }
+      html += '<div class="ticks">' + d.ticks.map(function (t) { return '<span style="left:' + ((t.i + 0.5) / n * 100).toFixed(2) + '%">' + esc(t.label) + '</span>'; }).join('') + '</div>';
+      html += '<div class="detail" id="detail">' + detailHtml(Homey, d, sel) + '</div>';
+
+      var leg = [];
+      if (d.hasBattery) {
+        leg.push('<span><i style="background:var(--pw-charge)"></i>' + esc(modeName(Homey, 'charge')) + '</span>');
+        leg.push('<span><i style="background:var(--pw-hold)"></i>' + esc(modeName(Homey, 'hold')) + '</span>');
+        leg.push('<span><i style="background:var(--pw-normal)"></i>' + esc(modeName(Homey, 'normal')) + '</span>');
+      }
+      if (d.hasCharger) leg.push('<span><i style="background:var(--pw-car)"></i>' + esc(Homey.__('planWidget.carCharges')) + '</span>');
+      if (leg.length) html += '<div class="legend">' + leg.join('') + '</div>';
+
+      root.innerHTML = html;
+      document.getElementById('chart').addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('.bar') : null;
+        if (!b) return;
+        var i = Number(b.getAttribute('data-i'));
+        sel = sel === i ? null : i;
+        render(Homey);
+      });
+      fit();
+    }
+
+    var HomeyRef = null;
+    function fit() {
+      try { if (HomeyRef) HomeyRef.setHeight(Math.min(420, document.body.scrollHeight + 2)); } catch (e) { /* älteres Homey */ }
+    }
+
+    function load(Homey) {
+      return Homey.api('GET', '/plan')
+        .then(function (d) {
+          var json = JSON.stringify(d);
+          if (json === lastJson) return;
+          lastJson = json;
+          data = d;
+          if (sel !== null && (!d.slots || sel >= d.slots.length)) sel = null;
+          render(Homey);
+        })
+        .catch(function (err) {
+          console.error(err);
+          lastJson = null;
+          document.getElementById('root').innerHTML = '<div class="msg err">' + esc(Homey.__('planWidget.loadFailed')) + '</div>';
+          fit();
+        });
+    }
+
+    function onHomeyReady(Homey) {
+      HomeyRef = Homey;
+      try {
+        document.getElementById('root').innerHTML = '<div class="msg">' + esc(Homey.__('planWidget.loading')) + '</div>';
+        Homey.ready({ height: 250 });
+        load(Homey);
+        setInterval(function () { load(Homey); }, 60000);
+      } catch (err) {
+        document.getElementById('root').innerHTML = '<div class="msg err">Widget error: ' + esc(err && err.message ? err.message : err) + '</div>';
+        try { Homey.ready({ height: 250 }); } catch (e2) { /* nichts mehr zu tun */ }
+      }
+    }
+  </script>
+</body>
+</html>
