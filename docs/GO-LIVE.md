@@ -24,6 +24,8 @@ Die Preislogik läuft schon im Dezember so, als gäbe es den dynamischen Tarif. 
 
 ## B. Vor der Veröffentlichung von 0.3.0
 
+**Termin: Anfang Dezember 2026 (ab 1.12.) Testversion veröffentlichen**, vor dem Go-live Ende Dezember.
+
 - Store-Text, Beschreibung und Tags final machen (Versorgernamen nur dort, nicht in der App).
 - Übersetzungen Französisch und Italienisch ganz zum Schluss (neue Widget- und Einstellungstexte fehlen dort noch).
 - Übrige Widgets (noch offen).
