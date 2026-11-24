@@ -16,7 +16,7 @@ Stand 23.11.2026. Ziel: **Ende Dezember 2026 live**. Der Vergleich mit dem ander
 4. **SG-Ready (Relais):** Empfehlung bei Sonne beobachten; die Preislogik gehört zum Warmwasser-Programm, SG-Ready bedient nur Sonne/Akku.
 5. **Geräte mit Programm** (Geschirrspüler, Waschmaschine, Tumbler): Status-Werte der Maschinen prüfen (die App vergleicht ohne Rücksicht auf Gross-/Kleinschreibung), Fernbedienung an, dann live testen.
 6. **Alte Flows** (mit «(OBSOLET EMS)» markiert) nach dem ersten erfolgreichen Zyklus löschen: «Wärmepumpe SGReady + Überwachung», «WW Bereitung dynamisch», Luftentfeuchter via PV, WALLBOX-Schutz-Flows, «EMS Test 24h».
-7. **Anderes Energiemanagement abbauen:** Konfiguration dort entfernen und den Account dort löschen, sobald das eigene EMS sich bewährt hat.
+7. **Anderes Energiemanagement abbauen:** Konfiguration dort entfernen und den Account dort löschen, sobald das eigene EMS sich bewährt hat. **Nicht** die Anmeldung der Batterie im Portal des Herstellers löschen und die Batterie nicht länger als 6 Monate vom Internet trennen: Sonst fällt die erweiterte Garantie (Jahre 6-15) weg (Garantiebedingungen des Herstellers für EWR und Schweiz, Version 3.0, Hinweis 4).
 
 ## Preis-Test im Dezember (vor dem echten dynamischen Tarif)
 

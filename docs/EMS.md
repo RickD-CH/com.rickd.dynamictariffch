@@ -173,6 +173,11 @@ Wallbox-Wechsel). Scharf schalten = Silent aus und das Gerät auf live.
 
 **Batteriesteuerung** (`battery.control`, Standard aus; `lib/ems/planner/batteryControl.js`):
 - Der Batterie-Planer liefert alle `tickMinutes` einen Modus: `charge` (Netzladen), `hold` (Entladung sperren), `normal`.
+- **Mindest-Gewinn je kWh** (`battery.minSpreadRp`, Standard 5 Rp., Bereich 0-20, Einstellungen → EMS → Batterie, nur im Modus «Fahrplan»): Netzladen lohnt sich nur, wenn
+  `Ladepreis ÷ Wirkungsgrad + Mindest-Gewinn` unter dem Preis der teuren Viertelstunde liegt. Der Wert steht für den **Verschleiss** der Batterie:
+  Preis der Batterie ÷ (Kapazität × Zyklen), z. B. 7000 CHF ÷ (13.8 kWh × 6000) = 8.5 Rp. Wenn die Zeit (10-15 Jahre) die Lebensdauer begrenzt und nicht die
+  Zyklen, ist der Verschleiss kleiner. 0 = Verschleiss wird nicht gerechnet (frühere Voreinstellung war 3). Tests: `test/ems-battery-spread.test.js`.
+  Ein Rechner in den Einstellungen (Preis, Kapazität, Zyklen → Rp.) ist noch offen.
 - Eine **Vorlage** übersetzt den Modus in Aktionskarten des Batterie-Geräts (über `flow.runFlowCardAction`, `Actuators.battery`). Erkannt wird sie an den
   Karten, die das Gerät anbietet (`GET /ems/battery-cards`). Früher gab es eine Vorlage:
   - Laden: «Laden mit {Ladeleistung} W bis {Ziel-SoC} % starten»

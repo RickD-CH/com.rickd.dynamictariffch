@@ -35,6 +35,8 @@
       schText: 'Fahrplan: lädt {kwh} kWh um {from} bis {to} (Schnitt {cp} Rp.), gibt {dkwh} kWh in die teuersten Viertelstunden ab (Schnitt {dp} Rp.). Nutzen ca. {chf} CHF.', schNoCharge: 'Fahrplan: kein Netzladen nötig, die Ladung ({dkwh} kWh) geht in die teuersten Viertelstunden (Schnitt {dp} Rp.).', schNothing: 'Fahrplan: zurzeit nichts zu tun.',
       ldMode: { normal: 'entladen', hold: 'halten', charge: 'laden' }, ldBand: { low: 'unter 20 Rp.', mid: '20 bis 30 Rp.', high: 'ab 30 Rp.' },             bpTitle: 'Planung', bpReserve: 'Spitzenstunden mit der Batterie abdecken (h)', bpReserveHint: 'In den so vielen teuersten Stunden der nächsten 24 Stunden gibt die Batterie Strom ab, sonst hält sie die Ladung zurück.',
       bpSolar: 'Kein Netzladen ab Sonne (kWh)', bpSolarHint: 'Bringt die Sonne in den nächsten 24 Stunden mindestens so viel, wird nicht aus dem Netz geladen (0 = immer laden).',
+      spreadLabel: 'Mindest-Gewinn je kWh (Rp.)',
+      spreadHint: 'Die Batterie lädt nur aus dem Netz, wenn jede geladene und später genutzte kWh mindestens so viel einspart. Darin steckt der Verschleiss der Batterie: Preis der Batterie ÷ (Kapazität × Zyklen), zum Beispiel 7000 CHF ÷ (13.8 kWh × 6000) = 8.5 Rp. Der Wirkungsgrad wird zusätzlich eingerechnet. Höher = lädt seltener, nur bei grossem Preisunterschied. 0 = Verschleiss wird nicht gerechnet.',
       bufLabel: 'Puffer', bufAutoNow: 'Automatik (aktuell {pct} %)', bufFixed: 'fester Wert (%)', bufFixedNow: 'fester Wert', bufHint: 'Der Fahrplan hält so viel Ladung zusätzlich in Reserve, falls das Haus mehr braucht als erwartet. Mehr Puffer = sicherer, aber etwas mehr Netzladen.', bufInfoAuto: 'Aktuell {pct} % ({kwh} kWh): so viel mehr als erwartet brauchte das Haus {where} an 3 von 4 Tagen ({days} Tage gemessen).', bufInfoWait: 'Noch keine Messung ({days} von {needed} Tagen): bis dahin {pct} % ({kwh} kWh).', bufInfoFixed: 'Fest {pct} % ({kwh} kWh).', bufEvening: 'abends', bufMorning: 'morgens',
       bpBridge: 'Morgen überbrücken', bpBridgeHint: 'Auch bei viel Sonne so viel nachladen, wie die teuren Stunden bis zum Solarertrag brauchen.', bpLoad: 'Verbrauch bis die Sonne übernimmt', bpLoadSchedule: 'Hausverbrauch', bpDay1: '1 Tag', bpDays: '{n} Tage', bpEvening: 'abends {kw} kW', bpLoadAuto: 'automatisch (gelernt)', bpLoadFixed: 'fester Wert (kW)', bpFloor: 'Batterie nicht tiefer als (%)',
       backupTitle: 'Notstrom-Reserve', backupSoc: 'Reserve (%)',
@@ -244,6 +246,8 @@
       schText: 'Schedule: charges {kwh} kWh at {from} to {to} (avg {cp} Rp.), delivers {dkwh} kWh in the most expensive quarter-hours (avg {dp} Rp.). Benefit approx. {chf} CHF.', schNoCharge: 'Schedule: no grid charging needed, the charge ({dkwh} kWh) goes into the most expensive quarter-hours (avg {dp} Rp.).', schNothing: 'Schedule: nothing to do at the moment.',
       ldMode: { normal: 'discharge', hold: 'hold', charge: 'charge' }, ldBand: { low: 'below 20 Rp.', mid: '20 to 30 Rp.', high: 'from 30 Rp.' },             bpTitle: 'Planning', bpReserve: 'Cover peak hours with the battery (h)', bpReserveHint: 'During this many most expensive hours of the next 24 hours the battery discharges, otherwise it holds its charge.',
       bpSolar: 'No grid charging from solar (kWh)', bpSolarHint: 'If the sun brings at least this much in the next 24 hours, no charging from the grid (0 = always charge).',
+      spreadLabel: 'Minimum gain per kWh (Rp.)',
+      spreadHint: 'The battery only charges from the grid when each kWh charged and used later saves at least this much. This is where the battery wear goes: battery price ÷ (capacity × cycles), for example CHF 7000 ÷ (13.8 kWh × 6000) = 8.5 Rp. Efficiency is counted on top. Higher = charges less often, only with a large price difference. 0 = wear is not counted.',
       bufLabel: 'Buffer', bufAutoNow: 'Automatic (now {pct} %)', bufFixed: 'fixed value (%)', bufFixedNow: 'fixed value', bufHint: 'The schedule keeps this much charge in reserve in case the house uses more than expected. More buffer = safer, but slightly more grid charging.', bufInfoAuto: 'Now {pct} % ({kwh} kWh): this much more than expected is what the house used {where} on 3 out of 4 days ({days} days measured).', bufInfoWait: 'No measurement yet ({days} of {needed} days): until then {pct} % ({kwh} kWh).', bufInfoFixed: 'Fixed {pct} % ({kwh} kWh).', bufEvening: 'in the evening', bufMorning: 'in the morning',
       bpBridge: 'Bridge the morning', bpBridgeHint: 'Even with lots of sun, charge as much as the expensive hours until solar production need.', bpLoad: 'Consumption until solar takes over', bpLoadSchedule: 'House consumption', bpDay1: '1 day', bpDays: '{n} days', bpEvening: 'evening {kw} kW', bpLoadAuto: 'automatic (learned)', bpLoadFixed: 'fixed value (kW)', bpFloor: 'Do not discharge below (%)',
       backupTitle: 'Backup reserve', backupSoc: 'Reserve (%)',
@@ -547,6 +551,8 @@
       bpReserveHint: 'Pendant ce nombre d’heures les plus chères des 24 prochaines heures, la batterie se décharge ; sinon elle garde sa charge.',
       bpSolar: 'Pas de charge depuis le réseau avec le solaire (kWh)',
       bpSolarHint: 'Si le soleil apporte au moins cette quantité dans les 24 prochaines heures, pas de charge depuis le réseau (0 = toujours charger).',
+      spreadLabel: 'Gain minimal par kWh (Rp.)',
+      spreadHint: 'La batterie ne charge depuis le réseau que si chaque kWh chargé puis utilisé plus tard fait économiser au moins ce montant. L’usure de la batterie y est comprise : prix de la batterie ÷ (capacité × cycles), par exemple 7000 CHF ÷ (13,8 kWh × 6000) = 8,5 Rp. Le rendement est compté en plus. Plus élevé = charge moins souvent, seulement en cas de grand écart de prix. 0 = l’usure n’est pas comptée.',
       bufLabel: 'Marge',
       bufAutoNow: 'Automatique (actuellement {pct} %)',
       bufFixed: 'valeur fixe (%)',
@@ -1420,6 +1426,8 @@
       bpReserveHint: 'Durante questo numero di ore più care delle prossime 24 ore la batteria si scarica; altrimenti mantiene la carica.',
       bpSolar: 'Nessuna carica dalla rete con il solare (kWh)',
       bpSolarHint: 'Se il sole porta almeno questa quantità nelle prossime 24 ore, nessuna carica dalla rete (0 = carica sempre).',
+      spreadLabel: 'Guadagno minimo per kWh (Rp.)',
+      spreadHint: 'La batteria carica dalla rete solo se ogni kWh caricato e usato più tardi fa risparmiare almeno questo importo. Qui rientra l’usura della batteria: prezzo della batteria ÷ (capacità × cicli), ad esempio 7000 CHF ÷ (13,8 kWh × 6000) = 8,5 Rp. Il rendimento viene calcolato in aggiunta. Più alto = carica meno spesso, solo con grande differenza di prezzo. 0 = l’usura non viene calcolata.',
       bufLabel: 'Margine',
       bufAutoNow: 'Automatico (ora {pct} %)',
       bufFixed: 'valore fisso (%)',
@@ -2454,6 +2462,7 @@
           + field(S.bpFloor, 'ems-bp-floor', b.floorSoc !== undefined ? b.floorSoc : 10, 'number', ' step="5" min="0" max="50"') + '</div>'
           + (info ? '<p class="ems-why">' + esc(info) + '</p>' : '')
           + (fixedMode ? '<p class="ems-why">' + esc(S.bpBridgeHint) + '</p>' : '')
+          + (fixedMode ? '' : '<div class="ems-row">' + field(S.spreadLabel, 'ems-bp-spread', b.minSpreadRp !== undefined ? b.minSpreadRp : 5, 'number', ' step="0.5" min="0" max="20"') + '</div><p class="ems-why">' + esc(S.spreadHint) + '</p>')
           + (fixedMode ? '' : bufferHtml(b))
           + (preview ? '<p class="ems-why" style="color:var(--st-text)"><b>' + esc(preview) + '</b></p>' : '');
       }()) + '</div>' + backupReserveHtml(b);
@@ -4317,6 +4326,7 @@
         if ($('ems-bp-loadmode')) bb.bridgeLoadMode = String($('ems-bp-loadmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
         if (bb.bridgeLoadMode === 'fixed' && $('ems-bp-load')) bb.bridgeLoadKw = num('ems-bp-load', bb.bridgeLoadKw);
         bb.floorSoc = num('ems-bp-floor', bb.floorSoc);
+        if ($('ems-bp-spread')) bb.minSpreadRp = num('ems-bp-spread', bb.minSpreadRp);
         if ($('ems-bp-bufmode')) bb.bufferMode = String($('ems-bp-bufmode').value || 'auto') === 'fixed' ? 'fixed' : 'auto';
         if (bb.bufferMode === 'fixed' && $('ems-bp-buffer')) bb.bufferPct = num('ems-bp-buffer', bb.bufferPct);
         if ($('ems-bp-backupsoc')) bb.backupReserve = Object.assign({ active: false, soc: 50 }, bb.backupReserve, { soc: num('ems-bp-backupsoc', (bb.backupReserve || {}).soc) });
