@@ -27,6 +27,6 @@ Die Preislogik läuft schon im Dezember so, als gäbe es den dynamischen Tarif. 
 **Termin: Anfang Dezember 2026 (ab 1.12.) Testversion veröffentlichen**, vor dem Go-live Ende Dezember.
 
 - Store-Text, Beschreibung und Tags final machen (Versorgernamen nur dort, nicht in der App).
-- Übersetzungen Französisch und Italienisch ganz zum Schluss (neue Widget- und Einstellungstexte fehlen dort noch).
+- Übersetzungen Französisch und Italienisch: **erledigt am 23.11.2026** (App-Texte, Widgets, Flow-Karten, Changelog, Einstellungen). Der Test `test/translations.test.js` hält alle vier Sprachen vollständig; bei neuen Texten gleich alle vier Sprachen schreiben. Von einer Person mit Muttersprache gegenlesen lassen (Fachbegriffe wie «Planning»/«Piano», «Aperçu»/«Previsione», «Setup»).
 - Übrige Widgets (noch offen).
 - Versionsnummer bleibt unverändert, bis veröffentlicht wird.

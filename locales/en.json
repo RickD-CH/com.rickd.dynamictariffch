@@ -179,5 +179,50 @@
     "pauseOff": "Paused: will not start. Switching on releases it again.",
     "autoOn": "Auto mode on: starts by itself once, on PV surplus or in the cheapest block, then it switches off",
     "autoOff": "Auto mode off: choose the wait and switch on, then it starts by itself once. Otherwise only manually with \"Start\""
+  },
+  "refs": {
+    "title": "Check references",
+    "warnShort": "Deleted",
+    "more": "+{n} more",
+    "hint": "A device or flow was deleted in Homey. Open Settings → Set up, the reference is marked there.",
+    "area": {
+      "grid": "Grid meter",
+      "pv": "PV inverter",
+      "house": "House load",
+      "battery": "Battery",
+      "charger": "Charger",
+      "car": "EV",
+      "forecast": "PV forecast",
+      "consumer": "Consumer",
+      "fuse": "Main fuse protection",
+      "sgready": "SG Ready",
+      "dhw": "Hot water"
+    },
+    "field": {
+      "sensor": "Sensor",
+      "mode": "Mode",
+      "feedback": "Feedback",
+      "relay": "Relay",
+      "forceRelay": "Force relay",
+      "heating": "Status field",
+      "target": "Target",
+      "output": "Output",
+      "meter": "Meter",
+      "shed": "Shed device",
+      "shedFlow": "Shed flow",
+      "accu": "Battery sensor",
+      "humidity": "Humidity sensor",
+      "flowOn": "Flow on",
+      "flowOff": "Flow off",
+      "flowNormal": "Flow normal",
+      "flowBoost": "Flow boost",
+      "flowForced": "Flow forced",
+      "flowDelay": "Flow delay"
+    },
+    "problem": {
+      "device": "Device deleted",
+      "flow": "Flow deleted",
+      "capability": "Capability missing"
+    }
   }
 }

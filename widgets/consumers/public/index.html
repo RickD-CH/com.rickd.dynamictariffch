@@ -48,6 +48,10 @@
     .car .top { display: flex; align-items: baseline; gap: 8px; }
     .car .soc { font-size: 20px; font-weight: 700; }
     .car .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--cw-chip); white-space: nowrap; }
+    .refs { margin: 0 0 8px; padding: 7px 9px; border-radius: 8px; background: var(--cw-test-bg); color: var(--cw-test); font-size: 11px; }
+    .refs.crit { border: 1px solid var(--cw-warn); }
+    .refs b { display: block; font-size: 11.5px; margin-bottom: 2px; }
+    .refs div + div { margin-top: 1px; }
     .msg { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 16px 6px; }
     .msg.err { color: var(--cw-warn); }
     .list { max-height: none; }
@@ -227,10 +231,23 @@
         + '<span class="body"><span class="name">' + esc(c.name) + testChip + '</span>' + subHtml + '</span></div>';
     }
 
+    // Gelöschte Geräte/Flows: Liste mit dem, was in Homey fehlt (höchstens 4 Zeilen)
+    function refsHtml(Homey, refs) {
+      if (!refs || !refs.issues || !refs.issues.length) return '';
+      var rows = refs.issues.map(function (i) {
+        var head = i.name || Homey.__('refs.area.' + i.area);
+        if (i.field && i.field !== 'device') head += ' · ' + Homey.__('refs.field.' + i.field);
+        return head + ': ' + Homey.__('refs.problem.' + i.problem) + (i.caps ? ' (' + i.caps.join(', ') + ')' : '');
+      });
+      var shown = rows.slice(0, 4).map(function (t) { return '<div>' + esc(t) + '</div>'; }).join('');
+      if (rows.length > 4) shown += '<div>' + esc(Homey.__('refs.more').replace('{n}', rows.length - 4)) + '</div>';
+      return '<div class="refs' + (refs.critical ? ' crit' : '') + '"><b>⚠ ' + esc(Homey.__('refs.title')) + '</b>' + shown + '<div style="opacity:.8;margin-top:3px">' + esc(Homey.__('refs.hint')) + '</div></div>';
+    }
+
     function render(Homey, d) {
       var root = document.getElementById('root');
       if (!d.ems) { root.innerHTML = '<div class="msg">' + esc(Homey.__('consumersWidget.noEms')) + '</div>'; return fit(); }
-      var html = carHtml(Homey, d.car) + sgHtml(Homey, d.sgready) + dhwHtml(Homey, d.dhw);
+      var html = refsHtml(Homey, d.refs) + carHtml(Homey, d.car) + sgHtml(Homey, d.sgready) + dhwHtml(Homey, d.dhw);
       if (!d.consumers.length) html += '<div class="msg">' + esc(Homey.__('consumersWidget.none')) + '</div>';
       else html += '<div class="list">' + d.consumers.map(function (c) { return consumerHtml(Homey, c); }).join('') + '</div>';
       root.innerHTML = html;

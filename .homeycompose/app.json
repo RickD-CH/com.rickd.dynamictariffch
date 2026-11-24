@@ -217,6 +217,22 @@
       "method": "get",
       "path": "/ems/flows"
     },
+    "getEmsRefCheck": {
+      "method": "get",
+      "path": "/ems/ref-check"
+    },
+    "postEmsRefClear": {
+      "method": "post",
+      "path": "/ems/ref-clear"
+    },
+    "getEmsRefCheck": {
+      "method": "get",
+      "path": "/ems/ref-check"
+    },
+    "postEmsRefClear": {
+      "method": "post",
+      "path": "/ems/ref-clear"
+    },
     "getEmsCommandFlows": {
       "method": "get",
       "path": "/ems/command-flows"

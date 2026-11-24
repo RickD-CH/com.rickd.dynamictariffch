@@ -33,6 +33,8 @@
     .now-u { color: var(--pw-muted); font-size: 11px; }
     .badge { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--pw-test-bg); color: var(--pw-test); white-space: nowrap; }
     .badge.off { background: var(--pw-chip); color: var(--pw-muted); }
+    .refwarn { margin-top: 5px; font-size: 11px; font-weight: 600; color: var(--pw-test); background: var(--pw-test-bg); border-radius: 6px; padding: 3px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .refwarn.crit { color: #fff; background: #c0392b; }
     .line { display: flex; align-items: center; gap: 6px; margin-top: 5px; min-width: 0; }
     .dot { width: 9px; height: 9px; border-radius: 3px; flex: 0 0 auto; background: var(--pw-normal); }
     .line b { font-weight: 600; white-space: nowrap; }
@@ -82,6 +84,21 @@
       var a = [46, 125, 50]; var b = [211, 47, 47];
       return 'rgb(' + a.map(function (c, i) { return Math.round(c + (b[i] - c) * r); }).join(',') + ')';
     }
+    // Gelöschte Geräte/Flows (Verweise der Einstellungen): kurze Zeile, bei Batterie/Zähler/Wallbox rot
+    function refLine(Homey, refs) {
+      if (!refs || !refs.issues || !refs.issues.length) return '';
+      var seen = {};
+      var names = [];
+      refs.issues.forEach(function (i) {
+        var n = i.name || Homey.__('refs.area.' + i.area);
+        if (!seen[n]) { seen[n] = 1; names.push(n); }
+      });
+      var full = refs.issues.map(function (i) {
+        var t = (i.name || Homey.__('refs.area.' + i.area)) + (i.field && i.field !== 'device' ? ' · ' + Homey.__('refs.field.' + i.field) : '') + ': ' + Homey.__('refs.problem.' + i.problem) + (i.caps ? ' (' + i.caps.join(', ') + ')' : '');
+        return t;
+      }).join('\n') + '\n' + Homey.__('refs.hint');
+      return '<div class="refwarn' + (refs.critical ? ' crit' : '') + '" title="' + esc(full) + '">⚠ ' + esc(Homey.__('refs.warnShort')) + ': ' + esc(names.join(', ')) + '</div>';
+    }
     function modeName(Homey, m) { return m ? Homey.__('planWidget.mode.' + m) : '–'; }
 
     function detailHtml(Homey, d, i) {
@@ -109,7 +126,7 @@
       var span = d.max - d.min;
       var badge = !d.enabled ? '<span class="badge off">' + esc(Homey.__('planWidget.off')) + '</span>'
         : (d.silent ? '<span class="badge">' + esc(Homey.__('planWidget.test')) + '</span>' : '');
-      var html = '<div class="top"><span class="now-p">' + f1(d.price) + '</span><span class="now-u">Rp./kWh ' + esc(Homey.__('planWidget.now')) + '</span>' + badge + '</div>';
+      var html = '<div class="top"><span class="now-p">' + f1(d.price) + '</span><span class="now-u">Rp./kWh ' + esc(Homey.__('planWidget.now')) + '</span>' + badge + '</div>' + refLine(Homey, d.refs);
 
       if (d.battery) {
         html += '<div class="line"><span class="dot" style="background:' + (COLS[d.battery.mode] || COLS.normal) + '"></span><b>'

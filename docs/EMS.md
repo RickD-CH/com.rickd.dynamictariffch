@@ -863,3 +863,15 @@ Befehle aus, ein Flow des Nutzers führt die Karte seines Geräts aus (jede Mark
 - `ShadowLog` führt nur noch das Protokoll der Moduswechsel (Wallbox), ohne Vergleichswerte und Tageszähler. Die Batterie-Entscheide stehen im Protokoll unter «Heute» (`batteryEvents`).
 - Die Franken-Auswertung (`DecisionLedger`) bleibt für das eigene Szenario («Fahrplan (Modell)» in den Kosten); ihre Eingabe `other` ist immer `null`, die Eichung gegen den Zähler läuft deshalb nicht mehr.
 - Die Aktionskarten «SG-Ready jetzt aufheizen» und «Warmwasser-Programm jetzt starten» sind zu **einer** Karte «SG-Ready oder Warmwasser-Programm jetzt starten» (`ems_module_start`, Auswahl des Moduls) geworden.
+
+## Gelöschte Geräte und Flows erkennen (23.11.2026)
+
+Die Einstellungen speichern Geräte-IDs, Capability-Namen und Flow-IDs. Wird ein Gerät oder Flow in Homey gelöscht (oder eine Capability entfernt), bleibt der Verweis stehen und die App läuft still ohne diese Quelle weiter. `lib/ems/refCheck.js` (reine Funktionen) findet solche Verweise:
+
+- `collectRefs(cfg)` sammelt nur Verweise **eingeschalteter** Bereiche: Zähler, Haus, Inverter, Batterie, Wallbox (inkl. Phasen-Capability nur bei Phasenumschaltung), E-Auto, PV-Prognose-Gerät, Verbraucher (Gerät oder Ein/Aus-Flows, Akku- und Feuchte-Fühler, Programm-Capabilities nur bei laufendem Programm), Hausanschluss-Schutz, SG-Ready (Relais oder Flows je nach Ausgabe), Warmwasser (Flows nur bei Ausgabe «flows»).
+- `findIssues` vergleicht mit den Geräten und Flow-IDs von Homey: **Gerät gelöscht**, **Flow gelöscht**, **Capability fehlt**. Ein Gerät, das nur offline ist, gilt nicht als Problem. Kritisch sind Zähler, Batterie und Wallbox.
+- `clearRef(cfg, key)` nimmt den Verweis aus der Konfiguration («Verweis entfernen»; bei einem Verbraucher, dessen Gerät oder Flow fehlt, «Verbraucher entfernen»).
+
+Ablauf: Der `EmsController` prüft 5 s nach jeder Konfigurationsänderung und danach alle 10 Minuten, solange das EMS aktiv ist (`checkRefs`); das Ergebnis liegt für die Widgets im Speicher. Kann die Prüfung nicht lesen, bleibt das letzte Ergebnis (`ok: false`), die App behauptet dann nicht «alles in Ordnung». Routen: `GET /ems/ref-check` (`?fresh=1` prüft sofort), `POST /ems/ref-clear` (`{key}`).
+
+Anzeige: **Widgets** «Plan» (eine Zeile «Gelöscht: …», rot bei Zähler, Batterie oder Wallbox) und «Verbraucher» (Liste mit Hinweis auf die Einstellungen); **Einstellungen** (Kasten oben in der Einrichtung mit «Verweis entfernen», rotes Abzeichen an der betroffenen Zeile, Zusammenfassung «Gerät gelöscht» statt der Geräte-ID). Tests: `test/ems-ref-check.test.js`, `ems-ref-controller.test.js`, `ems-ref-ui.test.js`, `widgets-refs-render.test.js`.

@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "The hot-water program started or ended",
-    "de": "Das Warmwasser-Programm wurde gestartet oder beendet"
+    "de": "Das Warmwasser-Programm wurde gestartet oder beendet",
+    "fr": "Le programme eau chaude a démarré ou s’est terminé",
+    "it": "Il programma acqua calda è partito o è terminato"
   },
   "hint": {
     "en": "Fires when the hot-water program on a cheap price starts or ends. Also in test mode (then only simulated).",
-    "de": "Wird ausgelöst, wenn das Warmwasser-Programm bei günstigem Preis startet oder endet. Auch im Testmodus (dann nur simuliert)."
+    "de": "Wird ausgelöst, wenn das Warmwasser-Programm bei günstigem Preis startet oder endet. Auch im Testmodus (dann nur simuliert).",
+    "fr": "Se déclenche quand le programme eau chaude à prix avantageux démarre ou se termine. Aussi en mode test (alors seulement simulé).",
+    "it": "Scatta quando il programma acqua calda a prezzo conveniente parte o termina. Anche in modalità test (allora solo simulato)."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "boolean",
       "title": {
         "en": "Running",
-        "de": "Läuft"
+        "de": "Läuft",
+        "fr": "En cours",
+        "it": "In corso"
       },
       "example": true
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "Reason",
-        "de": "Grund"
+        "de": "Grund",
+        "fr": "Raison",
+        "it": "Motivo"
       },
       "example": "Start: günstiger Strompreis (Warmwasser-Programm)"
     }

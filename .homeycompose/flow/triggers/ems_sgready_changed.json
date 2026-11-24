@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "The SG Ready state changed",
-    "de": "Der SG-Ready-Zustand hat gewechselt"
+    "de": "Der SG-Ready-Zustand hat gewechselt",
+    "fr": "L’état SG Ready a changé",
+    "it": "Lo stato SG Ready è cambiato"
   },
   "hint": {
     "en": "Fires when the boiler/heat pump control changes between normal operation, recommendation and forced charging. Also in test mode (then only simulated).",
-    "de": "Wird ausgelöst, wenn die Boiler-/Wärmepumpen-Steuerung zwischen Normalbetrieb, Empfehlung und Zwangsladung wechselt. Auch im Testmodus (dann nur simuliert)."
+    "de": "Wird ausgelöst, wenn die Boiler-/Wärmepumpen-Steuerung zwischen Normalbetrieb, Empfehlung und Zwangsladung wechselt. Auch im Testmodus (dann nur simuliert).",
+    "fr": "Se déclenche quand la commande du chauffe-eau / de la pompe à chaleur passe entre fonctionnement normal, recommandation et charge forcée. Aussi en mode test (alors seulement simulé).",
+    "it": "Scatta quando il controllo di boiler/pompa di calore passa tra funzionamento normale, raccomandazione e carica forzata. Anche in modalità test (allora solo simulato)."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "string",
       "title": {
         "en": "State (normal, boost, forced)",
-        "de": "Zustand (normal, boost, forced)"
+        "de": "Zustand (normal, boost, forced)",
+        "fr": "État (normal, boost, forced)",
+        "it": "Stato (normal, boost, forced)"
       },
       "example": "boost"
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "Reason",
-        "de": "Grund"
+        "de": "Grund",
+        "fr": "Raison",
+        "it": "Motivo"
       },
       "example": "Start: PV-Überschuss/Akku voll"
     }

@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "The automatic of a program device !{{is|isn't}} on",
-    "de": "Die Automatik eines Programm-Geräts !{{ist|ist nicht}} ein"
+    "de": "Die Automatik eines Programm-Geräts !{{ist|ist nicht}} ein",
+    "fr": "L’automatique d’un appareil à programme !{{est|n'est pas}} activé",
+    "it": "L’automatico di un dispositivo a programma !{{è|non è}} attivo"
   },
   "titleFormatted": {
     "en": "The automatic of [[consumer]] !{{is|isn't}} on",
-    "de": "Die Automatik von [[consumer]] !{{ist|ist nicht}} ein"
+    "de": "Die Automatik von [[consumer]] !{{ist|ist nicht}} ein",
+    "fr": "L’automatique de [[consumer]] !{{est|n'est pas}} activé",
+    "it": "L’automatico di [[consumer]] !{{è|non è}} attivo"
   },
   "args": [
     {
@@ -18,11 +22,15 @@
       "name": "consumer",
       "title": {
         "en": "Program device",
-        "de": "Programm-Gerät"
+        "de": "Programm-Gerät",
+        "fr": "Appareil à programme",
+        "it": "Dispositivo a programma"
       },
       "placeholder": {
         "en": "Choose a device",
-        "de": "Gerät wählen"
+        "de": "Gerät wählen",
+        "fr": "Choisir un appareil",
+        "it": "Scegli un dispositivo"
       }
     }
   ]

@@ -277,7 +277,7 @@ test('Controller: Gerät anmelden, ein/aus steuert die Timer, abmelden hält an'
 
   c.setEnabled(true);
   assert.equal(c.isActive(), true);
-  assert.equal(timers.size, 2, 'Batterie- und Wallbox-Lauf geplant');
+  assert.equal(timers.size, 3, 'Batterie-Lauf, Wallbox-Lauf und Verweisprüfung geplant');
   assert.equal(dev.published.at(-1).enabled, true);
   assert.equal(dev.published.at(-1).mode, 'idle');
 
@@ -286,7 +286,7 @@ test('Controller: Gerät anmelden, ein/aus steuert die Timer, abmelden hält an'
   assert.equal(dev.published.at(-1).mode, 'disabled');
 
   c.setEnabled(true);
-  assert.equal(timers.size, 2);
+  assert.equal(timers.size, 3);
   c.detachDevice(dev);
   assert.equal(timers.size, 0, 'ohne Gerät angehalten');
   assert.equal(c.getShadow().deviceExists, false);

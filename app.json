@@ -218,6 +218,14 @@
       "method": "get",
       "path": "/ems/flows"
     },
+    "getEmsRefCheck": {
+      "method": "get",
+      "path": "/ems/ref-check"
+    },
+    "postEmsRefClear": {
+      "method": "post",
+      "path": "/ems/ref-clear"
+    },
     "getEmsCommandFlows": {
       "method": "get",
       "path": "/ems/command-flows"
@@ -489,7 +497,9 @@
       {
         "title": {
           "en": "The EV reached its target",
-          "de": "Das E-Auto hat sein Ziel erreicht"
+          "de": "Das E-Auto hat sein Ziel erreicht",
+          "fr": "La voiture a atteint son objectif",
+          "it": "L’auto ha raggiunto il suo obiettivo"
         },
         "args": [
           {
@@ -504,7 +514,9 @@
             "type": "number",
             "title": {
               "en": "Charge level (%)",
-              "de": "Ladestand (%)"
+              "de": "Ladestand (%)",
+              "fr": "Niveau de charge (%)",
+              "it": "Livello di carica (%)"
             },
             "example": 80
           },
@@ -513,7 +525,9 @@
             "type": "number",
             "title": {
               "en": "Target (%)",
-              "de": "Ziel (%)"
+              "de": "Ziel (%)",
+              "fr": "Objectif (%)",
+              "it": "Obiettivo (%)"
             },
             "example": 80
           }
@@ -523,15 +537,21 @@
       {
         "title": {
           "en": "The energy management gives a command",
-          "de": "Das Energiemanagement gibt einen Befehl"
+          "de": "Das Energiemanagement gibt einen Befehl",
+          "fr": "La gestion de l’énergie donne une commande",
+          "it": "La gestione dell’energia dà un comando"
         },
         "titleFormatted": {
           "en": "The energy management gives the command [[command]]",
-          "de": "Das Energiemanagement gibt den Befehl [[command]]"
+          "de": "Das Energiemanagement gibt den Befehl [[command]]",
+          "fr": "La gestion de l’énergie donne la commande [[command]]",
+          "it": "La gestione dell’energia dà il comando [[command]]"
         },
         "hint": {
           "en": "Fires when the app wants a device to do something: charge or hold the home battery, start or stop the EV charger, switch a consumer, set SG Ready. Add a flow with this trigger and put the action card of YOUR device after it (any brand). The values (power, target charge level ...) are available as tags. Only live (not in test mode).",
-          "de": "Wird ausgelöst, wenn die App von einem Gerät etwas will: die Hausbatterie laden oder halten, die Wallbox starten oder stoppen, einen Verbraucher schalten, SG-Ready setzen. Lege einen Flow mit diesem Auslöser an und setze die Aktionskarte DEINES Geräts dahinter (egal welche Marke). Die Werte (Leistung, Ziel-Ladestand ...) stehen als Tags zur Verfügung. Nur live (nicht im Testmodus)."
+          "de": "Wird ausgelöst, wenn die App von einem Gerät etwas will: die Hausbatterie laden oder halten, die Wallbox starten oder stoppen, einen Verbraucher schalten, SG-Ready setzen. Lege einen Flow mit diesem Auslöser an und setze die Aktionskarte DEINES Geräts dahinter (egal welche Marke). Die Werte (Leistung, Ziel-Ladestand ...) stehen als Tags zur Verfügung. Nur live (nicht im Testmodus).",
+          "fr": "Se déclenche quand l’app veut qu’un appareil fasse quelque chose : charger ou maintenir la batterie domestique, démarrer ou arrêter la wallbox, commuter un consommateur, régler SG Ready. Créez un Flow avec ce déclencheur et placez derrière la carte d’action de VOTRE appareil (toute marque). Les valeurs (puissance, niveau de charge cible …) sont disponibles comme tags. Uniquement en mode réel (pas en mode test).",
+          "it": "Scatta quando l’app vuole che un dispositivo faccia qualcosa: caricare o mantenere la batteria domestica, avviare o fermare la wallbox, commutare un consumatore, impostare SG Ready. Crea un Flow con questo trigger e inserisci dopo di esso la card azione del TUO dispositivo (di qualsiasi marca). I valori (potenza, livello di carica obiettivo …) sono disponibili come tag. Solo in modalità reale (non in modalità test)."
         },
         "args": [
           {
@@ -539,11 +559,15 @@
             "name": "command",
             "title": {
               "en": "Command",
-              "de": "Befehl"
+              "de": "Befehl",
+              "fr": "Commande",
+              "it": "Comando"
             },
             "placeholder": {
               "en": "Choose a command",
-              "de": "Befehl wählen"
+              "de": "Befehl wählen",
+              "fr": "Choisir une commande",
+              "it": "Scegli un comando"
             }
           }
         ],
@@ -553,7 +577,9 @@
             "type": "string",
             "title": {
               "en": "Command (ID)",
-              "de": "Befehl (ID)"
+              "de": "Befehl (ID)",
+              "fr": "Commande (ID)",
+              "it": "Comando (ID)"
             },
             "example": "battery.charge"
           },
@@ -562,7 +588,9 @@
             "type": "string",
             "title": {
               "en": "Command (text)",
-              "de": "Befehl (Text)"
+              "de": "Befehl (Text)",
+              "fr": "Commande (texte)",
+              "it": "Comando (testo)"
             },
             "example": "Batterie: aus dem Netz laden"
           },
@@ -571,7 +599,9 @@
             "type": "number",
             "title": {
               "en": "Power (W)",
-              "de": "Leistung (W)"
+              "de": "Leistung (W)",
+              "fr": "Puissance (W)",
+              "it": "Potenza (W)"
             },
             "example": 5000
           },
@@ -580,7 +610,9 @@
             "type": "number",
             "title": {
               "en": "Target charge level (%)",
-              "de": "Ziel-Ladestand (%)"
+              "de": "Ziel-Ladestand (%)",
+              "fr": "Niveau de charge cible (%)",
+              "it": "Livello di carica obiettivo (%)"
             },
             "example": 90
           },
@@ -589,7 +621,9 @@
             "type": "number",
             "title": {
               "en": "Maximum discharge power (W)",
-              "de": "Maximale Entladeleistung (W)"
+              "de": "Maximale Entladeleistung (W)",
+              "fr": "Puissance de décharge maximale (W)",
+              "it": "Potenza di scarica massima (W)"
             },
             "example": 7000
           },
@@ -598,7 +632,9 @@
             "type": "number",
             "title": {
               "en": "Current per phase (A)",
-              "de": "Strom pro Phase (A)"
+              "de": "Strom pro Phase (A)",
+              "fr": "Courant par phase (A)",
+              "it": "Corrente per fase (A)"
             },
             "example": 16
           },
@@ -607,7 +643,9 @@
             "type": "number",
             "title": {
               "en": "Number of phases",
-              "de": "Anzahl Phasen"
+              "de": "Anzahl Phasen",
+              "fr": "Nombre de phases",
+              "it": "Numero di fasi"
             },
             "example": 3
           }
@@ -617,11 +655,15 @@
       {
         "title": {
           "en": "A consumer was switched",
-          "de": "Ein Verbraucher wurde geschaltet"
+          "de": "Ein Verbraucher wurde geschaltet",
+          "fr": "Un consommateur a été commuté",
+          "it": "Un consumatore è stato commutato"
         },
         "hint": {
           "en": "Fires when the energy management switches a consumer on or off. Also in silent mode and for devices it does not control: then it is only simulated and \"really switched\" is no.",
-          "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+          "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein.",
+          "fr": "Se déclenche quand la gestion de l’énergie active ou désactive un consommateur. Aussi en mode silencieux et pour les appareils qu’elle ne pilote pas : c’est alors seulement simulé et « réellement commuté » vaut non.",
+          "it": "Scatta quando la gestione dell’energia accende o spegne un consumatore. Anche in modalità silenziosa e per i dispositivi che non controlla: allora è solo simulato e «commutato davvero» vale no."
         },
         "args": [
           {
@@ -636,7 +678,9 @@
             "type": "string",
             "title": {
               "en": "Name",
-              "de": "Name"
+              "de": "Name",
+              "fr": "Nom",
+              "it": "Nome"
             },
             "example": "Dehumidifier"
           },
@@ -645,7 +689,9 @@
             "type": "string",
             "title": {
               "en": "State (on/off)",
-              "de": "Zustand (on/off)"
+              "de": "Zustand (on/off)",
+              "fr": "État (marche/arrêt)",
+              "it": "Stato (acceso/spento)"
             },
             "example": "on"
           },
@@ -654,7 +700,9 @@
             "type": "boolean",
             "title": {
               "en": "Really switched",
-              "de": "Wirklich geschaltet"
+              "de": "Wirklich geschaltet",
+              "fr": "Réellement commuté",
+              "it": "Commutato davvero"
             },
             "example": true
           },
@@ -663,7 +711,9 @@
             "type": "string",
             "title": {
               "en": "Reason",
-              "de": "Grund"
+              "de": "Grund",
+              "fr": "Raison",
+              "it": "Motivo"
             },
             "example": "SoC 99% >= 98%"
           }
@@ -673,11 +723,15 @@
       {
         "title": {
           "en": "The hot-water program started or ended",
-          "de": "Das Warmwasser-Programm wurde gestartet oder beendet"
+          "de": "Das Warmwasser-Programm wurde gestartet oder beendet",
+          "fr": "Le programme eau chaude a démarré ou s’est terminé",
+          "it": "Il programma acqua calda è partito o è terminato"
         },
         "hint": {
           "en": "Fires when the hot-water program on a cheap price starts or ends. Also in test mode (then only simulated).",
-          "de": "Wird ausgelöst, wenn das Warmwasser-Programm bei günstigem Preis startet oder endet. Auch im Testmodus (dann nur simuliert)."
+          "de": "Wird ausgelöst, wenn das Warmwasser-Programm bei günstigem Preis startet oder endet. Auch im Testmodus (dann nur simuliert).",
+          "fr": "Se déclenche quand le programme eau chaude à prix avantageux démarre ou se termine. Aussi en mode test (alors seulement simulé).",
+          "it": "Scatta quando il programma acqua calda a prezzo conveniente parte o termina. Anche in modalità test (allora solo simulato)."
         },
         "args": [
           {
@@ -692,7 +746,9 @@
             "type": "boolean",
             "title": {
               "en": "Running",
-              "de": "Läuft"
+              "de": "Läuft",
+              "fr": "En cours",
+              "it": "In corso"
             },
             "example": true
           },
@@ -701,7 +757,9 @@
             "type": "string",
             "title": {
               "en": "Reason",
-              "de": "Grund"
+              "de": "Grund",
+              "fr": "Raison",
+              "it": "Motivo"
             },
             "example": "Start: günstiger Strompreis (Warmwasser-Programm)"
           }
@@ -711,11 +769,15 @@
       {
         "title": {
           "en": "The hot-water setpoint should be set",
-          "de": "Der Warmwasser-Soll soll gesetzt werden"
+          "de": "Der Warmwasser-Soll soll gesetzt werden",
+          "fr": "La consigne d’eau chaude doit être réglée",
+          "it": "Il setpoint dell’acqua calda deve essere impostato"
         },
         "hint": {
           "en": "Fires when the app wants a new DHW setpoint for the heat pump (program on, delay, back to normal). One flow with this trigger writes the value to the heat pump, whatever the brand. Only live (not in test mode).",
-          "de": "Wird ausgelöst, wenn die App einen neuen Warmwasser-Soll für die Wärmepumpe will (Programm ein, Verzögerung, zurück auf Normal). Ein einziger Flow mit diesem Auslöser schreibt den Wert an die Wärmepumpe, egal welche Marke. Nur live (nicht im Testmodus)."
+          "de": "Wird ausgelöst, wenn die App einen neuen Warmwasser-Soll für die Wärmepumpe will (Programm ein, Verzögerung, zurück auf Normal). Ein einziger Flow mit diesem Auslöser schreibt den Wert an die Wärmepumpe, egal welche Marke. Nur live (nicht im Testmodus).",
+          "fr": "Se déclenche quand l’app veut une nouvelle consigne d’eau chaude pour la pompe à chaleur (programme activé, retard, retour à la normale). Un seul Flow avec ce déclencheur écrit la valeur dans la pompe à chaleur, quelle que soit la marque. Uniquement en mode réel (pas en mode test).",
+          "it": "Scatta quando l’app vuole un nuovo setpoint dell’acqua calda per la pompa di calore (programma attivo, ritardo, ritorno alla normalità). Un solo Flow con questo trigger scrive il valore nella pompa di calore, di qualsiasi marca. Solo in modalità reale (non in modalità test)."
         },
         "tokens": [
           {
@@ -723,7 +785,9 @@
             "type": "number",
             "title": {
               "en": "Setpoint (°C)",
-              "de": "Soll (°C)"
+              "de": "Soll (°C)",
+              "fr": "Consigne (°C)",
+              "it": "Setpoint (°C)"
             },
             "example": 48
           },
@@ -732,7 +796,9 @@
             "type": "number",
             "title": {
               "en": "Setpoint in tenths of a degree (e.g. 480)",
-              "de": "Soll in Zehntelgrad (z. B. 480)"
+              "de": "Soll in Zehntelgrad (z. B. 480)",
+              "fr": "Consigne en dixièmes de degré (p. ex. 480)",
+              "it": "Setpoint in decimi di grado (ad es. 480)"
             },
             "example": 480
           },
@@ -741,7 +807,9 @@
             "type": "string",
             "title": {
               "en": "Kind (program, delay, normal)",
-              "de": "Art (program, delay, normal)"
+              "de": "Art (program, delay, normal)",
+              "fr": "Type (program, delay, normal)",
+              "it": "Tipo (program, delay, normal)"
             },
             "example": "program"
           }
@@ -751,11 +819,15 @@
       {
         "title": {
           "en": "An error occurred",
-          "de": "Ein Fehler ist aufgetreten"
+          "de": "Ein Fehler ist aufgetreten",
+          "fr": "Une erreur est survenue",
+          "it": "Si è verificato un errore"
         },
         "hint": {
           "en": "Fires once when a new problem appears (meter or charger not readable, battery command failed, prices or forecast missing).",
-          "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen)."
+          "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen).",
+          "fr": "Se déclenche une fois quand un nouveau problème apparaît (compteur ou wallbox illisible, commande de batterie échouée, prix ou prévision manquants).",
+          "it": "Scatta una volta quando compare un nuovo problema (contatore o wallbox non leggibile, comando della batteria non riuscito, prezzi o previsione mancanti)."
         },
         "args": [
           {
@@ -770,7 +842,9 @@
             "type": "string",
             "title": {
               "en": "Area",
-              "de": "Bereich"
+              "de": "Bereich",
+              "fr": "Domaine",
+              "it": "Area"
             },
             "example": "charger"
           },
@@ -779,7 +853,9 @@
             "type": "string",
             "title": {
               "en": "Message",
-              "de": "Meldung"
+              "de": "Meldung",
+              "fr": "Message",
+              "it": "Messaggio"
             },
             "example": "Netzzähler nicht lesbar"
           }
@@ -789,11 +865,15 @@
       {
         "title": {
           "en": "The house connection is overloaded",
-          "de": "Der Hausanschluss ist überlastet"
+          "de": "Der Hausanschluss ist überlastet",
+          "fr": "Le raccordement est surchargé",
+          "it": "L’allacciamento è sovraccarico"
         },
         "hint": {
           "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off. Also in silent mode or while the protection is not live: then it is only simulated and \"really switched\" is no.",
-          "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+          "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein.",
+          "fr": "Se déclenche quand une phase dépasse la limite, quand la wallbox est limitée et quand un appareil est coupé. Aussi en mode silencieux ou tant que la protection n’est pas en mode réel : c’est alors seulement simulé et « réellement commuté » vaut non.",
+          "it": "Scatta quando una fase supera il limite, quando la wallbox viene limitata e quando un dispositivo viene spento. Anche in modalità silenziosa o finché la protezione non è in modalità reale: allora è solo simulato e «commutato davvero» vale no."
         },
         "args": [
           {
@@ -808,7 +888,9 @@
             "type": "number",
             "title": {
               "en": "Highest phase current (A)",
-              "de": "Höchster Phasenstrom (A)"
+              "de": "Höchster Phasenstrom (A)",
+              "fr": "Courant de phase le plus élevé (A)",
+              "it": "Corrente di fase più alta (A)"
             },
             "example": 37.5
           },
@@ -817,7 +899,9 @@
             "type": "number",
             "title": {
               "en": "Phase",
-              "de": "Phase"
+              "de": "Phase",
+              "fr": "Phase",
+              "it": "Fase"
             },
             "example": 2
           },
@@ -826,7 +910,9 @@
             "type": "string",
             "title": {
               "en": "Action",
-              "de": "Aktion"
+              "de": "Aktion",
+              "fr": "Action",
+              "it": "Azione"
             },
             "example": "Sauna ausgeschaltet"
           },
@@ -835,7 +921,9 @@
             "type": "boolean",
             "title": {
               "en": "Really switched",
-              "de": "Wirklich geschaltet"
+              "de": "Wirklich geschaltet",
+              "fr": "Réellement commuté",
+              "it": "Commutato davvero"
             },
             "example": false
           }
@@ -845,11 +933,15 @@
       {
         "title": {
           "en": "The energy management mode changed",
-          "de": "Der Modus des Energiemanagements hat gewechselt"
+          "de": "Der Modus des Energiemanagements hat gewechselt",
+          "fr": "Le mode de la gestion de l’énergie a changé",
+          "it": "La modalità della gestione dell’energia è cambiata"
         },
         "hint": {
           "en": "Fires when the mode changes, for example from waiting for surplus to charging from solar.",
-          "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom»."
+          "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom».",
+          "fr": "Se déclenche quand le mode change, par exemple de l’attente de surplus à la charge solaire.",
+          "it": "Scatta quando la modalità cambia, ad esempio da in attesa di eccedenza a carica da solare."
         },
         "args": [
           {
@@ -864,7 +956,9 @@
             "type": "string",
             "title": {
               "en": "Mode",
-              "de": "Modus"
+              "de": "Modus",
+              "fr": "Mode",
+              "it": "Modalità"
             },
             "example": "solar_ev"
           },
@@ -873,7 +967,9 @@
             "type": "string",
             "title": {
               "en": "Status",
-              "de": "Status"
+              "de": "Status",
+              "fr": "Statut",
+              "it": "Stato"
             },
             "example": "16A/3ph"
           }
@@ -883,11 +979,15 @@
       {
         "title": {
           "en": "The automatic of a program device has expired",
-          "de": "Die Automatik eines Programm-Geräts ist abgelaufen"
+          "de": "Die Automatik eines Programm-Geräts ist abgelaufen",
+          "fr": "L’automatique d’un appareil à programme a expiré",
+          "it": "L’automatico di un dispositivo a programma è scaduto"
         },
         "hint": {
           "en": "Fires when the wait (plus 1 hour) is over and the device did not start, for example because it never reported ready. The automatic is then off.",
-          "de": "Wird ausgelöst, wenn die Wartezeit (plus 1 Stunde) vorbei ist und das Gerät nicht gestartet ist, zum Beispiel weil es nie «bereit» gemeldet hat. Die Automatik ist danach aus."
+          "de": "Wird ausgelöst, wenn die Wartezeit (plus 1 Stunde) vorbei ist und das Gerät nicht gestartet ist, zum Beispiel weil es nie «bereit» gemeldet hat. Die Automatik ist danach aus.",
+          "fr": "Se déclenche quand l’attente (plus 1 heure) est écoulée et que l’appareil n’a pas démarré, par exemple parce qu’il ne s’est jamais déclaré prêt. L’automatique est alors désactivé.",
+          "it": "Scatta quando l’attesa (più 1 ora) è terminata e il dispositivo non è partito, ad esempio perché non si è mai segnalato pronto. L’automatico è allora disattivato."
         },
         "args": [
           {
@@ -902,7 +1002,9 @@
             "type": "string",
             "title": {
               "en": "Device",
-              "de": "Gerät"
+              "de": "Gerät",
+              "fr": "Appareil",
+              "it": "Dispositivo"
             },
             "example": "Geschirrspüler"
           },
@@ -911,7 +1013,9 @@
             "type": "string",
             "title": {
               "en": "Reason",
-              "de": "Grund"
+              "de": "Grund",
+              "fr": "Raison",
+              "it": "Motivo"
             },
             "example": "Automatik abgelaufen: die Wartezeit ist vorbei, es wurde nicht gestartet"
           }
@@ -921,11 +1025,15 @@
       {
         "title": {
           "en": "The SG Ready state changed",
-          "de": "Der SG-Ready-Zustand hat gewechselt"
+          "de": "Der SG-Ready-Zustand hat gewechselt",
+          "fr": "L’état SG Ready a changé",
+          "it": "Lo stato SG Ready è cambiato"
         },
         "hint": {
           "en": "Fires when the boiler/heat pump control changes between normal operation, recommendation and forced charging. Also in test mode (then only simulated).",
-          "de": "Wird ausgelöst, wenn die Boiler-/Wärmepumpen-Steuerung zwischen Normalbetrieb, Empfehlung und Zwangsladung wechselt. Auch im Testmodus (dann nur simuliert)."
+          "de": "Wird ausgelöst, wenn die Boiler-/Wärmepumpen-Steuerung zwischen Normalbetrieb, Empfehlung und Zwangsladung wechselt. Auch im Testmodus (dann nur simuliert).",
+          "fr": "Se déclenche quand la commande du chauffe-eau / de la pompe à chaleur passe entre fonctionnement normal, recommandation et charge forcée. Aussi en mode test (alors seulement simulé).",
+          "it": "Scatta quando il controllo di boiler/pompa di calore passa tra funzionamento normale, raccomandazione e carica forzata. Anche in modalità test (allora solo simulato)."
         },
         "args": [
           {
@@ -940,7 +1048,9 @@
             "type": "string",
             "title": {
               "en": "State (normal, boost, forced)",
-              "de": "Zustand (normal, boost, forced)"
+              "de": "Zustand (normal, boost, forced)",
+              "fr": "État (normal, boost, forced)",
+              "it": "Stato (normal, boost, forced)"
             },
             "example": "boost"
           },
@@ -949,7 +1059,9 @@
             "type": "string",
             "title": {
               "en": "Reason",
-              "de": "Grund"
+              "de": "Grund",
+              "fr": "Raison",
+              "it": "Motivo"
             },
             "example": "Start: PV-Überschuss/Akku voll"
           }
@@ -1268,11 +1380,15 @@
       {
         "title": {
           "en": "Backup reserve !{{is|is not}} on",
-          "de": "Notstrom-Reserve !{{ist|ist nicht}} ein"
+          "de": "Notstrom-Reserve !{{ist|ist nicht}} ein",
+          "fr": "La réserve de secours !{{est|n'est pas}} activée",
+          "it": "La riserva di emergenza !{{è|non è}} attiva"
         },
         "hint": {
           "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price.",
-          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis."
+          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis.",
+          "fr": "Réserve de secours : maintient au moins le niveau de batterie configuré, en chargeant depuis le réseau si nécessaire, quel que soit le prix.",
+          "it": "Riserva di emergenza: mantiene almeno il livello di batteria configurato, caricando dalla rete se necessario, indipendentemente dal prezzo."
         },
         "args": [
           {
@@ -1286,11 +1402,15 @@
       {
         "title": {
           "en": "Charge now !{{is|is not}} on",
-          "de": "Sofort laden !{{ist|ist nicht}} ein"
+          "de": "Sofort laden !{{ist|ist nicht}} ein",
+          "fr": "La charge immédiate !{{est|n'est pas}} activée",
+          "it": "La carica immediata !{{è|non è}} attiva"
         },
         "hint": {
           "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar.",
-          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen."
+          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen.",
+          "fr": "Charge immédiate : la wallbox charge la voiture à pleine puissance, quel que soit le prix et le solaire.",
+          "it": "Carica immediata: la wallbox carica l’auto a piena potenza, indipendentemente da prezzo e solare."
         },
         "args": [
           {
@@ -1304,15 +1424,21 @@
       {
         "title": {
           "en": "A consumer !{{is|isn't}} running",
-          "de": "Ein Verbraucher !{{läuft|läuft nicht}}"
+          "de": "Ein Verbraucher !{{läuft|läuft nicht}}",
+          "fr": "Un consommateur !{{est|n'est pas}} en marche",
+          "it": "Un consumatore !{{è|non è}} in funzione"
         },
         "titleFormatted": {
           "en": "[[consumer]] !{{is|isn't}} running",
-          "de": "[[consumer]] !{{läuft|läuft nicht}}"
+          "de": "[[consumer]] !{{läuft|läuft nicht}}",
+          "fr": "[[consumer]] !{{est|n'est pas}} en marche",
+          "it": "[[consumer]] !{{è|non è}} in funzione"
         },
         "hint": {
           "en": "Running means switched on by the energy management (for program devices: within the usual program duration after the start).",
-          "de": "Läuft heisst: vom Energiemanagement eingeschaltet (bei Programm-Geräten: innerhalb der üblichen Programmdauer nach dem Start)."
+          "de": "Läuft heisst: vom Energiemanagement eingeschaltet (bei Programm-Geräten: innerhalb der üblichen Programmdauer nach dem Start).",
+          "fr": "En marche signifie activé par la gestion de l’énergie (pour les appareils à programme : pendant la durée habituelle du programme après le démarrage).",
+          "it": "In funzione significa attivato dalla gestione dell’energia (per i dispositivi a programma: entro la durata abituale del programma dopo l’avvio)."
         },
         "args": [
           {
@@ -1325,11 +1451,15 @@
             "name": "consumer",
             "title": {
               "en": "Consumer",
-              "de": "Verbraucher"
+              "de": "Verbraucher",
+              "fr": "Consommateur",
+              "it": "Consumatore"
             },
             "placeholder": {
               "en": "Choose a device",
-              "de": "Gerät wählen"
+              "de": "Gerät wählen",
+              "fr": "Choisir un appareil",
+              "it": "Scegli un dispositivo"
             }
           }
         ],
@@ -1338,7 +1468,9 @@
       {
         "title": {
           "en": "The hot-water program !{{is|isn't}} running",
-          "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}"
+          "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}",
+          "fr": "Le programme eau chaude !{{est|n'est pas}} en cours",
+          "it": "Il programma acqua calda !{{è|non è}} in corso"
         },
         "args": [
           {
@@ -1352,11 +1484,15 @@
       {
         "title": {
           "en": "Energy management mode !{{is|isn't}}...",
-          "de": "Modus des Energiemanagements !{{ist|ist nicht}}..."
+          "de": "Modus des Energiemanagements !{{ist|ist nicht}}...",
+          "fr": "Le mode de la gestion de l’énergie !{{est|n'est pas}}...",
+          "it": "La modalità della gestione dell’energia !{{è|non è}}..."
         },
         "titleFormatted": {
           "en": "Energy management mode !{{is|isn't}} [[mode]]",
-          "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]"
+          "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]",
+          "fr": "Le mode de la gestion de l’énergie !{{est|n'est pas}} [[mode]]",
+          "it": "La modalità della gestione dell’energia !{{è|non è}} [[mode]]"
         },
         "args": [
           {
@@ -1369,56 +1505,72 @@
             "name": "mode",
             "title": {
               "en": "Mode",
-              "de": "Modus"
+              "de": "Modus",
+              "fr": "Mode",
+              "it": "Modalità"
             },
             "values": [
               {
                 "id": "disabled",
                 "label": {
                   "en": "Off",
-                  "de": "Aus"
+                  "de": "Aus",
+                  "fr": "Désactivé",
+                  "it": "Spento"
                 }
               },
               {
                 "id": "idle",
                 "label": {
                   "en": "Idle",
-                  "de": "Bereit"
+                  "de": "Bereit",
+                  "fr": "Au repos",
+                  "it": "In attesa"
                 }
               },
               {
                 "id": "holding",
                 "label": {
                   "en": "Waiting for surplus",
-                  "de": "Wartet auf Überschuss"
+                  "de": "Wartet auf Überschuss",
+                  "fr": "En attente de surplus",
+                  "it": "In attesa di eccedenza"
                 }
               },
               {
                 "id": "solar_ev",
                 "label": {
                   "en": "Charging from solar",
-                  "de": "Lädt mit Solarstrom"
+                  "de": "Lädt mit Solarstrom",
+                  "fr": "Charge solaire",
+                  "it": "Carica da solare"
                 }
               },
               {
                 "id": "instant_ev",
                 "label": {
                   "en": "Charging at full power",
-                  "de": "Lädt mit voller Leistung"
+                  "de": "Lädt mit voller Leistung",
+                  "fr": "Charge à pleine puissance",
+                  "it": "Carica a piena potenza"
                 }
               },
               {
                 "id": "battery_priority",
                 "label": {
                   "en": "Battery first",
-                  "de": "Batterie hat Vorrang"
+                  "de": "Batterie hat Vorrang",
+                  "fr": "Batterie d’abord",
+                  "it": "Prima la batteria"
                 }
               },
               {
                 "id": "error",
                 "label": {
                   "en": "Error",
-                  "de": "Fehler"
+                  "de": "Fehler",
+                  "fr": "Erreur",
+                  "it": "Errore"
                 }
               }
             ]
@@ -1429,11 +1581,15 @@
       {
         "title": {
           "en": "SG Ready / hot-water program !{{is|isn't}} paused",
-          "de": "SG-Ready / Warmwasser-Programm !{{ist|ist nicht}} pausiert"
+          "de": "SG-Ready / Warmwasser-Programm !{{ist|ist nicht}} pausiert",
+          "fr": "SG Ready / programme eau chaude !{{est|n'est pas}} en pause",
+          "it": "SG Ready / programma acqua calda !{{è|non è}} in pausa"
         },
         "titleFormatted": {
           "en": "[[module]] !{{is|isn't}} paused",
-          "de": "[[module]] !{{ist|ist nicht}} pausiert"
+          "de": "[[module]] !{{ist|ist nicht}} pausiert",
+          "fr": "[[module]] !{{est|n'est pas}} en pause",
+          "it": "[[module]] !{{è|non è}} in pausa"
         },
         "args": [
           {
@@ -1446,21 +1602,27 @@
             "name": "module",
             "title": {
               "en": "Module",
-              "de": "Modul"
+              "de": "Modul",
+              "fr": "Module",
+              "it": "Modulo"
             },
             "values": [
               {
                 "id": "sgready",
                 "title": {
                   "en": "SG Ready (heat up)",
-                  "de": "SG-Ready (Aufheizen)"
+                  "de": "SG-Ready (Aufheizen)",
+                  "fr": "SG Ready (chauffer)",
+                  "it": "SG Ready (riscaldare)"
                 }
               },
               {
                 "id": "dhw",
                 "title": {
                   "en": "Hot-water program",
-                  "de": "Warmwasser-Programm"
+                  "de": "Warmwasser-Programm",
+                  "fr": "Programme eau chaude",
+                  "it": "Programma acqua calda"
                 }
               }
             ]
@@ -1471,11 +1633,15 @@
       {
         "title": {
           "en": "The automatic of a program device !{{is|isn't}} on",
-          "de": "Die Automatik eines Programm-Geräts !{{ist|ist nicht}} ein"
+          "de": "Die Automatik eines Programm-Geräts !{{ist|ist nicht}} ein",
+          "fr": "L’automatique d’un appareil à programme !{{est|n'est pas}} activé",
+          "it": "L’automatico di un dispositivo a programma !{{è|non è}} attivo"
         },
         "titleFormatted": {
           "en": "The automatic of [[consumer]] !{{is|isn't}} on",
-          "de": "Die Automatik von [[consumer]] !{{ist|ist nicht}} ein"
+          "de": "Die Automatik von [[consumer]] !{{ist|ist nicht}} ein",
+          "fr": "L’automatique de [[consumer]] !{{est|n'est pas}} activé",
+          "it": "L’automatico di [[consumer]] !{{è|non è}} attivo"
         },
         "args": [
           {
@@ -1488,11 +1654,15 @@
             "name": "consumer",
             "title": {
               "en": "Program device",
-              "de": "Programm-Gerät"
+              "de": "Programm-Gerät",
+              "fr": "Appareil à programme",
+              "it": "Dispositivo a programma"
             },
             "placeholder": {
               "en": "Choose a device",
-              "de": "Gerät wählen"
+              "de": "Gerät wählen",
+              "fr": "Choisir un appareil",
+              "it": "Scegli un dispositivo"
             }
           }
         ],
@@ -1501,11 +1671,15 @@
       {
         "title": {
           "en": "SG Ready state !{{is|isn't}}...",
-          "de": "SG-Ready-Zustand !{{ist|ist nicht}}..."
+          "de": "SG-Ready-Zustand !{{ist|ist nicht}}...",
+          "fr": "L’état SG Ready !{{est|n'est pas}}...",
+          "it": "Lo stato SG Ready !{{è|non è}}..."
         },
         "titleFormatted": {
           "en": "SG Ready state !{{is|isn't}} [[state]]",
-          "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]"
+          "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]",
+          "fr": "L’état SG Ready !{{est|n'est pas}} [[state]]",
+          "it": "Lo stato SG Ready !{{è|non è}} [[state]]"
         },
         "args": [
           {
@@ -1518,28 +1692,36 @@
             "name": "state",
             "title": {
               "en": "State",
-              "de": "Zustand"
+              "de": "Zustand",
+              "fr": "État",
+              "it": "Stato"
             },
             "values": [
               {
                 "id": "normal",
                 "label": {
                   "en": "Normal operation (0:0)",
-                  "de": "Normalbetrieb (0:0)"
+                  "de": "Normalbetrieb (0:0)",
+                  "fr": "Fonctionnement normal (0:0)",
+                  "it": "Funzionamento normale (0:0)"
                 }
               },
               {
                 "id": "boost",
                 "label": {
                   "en": "Recommendation (0:1)",
-                  "de": "Empfehlung (0:1)"
+                  "de": "Empfehlung (0:1)",
+                  "fr": "Recommandation (0:1)",
+                  "it": "Raccomandazione (0:1)"
                 }
               },
               {
                 "id": "forced",
                 "label": {
                   "en": "Forced charging (1:1)",
-                  "de": "Zwangsladung (1:1)"
+                  "de": "Zwangsladung (1:1)",
+                  "fr": "Charge forcée (1:1)",
+                  "it": "Carica forzata (1:1)"
                 }
               }
             ]
@@ -1550,11 +1732,15 @@
       {
         "title": {
           "en": "Silent mode !{{is|is not}} on",
-          "de": "Silent-Modus !{{ist|ist nicht}} an"
+          "de": "Silent-Modus !{{ist|ist nicht}} an",
+          "fr": "Le mode silencieux !{{est|n'est pas}} activé",
+          "it": "La modalità silenziosa !{{è|non è}} attiva"
         },
         "hint": {
           "en": "Silent mode: everything is only simulated, nothing is switched.",
-          "de": "Silent-Modus: alles wird nur simuliert, nichts wird geschaltet."
+          "de": "Silent-Modus: alles wird nur simuliert, nichts wird geschaltet.",
+          "fr": "Mode silencieux : tout est seulement simulé, rien n’est commuté.",
+          "it": "Modalità silenziosa: tutto viene solo simulato, nulla viene commutato."
         },
         "args": [
           {
@@ -1881,15 +2067,21 @@
       {
         "title": {
           "en": "Turn backup reserve on or off",
-          "de": "Notstrom-Reserve ein- oder ausschalten"
+          "de": "Notstrom-Reserve ein- oder ausschalten",
+          "fr": "Activer ou désactiver la réserve de secours",
+          "it": "Attiva o disattiva la riserva di emergenza"
         },
         "titleFormatted": {
           "en": "Turn backup reserve [[mode]]",
-          "de": "Notstrom-Reserve [[mode]]"
+          "de": "Notstrom-Reserve [[mode]]",
+          "fr": "Réserve de secours : [[mode]]",
+          "it": "Riserva di emergenza: [[mode]]"
         },
         "hint": {
           "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price. Like the switch on the energy management device.",
-          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement."
+          "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement.",
+          "fr": "Réserve de secours : maintient au moins le niveau de batterie configuré, en chargeant depuis le réseau si nécessaire, quel que soit le prix. Comme l’interrupteur de l’appareil de gestion de l’énergie.",
+          "it": "Riserva di emergenza: mantiene almeno il livello di batteria configurato, caricando dalla rete se necessario, indipendentemente dal prezzo. Come l’interruttore del dispositivo di gestione dell’energia."
         },
         "args": [
           {
@@ -1902,21 +2094,27 @@
             "name": "mode",
             "title": {
               "en": "Mode",
-              "de": "Modus"
+              "de": "Modus",
+              "fr": "Mode",
+              "it": "Modalità"
             },
             "values": [
               {
                 "id": "on",
                 "title": {
                   "en": "on",
-                  "de": "ein"
+                  "de": "ein",
+                  "fr": "activée",
+                  "it": "attiva"
                 }
               },
               {
                 "id": "off",
                 "title": {
                   "en": "off",
-                  "de": "aus"
+                  "de": "aus",
+                  "fr": "désactivée",
+                  "it": "disattivata"
                 }
               }
             ]
@@ -1927,7 +2125,9 @@
       {
         "title": {
           "en": "EV: use the weekly template again",
-          "de": "E-Auto: Wochenvorlage gilt wieder"
+          "de": "E-Auto: Wochenvorlage gilt wieder",
+          "fr": "Voiture : utiliser de nouveau le modèle hebdomadaire",
+          "it": "Auto: usa di nuovo il modello settimanale"
         },
         "args": [
           {
@@ -1941,15 +2141,21 @@
       {
         "title": {
           "en": "Set the EV target for today or tomorrow",
-          "de": "Ziel des E-Autos für heute oder morgen setzen"
+          "de": "Ziel des E-Autos für heute oder morgen setzen",
+          "fr": "Définir l’objectif de la voiture pour aujourd’hui ou demain",
+          "it": "Imposta l’obiettivo dell’auto per oggi o domani"
         },
         "titleFormatted": {
           "en": "EV: [[day]] [[soc]] % by [[time]], charge [[charge]]",
-          "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]"
+          "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]",
+          "fr": "Voiture : [[day]] [[soc]] % d’ici [[time]], charge [[charge]]",
+          "it": "Auto: [[day]] [[soc]] % entro le [[time]], carica [[charge]]"
         },
         "hint": {
           "en": "Overrides the weekly template on that day.",
-          "de": "Übersteuert die Wochenvorlage an diesem Tag."
+          "de": "Übersteuert die Wochenvorlage an diesem Tag.",
+          "fr": "Remplace le modèle hebdomadaire pour ce jour.",
+          "it": "Sostituisce il modello settimanale per quel giorno."
         },
         "args": [
           {
@@ -1962,21 +2168,27 @@
             "name": "day",
             "title": {
               "en": "Day",
-              "de": "Tag"
+              "de": "Tag",
+              "fr": "Jour",
+              "it": "Giorno"
             },
             "values": [
               {
                 "id": "today",
                 "title": {
                   "en": "today",
-                  "de": "heute"
+                  "de": "heute",
+                  "fr": "aujourd’hui",
+                  "it": "oggi"
                 }
               },
               {
                 "id": "tomorrow",
                 "title": {
                   "en": "tomorrow",
-                  "de": "morgen"
+                  "de": "morgen",
+                  "fr": "demain",
+                  "it": "domani"
                 }
               }
             ]
@@ -1986,7 +2198,9 @@
             "name": "soc",
             "title": {
               "en": "Target (%)",
-              "de": "Ziel (%)"
+              "de": "Ziel (%)",
+              "fr": "Objectif (%)",
+              "it": "Obiettivo (%)"
             },
             "min": 10,
             "max": 100,
@@ -1997,7 +2211,9 @@
             "name": "time",
             "title": {
               "en": "Departure",
-              "de": "Abfahrt"
+              "de": "Abfahrt",
+              "fr": "Départ",
+              "it": "Partenza"
             }
           },
           {
@@ -2005,21 +2221,27 @@
             "name": "charge",
             "title": {
               "en": "Charge",
-              "de": "Laden"
+              "de": "Laden",
+              "fr": "Charge",
+              "it": "Carica"
             },
             "values": [
               {
                 "id": "yes",
                 "title": {
                   "en": "yes",
-                  "de": "ja"
+                  "de": "ja",
+                  "fr": "oui",
+                  "it": "sì"
                 }
               },
               {
                 "id": "no",
                 "title": {
                   "en": "no",
-                  "de": "nein"
+                  "de": "nein",
+                  "fr": "non",
+                  "it": "no"
                 }
               }
             ]
@@ -2030,15 +2252,21 @@
       {
         "title": {
           "en": "Turn charge now on or off",
-          "de": "Sofort laden ein- oder ausschalten"
+          "de": "Sofort laden ein- oder ausschalten",
+          "fr": "Activer ou désactiver la charge immédiate",
+          "it": "Attiva o disattiva la carica immediata"
         },
         "titleFormatted": {
           "en": "Turn charge now [[mode]]",
-          "de": "Sofort laden [[mode]]"
+          "de": "Sofort laden [[mode]]",
+          "fr": "Charge immédiate : [[mode]]",
+          "it": "Carica immediata: [[mode]]"
         },
         "hint": {
           "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar. Like the switch on the energy management device.",
-          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement."
+          "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement.",
+          "fr": "Charge immédiate : la wallbox charge la voiture à pleine puissance, quel que soit le prix et le solaire. Comme l’interrupteur de l’appareil de gestion de l’énergie.",
+          "it": "Carica immediata: la wallbox carica l’auto a piena potenza, indipendentemente da prezzo e solare. Come l’interruttore del dispositivo di gestione dell’energia."
         },
         "args": [
           {
@@ -2051,21 +2279,27 @@
             "name": "mode",
             "title": {
               "en": "Mode",
-              "de": "Modus"
+              "de": "Modus",
+              "fr": "Mode",
+              "it": "Modalità"
             },
             "values": [
               {
                 "id": "on",
                 "title": {
                   "en": "on",
-                  "de": "ein"
+                  "de": "ein",
+                  "fr": "activée",
+                  "it": "attiva"
                 }
               },
               {
                 "id": "off",
                 "title": {
                   "en": "off",
-                  "de": "aus"
+                  "de": "aus",
+                  "fr": "désactivée",
+                  "it": "disattivata"
                 }
               }
             ]
@@ -2076,15 +2310,21 @@
       {
         "title": {
           "en": "Pause or resume SG Ready / hot-water program",
-          "de": "SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen"
+          "de": "SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen",
+          "fr": "Mettre en pause ou reprendre SG Ready / programme eau chaude",
+          "it": "Metti in pausa o riprendi SG Ready / programma acqua calda"
         },
         "titleFormatted": {
           "en": "[[mode]] [[module]]",
-          "de": "[[module]] [[mode]]"
+          "de": "[[module]] [[mode]]",
+          "fr": "[[mode]] [[module]]",
+          "it": "[[mode]] [[module]]"
         },
         "hint": {
           "en": "Pausing ends a running run at once and blocks new starts until it is resumed. Resuming only lifts the pause; it does not switch on a module that is switched off in the settings.",
-          "de": "Pausieren beendet einen laufenden Lauf sofort und sperrt neue Starts, bis es fortgesetzt wird. Fortsetzen hebt nur die Pause auf, ein in den Einstellungen ausgeschaltetes Modul wird dadurch nicht eingeschaltet."
+          "de": "Pausieren beendet einen laufenden Lauf sofort und sperrt neue Starts, bis es fortgesetzt wird. Fortsetzen hebt nur die Pause auf, ein in den Einstellungen ausgeschaltetes Modul wird dadurch nicht eingeschaltet.",
+          "fr": "La pause termine immédiatement un cycle en cours et bloque les nouveaux démarrages jusqu’à la reprise. La reprise lève seulement la pause ; elle n’active pas un module désactivé dans les réglages.",
+          "it": "La pausa termina subito un ciclo in corso e blocca nuovi avvii fino alla ripresa. La ripresa toglie solo la pausa; non attiva un modulo disattivato nelle impostazioni."
         },
         "args": [
           {
@@ -2097,21 +2337,27 @@
             "name": "module",
             "title": {
               "en": "Module",
-              "de": "Modul"
+              "de": "Modul",
+              "fr": "Module",
+              "it": "Modulo"
             },
             "values": [
               {
                 "id": "sgready",
                 "title": {
                   "en": "SG Ready (heat up)",
-                  "de": "SG-Ready (Aufheizen)"
+                  "de": "SG-Ready (Aufheizen)",
+                  "fr": "SG Ready (chauffer)",
+                  "it": "SG Ready (riscaldare)"
                 }
               },
               {
                 "id": "dhw",
                 "title": {
                   "en": "Hot-water program",
-                  "de": "Warmwasser-Programm"
+                  "de": "Warmwasser-Programm",
+                  "fr": "Programme eau chaude",
+                  "it": "Programma acqua calda"
                 }
               }
             ]
@@ -2121,21 +2367,27 @@
             "name": "mode",
             "title": {
               "en": "Action",
-              "de": "Aktion"
+              "de": "Aktion",
+              "fr": "Action",
+              "it": "Azione"
             },
             "values": [
               {
                 "id": "pause",
                 "title": {
                   "en": "pause",
-                  "de": "pausieren"
+                  "de": "pausieren",
+                  "fr": "mettre en pause",
+                  "it": "metti in pausa"
                 }
               },
               {
                 "id": "resume",
                 "title": {
                   "en": "resume",
-                  "de": "fortsetzen"
+                  "de": "fortsetzen",
+                  "fr": "reprendre",
+                  "it": "riprendi"
                 }
               }
             ]
@@ -2146,15 +2398,21 @@
       {
         "title": {
           "en": "Start SG Ready / hot-water program now",
-          "de": "SG-Ready oder Warmwasser-Programm jetzt starten"
+          "de": "SG-Ready oder Warmwasser-Programm jetzt starten",
+          "fr": "Démarrer maintenant SG Ready / programme eau chaude",
+          "it": "Avvia ora SG Ready / programma acqua calda"
         },
         "titleFormatted": {
           "en": "Start [[module]] now",
-          "de": "[[module]] jetzt starten"
+          "de": "[[module]] jetzt starten",
+          "fr": "Démarrer [[module]] maintenant",
+          "it": "Avvia [[module]] ora"
         },
         "hint": {
           "en": "Starts the chosen module right now, without waiting for sun or price. SG Ready heats until the target temperature or the maximum run time (180 min if none is set); the hot-water program ends at the target temperature or the maximum run time. Does not start while the heat pump is already preparing hot water (if a status field is set), when the module is off or paused.",
-          "de": "Startet das gewählte Modul sofort, ohne auf Sonne oder Preis zu warten. SG-Ready heizt bis zur Zieltemperatur oder zur Höchstdauer (180 Min., falls keine eingestellt ist); das Warmwasser-Programm endet bei der Zieltemperatur oder der Höchstdauer. Startet nicht, solange die Wärmepumpe schon selbst Warmwasser bereitet (wenn ein Statusfeld eingetragen ist), und nicht bei ausgeschaltetem oder pausiertem Modul."
+          "de": "Startet das gewählte Modul sofort, ohne auf Sonne oder Preis zu warten. SG-Ready heizt bis zur Zieltemperatur oder zur Höchstdauer (180 Min., falls keine eingestellt ist); das Warmwasser-Programm endet bei der Zieltemperatur oder der Höchstdauer. Startet nicht, solange die Wärmepumpe schon selbst Warmwasser bereitet (wenn ein Statusfeld eingetragen ist), und nicht bei ausgeschaltetem oder pausiertem Modul.",
+          "fr": "Démarre immédiatement le module choisi, sans attendre le soleil ni le prix. SG Ready chauffe jusqu’à la température cible ou la durée maximale (180 min si aucune n’est définie) ; le programme eau chaude se termine à la température cible ou à la durée maximale. Ne démarre pas si la pompe à chaleur prépare déjà l’eau chaude (si un champ d’état est défini), ni si le module est désactivé ou en pause.",
+          "it": "Avvia subito il modulo scelto, senza attendere sole o prezzo. SG Ready riscalda fino alla temperatura obiettivo o alla durata massima (180 min se non è impostata); il programma acqua calda termina alla temperatura obiettivo o alla durata massima. Non parte se la pompa di calore sta già preparando l’acqua calda (se è impostato un campo di stato), né se il modulo è disattivato o in pausa."
         },
         "args": [
           {
@@ -2167,21 +2425,27 @@
             "name": "module",
             "title": {
               "en": "Module",
-              "de": "Modul"
+              "de": "Modul",
+              "fr": "Module",
+              "it": "Modulo"
             },
             "values": [
               {
                 "id": "sgready",
                 "title": {
                   "en": "SG Ready (heat up)",
-                  "de": "SG-Ready (Aufheizen)"
+                  "de": "SG-Ready (Aufheizen)",
+                  "fr": "SG Ready (chauffer)",
+                  "it": "SG Ready (riscaldare)"
                 }
               },
               {
                 "id": "dhw",
                 "title": {
                   "en": "Hot-water program",
-                  "de": "Warmwasser-Programm"
+                  "de": "Warmwasser-Programm",
+                  "fr": "Programme eau chaude",
+                  "it": "Programma acqua calda"
                 }
               }
             ]
@@ -2192,15 +2456,21 @@
       {
         "title": {
           "en": "Switch the automatic of a program device on or off",
-          "de": "Automatik eines Programm-Geräts ein- oder ausschalten"
+          "de": "Automatik eines Programm-Geräts ein- oder ausschalten",
+          "fr": "Activer ou désactiver l’automatique d’un appareil à programme",
+          "it": "Attiva o disattiva l’automatico di un dispositivo a programma"
         },
         "titleFormatted": {
           "en": "Automatic of [[consumer]] [[mode]], wait [[wait]] h",
-          "de": "Automatik von [[consumer]] [[mode]], Wartezeit [[wait]] h"
+          "de": "Automatik von [[consumer]] [[mode]], Wartezeit [[wait]] h",
+          "fr": "Automatique de [[consumer]] : [[mode]], attente [[wait]] h",
+          "it": "Automatico di [[consumer]]: [[mode]], attesa [[wait]] h"
         },
         "hint": {
           "en": "With the automatic on, the device starts once by itself: on PV surplus, in the cheapest block of the program duration, or at the latest when the wait is over. Then the automatic switches itself off. The wait (1 to 12 h) is optional; without it the default wait of the device applies.",
-          "de": "Mit eingeschalteter Automatik startet das Gerät einmal selbst: bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit. Danach geht die Automatik von selbst aus. Die Wartezeit (1 bis 12 h) ist optional, ohne sie gilt die Standard-Wartezeit des Geräts."
+          "de": "Mit eingeschalteter Automatik startet das Gerät einmal selbst: bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit. Danach geht die Automatik von selbst aus. Die Wartezeit (1 bis 12 h) ist optional, ohne sie gilt die Standard-Wartezeit des Geräts.",
+          "fr": "Avec l’automatique activé, l’appareil démarre une fois de lui-même : en cas de surplus PV, dans le bloc le moins cher de la durée du programme, ou au plus tard à la fin de l’attente. Ensuite l’automatique se désactive. L’attente (1 à 12 h) est facultative ; sans elle, l’attente par défaut de l’appareil s’applique.",
+          "it": "Con l’automatico attivo, il dispositivo parte una volta da solo: con eccedenza FV, nel blocco più conveniente della durata del programma o al più tardi alla fine dell’attesa. Poi l’automatico si disattiva da solo. L’attesa (da 1 a 12 h) è facoltativa; senza di essa vale l’attesa predefinita del dispositivo."
         },
         "args": [
           {
@@ -2213,11 +2483,15 @@
             "name": "consumer",
             "title": {
               "en": "Program device",
-              "de": "Programm-Gerät"
+              "de": "Programm-Gerät",
+              "fr": "Appareil à programme",
+              "it": "Dispositivo a programma"
             },
             "placeholder": {
               "en": "Choose a device",
-              "de": "Gerät wählen"
+              "de": "Gerät wählen",
+              "fr": "Choisir un appareil",
+              "it": "Scegli un dispositivo"
             }
           },
           {
@@ -2225,21 +2499,27 @@
             "name": "mode",
             "title": {
               "en": "Automatic",
-              "de": "Automatik"
+              "de": "Automatik",
+              "fr": "Automatique",
+              "it": "Automatico"
             },
             "values": [
               {
                 "id": "on",
                 "title": {
                   "en": "on",
-                  "de": "ein"
+                  "de": "ein",
+                  "fr": "activé",
+                  "it": "attivo"
                 }
               },
               {
                 "id": "off",
                 "title": {
                   "en": "off",
-                  "de": "aus"
+                  "de": "aus",
+                  "fr": "désactivé",
+                  "it": "disattivato"
                 }
               }
             ]
@@ -2253,11 +2533,15 @@
             "step": 1,
             "title": {
               "en": "Wait (h, optional)",
-              "de": "Wartezeit (h, optional)"
+              "de": "Wartezeit (h, optional)",
+              "fr": "Attente (h, facultatif)",
+              "it": "Attesa (h, facoltativa)"
             },
             "placeholder": {
               "en": "default wait",
-              "de": "Standard-Wartezeit"
+              "de": "Standard-Wartezeit",
+              "fr": "attente par défaut",
+              "it": "attesa predefinita"
             }
           }
         ],
@@ -2266,15 +2550,21 @@
       {
         "title": {
           "en": "Start a program device now",
-          "de": "Programm-Gerät jetzt starten"
+          "de": "Programm-Gerät jetzt starten",
+          "fr": "Démarrer maintenant un appareil à programme",
+          "it": "Avvia ora un dispositivo a programma"
         },
         "titleFormatted": {
           "en": "Start [[consumer]] now",
-          "de": "[[consumer]] jetzt starten"
+          "de": "[[consumer]] jetzt starten",
+          "fr": "Démarrer [[consumer]] maintenant",
+          "it": "Avvia [[consumer]] ora"
         },
         "hint": {
           "en": "Starts the chosen program device (dishwasher, washing machine, dryer) right now, regardless of surplus and price. It still checks remote control, door and status of the device. Only works for devices set up as \"Start a program\".",
-          "de": "Startet das gewählte Programm-Gerät (Geschirrspüler, Waschmaschine, Tumbler) sofort, unabhängig von Überschuss und Preis. Fernbedienung, Tür und Status des Geräts werden weiterhin geprüft. Nur für Geräte, die als «Programm starten» eingerichtet sind."
+          "de": "Startet das gewählte Programm-Gerät (Geschirrspüler, Waschmaschine, Tumbler) sofort, unabhängig von Überschuss und Preis. Fernbedienung, Tür und Status des Geräts werden weiterhin geprüft. Nur für Geräte, die als «Programm starten» eingerichtet sind.",
+          "fr": "Démarre immédiatement l’appareil à programme choisi (lave-vaisselle, lave-linge, sèche-linge), quel que soit le surplus et le prix. Il vérifie quand même la télécommande, la porte et l’état de l’appareil. Fonctionne uniquement pour les appareils configurés comme « Démarrer un programme ».",
+          "it": "Avvia subito il dispositivo a programma scelto (lavastoviglie, lavatrice, asciugatrice), indipendentemente da eccedenza e prezzo. Controlla comunque telecomando, sportello e stato del dispositivo. Funziona solo per dispositivi configurati come «Avvia un programma»."
         },
         "args": [
           {
@@ -2287,11 +2577,15 @@
             "name": "consumer",
             "title": {
               "en": "Program device",
-              "de": "Programm-Gerät"
+              "de": "Programm-Gerät",
+              "fr": "Appareil à programme",
+              "it": "Dispositivo a programma"
             },
             "placeholder": {
               "en": "Choose a device",
-              "de": "Gerät wählen"
+              "de": "Gerät wählen",
+              "fr": "Choisir un appareil",
+              "it": "Scegli un dispositivo"
             }
           }
         ],
@@ -2300,15 +2594,21 @@
       {
         "title": {
           "en": "Set the solar forecast factor",
-          "de": "Korrekturfaktor der PV-Prognose setzen"
+          "de": "Korrekturfaktor der PV-Prognose setzen",
+          "fr": "Définir le facteur de la prévision solaire",
+          "it": "Imposta il fattore della previsione solare"
         },
         "titleFormatted": {
           "en": "Set the solar forecast factor to [[factor]]",
-          "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]"
+          "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]",
+          "fr": "Définir le facteur de la prévision solaire sur [[factor]]",
+          "it": "Imposta il fattore della previsione solare su [[factor]]"
         },
         "hint": {
           "en": "Multiplies every value of the fed solar forecast, for example 0.75 if the forecast is usually 25 % too high. Also usable from a Flow that learns the factor.",
-          "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt."
+          "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt.",
+          "fr": "Multiplie chaque valeur de la prévision solaire fournie, par exemple 0,75 si la prévision est en général trop élevée de 25 %. Utilisable aussi depuis un Flow qui apprend le facteur.",
+          "it": "Moltiplica ogni valore della previsione solare fornita, ad esempio 0,75 se la previsione è di solito troppo alta del 25 %. Utilizzabile anche da un Flow che impara il fattore."
         },
         "args": [
           {
@@ -2321,14 +2621,18 @@
             "name": "factor",
             "title": {
               "en": "Factor",
-              "de": "Faktor"
+              "de": "Faktor",
+              "fr": "Facteur",
+              "it": "Fattore"
             },
             "min": 0.1,
             "max": 3,
             "step": 0.01,
             "placeholder": {
               "en": "0.75",
-              "de": "0.75"
+              "de": "0.75",
+              "fr": "0.75",
+              "it": "0.75"
             }
           }
         ],
@@ -2337,15 +2641,21 @@
       {
         "title": {
           "en": "Set the solar forecast",
-          "de": "PV-Prognose setzen"
+          "de": "PV-Prognose setzen",
+          "fr": "Définir la prévision solaire",
+          "it": "Imposta la previsione solare"
         },
         "titleFormatted": {
           "en": "Set the solar forecast to [[data]]",
-          "de": "PV-Prognose setzen auf [[data]]"
+          "de": "PV-Prognose setzen auf [[data]]",
+          "fr": "Définir la prévision solaire sur [[data]]",
+          "it": "Imposta la previsione solare su [[data]]"
         },
         "hint": {
           "en": "Feeds your own solar forecast into the energy management. A JSON list, for example [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Each entry needs a start (ISO time or ms) and kwh (energy in the slot) or kw (average power). The slot length is end minus start, or \"hours\", otherwise 1 hour. Feed it at least every 12 hours, otherwise it counts as outdated.",
-          "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet."
+          "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet.",
+          "fr": "Transmet votre propre prévision solaire à la gestion de l’énergie. Une liste JSON, par exemple [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Chaque entrée a besoin d’un début (heure ISO ou ms) et de kwh (énergie dans le créneau) ou kw (puissance moyenne). La durée du créneau est fin moins début, ou « hours », sinon 1 heure. À transmettre au moins toutes les 12 heures, sinon elle est considérée comme périmée.",
+          "it": "Fornisce la tua previsione solare alla gestione dell’energia. Un elenco JSON, ad esempio [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Ogni voce richiede un inizio (ora ISO o ms) e kwh (energia nello slot) oppure kw (potenza media). La durata dello slot è fine meno inizio, oppure «hours», altrimenti 1 ora. Da fornire almeno ogni 12 ore, altrimenti viene considerata obsoleta."
         },
         "args": [
           {
@@ -2358,11 +2668,15 @@
             "name": "data",
             "title": {
               "en": "Forecast (JSON)",
-              "de": "Prognose (JSON)"
+              "de": "Prognose (JSON)",
+              "fr": "Prévision (JSON)",
+              "it": "Previsione (JSON)"
             },
             "placeholder": {
               "en": "[{\"start\":\"...\",\"kwh\":0.4}]",
-              "de": "[{\"start\":\"...\",\"kwh\":0.4}]"
+              "de": "[{\"start\":\"...\",\"kwh\":0.4}]",
+              "fr": "[{\"start\":\"...\",\"kwh\":0.4}]",
+              "it": "[{\"start\":\"...\",\"kwh\":0.4}]"
             }
           }
         ],
@@ -2371,11 +2685,15 @@
       {
         "title": {
           "en": "Set silent mode",
-          "de": "Silent-Modus setzen"
+          "de": "Silent-Modus setzen",
+          "fr": "Définir le mode silencieux",
+          "it": "Imposta la modalità silenziosa"
         },
         "titleFormatted": {
           "en": "Set silent mode [[mode]]",
-          "de": "Silent-Modus [[mode]]"
+          "de": "Silent-Modus [[mode]]",
+          "fr": "Mode silencieux : [[mode]]",
+          "it": "Modalità silenziosa: [[mode]]"
         },
         "args": [
           {
@@ -2388,21 +2706,27 @@
             "name": "mode",
             "title": {
               "en": "Mode",
-              "de": "Modus"
+              "de": "Modus",
+              "fr": "Mode",
+              "it": "Modalità"
             },
             "values": [
               {
                 "id": "on",
                 "title": {
                   "en": "on (simulate only)",
-                  "de": "ein (nur simulieren)"
+                  "de": "ein (nur simulieren)",
+                  "fr": "activé (simulation uniquement)",
+                  "it": "attiva (solo simulazione)"
                 }
               },
               {
                 "id": "off",
                 "title": {
                   "en": "off (switch for real)",
-                  "de": "aus (wirklich schalten)"
+                  "de": "aus (wirklich schalten)",
+                  "fr": "désactivé (commuter réellement)",
+                  "it": "disattivata (commuta davvero)"
                 }
               }
             ]

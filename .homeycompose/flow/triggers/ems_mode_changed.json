@@ -1,17 +1,21 @@
 {
   "title": {
     "en": "The energy management mode changed",
-    "de": "Der Modus des Energiemanagements hat gewechselt"
+    "de": "Der Modus des Energiemanagements hat gewechselt",
+    "fr": "Le mode de la gestion de l’énergie a changé",
+    "it": "La modalità della gestione dell’energia è cambiata"
   },
   "hint": {
     "en": "Fires when the mode changes, for example from waiting for surplus to charging from solar.",
-    "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom»."
+    "de": "Wird ausgelöst, wenn der Modus wechselt, zum Beispiel von «wartet auf Überschuss» zu «lädt mit Solarstrom».",
+    "fr": "Se déclenche quand le mode change, par exemple de l’attente de surplus à la charge solaire.",
+    "it": "Scatta quando la modalità cambia, ad esempio da in attesa di eccedenza a carica da solare."
   },
   "args": [
     { "type": "device", "name": "device", "filter": "driver_id=ems" }
   ],
   "tokens": [
-    { "name": "mode", "type": "string", "title": { "en": "Mode", "de": "Modus" }, "example": "solar_ev" },
-    { "name": "status", "type": "string", "title": { "en": "Status", "de": "Status" }, "example": "16A/3ph" }
+    { "name": "mode", "type": "string", "title": { "en": "Mode", "de": "Modus", "fr": "Mode", "it": "Modalità" }, "example": "solar_ev" },
+    { "name": "status", "type": "string", "title": { "en": "Status", "de": "Status", "fr": "Statut", "it": "Stato" }, "example": "16A/3ph" }
   ]
 }

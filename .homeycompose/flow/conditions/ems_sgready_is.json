@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "SG Ready state !{{is|isn't}}...",
-    "de": "SG-Ready-Zustand !{{ist|ist nicht}}..."
+    "de": "SG-Ready-Zustand !{{ist|ist nicht}}...",
+    "fr": "L’état SG Ready !{{est|n'est pas}}...",
+    "it": "Lo stato SG Ready !{{è|non è}}..."
   },
   "titleFormatted": {
     "en": "SG Ready state !{{is|isn't}} [[state]]",
-    "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]"
+    "de": "SG-Ready-Zustand !{{ist|ist nicht}} [[state]]",
+    "fr": "L’état SG Ready !{{est|n'est pas}} [[state]]",
+    "it": "Lo stato SG Ready !{{è|non è}} [[state]]"
   },
   "args": [
     {
@@ -18,28 +22,36 @@
       "name": "state",
       "title": {
         "en": "State",
-        "de": "Zustand"
+        "de": "Zustand",
+        "fr": "État",
+        "it": "Stato"
       },
       "values": [
         {
           "id": "normal",
           "label": {
             "en": "Normal operation (0:0)",
-            "de": "Normalbetrieb (0:0)"
+            "de": "Normalbetrieb (0:0)",
+            "fr": "Fonctionnement normal (0:0)",
+            "it": "Funzionamento normale (0:0)"
           }
         },
         {
           "id": "boost",
           "label": {
             "en": "Recommendation (0:1)",
-            "de": "Empfehlung (0:1)"
+            "de": "Empfehlung (0:1)",
+            "fr": "Recommandation (0:1)",
+            "it": "Raccomandazione (0:1)"
           }
         },
         {
           "id": "forced",
           "label": {
             "en": "Forced charging (1:1)",
-            "de": "Zwangsladung (1:1)"
+            "de": "Zwangsladung (1:1)",
+            "fr": "Charge forcée (1:1)",
+            "it": "Carica forzata (1:1)"
           }
         }
       ]

@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "The energy management gives a command",
-    "de": "Das Energiemanagement gibt einen Befehl"
+    "de": "Das Energiemanagement gibt einen Befehl",
+    "fr": "La gestion de l’énergie donne une commande",
+    "it": "La gestione dell’energia dà un comando"
   },
   "titleFormatted": {
     "en": "The energy management gives the command [[command]]",
-    "de": "Das Energiemanagement gibt den Befehl [[command]]"
+    "de": "Das Energiemanagement gibt den Befehl [[command]]",
+    "fr": "La gestion de l’énergie donne la commande [[command]]",
+    "it": "La gestione dell’energia dà il comando [[command]]"
   },
   "hint": {
     "en": "Fires when the app wants a device to do something: charge or hold the home battery, start or stop the EV charger, switch a consumer, set SG Ready. Add a flow with this trigger and put the action card of YOUR device after it (any brand). The values (power, target charge level ...) are available as tags. Only live (not in test mode).",
-    "de": "Wird ausgelöst, wenn die App von einem Gerät etwas will: die Hausbatterie laden oder halten, die Wallbox starten oder stoppen, einen Verbraucher schalten, SG-Ready setzen. Lege einen Flow mit diesem Auslöser an und setze die Aktionskarte DEINES Geräts dahinter (egal welche Marke). Die Werte (Leistung, Ziel-Ladestand ...) stehen als Tags zur Verfügung. Nur live (nicht im Testmodus)."
+    "de": "Wird ausgelöst, wenn die App von einem Gerät etwas will: die Hausbatterie laden oder halten, die Wallbox starten oder stoppen, einen Verbraucher schalten, SG-Ready setzen. Lege einen Flow mit diesem Auslöser an und setze die Aktionskarte DEINES Geräts dahinter (egal welche Marke). Die Werte (Leistung, Ziel-Ladestand ...) stehen als Tags zur Verfügung. Nur live (nicht im Testmodus).",
+    "fr": "Se déclenche quand l’app veut qu’un appareil fasse quelque chose : charger ou maintenir la batterie domestique, démarrer ou arrêter la wallbox, commuter un consommateur, régler SG Ready. Créez un Flow avec ce déclencheur et placez derrière la carte d’action de VOTRE appareil (toute marque). Les valeurs (puissance, niveau de charge cible …) sont disponibles comme tags. Uniquement en mode réel (pas en mode test).",
+    "it": "Scatta quando l’app vuole che un dispositivo faccia qualcosa: caricare o mantenere la batteria domestica, avviare o fermare la wallbox, commutare un consumatore, impostare SG Ready. Crea un Flow con questo trigger e inserisci dopo di esso la card azione del TUO dispositivo (di qualsiasi marca). I valori (potenza, livello di carica obiettivo …) sono disponibili come tag. Solo in modalità reale (non in modalità test)."
   },
   "args": [
     {
@@ -17,11 +23,15 @@
       "name": "command",
       "title": {
         "en": "Command",
-        "de": "Befehl"
+        "de": "Befehl",
+        "fr": "Commande",
+        "it": "Comando"
       },
       "placeholder": {
         "en": "Choose a command",
-        "de": "Befehl wählen"
+        "de": "Befehl wählen",
+        "fr": "Choisir une commande",
+        "it": "Scegli un comando"
       }
     }
   ],
@@ -31,7 +41,9 @@
       "type": "string",
       "title": {
         "en": "Command (ID)",
-        "de": "Befehl (ID)"
+        "de": "Befehl (ID)",
+        "fr": "Commande (ID)",
+        "it": "Comando (ID)"
       },
       "example": "battery.charge"
     },
@@ -40,7 +52,9 @@
       "type": "string",
       "title": {
         "en": "Command (text)",
-        "de": "Befehl (Text)"
+        "de": "Befehl (Text)",
+        "fr": "Commande (texte)",
+        "it": "Comando (testo)"
       },
       "example": "Batterie: aus dem Netz laden"
     },
@@ -49,7 +63,9 @@
       "type": "number",
       "title": {
         "en": "Power (W)",
-        "de": "Leistung (W)"
+        "de": "Leistung (W)",
+        "fr": "Puissance (W)",
+        "it": "Potenza (W)"
       },
       "example": 5000
     },
@@ -58,7 +74,9 @@
       "type": "number",
       "title": {
         "en": "Target charge level (%)",
-        "de": "Ziel-Ladestand (%)"
+        "de": "Ziel-Ladestand (%)",
+        "fr": "Niveau de charge cible (%)",
+        "it": "Livello di carica obiettivo (%)"
       },
       "example": 90
     },
@@ -67,7 +85,9 @@
       "type": "number",
       "title": {
         "en": "Maximum discharge power (W)",
-        "de": "Maximale Entladeleistung (W)"
+        "de": "Maximale Entladeleistung (W)",
+        "fr": "Puissance de décharge maximale (W)",
+        "it": "Potenza di scarica massima (W)"
       },
       "example": 7000
     },
@@ -76,7 +96,9 @@
       "type": "number",
       "title": {
         "en": "Current per phase (A)",
-        "de": "Strom pro Phase (A)"
+        "de": "Strom pro Phase (A)",
+        "fr": "Courant par phase (A)",
+        "it": "Corrente per fase (A)"
       },
       "example": 16
     },
@@ -85,7 +107,9 @@
       "type": "number",
       "title": {
         "en": "Number of phases",
-        "de": "Anzahl Phasen"
+        "de": "Anzahl Phasen",
+        "fr": "Nombre de phases",
+        "it": "Numero di fasi"
       },
       "example": 3
     }

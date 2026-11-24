@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Pause or resume SG Ready / hot-water program",
-    "de": "SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen"
+    "de": "SG-Ready oder Warmwasser-Programm pausieren oder fortsetzen",
+    "fr": "Mettre en pause ou reprendre SG Ready / programme eau chaude",
+    "it": "Metti in pausa o riprendi SG Ready / programma acqua calda"
   },
   "titleFormatted": {
     "en": "[[mode]] [[module]]",
-    "de": "[[module]] [[mode]]"
+    "de": "[[module]] [[mode]]",
+    "fr": "[[mode]] [[module]]",
+    "it": "[[mode]] [[module]]"
   },
   "hint": {
     "en": "Pausing ends a running run at once and blocks new starts until it is resumed. Resuming only lifts the pause; it does not switch on a module that is switched off in the settings.",
-    "de": "Pausieren beendet einen laufenden Lauf sofort und sperrt neue Starts, bis es fortgesetzt wird. Fortsetzen hebt nur die Pause auf, ein in den Einstellungen ausgeschaltetes Modul wird dadurch nicht eingeschaltet."
+    "de": "Pausieren beendet einen laufenden Lauf sofort und sperrt neue Starts, bis es fortgesetzt wird. Fortsetzen hebt nur die Pause auf, ein in den Einstellungen ausgeschaltetes Modul wird dadurch nicht eingeschaltet.",
+    "fr": "La pause termine immédiatement un cycle en cours et bloque les nouveaux démarrages jusqu’à la reprise. La reprise lève seulement la pause ; elle n’active pas un module désactivé dans les réglages.",
+    "it": "La pausa termina subito un ciclo in corso e blocca nuovi avvii fino alla ripresa. La ripresa toglie solo la pausa; non attiva un modulo disattivato nelle impostazioni."
   },
   "args": [
     {
@@ -22,21 +28,27 @@
       "name": "module",
       "title": {
         "en": "Module",
-        "de": "Modul"
+        "de": "Modul",
+        "fr": "Module",
+        "it": "Modulo"
       },
       "values": [
         {
           "id": "sgready",
           "title": {
             "en": "SG Ready (heat up)",
-            "de": "SG-Ready (Aufheizen)"
+            "de": "SG-Ready (Aufheizen)",
+            "fr": "SG Ready (chauffer)",
+            "it": "SG Ready (riscaldare)"
           }
         },
         {
           "id": "dhw",
           "title": {
             "en": "Hot-water program",
-            "de": "Warmwasser-Programm"
+            "de": "Warmwasser-Programm",
+            "fr": "Programme eau chaude",
+            "it": "Programma acqua calda"
           }
         }
       ]
@@ -46,21 +58,27 @@
       "name": "mode",
       "title": {
         "en": "Action",
-        "de": "Aktion"
+        "de": "Aktion",
+        "fr": "Action",
+        "it": "Azione"
       },
       "values": [
         {
           "id": "pause",
           "title": {
             "en": "pause",
-            "de": "pausieren"
+            "de": "pausieren",
+            "fr": "mettre en pause",
+            "it": "metti in pausa"
           }
         },
         {
           "id": "resume",
           "title": {
             "en": "resume",
-            "de": "fortsetzen"
+            "de": "fortsetzen",
+            "fr": "reprendre",
+            "it": "riprendi"
           }
         }
       ]

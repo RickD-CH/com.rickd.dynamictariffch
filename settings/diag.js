@@ -16,6 +16,30 @@
       make: 'Create diagnostics', again: 'Create again', copy: 'Copy', copied: 'Copied.', selected: 'Text selected, copy with Ctrl+C (Mac: Cmd+C).',
       issue: 'Open GitHub issue', loading: 'Creating …', failed: 'The diagnostics could not be created.',
     },
+    fr: {
+      title: 'Signaler une erreur : copier le diagnostic',
+      why: 'Crée un texte avec la version de l’app, un résumé de votre configuration et les derniers messages de l’app. Les noms d’appareils, de Flows et de consommateurs sont remplacés par des numéros ; les identifiants, ID et numéros sont supprimés. Rien n’est envoyé automatiquement : lisez le texte et collez-le vous-même dans un message ou une issue GitHub.',
+      make: 'Créer le diagnostic',
+      again: 'Recréer',
+      copy: 'Copier',
+      copied: 'Copié.',
+      selected: 'Texte sélectionné, copiez avec Ctrl+C (Mac : Cmd+C).',
+      issue: 'Ouvrir une issue GitHub',
+      loading: 'Création …',
+      failed: 'Le diagnostic n’a pas pu être créé.',
+    },
+    it: {
+      title: 'Segnala un errore: copia la diagnostica',
+      why: 'Crea un testo con la versione dell’app, un riepilogo della tua configurazione e gli ultimi messaggi dell’app. I nomi di dispositivi, Flow e consumatori sono sostituiti da numeri; credenziali, ID e numeri sono rimossi. Non viene inviato nulla automaticamente: leggi il testo e incollalo tu stesso in un messaggio o in una issue di GitHub.',
+      make: 'Crea la diagnostica',
+      again: 'Crea di nuovo',
+      copy: 'Copia',
+      copied: 'Copiato.',
+      selected: 'Testo selezionato, copia con Ctrl+C (Mac: Cmd+C).',
+      issue: 'Apri una issue di GitHub',
+      loading: 'Creazione …',
+      failed: 'Non è stato possibile creare la diagnostica.',
+    },
   };
   var ISSUES = 'https://github.com/RickD-CH/com.rickd.dynamictariffch/issues/new';
 

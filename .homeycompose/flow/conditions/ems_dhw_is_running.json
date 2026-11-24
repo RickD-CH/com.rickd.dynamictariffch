@@ -1,7 +1,9 @@
 {
   "title": {
     "en": "The hot-water program !{{is|isn't}} running",
-    "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}"
+    "de": "Das Warmwasser-Programm !{{läuft|läuft nicht}}",
+    "fr": "Le programme eau chaude !{{est|n'est pas}} en cours",
+    "it": "Il programma acqua calda !{{è|non è}} in corso"
   },
   "args": [
     {

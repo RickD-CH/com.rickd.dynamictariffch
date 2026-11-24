@@ -179,5 +179,50 @@
     "pauseOff": "Pausiert: startet nicht. Einschalten gibt wieder frei.",
     "autoOn": "Automatik ein: startet einmal selbst, bei PV-Überschuss oder im günstigsten Block, danach geht sie aus",
     "autoOff": "Automatik aus: Wartezeit wählen und einschalten, dann startet es einmal selbst. Sonst nur manuell mit «Starten»"
+  },
+  "refs": {
+    "title": "Verweise prüfen",
+    "warnShort": "Gelöscht",
+    "more": "+{n} weitere",
+    "hint": "Gerät oder Flow wurde in Homey gelöscht. Einstellungen → Einrichten, dort ist der Verweis markiert.",
+    "area": {
+      "grid": "Netz-Zähler",
+      "pv": "PV-Inverter",
+      "house": "Hausverbrauch",
+      "battery": "Batterie",
+      "charger": "Wallbox",
+      "car": "E-Auto",
+      "forecast": "PV-Prognose",
+      "consumer": "Verbraucher",
+      "fuse": "Hausanschluss-Schutz",
+      "sgready": "SG-Ready",
+      "dhw": "Warmwasser"
+    },
+    "field": {
+      "sensor": "Fühler",
+      "mode": "Betriebsart",
+      "feedback": "Rückmeldung",
+      "relay": "Relais",
+      "forceRelay": "Zwangs-Relais",
+      "heating": "Statusfeld",
+      "target": "Soll",
+      "output": "Ausgabe",
+      "meter": "Zähler",
+      "shed": "Abschaltgerät",
+      "shedFlow": "Abschalt-Flow",
+      "accu": "Akku-Fühler",
+      "humidity": "Feuchte-Fühler",
+      "flowOn": "Flow ein",
+      "flowOff": "Flow aus",
+      "flowNormal": "Flow Normal",
+      "flowBoost": "Flow Empfehlung",
+      "flowForced": "Flow Zwang",
+      "flowDelay": "Flow Verzögern"
+    },
+    "problem": {
+      "device": "Gerät gelöscht",
+      "flow": "Flow gelöscht",
+      "capability": "Capability fehlt"
+    }
   }
 }

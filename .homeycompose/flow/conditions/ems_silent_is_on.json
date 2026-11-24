@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Silent mode !{{is|is not}} on",
-    "de": "Silent-Modus !{{ist|ist nicht}} an"
+    "de": "Silent-Modus !{{ist|ist nicht}} an",
+    "fr": "Le mode silencieux !{{est|n'est pas}} activé",
+    "it": "La modalità silenziosa !{{è|non è}} attiva"
   },
   "hint": {
     "en": "Silent mode: everything is only simulated, nothing is switched.",
-    "de": "Silent-Modus: alles wird nur simuliert, nichts wird geschaltet."
+    "de": "Silent-Modus: alles wird nur simuliert, nichts wird geschaltet.",
+    "fr": "Mode silencieux : tout est seulement simulé, rien n’est commuté.",
+    "it": "Modalità silenziosa: tutto viene solo simulato, nulla viene commutato."
   },
   "args": [
     {

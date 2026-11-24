@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Backup reserve !{{is|is not}} on",
-    "de": "Notstrom-Reserve !{{ist|ist nicht}} ein"
+    "de": "Notstrom-Reserve !{{ist|ist nicht}} ein",
+    "fr": "La réserve de secours !{{est|n'est pas}} activée",
+    "it": "La riserva di emergenza !{{è|non è}} attiva"
   },
   "hint": {
     "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price.",
-    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis."
+    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis.",
+    "fr": "Réserve de secours : maintient au moins le niveau de batterie configuré, en chargeant depuis le réseau si nécessaire, quel que soit le prix.",
+    "it": "Riserva di emergenza: mantiene almeno il livello di batteria configurato, caricando dalla rete se necessario, indipendentemente dal prezzo."
   },
   "args": [
     {

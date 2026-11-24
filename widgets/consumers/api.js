@@ -8,7 +8,7 @@ module.exports = {
     const ems = homey.app && homey.app.ems;
     if (!ems || !ems.hasDevice()) return { ems: false };
     return consumersWidget({
-      shadow: ems.getShadow(), consumerCurrent: ems.runner ? ems.runner.consumerCurrent : [], tz: homey.clock.getTimezone(),
+      shadow: ems.getShadow(), consumerCurrent: ems.runner ? ems.runner.consumerCurrent : [], tz: homey.clock.getTimezone(), refCheck: ems.refCheckResult(),
     });
   },
 

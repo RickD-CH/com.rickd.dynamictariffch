@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Set the solar forecast factor",
-    "de": "Korrekturfaktor der PV-Prognose setzen"
+    "de": "Korrekturfaktor der PV-Prognose setzen",
+    "fr": "Définir le facteur de la prévision solaire",
+    "it": "Imposta il fattore della previsione solare"
   },
   "titleFormatted": {
     "en": "Set the solar forecast factor to [[factor]]",
-    "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]"
+    "de": "Korrekturfaktor der PV-Prognose setzen auf [[factor]]",
+    "fr": "Définir le facteur de la prévision solaire sur [[factor]]",
+    "it": "Imposta il fattore della previsione solare su [[factor]]"
   },
   "hint": {
     "en": "Multiplies every value of the fed solar forecast, for example 0.75 if the forecast is usually 25 % too high. Also usable from a Flow that learns the factor.",
-    "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt."
+    "de": "Multipliziert jeden Wert der eingelieferten PV-Prognose, zum Beispiel 0.75, wenn die Prognose meist 25 % zu hoch liegt. Auch aus einem Flow nutzbar, der den Faktor lernt.",
+    "fr": "Multiplie chaque valeur de la prévision solaire fournie, par exemple 0,75 si la prévision est en général trop élevée de 25 %. Utilisable aussi depuis un Flow qui apprend le facteur.",
+    "it": "Moltiplica ogni valore della previsione solare fornita, ad esempio 0,75 se la previsione è di solito troppo alta del 25 %. Utilizzabile anche da un Flow che impara il fattore."
   },
   "args": [
     {
@@ -22,14 +28,18 @@
       "name": "factor",
       "title": {
         "en": "Factor",
-        "de": "Faktor"
+        "de": "Faktor",
+        "fr": "Facteur",
+        "it": "Fattore"
       },
       "min": 0.1,
       "max": 3,
       "step": 0.01,
       "placeholder": {
         "en": "0.75",
-        "de": "0.75"
+        "de": "0.75",
+        "fr": "0.75",
+        "it": "0.75"
       }
     }
   ]

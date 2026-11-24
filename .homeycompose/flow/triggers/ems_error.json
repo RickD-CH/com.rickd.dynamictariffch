@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "An error occurred",
-    "de": "Ein Fehler ist aufgetreten"
+    "de": "Ein Fehler ist aufgetreten",
+    "fr": "Une erreur est survenue",
+    "it": "Si è verificato un errore"
   },
   "hint": {
     "en": "Fires once when a new problem appears (meter or charger not readable, battery command failed, prices or forecast missing).",
-    "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen)."
+    "de": "Wird einmal ausgelöst, wenn ein neues Problem auftritt (Zähler oder Wallbox nicht lesbar, Batterie-Befehl fehlgeschlagen, Preise oder Prognose fehlen).",
+    "fr": "Se déclenche une fois quand un nouveau problème apparaît (compteur ou wallbox illisible, commande de batterie échouée, prix ou prévision manquants).",
+    "it": "Scatta una volta quando compare un nuovo problema (contatore o wallbox non leggibile, comando della batteria non riuscito, prezzi o previsione mancanti)."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "string",
       "title": {
         "en": "Area",
-        "de": "Bereich"
+        "de": "Bereich",
+        "fr": "Domaine",
+        "it": "Area"
       },
       "example": "charger"
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "Message",
-        "de": "Meldung"
+        "de": "Meldung",
+        "fr": "Message",
+        "it": "Messaggio"
       },
       "example": "Netzzähler nicht lesbar"
     }

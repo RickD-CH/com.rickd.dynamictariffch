@@ -1,7 +1,9 @@
 {
   "title": {
     "en": "EV: use the weekly template again",
-    "de": "E-Auto: Wochenvorlage gilt wieder"
+    "de": "E-Auto: Wochenvorlage gilt wieder",
+    "fr": "Voiture : utiliser de nouveau le modèle hebdomadaire",
+    "it": "Auto: usa di nuovo il modello settimanale"
   },
   "args": [
     {

@@ -1,7 +1,9 @@
 {
   "title": {
     "en": "The EV reached its target",
-    "de": "Das E-Auto hat sein Ziel erreicht"
+    "de": "Das E-Auto hat sein Ziel erreicht",
+    "fr": "La voiture a atteint son objectif",
+    "it": "L’auto ha raggiunto il suo obiettivo"
   },
   "args": [
     {
@@ -16,7 +18,9 @@
       "type": "number",
       "title": {
         "en": "Charge level (%)",
-        "de": "Ladestand (%)"
+        "de": "Ladestand (%)",
+        "fr": "Niveau de charge (%)",
+        "it": "Livello di carica (%)"
       },
       "example": 80
     },
@@ -25,7 +29,9 @@
       "type": "number",
       "title": {
         "en": "Target (%)",
-        "de": "Ziel (%)"
+        "de": "Ziel (%)",
+        "fr": "Objectif (%)",
+        "it": "Obiettivo (%)"
       },
       "example": 80
     }

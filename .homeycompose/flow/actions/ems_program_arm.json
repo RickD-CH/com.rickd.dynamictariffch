@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Switch the automatic of a program device on or off",
-    "de": "Automatik eines Programm-Geräts ein- oder ausschalten"
+    "de": "Automatik eines Programm-Geräts ein- oder ausschalten",
+    "fr": "Activer ou désactiver l’automatique d’un appareil à programme",
+    "it": "Attiva o disattiva l’automatico di un dispositivo a programma"
   },
   "titleFormatted": {
     "en": "Automatic of [[consumer]] [[mode]], wait [[wait]] h",
-    "de": "Automatik von [[consumer]] [[mode]], Wartezeit [[wait]] h"
+    "de": "Automatik von [[consumer]] [[mode]], Wartezeit [[wait]] h",
+    "fr": "Automatique de [[consumer]] : [[mode]], attente [[wait]] h",
+    "it": "Automatico di [[consumer]]: [[mode]], attesa [[wait]] h"
   },
   "hint": {
     "en": "With the automatic on, the device starts once by itself: on PV surplus, in the cheapest block of the program duration, or at the latest when the wait is over. Then the automatic switches itself off. The wait (1 to 12 h) is optional; without it the default wait of the device applies.",
-    "de": "Mit eingeschalteter Automatik startet das Gerät einmal selbst: bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit. Danach geht die Automatik von selbst aus. Die Wartezeit (1 bis 12 h) ist optional, ohne sie gilt die Standard-Wartezeit des Geräts."
+    "de": "Mit eingeschalteter Automatik startet das Gerät einmal selbst: bei PV-Überschuss, im günstigsten Block der Programmdauer oder spätestens am Ende der Wartezeit. Danach geht die Automatik von selbst aus. Die Wartezeit (1 bis 12 h) ist optional, ohne sie gilt die Standard-Wartezeit des Geräts.",
+    "fr": "Avec l’automatique activé, l’appareil démarre une fois de lui-même : en cas de surplus PV, dans le bloc le moins cher de la durée du programme, ou au plus tard à la fin de l’attente. Ensuite l’automatique se désactive. L’attente (1 à 12 h) est facultative ; sans elle, l’attente par défaut de l’appareil s’applique.",
+    "it": "Con l’automatico attivo, il dispositivo parte una volta da solo: con eccedenza FV, nel blocco più conveniente della durata del programma o al più tardi alla fine dell’attesa. Poi l’automatico si disattiva da solo. L’attesa (da 1 a 12 h) è facoltativa; senza di essa vale l’attesa predefinita del dispositivo."
   },
   "args": [
     {
@@ -22,11 +28,15 @@
       "name": "consumer",
       "title": {
         "en": "Program device",
-        "de": "Programm-Gerät"
+        "de": "Programm-Gerät",
+        "fr": "Appareil à programme",
+        "it": "Dispositivo a programma"
       },
       "placeholder": {
         "en": "Choose a device",
-        "de": "Gerät wählen"
+        "de": "Gerät wählen",
+        "fr": "Choisir un appareil",
+        "it": "Scegli un dispositivo"
       }
     },
     {
@@ -34,21 +44,27 @@
       "name": "mode",
       "title": {
         "en": "Automatic",
-        "de": "Automatik"
+        "de": "Automatik",
+        "fr": "Automatique",
+        "it": "Automatico"
       },
       "values": [
         {
           "id": "on",
           "title": {
             "en": "on",
-            "de": "ein"
+            "de": "ein",
+            "fr": "activé",
+            "it": "attivo"
           }
         },
         {
           "id": "off",
           "title": {
             "en": "off",
-            "de": "aus"
+            "de": "aus",
+            "fr": "désactivé",
+            "it": "disattivato"
           }
         }
       ]
@@ -62,11 +78,15 @@
       "step": 1,
       "title": {
         "en": "Wait (h, optional)",
-        "de": "Wartezeit (h, optional)"
+        "de": "Wartezeit (h, optional)",
+        "fr": "Attente (h, facultatif)",
+        "it": "Attesa (h, facoltativa)"
       },
       "placeholder": {
         "en": "default wait",
-        "de": "Standard-Wartezeit"
+        "de": "Standard-Wartezeit",
+        "fr": "attente par défaut",
+        "it": "attesa predefinita"
       }
     }
   ]

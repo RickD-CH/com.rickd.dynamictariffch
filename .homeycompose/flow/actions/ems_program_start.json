@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Start a program device now",
-    "de": "Programm-Gerät jetzt starten"
+    "de": "Programm-Gerät jetzt starten",
+    "fr": "Démarrer maintenant un appareil à programme",
+    "it": "Avvia ora un dispositivo a programma"
   },
   "titleFormatted": {
     "en": "Start [[consumer]] now",
-    "de": "[[consumer]] jetzt starten"
+    "de": "[[consumer]] jetzt starten",
+    "fr": "Démarrer [[consumer]] maintenant",
+    "it": "Avvia [[consumer]] ora"
   },
   "hint": {
     "en": "Starts the chosen program device (dishwasher, washing machine, dryer) right now, regardless of surplus and price. It still checks remote control, door and status of the device. Only works for devices set up as \"Start a program\".",
-    "de": "Startet das gewählte Programm-Gerät (Geschirrspüler, Waschmaschine, Tumbler) sofort, unabhängig von Überschuss und Preis. Fernbedienung, Tür und Status des Geräts werden weiterhin geprüft. Nur für Geräte, die als «Programm starten» eingerichtet sind."
+    "de": "Startet das gewählte Programm-Gerät (Geschirrspüler, Waschmaschine, Tumbler) sofort, unabhängig von Überschuss und Preis. Fernbedienung, Tür und Status des Geräts werden weiterhin geprüft. Nur für Geräte, die als «Programm starten» eingerichtet sind.",
+    "fr": "Démarre immédiatement l’appareil à programme choisi (lave-vaisselle, lave-linge, sèche-linge), quel que soit le surplus et le prix. Il vérifie quand même la télécommande, la porte et l’état de l’appareil. Fonctionne uniquement pour les appareils configurés comme « Démarrer un programme ».",
+    "it": "Avvia subito il dispositivo a programma scelto (lavastoviglie, lavatrice, asciugatrice), indipendentemente da eccedenza e prezzo. Controlla comunque telecomando, sportello e stato del dispositivo. Funziona solo per dispositivi configurati come «Avvia un programma»."
   },
   "args": [
     {
@@ -22,11 +28,15 @@
       "name": "consumer",
       "title": {
         "en": "Program device",
-        "de": "Programm-Gerät"
+        "de": "Programm-Gerät",
+        "fr": "Appareil à programme",
+        "it": "Dispositivo a programma"
       },
       "placeholder": {
         "en": "Choose a device",
-        "de": "Gerät wählen"
+        "de": "Gerät wählen",
+        "fr": "Choisir un appareil",
+        "it": "Scegli un dispositivo"
       }
     }
   ]

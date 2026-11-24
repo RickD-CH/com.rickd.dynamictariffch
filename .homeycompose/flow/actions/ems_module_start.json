@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Start SG Ready / hot-water program now",
-    "de": "SG-Ready oder Warmwasser-Programm jetzt starten"
+    "de": "SG-Ready oder Warmwasser-Programm jetzt starten",
+    "fr": "Démarrer maintenant SG Ready / programme eau chaude",
+    "it": "Avvia ora SG Ready / programma acqua calda"
   },
   "titleFormatted": {
     "en": "Start [[module]] now",
-    "de": "[[module]] jetzt starten"
+    "de": "[[module]] jetzt starten",
+    "fr": "Démarrer [[module]] maintenant",
+    "it": "Avvia [[module]] ora"
   },
   "hint": {
     "en": "Starts the chosen module right now, without waiting for sun or price. SG Ready heats until the target temperature or the maximum run time (180 min if none is set); the hot-water program ends at the target temperature or the maximum run time. Does not start while the heat pump is already preparing hot water (if a status field is set), when the module is off or paused.",
-    "de": "Startet das gewählte Modul sofort, ohne auf Sonne oder Preis zu warten. SG-Ready heizt bis zur Zieltemperatur oder zur Höchstdauer (180 Min., falls keine eingestellt ist); das Warmwasser-Programm endet bei der Zieltemperatur oder der Höchstdauer. Startet nicht, solange die Wärmepumpe schon selbst Warmwasser bereitet (wenn ein Statusfeld eingetragen ist), und nicht bei ausgeschaltetem oder pausiertem Modul."
+    "de": "Startet das gewählte Modul sofort, ohne auf Sonne oder Preis zu warten. SG-Ready heizt bis zur Zieltemperatur oder zur Höchstdauer (180 Min., falls keine eingestellt ist); das Warmwasser-Programm endet bei der Zieltemperatur oder der Höchstdauer. Startet nicht, solange die Wärmepumpe schon selbst Warmwasser bereitet (wenn ein Statusfeld eingetragen ist), und nicht bei ausgeschaltetem oder pausiertem Modul.",
+    "fr": "Démarre immédiatement le module choisi, sans attendre le soleil ni le prix. SG Ready chauffe jusqu’à la température cible ou la durée maximale (180 min si aucune n’est définie) ; le programme eau chaude se termine à la température cible ou à la durée maximale. Ne démarre pas si la pompe à chaleur prépare déjà l’eau chaude (si un champ d’état est défini), ni si le module est désactivé ou en pause.",
+    "it": "Avvia subito il modulo scelto, senza attendere sole o prezzo. SG Ready riscalda fino alla temperatura obiettivo o alla durata massima (180 min se non è impostata); il programma acqua calda termina alla temperatura obiettivo o alla durata massima. Non parte se la pompa di calore sta già preparando l’acqua calda (se è impostato un campo di stato), né se il modulo è disattivato o in pausa."
   },
   "args": [
     {
@@ -22,21 +28,27 @@
       "name": "module",
       "title": {
         "en": "Module",
-        "de": "Modul"
+        "de": "Modul",
+        "fr": "Module",
+        "it": "Modulo"
       },
       "values": [
         {
           "id": "sgready",
           "title": {
             "en": "SG Ready (heat up)",
-            "de": "SG-Ready (Aufheizen)"
+            "de": "SG-Ready (Aufheizen)",
+            "fr": "SG Ready (chauffer)",
+            "it": "SG Ready (riscaldare)"
           }
         },
         {
           "id": "dhw",
           "title": {
             "en": "Hot-water program",
-            "de": "Warmwasser-Programm"
+            "de": "Warmwasser-Programm",
+            "fr": "Programme eau chaude",
+            "it": "Programma acqua calda"
           }
         }
       ]

@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Turn charge now on or off",
-    "de": "Sofort laden ein- oder ausschalten"
+    "de": "Sofort laden ein- oder ausschalten",
+    "fr": "Activer ou désactiver la charge immédiate",
+    "it": "Attiva o disattiva la carica immediata"
   },
   "titleFormatted": {
     "en": "Turn charge now [[mode]]",
-    "de": "Sofort laden [[mode]]"
+    "de": "Sofort laden [[mode]]",
+    "fr": "Charge immédiate : [[mode]]",
+    "it": "Carica immediata: [[mode]]"
   },
   "hint": {
     "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar. Like the switch on the energy management device.",
-    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement."
+    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen. Wie der Schalter am Gerät Energiemanagement.",
+    "fr": "Charge immédiate : la wallbox charge la voiture à pleine puissance, quel que soit le prix et le solaire. Comme l’interrupteur de l’appareil de gestion de l’énergie.",
+    "it": "Carica immediata: la wallbox carica l’auto a piena potenza, indipendentemente da prezzo e solare. Come l’interruttore del dispositivo di gestione dell’energia."
   },
   "args": [
     {
@@ -22,11 +28,13 @@
       "name": "mode",
       "title": {
         "en": "Mode",
-        "de": "Modus"
+        "de": "Modus",
+        "fr": "Mode",
+        "it": "Modalità"
       },
       "values": [
-        { "id": "on", "title": { "en": "on", "de": "ein" } },
-        { "id": "off", "title": { "en": "off", "de": "aus" } }
+        { "id": "on", "title": { "en": "on", "de": "ein", "fr": "activée", "it": "attiva" } },
+        { "id": "off", "title": { "en": "off", "de": "aus", "fr": "désactivée", "it": "disattivata" } }
       ]
     }
   ]

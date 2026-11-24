@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Set the EV target for today or tomorrow",
-    "de": "Ziel des E-Autos für heute oder morgen setzen"
+    "de": "Ziel des E-Autos für heute oder morgen setzen",
+    "fr": "Définir l’objectif de la voiture pour aujourd’hui ou demain",
+    "it": "Imposta l’obiettivo dell’auto per oggi o domani"
   },
   "titleFormatted": {
     "en": "EV: [[day]] [[soc]] % by [[time]], charge [[charge]]",
-    "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]"
+    "de": "E-Auto: [[day]] [[soc]] % bis [[time]], laden [[charge]]",
+    "fr": "Voiture : [[day]] [[soc]] % d’ici [[time]], charge [[charge]]",
+    "it": "Auto: [[day]] [[soc]] % entro le [[time]], carica [[charge]]"
   },
   "hint": {
     "en": "Overrides the weekly template on that day.",
-    "de": "Übersteuert die Wochenvorlage an diesem Tag."
+    "de": "Übersteuert die Wochenvorlage an diesem Tag.",
+    "fr": "Remplace le modèle hebdomadaire pour ce jour.",
+    "it": "Sostituisce il modello settimanale per quel giorno."
   },
   "args": [
     {
@@ -22,21 +28,27 @@
       "name": "day",
       "title": {
         "en": "Day",
-        "de": "Tag"
+        "de": "Tag",
+        "fr": "Jour",
+        "it": "Giorno"
       },
       "values": [
         {
           "id": "today",
           "title": {
             "en": "today",
-            "de": "heute"
+            "de": "heute",
+            "fr": "aujourd’hui",
+            "it": "oggi"
           }
         },
         {
           "id": "tomorrow",
           "title": {
             "en": "tomorrow",
-            "de": "morgen"
+            "de": "morgen",
+            "fr": "demain",
+            "it": "domani"
           }
         }
       ]
@@ -46,7 +58,9 @@
       "name": "soc",
       "title": {
         "en": "Target (%)",
-        "de": "Ziel (%)"
+        "de": "Ziel (%)",
+        "fr": "Objectif (%)",
+        "it": "Obiettivo (%)"
       },
       "min": 10,
       "max": 100,
@@ -57,7 +71,9 @@
       "name": "time",
       "title": {
         "en": "Departure",
-        "de": "Abfahrt"
+        "de": "Abfahrt",
+        "fr": "Départ",
+        "it": "Partenza"
       }
     },
     {
@@ -65,21 +81,27 @@
       "name": "charge",
       "title": {
         "en": "Charge",
-        "de": "Laden"
+        "de": "Laden",
+        "fr": "Charge",
+        "it": "Carica"
       },
       "values": [
         {
           "id": "yes",
           "title": {
             "en": "yes",
-            "de": "ja"
+            "de": "ja",
+            "fr": "oui",
+            "it": "sì"
           }
         },
         {
           "id": "no",
           "title": {
             "en": "no",
-            "de": "nein"
+            "de": "nein",
+            "fr": "non",
+            "it": "no"
           }
         }
       ]

@@ -1,26 +1,30 @@
 {
   "title": {
     "en": "Energy management mode !{{is|isn't}}...",
-    "de": "Modus des Energiemanagements !{{ist|ist nicht}}..."
+    "de": "Modus des Energiemanagements !{{ist|ist nicht}}...",
+    "fr": "Le mode de la gestion de l’énergie !{{est|n'est pas}}...",
+    "it": "La modalità della gestione dell’energia !{{è|non è}}..."
   },
   "titleFormatted": {
     "en": "Energy management mode !{{is|isn't}} [[mode]]",
-    "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]"
+    "de": "Modus des Energiemanagements !{{ist|ist nicht}} [[mode]]",
+    "fr": "Le mode de la gestion de l’énergie !{{est|n'est pas}} [[mode]]",
+    "it": "La modalità della gestione dell’energia !{{è|non è}} [[mode]]"
   },
   "args": [
     { "type": "device", "name": "device", "filter": "driver_id=ems" },
     {
       "type": "dropdown",
       "name": "mode",
-      "title": { "en": "Mode", "de": "Modus" },
+      "title": { "en": "Mode", "de": "Modus", "fr": "Mode", "it": "Modalità" },
       "values": [
-        { "id": "disabled", "label": { "en": "Off", "de": "Aus" } },
-        { "id": "idle", "label": { "en": "Idle", "de": "Bereit" } },
-        { "id": "holding", "label": { "en": "Waiting for surplus", "de": "Wartet auf Überschuss" } },
-        { "id": "solar_ev", "label": { "en": "Charging from solar", "de": "Lädt mit Solarstrom" } },
-        { "id": "instant_ev", "label": { "en": "Charging at full power", "de": "Lädt mit voller Leistung" } },
-        { "id": "battery_priority", "label": { "en": "Battery first", "de": "Batterie hat Vorrang" } },
-        { "id": "error", "label": { "en": "Error", "de": "Fehler" } }
+        { "id": "disabled", "label": { "en": "Off", "de": "Aus", "fr": "Désactivé", "it": "Spento" } },
+        { "id": "idle", "label": { "en": "Idle", "de": "Bereit", "fr": "Au repos", "it": "In attesa" } },
+        { "id": "holding", "label": { "en": "Waiting for surplus", "de": "Wartet auf Überschuss", "fr": "En attente de surplus", "it": "In attesa di eccedenza" } },
+        { "id": "solar_ev", "label": { "en": "Charging from solar", "de": "Lädt mit Solarstrom", "fr": "Charge solaire", "it": "Carica da solare" } },
+        { "id": "instant_ev", "label": { "en": "Charging at full power", "de": "Lädt mit voller Leistung", "fr": "Charge à pleine puissance", "it": "Carica a piena potenza" } },
+        { "id": "battery_priority", "label": { "en": "Battery first", "de": "Batterie hat Vorrang", "fr": "Batterie d’abord", "it": "Prima la batteria" } },
+        { "id": "error", "label": { "en": "Error", "de": "Fehler", "fr": "Erreur", "it": "Errore" } }
       ]
     }
   ]

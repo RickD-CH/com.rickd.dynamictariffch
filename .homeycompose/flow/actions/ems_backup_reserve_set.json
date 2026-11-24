@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Turn backup reserve on or off",
-    "de": "Notstrom-Reserve ein- oder ausschalten"
+    "de": "Notstrom-Reserve ein- oder ausschalten",
+    "fr": "Activer ou désactiver la réserve de secours",
+    "it": "Attiva o disattiva la riserva di emergenza"
   },
   "titleFormatted": {
     "en": "Turn backup reserve [[mode]]",
-    "de": "Notstrom-Reserve [[mode]]"
+    "de": "Notstrom-Reserve [[mode]]",
+    "fr": "Réserve de secours : [[mode]]",
+    "it": "Riserva di emergenza: [[mode]]"
   },
   "hint": {
     "en": "Backup reserve: keeps at least the configured battery level, charging from the grid if needed regardless of price. Like the switch on the energy management device.",
-    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement."
+    "de": "Notstrom-Reserve: hält mindestens den eingestellten Ladestand, lädt dafür notfalls aus dem Netz nach, egal zu welchem Preis. Wie der Schalter am Gerät Energiemanagement.",
+    "fr": "Réserve de secours : maintient au moins le niveau de batterie configuré, en chargeant depuis le réseau si nécessaire, quel que soit le prix. Comme l’interrupteur de l’appareil de gestion de l’énergie.",
+    "it": "Riserva di emergenza: mantiene almeno il livello di batteria configurato, caricando dalla rete se necessario, indipendentemente dal prezzo. Come l’interruttore del dispositivo di gestione dell’energia."
   },
   "args": [
     {
@@ -22,11 +28,13 @@
       "name": "mode",
       "title": {
         "en": "Mode",
-        "de": "Modus"
+        "de": "Modus",
+        "fr": "Mode",
+        "it": "Modalità"
       },
       "values": [
-        { "id": "on", "title": { "en": "on", "de": "ein" } },
-        { "id": "off", "title": { "en": "off", "de": "aus" } }
+        { "id": "on", "title": { "en": "on", "de": "ein", "fr": "activée", "it": "attiva" } },
+        { "id": "off", "title": { "en": "off", "de": "aus", "fr": "désactivée", "it": "disattivata" } }
       ]
     }
   ]

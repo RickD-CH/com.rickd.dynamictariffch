@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "The house connection is overloaded",
-    "de": "Der Hausanschluss ist überlastet"
+    "de": "Der Hausanschluss ist überlastet",
+    "fr": "Le raccordement est surchargé",
+    "it": "L’allacciamento è sovraccarico"
   },
   "hint": {
     "en": "Fires when a phase goes over the limit, when the EV charger is throttled and when a device is switched off. Also in silent mode or while the protection is not live: then it is only simulated and \"really switched\" is no.",
-    "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+    "de": "Wird ausgelöst, wenn eine Phase über die Grenze geht, wenn die Wallbox gedrosselt und wenn ein Gerät ausgeschaltet wird. Auch im Silent-Modus oder solange der Schutz nicht live ist: dann wird nur simuliert und «wirklich geschaltet» ist nein.",
+    "fr": "Se déclenche quand une phase dépasse la limite, quand la wallbox est limitée et quand un appareil est coupé. Aussi en mode silencieux ou tant que la protection n’est pas en mode réel : c’est alors seulement simulé et « réellement commuté » vaut non.",
+    "it": "Scatta quando una fase supera il limite, quando la wallbox viene limitata e quando un dispositivo viene spento. Anche in modalità silenziosa o finché la protezione non è in modalità reale: allora è solo simulato e «commutato davvero» vale no."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "number",
       "title": {
         "en": "Highest phase current (A)",
-        "de": "Höchster Phasenstrom (A)"
+        "de": "Höchster Phasenstrom (A)",
+        "fr": "Courant de phase le plus élevé (A)",
+        "it": "Corrente di fase più alta (A)"
       },
       "example": 37.5
     },
@@ -29,7 +35,9 @@
       "type": "number",
       "title": {
         "en": "Phase",
-        "de": "Phase"
+        "de": "Phase",
+        "fr": "Phase",
+        "it": "Fase"
       },
       "example": 2
     },
@@ -38,7 +46,9 @@
       "type": "string",
       "title": {
         "en": "Action",
-        "de": "Aktion"
+        "de": "Aktion",
+        "fr": "Action",
+        "it": "Azione"
       },
       "example": "Sauna ausgeschaltet"
     },
@@ -47,7 +57,9 @@
       "type": "boolean",
       "title": {
         "en": "Really switched",
-        "de": "Wirklich geschaltet"
+        "de": "Wirklich geschaltet",
+        "fr": "Réellement commuté",
+        "it": "Commutato davvero"
       },
       "example": false
     }

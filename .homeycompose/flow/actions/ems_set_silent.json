@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Set silent mode",
-    "de": "Silent-Modus setzen"
+    "de": "Silent-Modus setzen",
+    "fr": "Définir le mode silencieux",
+    "it": "Imposta la modalità silenziosa"
   },
   "titleFormatted": {
     "en": "Set silent mode [[mode]]",
-    "de": "Silent-Modus [[mode]]"
+    "de": "Silent-Modus [[mode]]",
+    "fr": "Mode silencieux : [[mode]]",
+    "it": "Modalità silenziosa: [[mode]]"
   },
   "args": [
     {
@@ -18,21 +22,27 @@
       "name": "mode",
       "title": {
         "en": "Mode",
-        "de": "Modus"
+        "de": "Modus",
+        "fr": "Mode",
+        "it": "Modalità"
       },
       "values": [
         {
           "id": "on",
           "title": {
             "en": "on (simulate only)",
-            "de": "ein (nur simulieren)"
+            "de": "ein (nur simulieren)",
+            "fr": "activé (simulation uniquement)",
+            "it": "attiva (solo simulazione)"
           }
         },
         {
           "id": "off",
           "title": {
             "en": "off (switch for real)",
-            "de": "aus (wirklich schalten)"
+            "de": "aus (wirklich schalten)",
+            "fr": "désactivé (commuter réellement)",
+            "it": "disattivata (commuta davvero)"
           }
         }
       ]

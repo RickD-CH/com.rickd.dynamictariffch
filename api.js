@@ -150,6 +150,24 @@ module.exports = {
     return { flows: await homey.app.ems.listFlows() };
   },
 
+  async getEmsRefCheck({ homey, query }) {
+    const ems = homey.app.ems;
+    return query && query.fresh === "1" ? ems.checkRefs() : ems.refCheckResult();
+  },
+
+  async postEmsRefClear({ homey, body }) {
+    return homey.app.ems.clearRef(body && body.key);
+  },
+
+  async getEmsRefCheck({ homey, query }) {
+    const ems = homey.app.ems;
+    return query && query.fresh === '1' ? ems.checkRefs() : ems.refCheckResult();
+  },
+
+  async postEmsRefClear({ homey, body }) {
+    return homey.app.ems.clearRef(body && body.key);
+  },
+
   async getEmsCommandFlows({ homey }) {
     return homey.app.ems.commandFlowStatus();
   },

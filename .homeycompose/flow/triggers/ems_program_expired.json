@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "The automatic of a program device has expired",
-    "de": "Die Automatik eines Programm-Geräts ist abgelaufen"
+    "de": "Die Automatik eines Programm-Geräts ist abgelaufen",
+    "fr": "L’automatique d’un appareil à programme a expiré",
+    "it": "L’automatico di un dispositivo a programma è scaduto"
   },
   "hint": {
     "en": "Fires when the wait (plus 1 hour) is over and the device did not start, for example because it never reported ready. The automatic is then off.",
-    "de": "Wird ausgelöst, wenn die Wartezeit (plus 1 Stunde) vorbei ist und das Gerät nicht gestartet ist, zum Beispiel weil es nie «bereit» gemeldet hat. Die Automatik ist danach aus."
+    "de": "Wird ausgelöst, wenn die Wartezeit (plus 1 Stunde) vorbei ist und das Gerät nicht gestartet ist, zum Beispiel weil es nie «bereit» gemeldet hat. Die Automatik ist danach aus.",
+    "fr": "Se déclenche quand l’attente (plus 1 heure) est écoulée et que l’appareil n’a pas démarré, par exemple parce qu’il ne s’est jamais déclaré prêt. L’automatique est alors désactivé.",
+    "it": "Scatta quando l’attesa (più 1 ora) è terminata e il dispositivo non è partito, ad esempio perché non si è mai segnalato pronto. L’automatico è allora disattivato."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "string",
       "title": {
         "en": "Device",
-        "de": "Gerät"
+        "de": "Gerät",
+        "fr": "Appareil",
+        "it": "Dispositivo"
       },
       "example": "Geschirrspüler"
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "Reason",
-        "de": "Grund"
+        "de": "Grund",
+        "fr": "Raison",
+        "it": "Motivo"
       },
       "example": "Automatik abgelaufen: die Wartezeit ist vorbei, es wurde nicht gestartet"
     }

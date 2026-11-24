@@ -15,7 +15,9 @@ module.exports = {
       current: runner ? runner.current : null,
       charger: runner ? { current: runner.chargerCurrent } : null,
     };
-    return planWidget({ plan: ems.getPlan(), shadow, tz: homey.clock.getTimezone() });
+    return planWidget({
+      plan: ems.getPlan(), shadow, tz: homey.clock.getTimezone(), refCheck: ems.refCheckResult(),
+    });
   },
 
 };

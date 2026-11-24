@@ -28,7 +28,7 @@ test('Zähler: Symbol des Kostenzählers wird übernommen, Unbrauchbares wird le
   assert.deepEqual(c.map((x) => x.icon), ['heatpump', '', '']);
 });
 
-test('Symbole: jedes Verbraucher-Symbol hat eine Zeichnung in den Einstellungen und im Widget sowie einen deutschen und englischen Namen', () => {
+test('Symbole: jedes Verbraucher-Symbol hat eine Zeichnung in den Einstellungen und im Widget sowie einen Namen in Deutsch, Englisch, Französisch und Italienisch', () => {
   const fs = require('fs'); // eslint-disable-line global-require
   const path = require('path'); // eslint-disable-line global-require
   const cfg = fs.readFileSync(path.join(__dirname, '../lib/ems/Config.js'), 'utf8');
@@ -41,7 +41,7 @@ test('Symbole: jedes Verbraucher-Symbol hat eine Zeichnung in den Einstellungen 
   for (const k of list) {
     assert.match(settings, new RegExp(`[\\s{,]${k}: 'M`), `Zeichnung ${k} in den Einstellungen`);
     assert.match(widget, new RegExp(`[\\s{,]${k}: 'M`), `Zeichnung ${k} im Widget`);
-    assert.equal((settings.match(new RegExp(`iconNames: \\{[^}]*\\b${k}: '`, 'g')) || []).length, 2, `Name ${k} auf Deutsch und Englisch`);
+    assert.equal((settings.match(new RegExp(`iconNames: \\{[^}]*\\b${k}: '`, 'g')) || []).length, 4, `Name ${k} in allen vier Sprachen`);
   }
 });
 

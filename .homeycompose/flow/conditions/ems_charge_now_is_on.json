@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "Charge now !{{is|is not}} on",
-    "de": "Sofort laden !{{ist|ist nicht}} ein"
+    "de": "Sofort laden !{{ist|ist nicht}} ein",
+    "fr": "La charge immédiate !{{est|n'est pas}} activée",
+    "it": "La carica immediata !{{è|non è}} attiva"
   },
   "hint": {
     "en": "Charge now: the wallbox charges the car at full power, regardless of price and solar.",
-    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen."
+    "de": "Sofort laden: die Wallbox lädt das Auto mit voller Leistung, egal ob Preis oder Sonne passen.",
+    "fr": "Charge immédiate : la wallbox charge la voiture à pleine puissance, quel que soit le prix et le solaire.",
+    "it": "Carica immediata: la wallbox carica l’auto a piena potenza, indipendentemente da prezzo e solare."
   },
   "args": [
     {

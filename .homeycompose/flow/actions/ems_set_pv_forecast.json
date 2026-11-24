@@ -1,15 +1,21 @@
 {
   "title": {
     "en": "Set the solar forecast",
-    "de": "PV-Prognose setzen"
+    "de": "PV-Prognose setzen",
+    "fr": "Définir la prévision solaire",
+    "it": "Imposta la previsione solare"
   },
   "titleFormatted": {
     "en": "Set the solar forecast to [[data]]",
-    "de": "PV-Prognose setzen auf [[data]]"
+    "de": "PV-Prognose setzen auf [[data]]",
+    "fr": "Définir la prévision solaire sur [[data]]",
+    "it": "Imposta la previsione solare su [[data]]"
   },
   "hint": {
     "en": "Feeds your own solar forecast into the energy management. A JSON list, for example [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Each entry needs a start (ISO time or ms) and kwh (energy in the slot) or kw (average power). The slot length is end minus start, or \"hours\", otherwise 1 hour. Feed it at least every 12 hours, otherwise it counts as outdated.",
-    "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet."
+    "de": "Liefert deine eigene PV-Prognose ins Energiemanagement. Eine JSON-Liste, zum Beispiel [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Jeder Eintrag braucht start (ISO-Zeit oder ms) und kwh (Energie im Slot) oder kw (mittlere Leistung). Die Slot-Länge ist end minus start, oder \"hours\", sonst 1 Stunde. Mindestens alle 12 Stunden einliefern, sonst gilt sie als veraltet.",
+    "fr": "Transmet votre propre prévision solaire à la gestion de l’énergie. Une liste JSON, par exemple [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Chaque entrée a besoin d’un début (heure ISO ou ms) et de kwh (énergie dans le créneau) ou kw (puissance moyenne). La durée du créneau est fin moins début, ou « hours », sinon 1 heure. À transmettre au moins toutes les 12 heures, sinon elle est considérée comme périmée.",
+    "it": "Fornisce la tua previsione solare alla gestione dell’energia. Un elenco JSON, ad esempio [{\"start\":\"2026-11-11T09:00:00+01:00\",\"kwh\":0.4},{\"start\":\"2026-11-11T10:00:00+01:00\",\"kwh\":1.1}]. Ogni voce richiede un inizio (ora ISO o ms) e kwh (energia nello slot) oppure kw (potenza media). La durata dello slot è fine meno inizio, oppure «hours», altrimenti 1 ora. Da fornire almeno ogni 12 ore, altrimenti viene considerata obsoleta."
   },
   "args": [
     {
@@ -22,11 +28,15 @@
       "name": "data",
       "title": {
         "en": "Forecast (JSON)",
-        "de": "Prognose (JSON)"
+        "de": "Prognose (JSON)",
+        "fr": "Prévision (JSON)",
+        "it": "Previsione (JSON)"
       },
       "placeholder": {
         "en": "[{\"start\":\"...\",\"kwh\":0.4}]",
-        "de": "[{\"start\":\"...\",\"kwh\":0.4}]"
+        "de": "[{\"start\":\"...\",\"kwh\":0.4}]",
+        "fr": "[{\"start\":\"...\",\"kwh\":0.4}]",
+        "it": "[{\"start\":\"...\",\"kwh\":0.4}]"
       }
     }
   ]

@@ -1,11 +1,15 @@
 {
   "title": {
     "en": "A consumer was switched",
-    "de": "Ein Verbraucher wurde geschaltet"
+    "de": "Ein Verbraucher wurde geschaltet",
+    "fr": "Un consommateur a été commuté",
+    "it": "Un consumatore è stato commutato"
   },
   "hint": {
     "en": "Fires when the energy management switches a consumer on or off. Also in silent mode and for devices it does not control: then it is only simulated and \"really switched\" is no.",
-    "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein."
+    "de": "Wird ausgelöst, wenn das Energiemanagement einen Verbraucher ein- oder ausschaltet. Auch im Silent-Modus und bei nicht gesteuerten Geräten: dann wird nur simuliert und «wirklich geschaltet» ist nein.",
+    "fr": "Se déclenche quand la gestion de l’énergie active ou désactive un consommateur. Aussi en mode silencieux et pour les appareils qu’elle ne pilote pas : c’est alors seulement simulé et « réellement commuté » vaut non.",
+    "it": "Scatta quando la gestione dell’energia accende o spegne un consumatore. Anche in modalità silenziosa e per i dispositivi che non controlla: allora è solo simulato e «commutato davvero» vale no."
   },
   "args": [
     {
@@ -20,7 +24,9 @@
       "type": "string",
       "title": {
         "en": "Name",
-        "de": "Name"
+        "de": "Name",
+        "fr": "Nom",
+        "it": "Nome"
       },
       "example": "Dehumidifier"
     },
@@ -29,7 +35,9 @@
       "type": "string",
       "title": {
         "en": "State (on/off)",
-        "de": "Zustand (on/off)"
+        "de": "Zustand (on/off)",
+        "fr": "État (marche/arrêt)",
+        "it": "Stato (acceso/spento)"
       },
       "example": "on"
     },
@@ -38,7 +46,9 @@
       "type": "boolean",
       "title": {
         "en": "Really switched",
-        "de": "Wirklich geschaltet"
+        "de": "Wirklich geschaltet",
+        "fr": "Réellement commuté",
+        "it": "Commutato davvero"
       },
       "example": true
     },
@@ -47,7 +57,9 @@
       "type": "string",
       "title": {
         "en": "Reason",
-        "de": "Grund"
+        "de": "Grund",
+        "fr": "Raison",
+        "it": "Motivo"
       },
       "example": "SoC 99% >= 98%"
     }
