@@ -142,7 +142,7 @@
     "window": "Plage de charge",
     "needKwh": "encore {kwh} kWh",
     "chargeNow": "Charger maintenant",
-    "start": "Démarrer",
+    "start": "Démarrer maintenant",
     "startedToday": "démarré aujourd’hui à {time}",
     "untilTime": "Démarre au plus tard à {time}",
     "waitTitle": "Durée maximale d’attente de l’automatique (surplus ou bloc le moins cher) avant qu’il démarre dans tous les cas",
@@ -178,7 +178,10 @@
     "pauseOn": "Fonctionne automatiquement. Désactiver met en pause et termine un cycle en cours.",
     "pauseOff": "En pause : ne démarre pas. L’activer le libère à nouveau.",
     "autoOn": "Automatique activé : démarre une fois de lui-même, en cas de surplus PV ou dans le bloc le moins cher, puis se désactive",
-    "autoOff": "Automatique désactivé : choisissez l’attente et activez, il démarre alors une fois de lui-même. Sinon uniquement manuellement avec « Démarrer »"
+    "autoOff": "Automatique désactivé : choisissez l’attente et activez, il démarre alors une fois de lui-même. Sinon uniquement manuellement avec « Démarrer maintenant »",
+    "autoLabel": "Auto",
+    "autoInfoOff": "Auto : démarre avec le soleil ou dans le bloc le moins cher, au plus tard après {h} h",
+    "autoInfoOn": "Auto activé, démarre au plus tard à {time}"
   },
   "refs": {
     "title": "Vérifier les références",

@@ -55,6 +55,7 @@
     .msg { text-align: center; color: var(--cw-muted); font-size: 12px; padding: 16px 6px; }
     .msg.err { color: var(--cw-warn); }
     .list { max-height: none; }
+    .swl { font-size: 11px; color: var(--cw-muted); margin-right: -4px; }
     .sw { position: relative; width: 34px; height: 20px; flex: 0 0 auto; cursor: pointer; }
     .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
     .sw .slider { position: absolute; inset: 0; background: var(--cw-disabled); border-radius: 999px; transition: background .15s; }
@@ -187,7 +188,9 @@
       var sub = esc(c.reason || '');
       var extra = [];
       if (c.startedToday) extra.push(esc(fill(Homey.__('consumersWidget.startedToday'), { time: c.startedAtHm })));
-      if (c.armed && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
+      if (c.isProgram && c.armed && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.autoInfoOn'), { time: c.deadlineHm })));
+      else if (c.armed && c.deadlineHm) extra.push(esc(fill(Homey.__('consumersWidget.untilTime'), { time: c.deadlineHm })));
+      else if (c.isProgram && c.live) extra.push('<span data-autoinfo="' + esc(c.id) + '">' + esc(fill(Homey.__('consumersWidget.autoInfoOff'), { h: waitChoice[c.id] || c.maxWaitH || 4 })) + '</span>');
       if (c.durationH) extra.push(esc(fill(Homey.__('consumersWidget.durationInfo'), { h: c.durationH })));
       var btn = '';
       var auto = '';
@@ -206,7 +209,7 @@
           waitSel = '<select class="wait" data-wait="' + esc(c.id) + '" title="' + esc(Homey.__('consumersWidget.waitTitle')) + '">'
             + opts.map(function (h) { return '<option value="' + h + '"' + (h === curW ? ' selected' : '') + '>' + h + ' h</option>'; }).join('') + '</select>';
         }
-        auto = waitSel + '<label class="sw" title="' + autoTitle + '">'
+        auto = waitSel + '<span class="swl" title="' + autoTitle + '">' + esc(Homey.__('consumersWidget.autoLabel')) + '</span><label class="sw" title="' + autoTitle + '">'
           + '<input type="checkbox" data-arm="' + esc(c.id) + '"' + (c.armed ? ' checked' : '') + '>'
           + '<span class="slider"></span></label>';
       }
@@ -221,7 +224,7 @@
         // Eigene Reihe, statt wie bei den übrigen Verbrauchern neben dem Namen: Automatik-Schalter und
         // Starten-Knopf brauchen hier Platz und sollen nicht mit dem (oft längeren) Status-Text um die Breite
         // konkurrieren.
-        // Automatik-Schalter oben rechts (wie bei Boiler und Warmwasser), «Starten» daneben (im Testmodus grau und gesperrt), bei wenig Platz bricht die Gruppe unter den Namen um
+        // Automatik-Schalter oben rechts (wie bei Boiler und Warmwasser), «Jetzt starten» daneben (im Testmodus grau und gesperrt), bei wenig Platz bricht die Gruppe unter den Namen um
         return '<div class="item citem"><div class="ctop"><span class="ic">' + icon(c.icon) + '</span>'
           + '<span class="name">' + esc(c.name) + testChip + '</span>'
           + '<span class="cgrp">' + btn + auto + '</span></div>'
@@ -291,7 +294,12 @@
         });
       });
       root.querySelectorAll('select[data-wait]').forEach(function (sel) {
-        sel.addEventListener('change', function () { waitChoice[sel.getAttribute('data-wait')] = Number(sel.value); });
+        sel.addEventListener('change', function () {
+          var id = sel.getAttribute('data-wait');
+          waitChoice[id] = Number(sel.value);
+          var info = root.querySelector('[data-autoinfo="' + id + '"]');
+          if (info) info.textContent = fill(Homey.__('consumersWidget.autoInfoOff'), { h: waitChoice[id] });
+        });
       });
       root.querySelectorAll('input[data-arm]').forEach(function (inp) {
         inp.addEventListener('change', function () {

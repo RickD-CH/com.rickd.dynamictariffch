@@ -142,7 +142,7 @@
     "window": "Finestra di carica",
     "needKwh": "ancora {kwh} kWh",
     "chargeNow": "Carica ora",
-    "start": "Avvia",
+    "start": "Avvia ora",
     "startedToday": "avviato oggi alle {time}",
     "untilTime": "Parte al più tardi alle {time}",
     "waitTitle": "Per quanto tempo l’automatico attende al massimo (eccedenza o blocco più conveniente) prima di partire comunque",
@@ -178,7 +178,10 @@
     "pauseOn": "Funziona automaticamente. Disattivando si mette in pausa e si termina un ciclo in corso.",
     "pauseOff": "In pausa: non parte. Attivando si sblocca di nuovo.",
     "autoOn": "Automatico attivo: parte una volta da solo, con eccedenza FV o nel blocco più conveniente, poi si disattiva",
-    "autoOff": "Automatico disattivo: scegli l’attesa e attiva, poi parte una volta da solo. Altrimenti solo manualmente con «Avvia»"
+    "autoOff": "Automatico disattivo: scegli l’attesa e attiva, poi parte una volta da solo. Altrimenti solo manualmente con «Avvia ora»",
+    "autoLabel": "Auto",
+    "autoInfoOff": "Auto: parte con il sole o nel blocco più conveniente, al più tardi dopo {h} h",
+    "autoInfoOn": "Auto attivo, parte al più tardi alle {time}"
   },
   "refs": {
     "title": "Controlla i riferimenti",

@@ -142,7 +142,7 @@
     "window": "Ladefenster",
     "needKwh": "noch {kwh} kWh",
     "chargeNow": "Sofort laden",
-    "start": "Starten",
+    "start": "Jetzt starten",
     "startedToday": "heute {time} gestartet",
     "untilTime": "Start spätestens {time}",
     "waitTitle": "Wie lange die Automatik höchstens wartet (auf Überschuss oder den günstigsten Block), bis sie auf jeden Fall startet",
@@ -178,7 +178,10 @@
     "pauseOn": "Läuft automatisch. Ausschalten pausiert und beendet einen laufenden Lauf.",
     "pauseOff": "Pausiert: startet nicht. Einschalten gibt wieder frei.",
     "autoOn": "Automatik ein: startet einmal selbst, bei PV-Überschuss oder im günstigsten Block, danach geht sie aus",
-    "autoOff": "Automatik aus: Wartezeit wählen und einschalten, dann startet es einmal selbst. Sonst nur manuell mit «Starten»"
+    "autoOff": "Automatik aus: Wartezeit wählen und einschalten, dann startet es einmal selbst. Sonst nur manuell mit «Jetzt starten»",
+    "autoLabel": "Auto",
+    "autoInfoOff": "Auto: startet bei Sonne oder im günstigsten Block, spätestens nach {h} h",
+    "autoInfoOn": "Auto an, Start spätestens {time}"
   },
   "refs": {
     "title": "Verweise prüfen",

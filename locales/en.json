@@ -142,7 +142,7 @@
     "window": "Charging window",
     "needKwh": "{kwh} kWh left",
     "chargeNow": "Charge now",
-    "start": "Start",
+    "start": "Start now",
     "startedToday": "started today {time}",
     "untilTime": "Starts by {time}",
     "waitTitle": "How long the automatic waits at most (for surplus or the cheapest block) before it starts in any case",
@@ -178,7 +178,10 @@
     "pauseOn": "Runs automatically. Switching off pauses and ends a running cycle.",
     "pauseOff": "Paused: will not start. Switching on releases it again.",
     "autoOn": "Auto mode on: starts by itself once, on PV surplus or in the cheapest block, then it switches off",
-    "autoOff": "Auto mode off: choose the wait and switch on, then it starts by itself once. Otherwise only manually with \"Start\""
+    "autoOff": "Auto mode off: choose the wait and switch on, then it starts by itself once. Otherwise only manually with \"Start now\"",
+    "autoLabel": "Auto",
+    "autoInfoOff": "Auto: starts on solar surplus or in the cheapest block, at the latest after {h} h",
+    "autoInfoOn": "Auto on, starts at the latest at {time}"
   },
   "refs": {
     "title": "Check references",
