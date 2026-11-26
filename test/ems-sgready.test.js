@@ -1344,3 +1344,52 @@ test('Config: SG-Ready bedient nur Sonne/Akku - ein alter gespeicherter Preis-Au
   assert.equal(c.dhw.enabled, true);
   assert.ok(c.dhw.cheapHours > 0, 'Warmwasser-Programm: günstigste Stunden bleiben');
 });
+
+// Reihenfolge der zwei Relais: 1:0 (nur Kontakt 1 = Zwangs-Relais) wäre die EVU-Sperre und darf nie entstehen
+function relaySg(over = {}) {
+  return {
+    output: 'relays', allowForced: true,
+    recommendRelay: { deviceId: 'rel2', capability: 'onoff' },
+    forceRelay: { deviceId: 'rel1', capability: 'onoff' },
+    ...over,
+  };
+}
+
+test('Runner: Relais-Reihenfolge - ein mit Empfehlung zuerst, aus mit Zwang zuerst (nie 1:0)', async () => {
+  const { runner, calls } = makeRunner();
+  runner._sgReadyRelay = { recommend: false, force: false }; // bekannter Ausgangszustand 0:0
+  const sg = relaySg();
+  await runner._sgOutput(sg, 'boost', true, []);
+  await runner._sgOutput(sg, 'forced', true, []);
+  await runner._sgOutput(sg, 'off', true, []);
+  assert.deepEqual(calls.map((c) => [c[0], c[2]]), [['rel2', true], ['rel1', true], ['rel1', false], ['rel2', false]]);
+});
+
+test('Runner: Zwangs-Relais lässt sich nicht lösen -> Empfehlung bleibt an (1:1 statt Sperre), nächster Lauf holt nach', async () => {
+  const { runner, calls } = makeRunner();
+  const sg = relaySg();
+  await runner._sgOutput(sg, 'forced', true, []);
+  calls.length = 0;
+  const program = runner.actuators.program;
+  runner.actuators.program = async (id, ...rest) => {
+    if (id === 'rel1') throw new Error('nicht erreichbar');
+    return program(id, ...rest);
+  };
+  runner.log = () => {};
+  await runner._sgOutput(sg, 'off', true, []);
+  assert.deepEqual(calls, [], 'Empfehlung wird nicht gelöst, solange der Zwang noch an ist');
+  runner.actuators.program = program;
+  await runner._sgOutput(sg, 'off', true, []);
+  assert.deepEqual(calls.map((c) => [c[0], c[2]]), [['rel1', false], ['rel2', false]]);
+});
+
+test('Runner: von Zwang zurück auf Empfehlung und Zwang in den Einstellungen ausgeschaltet - Zwangs-Relais wird gelöst', async () => {
+  const { runner, calls } = makeRunner();
+  await runner._sgOutput(relaySg(), 'forced', true, []);
+  calls.length = 0;
+  await runner._sgOutput(relaySg({ allowForced: false }), 'boost', true, []);
+  assert.deepEqual(calls.map((c) => [c[0], c[2]]), [['rel1', false]], 'nur der Zwang geht aus, die Empfehlung bleibt');
+  calls.length = 0;
+  await runner._sgOutput(relaySg({ allowForced: false }), 'off', true, []);
+  assert.deepEqual(calls.map((c) => [c[0], c[2]]), [['rel2', false]], 'danach wird das Zwangs-Relais nicht mehr angefasst');
+});

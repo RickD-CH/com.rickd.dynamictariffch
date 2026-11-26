@@ -139,7 +139,8 @@
       sgMode: 'Betriebsart der Wärmepumpe (Gerät und Wert, optional)', sgModeOk: 'Steuern nur bei diesem Wert (z. B. Automatik)', sgModeH: 'Die Steuerung greift nur ein, wenn die Betriebsart diesen Wert hat. Bei Ferien, Komfort oder Standby wird nicht gesteuert. Leer lassen = keine Prüfung.',
       sgFeedback: 'Zustand von der Wärmepumpe übernehmen (Gerät und Wert, optional)', sgFeedbackH: 'Liest den SG-Ready-Zustand der Wärmepumpe (z. B. «2 NORMAL»), zeigt ihn im Widget und warnt, wenn er nach dem Schalten nicht passt. Leer = nur der eigene Zustand.',
       sgOutput: 'Wie werden die Zustände gesetzt?', sgOutRelays: 'Zwei Relais (Schaltaktoren)', sgOutFlows: 'Flows (je Zustand ein Flow, z. B. Modbus)',
-      sgOutH: 'Relais: Normal = beide aus, Empfehlung (0:1) = Relais 1 an, Zwangsladung (1:1) = beide an. Flows: ein eigener Flow je Zustand, z. B. Modbus-Register schreiben.',
+      sgOutH: 'Relais: Normal (0:0) = beide aus. Empfehlung (0:1) = das Empfehlungs-Relais ist an und schliesst den zweiten SG-Kontakt. Zwangsladung (1:1) = zusätzlich ist das Zwangsladungs-Relais an und schliesst den ersten Kontakt. Die Schreibweise heisst Kontakt 1 : Kontakt 2, 1 = geschlossen. Wie die Klemmen an deiner Wärmepumpe heissen (z. B. SG1/SG2 oder EVU/SG), steht in ihrer Anleitung. Den Zustand 1:0 (Sperre durch den Netzbetreiber) setzt die App nie, auch nicht kurz beim Umschalten. Flows: ein eigener Flow je Zustand, z. B. Modbus-Register schreiben.',
+      sgSetupH: 'Anschluss und Wärmepumpe: Nur potenzialfreie Kontakte verwenden und nie Netzspannung an die SG-Eingänge legen. Den Anschluss macht eine Elektrofachperson. Die Relais so einstellen, dass sie nach einem Stromausfall aus sind, dann läuft die Wärmepumpe im Normalbetrieb weiter. SG-Ready muss im Menü der Wärmepumpe eingeschaltet sein. Dort wird oft auch eingestellt, um wie viel Grad sie bei 0:1 und 1:1 höher heizt. Manche Wärmepumpen reagieren erst nach einigen Minuten, deshalb gibt es eine Mindestlaufzeit. Mit «Zustand von der Wärmepumpe übernehmen» siehst du, ob sie das Signal erkannt hat.',
       sgRecRelay: 'Relais Empfehlung (0:1)', sgForceRelay: 'Relais Zwangsladung (nur bei 1:1)', sgFlowNormal: 'Flow Normalbetrieb (0:0)', sgFlowBoost: 'Flow Empfehlung (0:1)', sgFlowForced: 'Flow Zwangsladung (1:1)',
       sgLive: 'SG-Ready live (sonst nur simulieren)',
       sgLiveHint: 'Live schaltet die Steuerung wirklich. Der Silent-Modus hat Vorrang. Vorher den bisherigen Flow ausschalten, damit nur ein System schaltet.', sgState: { off: 'Normalbetrieb (0:0)', boost: 'Empfehlung (0:1)', forced: 'Zwangsladung (1:1)', dhw: 'Warmwasser-Programm' },
@@ -193,7 +194,7 @@
       name: 'Name', type: 'Typ',       ctrlDevice: 'Gerät zum Schalten', meterDevice: 'Zähler für die Kosten (kWh)', mode: 'Einschalten',
       modeFull: 'Bei voller Batterie', modeSoc: 'Ab Batterie-SoC', modeSurplus: 'Bei Überschuss', modeProgram: 'Programm starten', noCtrl: 'nur Kostenzähler',
       programTitle: 'Programm starten', programWindow: 'Preis-Start frühestens ab (optional)', programMaxWait: 'Standard-Wartezeit (h)', programDuration: 'Programmdauer (h)',
-      programHint: 'Du schaltest die Automatik im Widget ein, sobald die Maschine beladen ist. Sie startet sofort bei genug PV-Überschuss. Sonst wird bis zur Wartezeit der günstigste Block der Programmdauer gewählt, spätestens am Ende der Wartezeit gestartet (Sicherheitsnetz). Danach geht die Automatik von selbst aus, für den nächsten Lauf schaltest du sie wieder ein. Beliebig viele Läufe pro Tag, auch über Mitternacht.',
+      programHint: 'Du schaltest die Automatik im Widget mit dem Schalter «Auto» ein, sobald die Maschine beladen ist. Sie startet sofort bei genug PV-Überschuss. Sonst wird bis zur Wartezeit der günstigste Block der Programmdauer gewählt, spätestens am Ende der Wartezeit gestartet (Sicherheitsnetz). Danach geht die Automatik von selbst aus, für den nächsten Lauf schaltest du sie wieder ein. Beliebig viele Läufe pro Tag, auch über Mitternacht.',
       programStartCap: 'Start-Capability', programStartVal: 'Start-Wert', programRemoteCap: 'Fernbedienung-Capability (optional)', programRemoteVal: 'Fernbedienung-Wert (wenn aktiv)',
       programRemoteWarn: 'Ohne Fernbedienung-Capability wird nicht geprüft, ob das Gerät überhaupt geschaltet werden kann - bei manchen Geräten (z. B. Electrolux) zwingend nötig.',
       programDoorCap: 'Tür-Capability (optional)', programDoorVal: 'Tür-Wert «zu» (wenn gewählt)',
@@ -350,7 +351,8 @@
       sgMode: 'Heat pump operating mode (device and value, optional)', sgModeOk: 'Control only at this value (e.g. Automatic)', sgModeH: 'Control only acts when the operating mode has this value. Not in holiday, comfort or standby. Leave empty = no check.',
       sgFeedback: 'Take the state from the heat pump (device and value, optional)', sgFeedbackH: 'Reads the SG Ready state of the heat pump (e.g. 2 NORMAL), shows it in the widget and warns if it does not match after switching. Empty = own state only.',
       sgOutput: 'How are the states set?', sgOutRelays: 'Two relays (switch actuators)', sgOutFlows: 'Flows (one flow per state, e.g. Modbus)',
-      sgOutH: 'Relays: normal = both off, recommendation (0:1) = relay 1 on, forced (1:1) = both on. Flows: one flow per state, e.g. writing Modbus registers.',
+      sgOutH: 'Relays: normal (0:0) = both off. Recommendation (0:1) = the recommendation relay is on and closes the second SG contact. Forced (1:1) = the forced relay is also on and closes the first contact. The notation means contact 1 : contact 2, 1 = closed. Your heat pump manual tells you what the terminals are called (e.g. SG1/SG2 or EVU/SG). The app never sets state 1:0 (blocking by the grid operator), not even briefly while switching. Flows: one flow per state, e.g. writing Modbus registers.',
+      sgSetupH: 'Wiring and heat pump: use potential-free contacts only and never put mains voltage on the SG inputs. Have a qualified electrician do the wiring. Set the relays to be off after a power failure, so the heat pump keeps running in normal mode. SG Ready must be switched on in the heat pump menu. That is often also where you set how many degrees higher it heats in 0:1 and 1:1. Some heat pumps only react after a few minutes, which is why there is a minimum run time. With "Take the state from the heat pump" you can see whether it has picked up the signal.',
       sgRecRelay: 'Relay recommendation (0:1)', sgForceRelay: 'Relay forced charging (1:1 only)', sgFlowNormal: 'Flow normal operation (0:0)', sgFlowBoost: 'Flow recommendation (0:1)', sgFlowForced: 'Flow forced charging (1:1)',
       sgLive: 'SG Ready live (otherwise simulate only)',
       sgLiveHint: 'Live, the control really switches. Silent mode takes precedence. Switch off your previous flow first so that only one system switches.', sgState: { off: 'Normal operation (0:0)', boost: 'Recommendation (0:1)', forced: 'Forced charging (1:1)', dhw: 'Hot-water program' },
@@ -404,7 +406,7 @@
       name: 'Name', type: 'Type',       ctrlDevice: 'Device to switch', meterDevice: 'Meter for costs (kWh)', mode: 'Switch on',
       modeFull: 'When battery is full', modeSoc: 'From battery SoC', modeSurplus: 'On surplus', modeProgram: 'Start a program', noCtrl: 'cost meter only',
       programTitle: 'Start a program', programWindow: 'Price start earliest from (optional)', programMaxWait: 'Default wait (h)', programDuration: 'Program duration (h)',
-      programHint: 'You switch the automatic on in the widget once the machine is loaded. It starts right away with enough PV surplus. Otherwise it picks the cheapest block of the program duration until the wait is over and starts at the latest then (safety net). Afterwards the automatic switches itself off; switch it on again for the next run. Any number of runs per day, also across midnight.',
+      programHint: 'You switch the automatic on in the widget with the \"Auto\" switch once the machine is loaded. It starts right away with enough PV surplus. Otherwise it picks the cheapest block of the program duration until the wait is over and starts at the latest then (safety net). Afterwards the automatic switches itself off; switch it on again for the next run. Any number of runs per day, also across midnight.',
       programStartCap: 'Start capability', programStartVal: 'Start value', programRemoteCap: 'Remote-control capability (optional)', programRemoteVal: 'Remote value (when enabled)',
       programRemoteWarn: 'Without a remote-control capability, the app never checks whether the device can even be switched - required for some appliances (e.g. Electrolux).',
       programDoorCap: 'Door capability (optional)', programDoorVal: 'Door value "closed" (when chosen)',
@@ -989,7 +991,8 @@
       sgOutput: 'Comment les états sont-ils réglés ?',
       sgOutRelays: 'Deux relais (actionneurs de commutation)',
       sgOutFlows: 'Flows (un Flow par état, p. ex. Modbus)',
-      sgOutH: 'Relais : normal = les deux désactivés, recommandation (0:1) = relais 1 activé, forcé (1:1) = les deux activés. Flows : un Flow par état, p. ex. écriture de registres Modbus.',
+      sgOutH: 'Relais : normal (0:0) = les deux désactivés. Recommandation (0:1) = le relais recommandation est activé et ferme le deuxième contact SG. Forcé (1:1) = le relais charge forcée est en plus activé et ferme le premier contact. La notation signifie contact 1 : contact 2, 1 = fermé. Le nom des bornes de votre pompe à chaleur (p. ex. SG1/SG2 ou EVU/SG) figure dans son manuel. L’app ne règle jamais l’état 1:0 (blocage par le gestionnaire de réseau), pas même brièvement lors d’une commutation. Flows : un Flow par état, p. ex. écriture de registres Modbus.',
+      sgSetupH: 'Raccordement et pompe à chaleur : utilisez uniquement des contacts libres de potentiel et ne mettez jamais la tension du réseau sur les entrées SG. Le raccordement est fait par un électricien qualifié. Réglez les relais pour qu’ils soient désactivés après une coupure de courant : la pompe à chaleur continue alors en fonctionnement normal. SG Ready doit être activé dans le menu de la pompe à chaleur. C’est souvent là aussi que l’on règle de combien de degrés elle chauffe davantage en 0:1 et 1:1. Certaines pompes à chaleur ne réagissent qu’après quelques minutes, d’où la durée minimale de fonctionnement. Avec « Reprendre l’état de la pompe à chaleur », vous voyez si elle a reconnu le signal.',
       sgRecRelay: 'Relais recommandation (0:1)',
       sgForceRelay: 'Relais charge forcée (1:1 uniquement)',
       sgFlowNormal: 'Flow fonctionnement normal (0:0)',
@@ -1103,7 +1106,7 @@
       programWindow: 'Démarrage selon le prix au plus tôt à partir de (facultatif)',
       programMaxWait: 'Attente par défaut (h)',
       programDuration: 'Durée du programme (h)',
-      programHint: 'Vous activez l’automatique dans le widget une fois la machine chargée. Elle démarre tout de suite avec un surplus PV suffisant. Sinon elle choisit le bloc le moins cher de la durée du programme jusqu’à la fin de l’attente et démarre au plus tard alors (filet de sécurité). Ensuite l’automatique se désactive ; réactivez-la pour le cycle suivant. Autant de cycles par jour que souhaité, aussi au-delà de minuit.',
+      programHint: 'Vous activez l’automatique dans le widget avec l’interrupteur « Auto » une fois la machine chargée. Elle démarre tout de suite avec un surplus PV suffisant. Sinon elle choisit le bloc le moins cher de la durée du programme jusqu’à la fin de l’attente et démarre au plus tard alors (filet de sécurité). Ensuite l’automatique se désactive ; réactivez-la pour le cycle suivant. Autant de cycles par jour que souhaité, aussi au-delà de minuit.',
       programStartCap: 'Capability de démarrage',
       programStartVal: 'Valeur de démarrage',
       programRemoteCap: 'Capability de télécommande (facultatif)',
@@ -1864,7 +1867,8 @@
       sgOutput: 'Come vengono impostati gli stati?',
       sgOutRelays: 'Due relè (attuatori di commutazione)',
       sgOutFlows: 'Flow (un Flow per stato, ad es. Modbus)',
-      sgOutH: 'Relè: normale = entrambi spenti, raccomandazione (0:1) = relè 1 acceso, forzato (1:1) = entrambi accesi. Flow: un Flow per stato, ad es. scrittura di registri Modbus.',
+      sgOutH: 'Relè: normale (0:0) = entrambi spenti. Raccomandazione (0:1) = il relè raccomandazione è acceso e chiude il secondo contatto SG. Forzato (1:1) = è acceso anche il relè carica forzata, che chiude il primo contatto. La notazione significa contatto 1 : contatto 2, 1 = chiuso. Il nome dei morsetti della tua pompa di calore (ad es. SG1/SG2 o EVU/SG) è indicato nel suo manuale. L’app non imposta mai lo stato 1:0 (blocco da parte del gestore di rete), nemmeno per un attimo durante la commutazione. Flow: un Flow per stato, ad es. scrittura di registri Modbus.',
+      sgSetupH: 'Collegamento e pompa di calore: usa solo contatti a potenziale zero e non mettere mai la tensione di rete sugli ingressi SG. Il collegamento lo esegue un elettricista qualificato. Imposta i relè in modo che dopo un’interruzione di corrente siano spenti: la pompa di calore continua così in funzionamento normale. SG Ready deve essere attivato nel menu della pompa di calore. Spesso è lì che si imposta anche di quanti gradi in più riscalda in 0:1 e 1:1. Alcune pompe di calore reagiscono solo dopo alcuni minuti, per questo c’è una durata minima di funzionamento. Con « Prendi lo stato dalla pompa di calore » vedi se ha riconosciuto il segnale.',
       sgRecRelay: 'Relè raccomandazione (0:1)',
       sgForceRelay: 'Relè carica forzata (solo 1:1)',
       sgFlowNormal: 'Flow funzionamento normale (0:0)',
@@ -1978,7 +1982,7 @@
       programWindow: 'Avvio in base al prezzo al più presto dalle (facoltativo)',
       programMaxWait: 'Attesa predefinita (h)',
       programDuration: 'Durata del programma (h)',
-      programHint: 'Attivi l’automatico nel widget una volta caricata la macchina. Parte subito con eccedenza FV sufficiente. Altrimenti sceglie il blocco più conveniente della durata del programma fino alla fine dell’attesa e parte al più tardi allora (rete di sicurezza). Poi l’automatico si disattiva; riattivalo per il ciclo successivo. Quanti cicli al giorno vuoi, anche oltre la mezzanotte.',
+      programHint: 'Attivi l’automatico nel widget con l’interruttore «Auto» una volta caricata la macchina. Parte subito con eccedenza FV sufficiente. Altrimenti sceglie il blocco più conveniente della durata del programma fino alla fine dell’attesa e parte al più tardi allora (rete di sicurezza). Poi l’automatico si disattiva; riattivalo per il ciclo successivo. Quanti cicli al giorno vuoi, anche oltre la mezzanotte.',
       programStartCap: 'Capability di avvio',
       programStartVal: 'Valore di avvio',
       programRemoteCap: 'Capability del telecomando (facoltativa)',
@@ -3212,6 +3216,7 @@
         ? sgFlowSel(S.sgFlowNormal, 'ems-sg-fn', g.flowNormal) + sgFlowSel(S.sgFlowBoost, 'ems-sg-fb', g.flowBoost) + (g.allowForced ? sgFlowSel(S.sgFlowForced, 'ems-sg-ff', g.flowForced) : '')
         : sgDevPair(S.sgRecRelay, 'ems-sg-rec', g.recommendRelay.deviceId, g.recommendRelay.capability, /^onoff/)
           + (g.allowForced ? sgDevPair(S.sgForceRelay, 'ems-sg-frc', g.forceRelay.deviceId, g.forceRelay.capability, /^onoff/) : ''))
+      + '<p class="ems-why">' + esc(S.sgSetupH) + '</p>'
       + '<details class="ems-adv"' + (state.open['sg-adv'] ? ' open' : '') + '><summary data-ems-adv="sg-adv">' + esc(S.advSg) + '</summary>'
       + sgFld(S.sgHyst, 'ems-sg-hyst', g.socHysteresis, 'number', ' step="1" min="0" max="50"', S.sgHystH)
       + sgFld(S.sgTo, 'ems-sg-to', g.windowTo, 'time', '', S.sgToH)
