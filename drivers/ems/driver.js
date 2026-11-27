@@ -11,10 +11,10 @@ const NAMES = {
  * und der Ein/Aus-Schalter des EMS-Moduls. Ohne dieses Gerät laufen weder Timer noch Zugriffe des EMS.
  */
 const NEEDS_PRICE_DEVICE = {
-  de: 'Zuerst das Preis-Gerät «Dynamischer Stromtarif CH» hinzufügen. Das Energiemanagement braucht seine 15-Minuten-Preise.',
-  en: 'Add the "Swiss Dynamic Electricity Tariff" price device first. Energy management needs its 15-minute prices.',
-  fr: 'Ajoutez d\'abord l\'appareil de prix « Tarif électrique dynamique CH ». La gestion de l\'énergie a besoin de ses prix par quart d\'heure.',
-  it: 'Aggiungi prima il dispositivo dei prezzi «Tariffa elettrica dinamica CH». La gestione dell\'energia ha bisogno dei suoi prezzi ogni quarto d\'ora.',
+  de: 'Zuerst das Preis-Gerät «Innostrom dynamischer Tarif» hinzufügen. Das Energiemanagement braucht seine 15-Minuten-Preise.',
+  en: 'Add the "Innostrom dynamic tariff" price device first. Energy management needs its 15-minute prices.',
+  fr: 'Ajoutez d\'abord l\'appareil de prix « Tarif dynamique Innostrom ». La gestion de l\'énergie a besoin de ses prix par quart d\'heure.',
+  it: 'Aggiungi prima il dispositivo dei prezzi «Tariffa dinamica Innostrom». La gestione dell\'energia ha bisogno dei suoi prezzi ogni quarto d\'ora.',
 };
 
 class EmsDriver extends Homey.Driver {

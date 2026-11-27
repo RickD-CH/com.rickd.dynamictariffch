@@ -7,7 +7,7 @@ Stand 27.11.2026. Ziel: **Ende Dezember 2026 live**. Der Vergleich mit dem ander
 - Silent ist **aus**. Live (Befehle senden): Batterie (Mindest-Gewinn 8 Rp./kWh), Wallbox, SG-Ready (Relais, nur Empfehlung 0:1, Zwangsladung aus), Warmwasser-Programm (Auslöser mit Wert), eBike, Luftentfeuchter (Befehle an Flows), Hausanschluss-Schutz (40 A, 90 %), Geschirrspüler/Waschmaschine/Tumbler (Automatik im Widget mit dem Schalter «Auto», sonst «Jetzt starten»).
 - Die Befehle laufen über den Auslöser «Das Energiemanagement gibt einen Befehl» und Flows des Nutzers (Rezepte unter Einrichten → EMS → «Flow-Rezepte»). Die Flow-Abzeichen zeigen, ob ein Flow wartet.
 - Wird ein Bereich auf Silent, «Befehle senden» aus oder EMS aus gestellt, gibt die App Batterie, Warmwasser-Soll und SG-Ready wieder frei.
-- Wichtige Meldungen (Fehler, Abschaltung durch den Hausanschluss-Schutz, Wärmepumpe folgt nicht, gelöschte Verweise) kommen in die Timeline. Für Fehlermeldungen: Reiter «Heute» → «Status» → «Fehler melden: Diagnose kopieren» (anonymisiert, mit den Ereignissen der letzten 48 Stunden).
+- Wichtige Meldungen (Fehler, Abschaltung durch den Hausanschluss-Schutz, Wärmepumpe folgt nicht, gelöschte Verweise) kommen in die Timeline. Für Fehlermeldungen: Reiter «Heute» → «Fehler melden: Diagnose kopieren» (anonymisiert, mit den Ereignissen der letzten 48 Stunden).
 - Speicher der App: 56-60 MB (27.11.2026), bei «neue daten?» mitprüfen; über Tage deutlich über 70 MB wäre ein Hinweis auf ein Leck.
 
 ## A. Vor dem Go-live (Ende Dezember)
