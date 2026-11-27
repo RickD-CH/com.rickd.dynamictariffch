@@ -32,6 +32,7 @@
       "spot price",
       "energy management",
       "EMS",
+      "HEMS",
       "EV charger"
     ],
     "de": [
@@ -45,6 +46,7 @@
       "Spotpreis",
       "Energiemanagement",
       "EMS",
+      "HEMS",
       "Wallbox"
     ],
     "fr": [
@@ -58,6 +60,7 @@
       "prix spot",
       "gestion de l'énergie",
       "EMS",
+      "HEMS",
       "borne de recharge"
     ],
     "it": [
@@ -71,6 +74,7 @@
       "prezzo spot",
       "gestione dell'energia",
       "EMS",
+      "HEMS",
       "colonnina di ricarica"
     ]
   },

@@ -227,5 +227,14 @@
       "flow": "Flow gelöscht",
       "capability": "Capability fehlt"
     }
+  },
+  "ems": {
+    "notify": {
+      "error": "Energiemanagement: {{message}}",
+      "fuseShed": "Hausanschluss-Schutz: {{name}} ausgeschaltet (Phase {{phase}} bei {{amps}} A).",
+      "sgMismatch": "SG-Ready: Die Wärmepumpe meldet «{{reported}}» statt des gesendeten Zustands. Bitte Anschluss und Einstellung der Wärmepumpe prüfen.",
+      "dhwSetpoint": "Warmwasser: Der Soll steht bei {{actual}} °C statt {{expected}} °C und liess sich nicht zurückstellen. Bitte an der Wärmepumpe prüfen.",
+      "refs": "Energiemanagement: {{n}} Verweis(e) auf gelöschte Geräte oder Flows. Bitte in den App-Einstellungen unter Energiemanagement prüfen."
+    }
   }
 }

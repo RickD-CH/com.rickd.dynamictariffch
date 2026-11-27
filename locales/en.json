@@ -227,5 +227,14 @@
       "flow": "Flow deleted",
       "capability": "Capability missing"
     }
+  },
+  "ems": {
+    "notify": {
+      "error": "Energy management: {{message}}",
+      "fuseShed": "House connection protection: {{name}} switched off (phase {{phase}} at {{amps}} A).",
+      "sgMismatch": "SG Ready: the heat pump reports \"{{reported}}\" instead of the state sent. Please check the wiring and the heat pump settings.",
+      "dhwSetpoint": "Hot water: the setpoint is at {{actual}} °C instead of {{expected}} °C and could not be reset. Please check the heat pump.",
+      "refs": "Energy management: {{n}} reference(s) to deleted devices or flows. Please check the app settings under energy management."
+    }
   }
 }

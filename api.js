@@ -17,6 +17,61 @@ function firstDevice(homey) {
   return devices[0] || null;
 }
 
+const DIAG_HOURS = 48;
+
+/**
+ * Für den Diagnose-Bericht: aktueller Zustand, gelöschte Verweise, Befehle ohne wartenden Flow und die gespeicherten Ereignisse
+ * der letzten 48 Stunden (Batterie, Verbraucher, Hausanschluss, Wallbox). Fehler hier dürfen den Bericht nie verhindern.
+ */
+async function emsDiag(homey) {
+  const ctl = homey.app && homey.app.ems;
+  if (!ctl) return null;
+  const out = {
+    state: [], refs: [], flows: null, events: [], hours: DIAG_HOURS,
+  };
+  const r = ctl.runner || null;
+  let sh = {};
+  try { sh = ctl.getShadow() || {}; } catch (err) { sh = {}; }
+  const n = (v, d = 1) => (Number.isFinite(v) ? Math.round(v * 10 ** d) / 10 ** d : '?');
+  try {
+    const dev = firstDevice(homey);
+    const p = dev && dev.getStatus ? (dev.getStatus() || {}).prices || {} : null;
+    if (p) out.state.push(`Preise: ${p.level || '?'}, heute ${p.todaySlots ?? '?'}/${p.todayExpected ?? '?'}, morgen ${p.tomorrowSlots ?? '?'}/${p.tomorrowExpected ?? '?'}, Fehler in Folge ${p.failures ?? 0}${p.lastError ? `, letzter Fehler ${p.lastError}` : ''}`);
+  } catch (err) { /* ohne Preis-Status */ }
+  const cur = sh.current || {};
+  const bc = sh.batteryControl || {};
+  if (sh.current || sh.batteryControl) out.state.push(`Batterie: ${n(cur.soc, 0)} %, Modus ${bc.mode || '?'}, live ${bc.live ? 'ja' : 'nein'}${bc.error ? `, FEHLER ${bc.error}` : ''}, Preis jetzt ${n(cur.price, 2)} Rp.`);
+  const ch = (sh.charger && sh.charger.current) || null;
+  if (ch) out.state.push(`Wallbox: ${(ch.mine && ch.mine.mode) || '?'} (${(ch.mine && ch.mine.reason) || ''}), angesteckt ${ch.connected ? 'ja' : 'nein'}, ${n(ch.chargerPowerW, 0)} W, Netz ${n(ch.gridW, 0)} W, PV ${n(ch.pvW, 0)} W, Obergrenze Hausanschluss ${ch.fuseCapAmps ?? '-'} A`);
+  if (sh.car) out.state.push(`E-Auto: ${sh.car.state || '?'} (${sh.car.reason || ''})${sh.car.byEnergy ? ', ohne Ladestand (Energie je Abfahrt)' : ''}`);
+  if (sh.fuse) out.state.push(`Hausanschluss: Phasen ${(sh.fuse.phasesA || []).map((v) => n(v)).join(' / ')} A, Grenze ${sh.fuse.limitA ?? '?'} A, Überlast ${sh.fuse.over ? 'ja' : 'nein'}${sh.fuse.error ? `, FEHLER ${sh.fuse.error}` : ''}`);
+  if (sh.sgready) out.state.push(`SG-Ready: ${sh.sgready.state || '?'} (${sh.sgready.reason || ''}), Wärmepumpe meldet ${sh.sgready.reported || '-'}${sh.sgready.mismatch ? ' (WEICHT AB)' : ''}`);
+  if (sh.dhw) out.state.push(`Warmwasser-Programm: ${sh.dhw.on ? 'läuft' : 'aus'} (${sh.dhw.reason || ''}), Warmwasser ${n(sh.dhw.tempWW)} °C${sh.dhw.setpointCheck ? `, Soll-Prüfung ${sh.dhw.setpointCheck.state}` : ''}`);
+  (r && Array.isArray(r.consumerCurrent) ? r.consumerCurrent : []).forEach((c) => {
+    out.state.push(`${c.name}: ${c.isOn ? 'ein' : 'aus'}, live ${c.live ? 'ja' : 'nein'}${c.reason ? ` (${c.reason})` : ''}`);
+  });
+  try {
+    const rc = ctl.refCheckResult() || {};
+    out.refs = rc.at ? rc.issues || [] : null; // null = seit dem Start noch nicht geprüft
+  } catch (err) { out.refs = null; }
+  try {
+    const fl = await ctl.commandFlowStatus();
+    out.flows = fl && fl.ok ? fl.status : null;
+  } catch (err) { out.flows = null; }
+  const since = Date.now() - DIAG_HOURS * 3600 * 1000;
+  const add = (ts, text) => { if (Number.isFinite(ts) && ts >= since) out.events.push({ ts, text }); };
+  if (r) {
+    (r.batteryEvents || []).forEach((e) => {
+      if (e.why === 'Wiederholung' && !e.error) return;
+      add(e.ts, `Batterie ${e.mode}${e.live ? '' : ' (simuliert)'}: ${e.reason || ''}${e.error ? ` | FEHLER ${e.error}` : ''}`);
+    });
+    (r.consumerEvents || []).forEach((e) => add(e.ts, `${e.name} ${e.cmd}${e.live ? '' : ' (simuliert)'}: ${e.reason || ''}`));
+    (r.fuseEvents || []).forEach((e) => add(e.ts, `Hausanschluss ${e.action}${e.name ? ` ${e.name}` : ''}${e.phase ? ` Phase ${e.phase}` : ''}${e.maxA !== null && e.maxA !== undefined ? ` ${e.maxA} A` : ''}${e.live ? '' : ' (simuliert)'}${e.error ? ` | FEHLER ${e.error}` : ''}`));
+  }
+  ((sh.charger && sh.charger.events) || []).forEach((e) => add(e.ts, `Wallbox ${typeof e.mine === 'string' ? e.mine : ((e.mine && e.mine.mode) || '?')}: ${e.reason || (e.mine && e.mine.reason) || ''}`));
+  return out;
+}
+
 module.exports = {
 
   // --- Zählerstände automatisch lesen ---
@@ -84,6 +139,7 @@ module.exports = {
       priceDevices,
       logs: diagLog.recent(120),
       redact,
+      ems: await emsDiag(homey).catch(() => null),
     });
     return { text, lines: text.split('\n').length };
   },
@@ -148,15 +204,6 @@ module.exports = {
 
   async getEmsFlows({ homey }) {
     return { flows: await homey.app.ems.listFlows() };
-  },
-
-  async getEmsRefCheck({ homey, query }) {
-    const ems = homey.app.ems;
-    return query && query.fresh === "1" ? ems.checkRefs() : ems.refCheckResult();
-  },
-
-  async postEmsRefClear({ homey, body }) {
-    return homey.app.ems.clearRef(body && body.key);
   },
 
   async getEmsRefCheck({ homey, query }) {

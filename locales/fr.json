@@ -227,5 +227,14 @@
       "flow": "Flow supprimé",
       "capability": "Capability manquante"
     }
+  },
+  "ems": {
+    "notify": {
+      "error": "Gestion de l’énergie : {{message}}",
+      "fuseShed": "Protection du raccordement : {{name}} désactivé (phase {{phase}} à {{amps}} A).",
+      "sgMismatch": "SG Ready : la pompe à chaleur indique « {{reported}} » au lieu de l’état envoyé. Veuillez vérifier le raccordement et les réglages de la pompe à chaleur.",
+      "dhwSetpoint": "Eau chaude : la consigne est à {{actual}} °C au lieu de {{expected}} °C et n’a pas pu être rétablie. Veuillez vérifier la pompe à chaleur.",
+      "refs": "Gestion de l’énergie : {{n}} référence(s) à des appareils ou Flows supprimés. Veuillez vérifier les réglages de l’app sous Gestion de l’énergie."
+    }
   }
 }

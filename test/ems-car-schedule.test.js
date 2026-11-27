@@ -304,3 +304,50 @@ test('carPlan: sind die Preise bis zur Abfahrt bekannt, gilt weiter die günstig
   assert.ok(!r.plan.patient);
   assert.equal(r.starts.length, r.plan.need);
 });
+
+// ---------------------------------------------------------------- Auto ohne Ladestand: feste Energie je Abfahrt
+
+test('carPlan ohne Ladestand: plant die Energie je Abfahrt minus bereits geladen, sonst wie bisher', () => {
+  const base = { schedule: weekdays(true), nowMs: tue(18), tz: TZ, soc: null, capacityKwh: 0, powerKw: 11, slots: slots() };
+  const r = carPlan({ ...base, fallbackKwh: 20, chargedKwh: 5 });
+  assert.equal(r.state, 'planned');
+  assert.equal(r.byEnergy, true);
+  assert.equal(r.needKwh, 15);
+  assert.equal(r.starts.length, Math.ceil((15 / 11) * 4));
+  assert.ok(r.starts.every((t) => t >= wed(0) && t < wed(5)), 'in den günstigen Nachtstunden');
+  assert.match(r.reason, /Auto: 15 kWh bis 11\.11\. 06:00/);
+  assert.equal(carPlan({ ...base, fallbackKwh: 20, chargedKwh: 20 }).state, 'reached');
+  assert.equal(carPlan({ ...base, fallbackKwh: 0 }).state, 'no_soc', '0 = aus');
+  assert.equal(carPlan({ ...base, fallbackKwh: 20, schedule: { ...weekdays(true), gridCharge: false } }).state, 'solar_only');
+  const withSoc = carPlan({ ...base, soc: 70, capacityKwh: 60, fallbackKwh: 20 });
+  assert.equal(withSoc.byEnergy, false, 'meldet das Auto einen Ladestand, gilt der Ladestand');
+  assert.equal(withSoc.needKwh, 6);
+});
+
+test('Runner: geladene Energie seit dem Einstecken - zählt mit, Abstecken und erreichte Abfahrt setzen zurück', () => {
+  const saved = [];
+  const self = { _carSession: null, _save: (k, v) => saved.push([k, v]) };
+  const count = (i, now, dep) => EmsRunner.prototype._carSessionKwh.call(self, i, now, dep);
+  const on = (w) => ({ chargerRead: true, chargerConnected: true, chargerPowerW: w });
+  const dep = wed(6);
+  assert.equal(count(on(11000), tue(22), dep), 0, 'erster Lauf: Start');
+  assert.ok(Math.abs(count(on(11000), tue(22) + 60000, dep) - 11000 / 60 / 1000) < 1e-9, '1 Minute mit 11 kW');
+  assert.ok(Math.abs(count(on(11000), tue(22) + 60000 + 600000, dep) - (11000 / 60 / 1000) * 3) < 1e-9, 'Lücke höchstens 2 Minuten gezählt');
+  assert.ok(count({ chargerRead: false }, tue(23), dep) > 0, 'Wallbox nicht lesbar: Stand bleibt');
+  assert.equal(count(on(0), wed(6) + 1, wed(6) + 24 * 3600000), 0, 'nach der Abfahrt beginnt die Zählung neu');
+  count(on(11000), wed(7), wed(6) + 24 * 3600000);
+  assert.equal(count({ chargerRead: true, chargerConnected: false, chargerPowerW: 0 }, wed(8), null), 0, 'abgesteckt');
+  assert.equal(self._carSession, null);
+  assert.deepEqual(saved[saved.length - 1], ['carSession', null]);
+});
+
+test('Config: Mindeststrom nie über dem Maximalstrom, alte Karten-Felder fallen weg, Phasenumschaltung standardmässig aus', () => {
+  const c = normalizeConfig({ charger: { maxAmps: 10, minAmps: 16, startCard: 'x', powerCard: 'y', powerArg: 'z' }, car: { fallbackKwh: 999 } });
+  assert.equal(c.charger.minAmps, 10);
+  assert.equal(c.charger.startCard, undefined);
+  assert.equal(c.charger.powerArg, undefined);
+  assert.equal(normalizeConfig({}).charger.phaseSwitch, false);
+  assert.equal(normalizeConfig({ charger: { phaseSwitch: true } }).charger.phaseSwitch, true);
+  assert.equal(c.car.fallbackKwh, 200);
+  assert.equal(normalizeConfig({}).car.fallbackKwh, 0);
+});

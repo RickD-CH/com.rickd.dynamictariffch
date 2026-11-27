@@ -57,7 +57,7 @@
       logCmdOnly: 'nur Schaltungen', logAllSim: 'Silent-Modus: alle Einträge sind simuliert.', logOnWord: 'ein', logOffWord: 'aus', logStartWord: 'gestartet', logTestTag: 'simuliert',
             maxConsumers: 'Höchstens 8 gesteuerte Verbraucher. Entferne einen oder führe weitere als reine Kostenzähler (ohne Gerät zum Schalten).',
       srcCar: 'E-Auto', whyCar: 'Optional, empfohlen mit Wallbox. Mit dem Ladestand des Autos (aus der App deines Autos) kannst du Aufträge als «Ziel-Ladestand bis Uhrzeit» planen. Ohne läuft alles weiter, dann gibst du die Energie in kWh an.',
-      carCap: 'Batteriegrösse des Autos (kWh)', carSocLbl: 'E-Auto', carNow: 'E-Auto jetzt', pvTargetSoc: 'Ziel-Ladestand (%, statt Energie)', pvNeedCarSoc: 'Der Ladestand des E-Autos ist unbekannt (Setup → E-Auto)', pvNeedCarCap: 'Batteriegrösse des E-Autos fehlt (Setup → E-Auto)',
+      carCap: 'Batteriegrösse des Autos (kWh)', carFallback: 'Ohne Ladestand: Energie je Abfahrt (kWh)', carFallbackH: 'Für Autos, die ihren Ladestand nicht an Homey melden. Die App lädt dann bis zu jeder Abfahrt aus der Wochenvorlage so viel Energie in den günstigsten Viertelstunden. Was seit dem Einstecken schon geladen wurde, wird abgezogen. Der Ziel-Ladestand in % gilt dann nicht. 0 = aus, dann lädt das Auto nur mit Solarstrom oder mit «Sofort laden». Liefert das Auto einen Ladestand, gilt immer der Ladestand.', carSocLbl: 'E-Auto', carNow: 'E-Auto jetzt', pvTargetSoc: 'Ziel-Ladestand (%, statt Energie)', pvNeedCarSoc: 'Der Ladestand des E-Autos ist unbekannt (Setup → E-Auto)', pvNeedCarCap: 'Batteriegrösse des E-Autos fehlt (Setup → E-Auto)',
       pvReachedAlready: 'Das Auto hat den Ziel-Ladestand schon erreicht', pvSocFrom: 'von', pvSocTo: 'auf', pvDayStrip: 'Vorschau im Tagesverlauf',
       cmdT: { 'battery.charge': 'Batterie: aus dem Netz laden', 'battery.hold': 'Batterie: halten (nicht entladen)', 'battery.normal': 'Batterie: Normalbetrieb', 'charger.start': 'Wallbox: Laden starten', 'charger.set': 'Wallbox: Ladeleistung setzen', 'charger.stop': 'Wallbox: Laden stoppen', 'sgready.normal': 'SG-Ready: Normalbetrieb', 'sgready.boost': 'SG-Ready: Empfehlung (Boost)', 'sgready.forced': 'SG-Ready: Zwangsladung', 'dhw.program': 'Warmwasser: Programm ein', 'dhw.normal': 'Warmwasser: zurück auf Normal', 'dhw.delay': 'Warmwasser: verzögern' },
       cmdTest: 'Testen', cmdTestFail: 'Befehl fehlgeschlagen:', cmdTestWhy: 'Mit «Testen» gibst du den Befehl einmal von Hand aus, auch im Testmodus, um deinen Flow zu prüfen (Werte vorsichtig: die Batterie bekommt keinen Ladeauftrag über den aktuellen Stand).',
@@ -79,7 +79,7 @@
       planTablePrices: 'AB JETZT: PREISE', planColLevel: 'Preisniveau',
       planShortCharge: 'Laden', planShortHold: 'Halten', planShortSolar: 'Solar', planShortFull: 'voll', planTableHint: '= geplant, sonst läuft es schon so.',
       planChSolar: 'lädt (Solar)', planChFull: 'lädt (volle Leistung)', planTag: 'geplant',       calcTitle: 'BERECHNUNG', calcRow: 'Rechenintervall', calcAuto: 'Automatisch', calcEvery: 'Alle', calcSecs: 's', calcOptAuto: 'Automatisch (15 s mit Auto, 30 s mit Verbrauchern, sonst 5 min)', calcOpt15: 'Alle 15 Sekunden', calcOpt30: 'Alle 30 Sekunden', calcOpt60: 'Jede Minute', calcOpt300: 'Alle 5 Minuten',
-      calcLabel: 'Wallbox und Verbraucher rechnen', calcTick: 'Batterie-Plan alle (Minuten)', calcDevices: 'gelesene Geräte', calcCalls: 'Abfragen pro Stunde',
+      notifyTitle: 'MELDUNGEN', notifyRow: 'Timeline', notifyOn: 'Wichtige Meldungen in die Timeline', notifyOnS: 'an', notifyOffS: 'aus', notifyH: 'Schreibt nur, was du wissen musst, je Vorfall einmal: Fehler (z. B. Wallbox oder Zähler nicht lesbar, Batterie-Befehl gescheitert, Sicherheits-Stopp), Abschaltung durch den Hausanschluss-Schutz, Wärmepumpe folgt nicht (SG-Ready-Zustand oder Warmwasser-Soll) und gelöschte Geräte oder Flows (höchstens einmal am Tag). Alltägliches wie Batteriewechsel oder Starts kommt nicht in die Timeline, dafür gibt es die Flow-Auslöser.', calcLabel: 'Wallbox und Verbraucher rechnen', calcTick: 'Batterie-Plan alle (Minuten)', calcDevices: 'gelesene Geräte', calcCalls: 'Abfragen pro Stunde',
       calcAutoImpact: 'Je nach Lage: ruhig 5 min, mit Verbrauchern 30 s, mit Auto an der Wallbox 15 s.',
       calcImpact: 'Kürzer: reagiert schneller auf Wolken und Lastwechsel, belastet Homey aber stärker (sehr viele Abfragen können das Limit von Homey erreichen). Länger: ruhiger und schonender, die Anlage reagiert träger und etwas Überschuss geht ans Netz. Halte- und Karenzzeiten (in Sekunden) wirken nur im Takt des Laufs.',
       calcTickHint: 'Der Batterie-Plan (nur Vergleich) rechnet in diesem Takt, 1 bis 15 Minuten. Die Preise ändern sich nur alle 15 Minuten.',
@@ -205,7 +205,7 @@
       minSurplus: 'Mindest-Überschuss (W)', startSustain: 'Überschuss muss anhalten (s)', stopGrace: 'Karenz vor dem Ausschalten (s)',
       advanced: 'Erweitert', minRun: 'Mindestlaufzeit (min)', minOff: 'Mindest-Pause (min)', protect: 'Schutz-SoC: darunter sofort aus (%)', useGate: 'Prognose-Sperre beachten',
       shareAt: 'Batterie ab (%)', shareGets: 'Anteil Solarstrom (%)', shareLowRow: 'Untere Grenze: ab hier bekommt das Auto Solarstrom', shareHighRow: 'Obere Grenze: ab hier bekommt es den vollen Überschuss', shareChartCap: 'So viel vom Solarstrom bekommt das Auto je Batteriestand', shareNow: 'Jetzt: Batterie {soc} % → das Auto bekommt {pct} % des Solarstroms.', shareBonusTitle: 'Prognose-Bonus', shareVal: 'Solaranteil Auto {pct} %', wbLinkTitle: 'Anschluss der Wallbox (wie sie angesprochen wird)', wbLinkWhy: 'Der Standard passt für Wallboxen mit den Karten «Laden starten» und «Ladeleistung setzen». Bei einer anderen Wallbox hier wählen, was das Gerät liest und welche Flow-Karten es zum Steuern hat. Die Leistung wird aus Ampere, Phasen und 230 V berechnet und in Watt an die Karte «Ladeleistung setzen» übergeben (Stopp = 0 W).', wbState: 'Ladezustand (Capability)', wbPower: 'Ladeleistung (Capability)', wbPhase: 'Phasen (Capability, optional)', wbPhaseH: 'Nur für die Phasenumschaltung. Erwartete Werte: 1 = eine Phase, 2 = drei Phasen.', wbNone: '– keine –', wbStd: 'Standard', wbCustom: 'Eigene Zuordnung', paLabel: 'LERNBERICHT', paRow: 'Plan-Genauigkeit', paSumWait: 'Misst seit {n} Tagen, ein Urteil gibt es ab {m} Tagen', paSumBetter: '{k} von {t} Prognosen lassen sich verbessern', paSumNone: 'Die heutigen Methoden sind gut genug', paWhy: 'Misst nur und ändert nichts: wie gut stimmen die Prognosen des Planers mit dem überein, was wirklich geschah. Fehler = Abweichung in Prozent des Gemessenen, kleiner ist besser.', paDays: 'Tage', paNow: 'heutige Methode', paAlt: 'Alternative', paBest: 'Besser', paLoadM: 'Verbrauch Morgen 05-10', paLoadD: 'Verbrauch Tag 10-17', paLoadE: 'Verbrauch Abend 17-22', paPvRest: 'Solar: Rest des Tages ab 10:30', paWait: 'noch {n} von {m} Tagen', paMean: 'Durchschnitt', paRobust: 'robust', paPlain: 'unverändert', paNowcast: 'mit Morgen-Korrektur', paSame: 'gleich gut', paNote: 'Verbrauch: «Durchschnitt» ist die heutige Methode (Mittel der letzten 7 Tage), «robust» der Median der gleichen Tagesart (Werktag/Wochenende), unempfindlich gegen einzelne Grossverbraucher. Solar: «unverändert» ist die Rest-Prognose, «mit Morgen-Korrektur» wird mit dem Verhältnis gemessen/prognostiziert von 06:00 bis 10:30 skaliert. Eine Methode gilt erst als besser, wenn ihr Fehler um mindestens 10 % kleiner ist.', pvAccTitle: 'Empfehlung aus den letzten Tagen', pvAccNone: 'Noch zu wenig Daten: {n} von mindestens {m} vollständigen Tagen. Die App hält jeden Morgen die Prognose des Tages fest und vergleicht sie am Abend mit der gemessenen Produktion.', pvAccRec: 'Empfehlung: {f} (Median aus {n} Tagen, meist zwischen {lo} und {hi}).', pvAccRecent: 'Nur die letzten {n} Tage: {f}.', pvApply: 'Übernehmen', pvAuto: 'Korrekturfaktor automatisch', pvAutoH: 'Ab 7 vollständigen Tagen trägt die App den empfohlenen Wert einmal am Tag selbst in das Feld ein. Das Feld zeigt dann den aktuellen Wert.', pvAccLog: 'Verlauf der letzten Tage', pvAccDay: 'Tag', pvAccFc: 'Prognose ohne Faktor (kWh)', pvAccAct: 'Gemessen (kWh)', pvAccRatio: 'Verhältnis', pvAccToday: 'heute', pvAccNote: 'Es zählen nur vollständige Tage mit mindestens 2 kWh Prognose. Das Verhältnis ist gemessen geteilt durch die Prognose ohne Faktor.', dlyTitle: 'Warmwasser verzögern (PV zuerst)', dlyWhy: 'Optional. Fällt das Warmwasser im Zeitfenster unter die Startschwelle der Wärmepumpe, wird ihr Start hinausgezögert (der WW-Soll wird per Flow abgesenkt), damit das Warmwasser mit Solarstrom oder im günstigen Block erzeugt wird statt morgens mit Netzstrom. Danach wird der Soll wieder freigegeben. Braucht die Ausgabe über die Aktionskarte oder die Flows «verzögern» und «zurück auf Normal» (oben).', dlyOn: 'Warmwasser verzögern', dlyFlow: 'Flow «Soll absenken (verzögern)»', dlyFrom: 'Zeitfenster von', dlyTo: 'bis', dlyForecast: 'Genug Sonne ab Prognose (kWh)', dlyForecastH: 'Rest-Prognose von heute. Ab diesem Wert wartet die Wärmepumpe bis zur Freigabezeit auf die Sonne (SG-Ready). Im November ist die Prognose oft zu hoch, darum eher tiefer ansetzen.', dlyComfort: 'Komfortgrenze (°C)', dlyComfortH: 'Fällt das Warmwasser unter diesen Wert, wird sofort freigegeben (niemand soll kalt duschen). Unter dieser Grenze wird auch nicht verzögert.', dlyRelWd: 'Freigabe Mo bis Fr', dlyRelWe: 'Freigabe Wochenende', dlyRelLow: 'Freigabe bei wenig Sonne', dlyRelLowH: 'Uhrzeit, zu der bei zu wenig Prognose (und ohne Preisoptimierung) freigegeben wird.', dlyMargin: 'Startschwelle: Marge über Soll minus Hysterese (K)', dlyMarginH: 'Verzögert wird, sobald das Warmwasser unter Soll minus Hysterese plus diese Marge fällt, also kurz bevor die Wärmepumpe von selbst startet.', dlyNow: 'Aktuell verzögert bis {time}: {why}', dlyNeed: 'Zum Verzögern fehlt die Aktionskarte (oben) bzw. die Flows «verzögern» und «zurück auf Normal».', dhwPriceFrom: 'Preisoptimierung ab (Datum, optional)', dhwPriceFromH: 'Günstigste Stunden und der Preis-Block beim Verzögern gelten erst ab diesem Datum, zum Beispiel mit dem dynamischen Tarif. Leer = sofort.', sgDhwCard: 'Aktionskarte eines Geräts (WW-Soll direkt schreiben, ohne Flow)', spDev: 'Gerät mit der Karte (z. B. das Modbus-Gerät der Wärmepumpe)', spCard: 'Aktionskarte (z. B. «Register schreiben»)', spValueArg: 'Argument für den Soll', spScale: 'Faktor (geschriebener Wert = °C × Faktor)', spScaleH: 'Register mit Zehntelgrad: 10 (48 °C wird als 480 geschrieben).', spProgram: 'Soll während des Programms (°C)', spDelay: 'Soll beim Verzögern (°C)', spNormal: 'Normaler Soll, falls nicht lesbar (°C)', spNormalH: 'Zurück auf Normal schreibt den vor dem Programm bzw. der Verzögerung gelesenen Soll. Ist der nicht bekannt, gilt dieser Wert.', spArgsWhy: 'Die übrigen Argumente der Karte (z. B. Registernummer, Adressierung, Typ) werden bei jedem Aufruf unverändert mitgegeben. Geschrieben werden nur Werte von 10 bis 60 °C.', spLoading: 'Die Karten des Geräts werden geladen …', spNoCard: 'Die gewählte Karte gibt es an diesem Gerät nicht.', sgDhwTrig: 'Auslöser mit Wert (ein Flow schreibt den Soll, für jede Wärmepumpe)', spTrigWhy: 'Die App löst bei jeder Änderung den Auslöser «Der Warmwasser-Soll soll gesetzt werden» aus (mit den Werten «Soll (°C)» und «Art»: program, delay oder normal). Du baust einen einzigen Flow: Wenn dieser Auslöser, dann schreibe den Soll an die Wärmepumpe (Modbus, Cloud-App, Relais …). Die drei Temperaturen stellst du hier ein, der normale Soll wird vor dem Programm bzw. der Verzögerung gemerkt.', curNow: 'Aktuell', curOn: 'ein', curOff: 'aus', shareTitle: 'Hausbatterie-Schutz: wie viel Solarstrom bekommt das Auto?', shareWhy: 'Solange das Auto eingesteckt ist, bekommt es je nach Batteriestand einen Teil des Solarstroms. Darunter wartet es ganz (Batterie zuerst), darüber steigt der Anteil linear bis zum vollen Überschuss. Gilt auch für Geräte ohne eigene Grenze («Hausbatterie zuerst bis»).', shareLo: 'Auto lädt ab Batterie (%)', sharePctLo: 'Anteil dort (%)', shareHi: 'Voller Überschuss ab Batterie (%)', sharePctHi: 'Anteil dort (%)', shareBonus: 'Prognose-Bonus (Prozentpunkte früher)', shareBonusH: 'Optional: Bringt die Solarprognose heute deutlich mehr Sonne, als die Batterie bis voll und das Haus bis zum Sonnenuntergang brauchen, wird die Rampe um bis zu so viele Prozentpunkte nach unten verschoben (das Auto lädt früher). Ohne frische Prognose oder gelerntes Hausprofil passiert nichts. 0 = aus.', shareBonusNow: 'Prognose-Bonus aktiv: Rampe aktuell {n} Punkte früher.', shareEx: 'Beispiel 30 / 30 / 70 / 100: ab 30 % Batterie geht ein Drittel des Solarstroms ins Auto, bei 70 % der ganze Überschuss. Standard 50 / 0 / 80 / 100: erst ab 50 % Batterie, dann langsam mehr.',
-      maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
+      advWb: 'Erweitert (Anschluss, Phasenumschaltung, Mindeststrom)', wbPhases: 'Phasen der Wallbox', wbPh1: '1 Phase', wbPh3: '3 Phasen', wbPhaseSwitch: 'Wallbox schaltet selbst zwischen 1 und 3 Phasen um', wbPhaseSwitchH: 'An: Bei wenig Sonne lädt die Wallbox einphasig (ab etwa 1,4 kW), bei viel Sonne dreiphasig. Nur einschalten, wenn die Wallbox das kann. Kann sie es nicht, lädt sie dreiphasig mit mindestens etwa 4,1 kW, und darunter wird nicht mit Sonne geladen.', minAmps: 'Mindeststrom (A)', minAmpsH: 'Kleinster Ladestrom, den Wallbox und Auto annehmen. Meist 6 A, manche Autos brauchen mehr. Höchstens so hoch wie der Maximalstrom.', maxAmps: 'Maximalstrom (A)', stepHold: 'Haltezeit vor Erhöhung (s)', chargeNowAutoOff: '«Sofort laden» beim Abstecken ausschalten',
       iconLbl: 'Symbol', iconNames: { dishwasher: 'Geschirrspüler', plug: 'Steckdose', bike: 'Velo', dehumidifier: 'Luftentfeuchter', boiler: 'Boiler', washer: 'Waschmaschine', tumbler: 'Tumbler', fan: 'Ventilator', heatpump: 'Wärmepumpe', pool: 'Pool', ac: 'Klimaanlage', heater: 'Heizstab', sauna: 'Sauna', freezer: 'Kühlgerät', pump: 'Pumpe', light: 'Licht', mower: 'Rasenroboter', purifier: 'Luftreiniger', aquarium: 'Aquarium' },
       accuTitle: 'Akku (z. B. eBike, Rasenmäher)', accuEnable: 'Ladestand des Akkus beachten', accuSensor: 'Ladestand von', accuCap: 'Wert', accuStop: 'Stoppen bei (%)', accuResume: 'Wieder laden unter (%)', accuLow: 'Immer laden unter (%)', accuMax: 'Spätestens aus nach (min)',
       accuHint: 'Stoppt bei der Grenze und lädt erst wieder, wenn der Akku darunter fällt. Unter der unteren Grenze wird auch ohne Überschuss geladen. Die Höchstdauer schaltet ab, falls der Ladestand nicht mehr ankommt (0 = ohne).',
@@ -269,7 +269,7 @@
       logCmdOnly: 'switching only', logAllSim: 'Silent mode: all entries are simulated.', logOnWord: 'on', logOffWord: 'off', logStartWord: 'started', logTestTag: 'simulated',
             maxConsumers: 'At most 8 controlled consumers. Remove one or keep further ones as cost meters only (without a device to switch).',
       srcCar: 'EV', whyCar: 'Optional, recommended with a charger. With the car\'s state of charge (from your car\'s app) you can plan jobs as "target charge by time". Without it everything keeps working, then you enter the energy in kWh.',
-      carCap: 'Car battery size (kWh)', carSocLbl: 'EV', carNow: 'EV now', pvTargetSoc: 'Target charge (%, instead of energy)', pvNeedCarSoc: 'The EV charge level is unknown (Setup → EV)', pvNeedCarCap: 'Car battery size is missing (Setup → EV)',
+      carCap: 'Car battery size (kWh)', carFallback: 'Without charge level: energy per departure (kWh)', carFallbackH: 'For cars that do not report their charge level to Homey. The app then charges this much energy in the cheapest quarter-hours before every departure from the weekly template. What has already been charged since plugging in is deducted. The target charge level in % does not apply then. 0 = off, then the car only charges with solar power or with "Charge now". If the car reports a charge level, the charge level always applies.', carSocLbl: 'EV', carNow: 'EV now', pvTargetSoc: 'Target charge (%, instead of energy)', pvNeedCarSoc: 'The EV charge level is unknown (Setup → EV)', pvNeedCarCap: 'Car battery size is missing (Setup → EV)',
       pvReachedAlready: 'The car has already reached the target charge', pvSocFrom: 'from', pvSocTo: 'to', pvDayStrip: 'Preview over the day',
       cmdT: { 'battery.charge': 'Battery: charge from the grid', 'battery.hold': 'Battery: hold (do not discharge)', 'battery.normal': 'Battery: normal operation', 'charger.start': 'EV charger: start charging', 'charger.set': 'EV charger: set charging power', 'charger.stop': 'EV charger: stop charging', 'sgready.normal': 'SG Ready: normal operation', 'sgready.boost': 'SG Ready: recommendation (boost)', 'sgready.forced': 'SG Ready: forced charging', 'dhw.program': 'Hot water: program on', 'dhw.normal': 'Hot water: back to normal', 'dhw.delay': 'Hot water: delay' },
       cmdTest: 'Test', cmdTestFail: 'Command failed:', cmdTestWhy: 'With "Test" you give the command once by hand, also in test mode, to check your flow (careful values: the battery gets no charge order above the current level).',
@@ -291,7 +291,7 @@
       planTablePrices: 'FROM NOW: PRICES', planColLevel: 'Price level',
       planShortCharge: 'charge', planShortHold: 'hold', planShortSolar: 'solar', planShortFull: 'full', planTableHint: '= planned, otherwise it is already running like this.',
       planChSolar: 'charging (solar)', planChFull: 'charging (full power)', planTag: 'planned',       calcTitle: 'CALCULATION', calcRow: 'Calculation interval', calcAuto: 'Automatic', calcEvery: 'Every', calcSecs: 's', calcOptAuto: 'Automatic (15 s with a car, 30 s with consumers, else 5 min)', calcOpt15: 'Every 15 seconds', calcOpt30: 'Every 30 seconds', calcOpt60: 'Every minute', calcOpt300: 'Every 5 minutes',
-      calcLabel: 'EV charger and consumers calculate', calcTick: 'Battery plan every (minutes)', calcDevices: 'devices read', calcCalls: 'requests per hour',
+      notifyTitle: 'NOTIFICATIONS', notifyRow: 'Timeline', notifyOn: 'Important notifications in the timeline', notifyOnS: 'on', notifyOffS: 'off', notifyH: 'Only writes what you need to know, once per incident: errors (e.g. EV charger or meter not readable, battery command failed, safety stop), switch-off by the house connection protection, heat pump does not follow (SG Ready state or hot-water setpoint) and deleted devices or flows (at most once a day). Everyday events such as battery changes or starts do not go to the timeline, the flow triggers are there for that.', calcLabel: 'EV charger and consumers calculate', calcTick: 'Battery plan every (minutes)', calcDevices: 'devices read', calcCalls: 'requests per hour',
       calcAutoImpact: 'Depending on the situation: idle 5 min, with consumers 30 s, with a car at the charger 15 s.',
       calcImpact: 'Shorter: reacts faster to clouds and load changes but puts more load on Homey (very many requests can hit Homey\'s limit). Longer: calmer and gentler, but the system reacts more slowly and some surplus goes to the grid. Hold and grace times (in seconds) only act in the rhythm of the run.',
       calcTickHint: 'The battery plan (comparison only) calculates at this rhythm, 1 to 15 minutes. Prices only change every 15 minutes.',
@@ -417,7 +417,7 @@
       minSurplus: 'Minimum surplus (W)', startSustain: 'Surplus must last (s)', stopGrace: 'Grace before switching off (s)',
       advanced: 'Advanced', minRun: 'Minimum run time (min)', minOff: 'Minimum pause (min)', protect: 'Protect SoC: off immediately below (%)', useGate: 'Respect forecast gate',
       shareAt: 'Battery from (%)', shareGets: 'Solar share (%)', shareLowRow: 'Lower limit: from here the car gets solar power', shareHighRow: 'Upper limit: from here it gets the full surplus', shareChartCap: 'How much of the solar power the car gets per battery level', shareNow: 'Now: battery {soc} % → the car gets {pct} % of the solar power.', shareBonusTitle: 'Forecast bonus', shareVal: 'Solar share car {pct} %', wbLinkTitle: 'Wallbox connection (how it is addressed)', wbLinkWhy: 'The default fits wallboxes with the cards "start charging" and "set charging power". For another wallbox choose what the device reports and which flow cards it has for control. The power is calculated from amps, phases and 230 V and passed in watts to the "set charging power" card (stop = 0 W).', wbState: 'Charging state (capability)', wbPower: 'Charging power (capability)', wbPhase: 'Phases (capability, optional)', wbPhaseH: 'Only for phase switching. Expected values: 1 = one phase, 2 = three phases.', wbNone: '– none –', wbStd: 'Default', wbCustom: 'Custom mapping', paLabel: 'LEARNING REPORT', paRow: 'Plan accuracy', paSumWait: 'Measuring for {n} days, a verdict from {m} days', paSumBetter: '{k} of {t} forecasts can be improved', paSumNone: 'The current methods are good enough', paWhy: 'Only measures, changes nothing: how well the planner\'s forecasts match what actually happened. Error = deviation in percent of the measured value, smaller is better.', paDays: 'Days', paNow: 'current method', paAlt: 'Alternative', paBest: 'Better', paLoadM: 'Consumption morning 05-10', paLoadD: 'Consumption day 10-17', paLoadE: 'Consumption evening 17-22', paPvRest: 'Solar: rest of the day from 10:30', paWait: '{n} of {m} days so far', paMean: 'average', paRobust: 'robust', paPlain: 'unchanged', paNowcast: 'with morning correction', paSame: 'equally good', paNote: 'Consumption: "average" is the current method (mean of the last 7 days), "robust" is the median of the same day type (weekday/weekend), not thrown off by single big loads. Solar: "unchanged" is the remaining-day forecast, "with morning correction" is scaled by measured/forecast from 06:00 to 10:30. A method only counts as better if its error is at least 10 % smaller.', pvAccTitle: 'Recommendation from the last days', pvAccNone: 'Not enough data yet: {n} of at least {m} complete days. Every morning the app records the forecast for the day and compares it in the evening with the measured production.', pvAccRec: 'Recommendation: {f} (median of {n} days, mostly between {lo} and {hi}).', pvAccRecent: 'Only the last {n} days: {f}.', pvApply: 'Apply', pvAuto: 'Correction factor automatic', pvAutoH: 'From 7 complete days on the app enters the recommended value into the field by itself once a day. The field then shows the current value.', pvAccLog: 'History of the last days', pvAccDay: 'Day', pvAccFc: 'Forecast without factor (kWh)', pvAccAct: 'Measured (kWh)', pvAccRatio: 'Ratio', pvAccToday: 'today', pvAccNote: 'Only complete days with at least 2 kWh forecast count. The ratio is measured divided by the forecast without factor.', dlyTitle: 'Delay hot water (PV first)', dlyWhy: 'Optional. If the hot water falls below the start threshold of the heat pump within the time window, its start is postponed (the DHW setpoint is lowered by a flow) so that the hot water is made with solar power or in the cheap block instead of with grid power in the morning. Afterwards the setpoint is released again. Needs the output via action card or the flows "delay" and "back to normal" (above).', dlyOn: 'Delay hot water', dlyFlow: 'Flow "lower setpoint (delay)"', dlyFrom: 'Time window from', dlyTo: 'to', dlyForecast: 'Enough sun from forecast (kWh)', dlyForecastH: 'Remaining forecast for today. From this value the heat pump waits for the sun (SG Ready) until the release time. In November the forecast is often too high, so set it rather lower.', dlyComfort: 'Comfort limit (°C)', dlyComfortH: 'If the hot water falls below this value it is released immediately (nobody should have a cold shower). Below this limit nothing is delayed either.', dlyRelWd: 'Release Mon to Fri', dlyRelWe: 'Release weekend', dlyRelLow: 'Release with little sun', dlyRelLowH: 'Time of release when the forecast is too low (and without price optimization).', dlyMargin: 'Start threshold: margin above setpoint minus hysteresis (K)', dlyMarginH: 'Delaying starts as soon as the hot water falls below setpoint minus hysteresis plus this margin, i.e. shortly before the heat pump starts by itself.', dlyNow: 'Currently delayed until {time}: {why}', dlyNeed: 'Delaying needs the action card (above) or the flows "delay" and "back to normal".', dhwPriceFrom: 'Price optimization from (date, optional)', dhwPriceFromH: 'Cheapest hours and the price block when delaying only apply from this date, for example with the dynamic tariff. Empty = immediately.', sgDhwCard: 'Action card of a device (write the DHW setpoint directly, no flow)', spDev: 'Device with the card (e.g. the Modbus device of the heat pump)', spCard: 'Action card (e.g. "write register")', spValueArg: 'Argument for the setpoint', spScale: 'Factor (written value = °C × factor)', spScaleH: 'Register in tenths of a degree: 10 (48 °C is written as 480).', spProgram: 'Setpoint during the program (°C)', spDelay: 'Setpoint when delaying (°C)', spNormal: 'Normal setpoint if not readable (°C)', spNormalH: 'Back to normal writes the setpoint read before the program or the delay. If that is unknown, this value is used.', spArgsWhy: 'The other arguments of the card (e.g. register number, addressing, type) are passed unchanged on every call. Only values from 10 to 60 °C are written.', spLoading: 'Loading the cards of the device …', spNoCard: 'The chosen card does not exist on this device.', sgDhwTrig: 'Trigger with value (one flow writes the setpoint, for any heat pump)', spTrigWhy: 'On every change the app fires the trigger "The hot-water setpoint should be set" (with the values "Setpoint (°C)" and "Kind": program, delay or normal). You build a single flow: when this trigger, write the setpoint to the heat pump (Modbus, cloud app, relay …). You set the three temperatures here; the normal setpoint is remembered before the program or the delay.', curNow: 'Now', curOn: 'on', curOff: 'off', shareTitle: 'Home battery protection: how much solar power does the car get?', shareWhy: 'While the car is plugged in it gets a share of the solar power depending on the battery level. Below the first level it waits completely (battery first), above it the share rises linearly up to the full surplus. Also applies to devices without their own limit ("home battery first up to").', shareLo: 'Car charges from battery (%)', sharePctLo: 'Share there (%)', shareHi: 'Full surplus from battery (%)', sharePctHi: 'Share there (%)', shareBonus: 'Forecast bonus (percentage points earlier)', shareBonusH: 'Optional: if the solar forecast shows clearly more sun today than the battery needs to fill up and the house until sunset, the ramp moves down by up to this many points (the car charges earlier). Without a fresh forecast or a learned house profile nothing happens. 0 = off.', shareBonusNow: 'Forecast bonus active: ramp currently {n} points earlier.', shareEx: 'Example 30 / 30 / 70 / 100: from 30 % battery a third of the solar power goes to the car, at 70 % all of the surplus. Default 50 / 0 / 80 / 100: only from 50 % battery, then gradually more.',
-      maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
+      advWb: 'Advanced (connection, phase switching, minimum current)', wbPhases: 'Wallbox phases', wbPh1: '1 phase', wbPh3: '3 phases', wbPhaseSwitch: 'Wallbox switches between 1 and 3 phases by itself', wbPhaseSwitchH: 'On: with little sun the wallbox charges on one phase (from about 1.4 kW), with plenty of sun on three phases. Only switch this on if the wallbox can do it. If it cannot, it charges on three phases with at least about 4.1 kW, and below that it does not charge from solar.', minAmps: 'Minimum current (A)', minAmpsH: 'Smallest charging current the wallbox and the car accept. Usually 6 A, some cars need more. At most as high as the maximum current.', maxAmps: 'Maximum current (A)', stepHold: 'Hold time before increase (s)', chargeNowAutoOff: 'Switch off "Charge now" when unplugged',
       iconLbl: 'Icon', iconNames: { dishwasher: 'Dishwasher', plug: 'Socket', bike: 'Bike', dehumidifier: 'Dehumidifier', boiler: 'Water heater', washer: 'Washing machine', tumbler: 'Tumble dryer', fan: 'Fan', heatpump: 'Heat pump', pool: 'Pool', ac: 'Air conditioning', heater: 'Heating element', sauna: 'Sauna', freezer: 'Fridge / freezer', pump: 'Pump', light: 'Light', mower: 'Robot mower', purifier: 'Air purifier', aquarium: 'Aquarium' },
       accuTitle: 'Battery pack (e.g. e-bike, lawn mower)', accuEnable: 'Respect the battery charge level', accuSensor: 'Charge level from', accuCap: 'Value', accuStop: 'Stop at (%)', accuResume: 'Charge again below (%)', accuLow: 'Always charge below (%)', accuMax: 'Switch off at the latest after (min)',
       accuHint: 'Stops at the limit and only charges again once the battery drops below it. Below the lower limit it charges even without surplus. The maximum duration switches off if the charge level stops arriving (0 = none).',
@@ -640,7 +640,7 @@
       maxConsumers: 'Au maximum 8 consommateurs pilotés. Supprimez-en un ou gardez les autres comme simples compteurs de coûts (sans appareil à commuter).',
       srcCar: 'Voiture',
       whyCar: 'Facultatif, recommandé avec une wallbox. Avec le niveau de charge de la voiture (depuis l’app de votre voiture), vous pouvez planifier des tâches du type « niveau de charge cible à une heure donnée ». Sans lui, tout continue de fonctionner, vous indiquez alors l’énergie en kWh.',
-      carCap: 'Capacité de la batterie de la voiture (kWh)',
+      carCap: 'Capacité de la batterie de la voiture (kWh)', carFallback: 'Sans niveau de charge : énergie par départ (kWh)', carFallbackH: 'Pour les voitures qui ne transmettent pas leur niveau de charge à Homey. L’app charge alors cette quantité d’énergie dans les quarts d’heure les moins chers avant chaque départ du modèle hebdomadaire. Ce qui a déjà été chargé depuis le branchement est déduit. Le niveau de charge cible en % ne s’applique alors pas. 0 = désactivé, la voiture ne charge alors qu’avec le courant solaire ou avec « Charger maintenant ». Si la voiture transmet un niveau de charge, c’est toujours lui qui s’applique.',
       carSocLbl: 'Voiture',
       carNow: 'Voiture maintenant',
       pvTargetSoc: 'Niveau de charge cible (%, au lieu de l’énergie)',
@@ -779,7 +779,7 @@
       calcOpt30: 'Toutes les 30 secondes',
       calcOpt60: 'Toutes les minutes',
       calcOpt300: 'Toutes les 5 minutes',
-      calcLabel: 'La wallbox et les consommateurs calculent',
+      notifyTitle: 'NOTIFICATIONS', notifyRow: 'Timeline', notifyOn: 'Notifications importantes dans la timeline', notifyOnS: 'activé', notifyOffS: 'désactivé', notifyH: 'N’écrit que ce que vous devez savoir, une fois par incident : erreurs (p. ex. wallbox ou compteur illisible, commande de batterie échouée, arrêt de sécurité), coupure par la protection du raccordement, pompe à chaleur qui ne suit pas (état SG Ready ou consigne d’eau chaude) et appareils ou Flows supprimés (au plus une fois par jour). Les événements quotidiens comme les changements de batterie ou les démarrages ne vont pas dans la timeline, les déclencheurs Flow sont là pour cela.', calcLabel: 'La wallbox et les consommateurs calculent',
       calcTick: 'Plan de la batterie toutes les (minutes)',
       calcDevices: 'appareils lus',
       calcCalls: 'requêtes par heure',
@@ -1231,7 +1231,7 @@
       shareBonusH: 'Facultatif : si la prévision solaire annonce nettement plus de soleil aujourd’hui que ce dont la batterie a besoin pour se remplir et la maison jusqu’au coucher du soleil, la rampe se décale vers le bas d’au plus autant de points (la voiture charge plus tôt). Sans prévision récente ni profil de maison appris, rien ne se passe. 0 = désactivé.',
       shareBonusNow: 'Bonus de prévision actif : rampe actuellement {n} points plus tôt.',
       shareEx: 'Exemple 30 / 30 / 70 / 100 : à partir de 30 % de batterie, un tiers du courant solaire va à la voiture, à 70 % tout le surplus. Par défaut 50 / 0 / 80 / 100 : seulement à partir de 50 % de batterie, puis de plus en plus.',
-      maxAmps: 'Courant maximal (A)',
+      advWb: 'Avancé (raccordement, commutation de phases, courant minimal)', wbPhases: 'Phases de la wallbox', wbPh1: '1 phase', wbPh3: '3 phases', wbPhaseSwitch: 'La wallbox commute elle-même entre 1 et 3 phases', wbPhaseSwitchH: 'Activé : avec peu de soleil, la wallbox charge en monophasé (à partir d’environ 1,4 kW), avec beaucoup de soleil en triphasé. À activer seulement si la wallbox en est capable. Sinon elle charge en triphasé avec au moins environ 4,1 kW, et en dessous elle ne charge pas avec le soleil.', minAmps: 'Courant minimal (A)', minAmpsH: 'Plus petit courant de charge accepté par la wallbox et la voiture. En général 6 A, certaines voitures ont besoin de plus. Au plus aussi élevé que le courant maximal.', maxAmps: 'Courant maximal (A)',
       stepHold: 'Temps de maintien avant augmentation (s)',
       chargeNowAutoOff: 'Désactiver « Charge immédiate » au débranchement',
       iconLbl: 'Icône',
@@ -1516,7 +1516,7 @@
       maxConsumers: 'Al massimo 8 consumatori controllati. Rimuovine uno o tieni gli altri solo come contatori dei costi (senza dispositivo da commutare).',
       srcCar: 'Auto',
       whyCar: 'Facoltativo, consigliato con una wallbox. Con il livello di carica dell’auto (dall’app della tua auto) puoi pianificare attività come «livello di carica obiettivo entro un orario». Senza, tutto continua a funzionare, e indichi l’energia in kWh.',
-      carCap: 'Capacità della batteria dell’auto (kWh)',
+      carCap: 'Capacità della batteria dell’auto (kWh)', carFallback: 'Senza livello di carica: energia per partenza (kWh)', carFallbackH: 'Per le auto che non comunicano il loro livello di carica a Homey. L’app carica allora questa quantità di energia nei quarti d’ora più convenienti prima di ogni partenza del modello settimanale. Quanto già caricato dal collegamento viene detratto. Il livello di carica obiettivo in % allora non vale. 0 = disattivato, l’auto carica allora solo con l’energia solare o con «Carica ora». Se l’auto comunica un livello di carica, vale sempre il livello di carica.',
       carSocLbl: 'Auto',
       carNow: 'Auto adesso',
       pvTargetSoc: 'Livello di carica obiettivo (%, invece dell’energia)',
@@ -1655,7 +1655,7 @@
       calcOpt30: 'Ogni 30 secondi',
       calcOpt60: 'Ogni minuto',
       calcOpt300: 'Ogni 5 minuti',
-      calcLabel: 'Wallbox e consumatori calcolano',
+      notifyTitle: 'NOTIFICHE', notifyRow: 'Timeline', notifyOn: 'Notifiche importanti nella timeline', notifyOnS: 'attivo', notifyOffS: 'disattivo', notifyH: 'Scrive solo ciò che devi sapere, una volta per evento: errori (ad es. wallbox o contatore non leggibile, comando della batteria non riuscito, arresto di sicurezza), spegnimento da parte della protezione dell’allacciamento, pompa di calore che non segue (stato SG Ready o setpoint dell’acqua calda) e dispositivi o Flow eliminati (al massimo una volta al giorno). Gli eventi quotidiani come i cambi della batteria o gli avvii non vanno nella timeline, per questo ci sono i trigger Flow.', calcLabel: 'Wallbox e consumatori calcolano',
       calcTick: 'Piano della batteria ogni (minuti)',
       calcDevices: 'dispositivi letti',
       calcCalls: 'richieste all’ora',
@@ -2107,7 +2107,7 @@
       shareBonusH: 'Facoltativo: se la previsione solare indica oggi nettamente più sole di quanto servano alla batteria per riempirsi e alla casa fino al tramonto, la rampa si sposta verso il basso di al massimo altrettanti punti (l’auto carica prima). Senza una previsione recente o un profilo della casa appreso non succede nulla. 0 = disattivato.',
       shareBonusNow: 'Bonus di previsione attivo: rampa attualmente {n} punti prima.',
       shareEx: 'Esempio 30 / 30 / 70 / 100: dal 30 % di batteria un terzo dell’energia solare va all’auto, al 70 % tutta l’eccedenza. Predefinito 50 / 0 / 80 / 100: solo dal 50 % di batteria, poi gradualmente di più.',
-      maxAmps: 'Corrente massima (A)',
+      advWb: 'Avanzate (collegamento, commutazione delle fasi, corrente minima)', wbPhases: 'Fasi della wallbox', wbPh1: '1 fase', wbPh3: '3 fasi', wbPhaseSwitch: 'La wallbox commuta da sola tra 1 e 3 fasi', wbPhaseSwitchH: 'Attivo: con poco sole la wallbox carica in monofase (da circa 1,4 kW), con molto sole in trifase. Attivalo solo se la wallbox ne è capace. Altrimenti carica in trifase con almeno circa 4,1 kW e sotto questa soglia non carica con il sole.', minAmps: 'Corrente minima (A)', minAmpsH: 'La corrente di carica più piccola accettata da wallbox e auto. Di solito 6 A, alcune auto ne richiedono di più. Al massimo quanto la corrente massima.', maxAmps: 'Corrente massima (A)',
       stepHold: 'Tempo di attesa prima dell’aumento (s)',
       chargeNowAutoOff: 'Disattiva «Carica immediata» allo scollegamento',
       iconLbl: 'Icona',
@@ -2531,7 +2531,11 @@
     }
     var d = srcDevice(s.key);
     var batExtra = s.key === 'bat' && d.id ? batteryPlanHtml() + batteryControlHtml() : '';
-    var carExtra = s.key === 'car' && d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div><p class="ems-why">' + esc(S.carSetupHint) + '</p>' : '';
+    var carExtra = s.key === 'car'
+      ? (d.id ? '<div class="ems-row">' + field(S.carCap, 'ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0, 'number', ' step="1" min="0" max="300"') + '</div>' : '')
+        + '<div class="ems-row">' + field(S.carFallback, 'ems-car-fb', state.cfg.car && state.cfg.car.fallbackKwh ? state.cfg.car.fallbackKwh : 0, 'number', ' step="1" min="0" max="200"', S.carFallbackH) + '</div>'
+        + '<p class="ems-why">' + esc(S.carSetupHint) + '</p>'
+      : '';
     return why + '<div class="ems-row"><label class="ems-f ems-wide"><span>' + esc(S.device) + '</span><select id="src-' + s.key + '-dev" data-ems-src="' + s.key + '">' + deviceOptions(d.id, s.filter, s.tag === 'required' ? S.pick : S.none) + '</select></label>'
       + '<label class="ems-f ems-wide"><span>' + esc(S.value) + '</span><select id="src-' + s.key + '-cap">' + capOptions(d.id, s.re, d.cap) + '</select></label>' + (d.id && d.cap ? curHtml(d.id, d.cap) : '') + '</div>' + carExtra + batExtra;
   }
@@ -2564,7 +2568,7 @@
     var rows = [];
     var cm = findMeter(c.charger.costName);
     rows.push({
-      kind: 'charger', name: c.charger.costName || 'E-Auto', control: true, deviceId: c.charger.id, maxAmps: c.charger.maxAmps, stepHoldS: c.charger.stepHoldS, live: c.charger.live === true, autoOff: c.charger.chargeNowAutoOff !== false,
+      kind: 'charger', name: c.charger.costName || 'E-Auto', control: true, deviceId: c.charger.id, maxAmps: c.charger.maxAmps, minAmps: c.charger.minAmps, phases: c.charger.phases === 1 ? 1 : 3, phaseSwitch: c.charger.phaseSwitch === true, stepHoldS: c.charger.stepHoldS, live: c.charger.live === true, autoOff: c.charger.chargeNowAutoOff !== false,
       meterDeviceId: cm ? cm.deviceId : '', meterCap: cm ? cm.capability : '',
     });
     (c.consumers || []).forEach(function (x) {
@@ -2878,10 +2882,32 @@
 
   /** Diagramm, «Jetzt»-Zeile und Bonus-Meldung der Box (mit den Statusdaten und, wenn angegeben, den gerade getippten Werten). */
   function shareLiveHtml(sh) {
-    var info = state.shadow && state.shadow.shareInfo;
+    // Live-Werte (Ladestand, Prognose-Verschiebung) vom Status, die Rampe aber aus den gerade getippten Werten rechnen,
+    // sonst zeigt das Diagramm bis zum Speichern die alte Rampe (gleiche Formel wie planner/charger.js und shareBonus.js)
+    var info = shareInfoFor(sh, state.shadow && state.shadow.shareInfo);
     var now = info && info.pct !== null && info.pct !== undefined && info.soc !== null && info.soc !== undefined
       ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareNow.replace('{soc}', info.soc).replace('{pct}', info.pct)) + '</p>' : '';
     return '<span class="ems-f">' + esc(S.shareChartCap) + '</span>' + shareChart(sh, info) + now;
+  }
+  function shareInfoFor(sh, live) {
+    if (!live) return null;
+    var shift = Number(live.shift) || 0;
+    var lo0 = Number(sh.socLow) || 0;
+    var hi0 = Number(sh.socHigh) || 0;
+    var lo = shift > 0 ? Math.max(0, lo0 - shift) : lo0;
+    var hi = shift > 0 ? Math.max(lo + 1, hi0 - shift) : hi0;
+    var pl = Number(sh.pctLow) || 0;
+    var ph = sh.pctHigh === undefined ? 100 : Number(sh.pctHigh);
+    var soc = live.soc;
+    var pct = null;
+    if (soc !== null && soc !== undefined && hi > lo) {
+      if (soc < lo) pct = 0;
+      else {
+        var t = Math.min(1, Math.max(0, (soc - lo) / (hi - lo)));
+        pct = Math.round(Math.min(1, Math.max(0, pl / 100 + t * (ph / 100 - pl / 100))) * 100);
+      }
+    }
+    return { soc: soc, pct: pct, lo: lo, hi: hi, pctLow: pl, pctHigh: ph, shift: shift };
   }
   function shareBonusLine() {
     return state.shadow && state.shadow.shareShift > 0 ? '<p class="ems-why ems-ok" style="margin:4px 0">' + esc(S.shareBonusNow.replace('{n}', state.shadow.shareShift)) + '</p>' : '';
@@ -2924,6 +2950,10 @@
         + wbLinkBox(r, p)
         + shareBox()
         + '<div class="ems-row">' + field(S.maxAmps, p + 'maxAmps', r.maxAmps) + field(S.stepHold, p + 'stepHold', r.stepHoldS) + '</div>'
+        + '<details class="ems-adv"' + (state.open[p + 'wbadv'] ? ' open' : '') + '><summary data-ems-adv="' + p + 'wbadv">' + esc(S.advWb) + '</summary>'
+        + '<div class="ems-row"><label class="ems-f"><span>' + esc(S.wbPhases) + '</span><select id="' + p + 'phases"><option value="3"' + (r.phases === 1 ? '' : ' selected') + '>' + esc(S.wbPh3) + '</option><option value="1"' + (r.phases === 1 ? ' selected' : '') + '>' + esc(S.wbPh1) + '</option></select></label>'
+        + field(S.minAmps, p + 'minAmps', r.minAmps === undefined ? 6 : r.minAmps, 'number', ' step="1" min="6" max="32"', S.minAmpsH) + '</div>'
+        + '<div class="ems-row">' + check(S.wbPhaseSwitch, p + 'phaseSwitch', r.phaseSwitch === true, S.wbPhaseSwitchH) + '</div></details>'
         + '<label class="ems-c"><span class="swt"><input class="sw" type="checkbox" id="' + p + 'autoOff"' + (r.autoOff !== false ? ' checked' : '') + '><i></i></span> <span>' + esc(S.chargeNowAutoOff) + '</span></label>';
     }
     var modes = [['surplus', S.modeSurplus], ['program', S.modeProgram]].concat(hasBattery() ? [['full', S.modeFull], ['soc', S.modeSoc]] : []);
@@ -3484,6 +3514,8 @@
       + '<p class="lbl">' + esc(S.cmdLabel) + '</p><div class="ems-list">' + listRow('cmd', 'bolt', '#8e44ad', S.cmdRow, '', cmdSummary(), commandsHtml(), true) + '</div>'
       + '<p class="lbl">' + esc(S.paLabel) + '</p><div class="ems-list">' + listRow('learn', 'target', '#16a085', S.paRow, '', planAccuracySummary(), planAccuracyHtml(), true) + '</div>'
       + '<p class="lbl">' + esc(S.calcTitle) + '</p><div class="ems-list">' + listRow('calc', 'clock', '#6b7280', S.calcRow, '', { text: calcSummary(), cls: 'muted' }, calcBody()) + '</div>'
+      + '<p class="lbl">' + esc(S.notifyTitle) + '</p><div class="ems-list">' + listRow('notify', 'clock', '#6b7280', S.notifyRow, '', { text: state.cfg.notify === false ? S.notifyOffS : S.notifyOnS, cls: 'muted' },
+        '<div class="ems-row"><label class="ems-c"><span class="swt"><input class="sw" type="checkbox" data-ems-notify="1"' + (state.cfg.notify === false ? '' : ' checked') + '><i></i></span> <span>' + esc(S.notifyOn) + '</span></label></div><p class="ems-why">' + esc(S.notifyH) + '</p>') + '</div>'
       + '<p><button class="ems-save" id="ems-savebtn" data-ems-save="1">' + esc(state.dirty ? S.saveDirty : S.save) + '</button></p><p class="sub" id="ems-msg">' + esc(state.msg) + '</p>';
   }
 
@@ -3627,13 +3659,13 @@
   /** Kurze Statuszeile für «Heute». */
   function carCompactHtml() {
     var c = state.cfg.car || {};
-    if (!c.deviceId) return '';
+    if (!c.deviceId && !(c.fallbackKwh > 0)) return ''; // Auto in Homey oder Energie je Abfahrt
     var car = (state.shadow && state.shadow.car) || null;
     var soc = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '';
     var parts = [((function () { var d = findDevice((state.cfg.car || {}).deviceId); return d && d.name ? d.name : S.carSocLbl; })() + ' ' + soc).trim()];
     if (!car) parts.push(S.carWaiting);
     if (carHolidayText()) parts.push(carHolidayText());
-    if (car && car.departure) parts.push(car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at));
+    if (car && car.departure) parts.push((car.byEnergy ? c.fallbackKwh + ' kWh' : car.departure.soc + ' %') + ' ' + S.pvUntilShort + ' ' + time(car.departure.at));
     if (car) {
       var st = (S.carSt && S.carSt[car.state]) || car.state;
       if (car.starts && car.starts.length) st += ' ' + hm(car.starts[0]) + '-' + hm(car.starts[car.starts.length - 1] + 900000);
@@ -3646,13 +3678,13 @@
   /** Auto-Karte unter «Ausblick»: Status, «Heute/Morgen» oben, Wochenvorlage einklappbar darunter. */
   function carCardHtml() {
     var c = state.cfg.car || {};
-    if (!c.deviceId) return '';
+    if (!c.deviceId && !(c.fallbackKwh > 0)) return ''; // Auto in Homey oder Energie je Abfahrt
     var car = (state.shadow && state.shadow.car) || null;
     var sc = carSchedule();
     var lines = [];
     var socTxt = car && car.soc !== null && car.soc !== undefined ? Math.round(car.soc) + ' %' : '-';
     if (car && car.departure) {
-      lines.push(S.carNext + ': ' + car.departure.soc + ' % ' + S.pvUntilShort + ' ' + time(car.departure.at) + ' (' + (car.departure.source === 'override' ? S.carFromOverride : S.carFromCal) + ')');
+      lines.push(S.carNext + ': ' + (car.byEnergy ? c.fallbackKwh + ' kWh' : car.departure.soc + ' %') + ' ' + S.pvUntilShort + ' ' + time(car.departure.at) + ' (' + (car.departure.source === 'override' ? S.carFromOverride : S.carFromCal) + ')');
     } else lines.push(S.carNext + ': ' + S.carNone);
     if (carHolidayText()) lines.unshift(carHolidayText());
     if (car) {
@@ -4345,6 +4377,7 @@
         }
       }
       if (s.key === 'car' && state.open['src-car'] && $('ems-car-cap')) state.cfg.car = Object.assign({ deviceId: '', socCapability: 'measure_battery' }, state.cfg.car, { capacityKwh: num('ems-car-cap', state.cfg.car ? state.cfg.car.capacityKwh : 0) });
+      if (s.key === 'car' && state.open['src-car'] && $('ems-car-fb')) state.cfg.car = Object.assign({ deviceId: '', socCapability: 'measure_battery' }, state.cfg.car, { fallbackKwh: Math.min(200, Math.max(0, num('ems-car-fb', state.cfg.car ? state.cfg.car.fallbackKwh || 0 : 0))) });
       var d = srcDevice(s.key);
       if (!state.open['src-' + s.key]) return;
       var id = val('src-' + s.key + '-dev', d.id);
@@ -4361,6 +4394,9 @@
       r.meterCap = val(p + 'mcap', r.meterCap);
       if (r.kind === 'charger') {
         r.maxAmps = num(p + 'maxAmps', r.maxAmps); r.stepHoldS = num(p + 'stepHold', r.stepHoldS);
+        if ($(p + 'minAmps')) r.minAmps = num(p + 'minAmps', r.minAmps);
+        if ($(p + 'phases')) r.phases = Number($(p + 'phases').value) === 1 ? 1 : 3;
+        if ($(p + 'phaseSwitch')) r.phaseSwitch = chk(p + 'phaseSwitch');
         if ($(p + 'autoOff')) r.autoOff = chk(p + 'autoOff');
         return;
       }
@@ -4431,11 +4467,12 @@
         backupReserve: { soc: c.battery.backupReserve ? c.battery.backupReserve.soc : 50 }, // active geht nur über «Heute» oder einen Flow, nie über diesen Speichern-Knopf
         control: { enabled: !!(c.battery.control && c.battery.control.enabled), normalDischargeW: c.battery.control ? c.battery.control.normalDischargeW : 7000, repeatMin: c.battery.control ? c.battery.control.repeatMin : 10 },
       },
-      charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false, stateCapability: c.charger.stateCapability, powerCapability: c.charger.powerCapability, phaseCapability: c.charger.phaseCapability, startCard: c.charger.startCard, powerCard: c.charger.powerCard, powerArg: c.charger.powerArg },
+      charger: { id: charger ? charger.deviceId : c.charger.id, costName: charger ? charger.name : c.charger.costName, maxAmps: charger ? charger.maxAmps : c.charger.maxAmps, stepHoldS: charger ? charger.stepHoldS : c.charger.stepHoldS, minAmps: charger ? charger.minAmps : c.charger.minAmps, phases: charger ? charger.phases : c.charger.phases, phaseSwitch: charger ? charger.phaseSwitch === true : c.charger.phaseSwitch === true, chargeNowAutoOff: charger ? charger.autoOff !== false : c.charger.chargeNowAutoOff !== false, stateCapability: c.charger.stateCapability, powerCapability: c.charger.powerCapability, phaseCapability: c.charger.phaseCapability },
       pv: { factor: c.pv ? c.pv.factor : 1, factorAuto: !!(c.pv && c.pv.factorAuto), source: (c.pv && c.pv.source) || 'auto', device: (c.pv && c.pv.device) || { id: '', today: '', tomorrow: '' } },
-      car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0 },
+      car: { schedule: c.car && c.car.schedule ? c.car.schedule : undefined, deviceId: c.car ? c.car.deviceId : '', socCapability: c.car ? c.car.socCapability : 'measure_battery', capacityKwh: c.car ? Number(c.car.capacityKwh) || 0 : 0, fallbackKwh: c.car ? Number(c.car.fallbackKwh) || 0 : 0 },
       share: shareCollect(c.share),
       refreshS: Number(c.refreshS) || 0,
+      notify: c.notify !== false,
       tickMinutes: Number(c.tickMinutes) || 5,
       fuse: c.fuse ? JSON.parse(JSON.stringify(c.fuse)) : undefined,
       sgready: c.sgready ? JSON.parse(JSON.stringify(c.sgready)) : undefined,
@@ -4559,7 +4596,7 @@
 
   // Bewusst kein Auto-Speichern: die Einstellungen steuern echte Geräte, ein halb getippter Wert (z. B. «4» auf dem Weg zu «45»)
   // darf nie gespeichert werden. Stattdessen zeigt der Knopf unübersehbar an, dass noch Änderungen offen sind.
-  var AUTOSAVE_SKIP = ['data-ems-enable', 'data-ems-toggle', 'data-ems-silent', 'data-ems-draft', 'data-ems-carf', 'data-ems-carcal', 'data-ems-cnlim', 'data-ems-calc'];
+  var AUTOSAVE_SKIP = ['data-ems-enable', 'data-ems-toggle', 'data-ems-silent', 'data-ems-draft', 'data-ems-carf', 'data-ems-carcal', 'data-ems-cnlim', 'data-ems-calc', 'data-ems-notify'];
   function editWanted(t) {
     if (!t || !t.getAttribute) return false;
     var tag = String(t.tagName || '').toLowerCase();
@@ -4804,6 +4841,11 @@
         pc.device.tomorrow = pick(/tomorrow|morgen/i);
       } else pc.device[pvk] = t.value;
       renderSetup();
+      return;
+    }
+    if (g('data-ems-notify') !== null) {
+      var notifyOn = !!t.checked;
+      api('PUT', '/ems/config', { notify: notifyOn }).then(function () { state.cfg.notify = notifyOn; }).catch(function () { t.checked = !notifyOn; });
       return;
     }
     var calc = g('data-ems-calc');

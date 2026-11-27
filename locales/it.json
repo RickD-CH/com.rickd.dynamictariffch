@@ -227,5 +227,14 @@
       "flow": "Flow eliminato",
       "capability": "Capability mancante"
     }
+  },
+  "ems": {
+    "notify": {
+      "error": "Gestione dell’energia: {{message}}",
+      "fuseShed": "Protezione dell’allacciamento: {{name}} spento (fase {{phase}} a {{amps}} A).",
+      "sgMismatch": "SG Ready: la pompa di calore segnala «{{reported}}» invece dello stato inviato. Controlla il collegamento e le impostazioni della pompa di calore.",
+      "dhwSetpoint": "Acqua calda: il setpoint è a {{actual}} °C invece di {{expected}} °C e non è stato possibile ripristinarlo. Controlla la pompa di calore.",
+      "refs": "Gestione dell’energia: {{n}} riferimento/i a dispositivi o Flow eliminati. Controlla le impostazioni dell’app in Gestione dell’energia."
+    }
   }
 }

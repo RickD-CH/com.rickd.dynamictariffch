@@ -162,3 +162,30 @@ test('RingLog: Laufzeit-Hinweise werden gar nicht erst gespeichert und verdräng
   assert.deepEqual(ring.recent().map((l) => l.text), ['echt 1', 'echt 2']);
   assert.match(buildReport({ logs: [{ ts: 1, level: 'log', text: 'Device.zoneName is deprecated.' }] }), /Letzte Meldungen \(0\)\n\(keine\)/);
 });
+
+test('Bericht: Energiemanagement-Abschnitte - Zustand, Verweise, Befehle ohne Flow, Ereignisse sortiert und anonymisiert', () => {
+  const { buildReport, makeRedactor } = require('../lib/Diagnostics');
+  const redact = makeRedactor({ names: [{ name: 'Geschirrspüler Küche', label: 'Verbraucher 1' }], secrets: [] });
+  const text = buildReport({
+    info: { tz: 'Europe/Zurich', now: Date.UTC(2026, 10, 27, 12) },
+    config: { enabled: true, devices: { inverter: { id: 'x' } }, charger: { id: 'w', minAmps: 6, maxAmps: 16, phases: 3, phaseSwitch: true } },
+    logs: [],
+    redact,
+    ems: {
+      state: ['Batterie: 88 %, Modus hold', 'Geschirrspüler Küche: aus'],
+      refs: [{ area: 'car', field: 'device', problem: 'device' }],
+      flows: { 'battery.hold': { state: 'ok' }, 'charger.set': { state: 'missing' } },
+      events: [{ ts: Date.UTC(2026, 10, 27, 3), text: 'Batterie charge: günstig laden' }, { ts: Date.UTC(2026, 10, 26, 11), text: 'Geschirrspüler Küche program: Manuell gestartet' }],
+      hours: 48,
+    },
+  });
+  assert.match(text, /Wechselrichter \(PV\) gewählt: ja/);
+  assert.match(text, /6-16 A, 3 Phasen, Umschaltung ja/);
+  assert.match(text, /## Zustand jetzt\n- Batterie: 88 %, Modus hold\n- Verbraucher 1: aus/);
+  assert.match(text, /## Gelöschte Geräte oder Flows \(1\)\n- car\.device: device/);
+  assert.match(text, /## Befehle ohne wartenden Flow \(1\)\n- charger\.set: missing/);
+  const evs = text.split('## Ereignisse der letzten 48 Stunden (2)\n')[1].split('\n');
+  assert.match(evs[0], /Verbraucher 1 program: Manuell gestartet/, 'älteste zuerst, Namen anonymisiert');
+  assert.match(evs[1], /Batterie charge/);
+  assert.doesNotMatch(text, /Küche/);
+});
