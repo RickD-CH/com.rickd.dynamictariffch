@@ -1,3 +1,3 @@
 Brings the 15-minute prices of a Swiss dynamic electricity tariff into Homey, using the Innostrom API from Swisspower. Works with AEW Classic Dynamic (from January 2027) and any other Swiss utility on the same Innostrom platform. Dashboard widgets show today's and tomorrow's prices and what you save compared with your old tariff.
 
-Want to use cheap electricity and your own solar power on purpose? Switch on the built-in energy management and let your EV, home battery, heat pump and appliances run when electricity is cheapest or your solar plant delivers enough. Everything starts as a simulation, so nothing is switched until you say so.
+Want to use cheap electricity and your own solar power on purpose? Switch on the built-in energy management and let your EV, home battery, heat pump and appliances run when electricity is cheapest or your solar plant delivers enough.

@@ -1,3 +1,3 @@
 Bringt die 15-Minuten-Preise eines dynamischen Schweizer Stromtarifs nach Homey, über die Innostrom-API von Swisspower. Funktioniert mit AEW Classic Dynamic (ab Januar 2027) und jedem anderen Schweizer Netzbetreiber auf derselben Innostrom-Plattform. Dashboard-Widgets zeigen die Preise von heute und morgen und was du gegenüber deinem bisherigen Tarif sparst.
 
-Du willst günstigen Strom und deine eigene Sonne gezielt nutzen? Schalte das eingebaute Energiemanagement zu: E-Auto, Hausbatterie, Wärmepumpe und Geräte laufen dann, wenn der Strom am günstigsten ist oder deine Solaranlage genug liefert. Alles startet als Simulation, geschaltet wird erst, wenn du es freigibst.
+Du willst günstigen Strom und deine eigene Sonne gezielt nutzen? Schalte das eingebaute Energiemanagement zu: E-Auto, Hausbatterie, Wärmepumpe und Geräte laufen dann, wenn der Strom am günstigsten ist oder deine Solaranlage genug liefert.
